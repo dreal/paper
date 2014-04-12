@@ -1,0 +1,674 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage,mathpartir}
+\input{preamble}
+
+\title{Automatic Proof Generation from Delta-Decisions}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Solving constraints over the real numbers plays a critical role in the formal verification of embedded software and automated theorem proving. In these applications, solutions of constraint systems are interpreted as software bugs or counterexamples to theorems. Thus, it becomes important to {\em prove} the absence of solutions. This poses new requirements on constraint solvers: if no solution has been found, a logically valid ``proof of unsatisfiability" should be produced. We show how to achieve this by extracting logical proofs from the standard branch-and-prune framework in Interval Constraint Propagation. We use a first-order logic calculus and transform the computational steps of constraint solving into logic proofs, which are then validated using proof-checking algorithms. As an application, we demonstrate how proofs extracted from branch-and-prune can establish many nonlinear lemmas in the Flyspeck project for the formal proof of the Kepler Conjecture.
+\end{abstract}
+
+\section{Introduction}
+
+Solving constraints over the real numbers plays an important role in the formal verification of embedded software~\cite{DBLP:conf/cade/GaoAC12}. The goal of formal verification is to find mathematical proofs for the correctness of software systems. Using standard verification techniques, such as Bounded Model Checking~\cite{DBLP:journals/fmsd/ClarkeBRZ01}, we can formulate safety properties of embedded software as constraint systems, whose solutions witness software bugs. We conclude that a piece of software is safe, if its corresponding encoding as a constraint system does {\em not} have a solution. In short, ``no solution" means ``safety", and constraint solvers are used for ensuring the {\em absence} of solutions. Thus, a new requirement is posed on constraint solvers. Simply returning ``no solution" is not enough, and valid ``proofs of unsatisfiability" are needed, so that the answers can be trusted and used for formal verification.
+
+Interval Constraint Propagation (ICP)~\cite{handbookICP} finds solutions of constraints over the reals using a ``branch-and-prune'' method. Given a constraint system with its variables in an initial domain, the algorithm uses interval arithmetic and consistency conditions to recursively ``prune" away subsets of the domain that do not contain solutions, and ``branch'' on the domain when pruning does not make progress. Theoretically, correctness of the ``no solution" answers can be guaranteed as long as the pruning operators are {\em conservative}, which means it never discards actual solutions of the system~\cite{handbookICP,DBLP:conf/cade/GaoAC12}. However, in practice, constraint solvers are themselves complex software that involves sophisticated numerical heuristics and error-prone floating point arithmetic. Theoretical guarantees are easily violated in actual implementation. For instance, the following is an actual bug we experienced in practice~\cite{bug}. With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the simple program:
+\begin{verbatim}
+#include <stdio.h>
+#include <math.h>
+#include <fenv.h>
+#define ROUND_UPWARD() fesetround(FE_UPWARD)
+int main()
+{
+    double x = 0.6932;
+    printf("No Rounding: exp(%lf) = %lf\n", x, exp(x));
+    ROUND_UPWARD(); 
+    printf("Outward Rounding : exp(%lf) = %lf\n", x, exp(x));
+    return 0;
+}
+\end{verbatim}
+produces the following output on Intel machines (also wrong on AMD):
+\begin{verbatim}
+No Rounding: exp(0.693200) = 2.000106
+Outward Rounding: exp(0.693200) = 0.000000
+\end{verbatim}
+In words, when rounded upward, the exponential function contains serious errors. Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library (e.g., {\sf realpaver}~\cite{realpaver_paper}). With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound). This shows the importance of validating the results, through proofs that can ensure the correctness of ``no solution" results and reject the wrong answers. It is worth noting that such problems are not obvious when constraint solving actually obtains solutions, whose correctness can be checked by plugging them back in the original constraints. This is why we emphasize on proofs of {\em unsatisfiability}, for which we do not have direct witnesses to check. 
+
+Obtaining such proofs is also very useful in automated theorem proving~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}. Constraint systems can encode counterexamples to mathematical theorems. Consequently, if no solution is found, then the theorem has no counterexamples, and should be established as correct. If valid proofs of unsatisfiability can be provided, they can be directly used as formal proofs for the theorems. This would lead to a new approach to automated theorem proving over the real numbers, and its scalability can significantly outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
+$$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
+where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. Symbolic approaches, based on cylindrical decomposition and Gr\"obner bases, have serious limits on such problems~\cite{}. Consequently the focus of Flyspeck is on formalizing numerical optimization algorithms (not ICP-based). In our experiments, within 5 minutes ICP can solve over 95\% of such inequalities in the project~\cite{}. If valid formal proofs can be extracted from ICP, this approach can contribute much to the Flyspeck project, in which obtaining the formal proofs of the nonlinear inequalities has been time-consuming and arguably the last missing piece. 
+
+In this paper, we demonstrate how proof extraction from ICP can be accomplished. Our approach has the following steps. 
+
+1. We formalize the ICP algorithm in the framework of Abstract DPLL~\cite{DBLP:journals/jacm/NieuwenhuisOT06}. The similarity between ICP and SAT solving techniques has been explored in existing work~\cite{HySAT}. With this formulation, the branch-and-prune framework is viewed as a transition system with a small set of transition rules. (Section~\ref{formalization})
+
+2. We use a simple first-order proof calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and show how to transform a run of the Abstract ICP to a proof in the system. (Section~\ref{icp})
+
+3. We show how to validate the generated proofs using a stand-alone proof checker implementing simple rules and reliable interval arithmetic. The proof checker interacts with the solver in an abstraction refinement loop to obtain proof trees of sufficient detail. (Section~\ref{validate})
+
+The challenge lies in the formalization of ICP, the proof system, and translations of computation steps. These we give a complete answers to. The second challenge is to validate axioms that are extracted from numerical axioms, which we can only use heuristics approaches. In the end, we show promising experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}. 
+
+\paragraph{Related Work.} Our work is closely related to several lines
+of research in the existing literature. For proving formulas with
+transcendental functions,
+MetiTarski~\cite{DBLP:conf/itp/Paulson12,DBLP:journals/jar/AkbarpourP10,DBLP:conf/aisc/PassmorePM12}
+is the leading tool that reduces problems to
+polynomials and calls quantifier elimination procedures. For problems with only
+polynomials, Bernstein polynomials are used in PVS for formal
+proofs~\cite{MN12}. Our approach can be seen as complementary to these
+approaches. The iSAT solver~\cite{HySAT} also contains strategies for certifying
+their answers in a different framework~\cite{DBLP:conf/ddecs/KupferschmidBTF11}.
+There are now several SMT
+solvers~\cite{DBLP:conf/cade/JovanovicM12,DBLP:conf/mkm/PassmoreJ09} for formulas with nonlinear polynomials over
+the reals based on CAD with no proof-producing capacities, but a proof-producing
+algorithm is possible, as sketched in~\cite{DBLP:conf/cade/McLaughlinH05}. Proofs for
+correctness in general SMT solvers have been well studied
+ recently in~\cite{DBLP:journals/fmsd/StumpORHT13}.
+
+\section{A Formalization of Interval Constraint Propagation}\label{formalization}
+
+Interval Constraint Propagation (ICP)~\cite{handbookICP} finds
+solutions of real constraints using the ``branch-and-prune'' method, combining
+interval arithmetic and constraint propagation. The idea is to use interval
+extensions of functions to ``prune'' out sets of points that are not in the
+solution set and ``branch'' on intervals when
+such pruning can not be done, recursively until a small enough box
+that may contain a solution is found or inconsistency is observed.
+\subsubsection{Abstract ICP} Our task now is to formalize ICP algorithms
+so that we can extract symbolic proofs from its computation processes. The
+branch-and-prune structure of ICP is very similar to DPLL-based SAT solving, so
+we follow the format of Abstract DPLL. We represent ICP
+as a transition system, whose states consist of interval assignments and the
+real constraints to be solved.
+
+An interval $I$ is any connected subset of
+$\mathbb{R}$ and we write $\mathbb{IR}$ to denote the set of all the intervals.
+We first formalize how ICP maintains interval assignments to a set of variables
+as follows.
+\begin{definition}[Interval Assignment Sequence]
+Let $x_1,...,x_n$ be real variables. An {\em interval assignment sequence} over
+$\vec x$ is a sequence $(s_1,...,s_m)$, where
+$$s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
+\mathbb{IR}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
+\mathbb{IR}\}.
+$$
+We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
+$S_2$. The parentheses can be omitted when appropriate.
+\end{definition}
+It will be clear later that when we write $(x\in I)^d$, it means an arbitrary
+choice on the value of $x$ (called a d-assignment), which is consequently a backtrack point.
+\begin{remark}
+ICP can maintain unions of intervals for variables. In principle this is not
+needed if we only consider the decision problem, which only searches for
+one solution and the components of a union can be tested sequentially. So we
+assume that only connected subsets of values are used here.
+\end{remark}
+
+\begin{definition}[Box Domain]
+Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The
+{\em box
+domain} associated with $S$ is defined by
+$$\beta(S) = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I:
+(x_i\in
+I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$$
+Also, we write $\beta(S)_i$ to denote $I_i$.
+\end{definition}
+
+\begin{definition}[ICP Transitions]~\label{transitions} Let $\vec x =
+(x_1,...,x_n)$ be a vector real variables. We write $c(\vec x)$ to denote an
+arbitrary constraint over $\mathbb{R}^n$, and
+$S$ an interval assignment sequence over $\vec x$. Let $S\parallel c$ be the
+current state. We will always write $\beta(S_i) = I_i$ to denote the current
+interval assignment on variable $x_i$. We now define the following transition
+rules from $S\parallel c$ to another state.
+\paragraph{(Pruning)} Let $I_i^1$ be a subset of $I_i$ such that $\forall \vec
+a\in \beta(S,x_i\in I_i^1)$, $c(\vec a)$ is false. Then, if we let $I_i^2$ be an
+interval satisfying $I_i\subseteq I_i^1 \cup I_i^2$, then
+\begin{eqnarray*}
+S\parallel c &\stackrel{p}{\Longrightarrow}& S, (x_i\in I_i^2)\parallel c
+\end{eqnarray*}
+is called a pruning step.
+\paragraph{(Branching)}Let $I_i^1$ be a subset of $I_i$. Then
+\begin{eqnarray*}
+S\parallel c &\stackrel{br}{\Longrightarrow}& S, (x_i\in I_i^1)^d \parallel c,
+\end{eqnarray*}
+is called a branching step.
+
+\paragraph{(Backtracking)} Let $I_i^1$ be a subset of $I_i$, such that $\forall
+\vec a\in \beta(S,x_i\in I_i^1, S')$, $c(\vec a)$ is false. Let $I_i^2$ be an
+interval such that $I\subseteq I_i^1\cup I_i^2$. If in addition, $S'$ does not
+contain any $d$-assignment (of the form $(x\in I)^d$), then we can make
+a transition
+\begin{eqnarray*}
+S, (x_i\in I_i^1)^d, S'\parallel c \stackrel{bt}{\Longrightarrow}& S, (x_i\in
+ I_i^2) \parallel c,
+\end{eqnarray*}
+which is called a backtracking step.
+
+\paragraph{(Failure)} Suppose $\forall \vec a\in \beta(S)$, $c(\vec a)$ is
+false, and there is no $d$-assignment in $S$. Then we can make the transition
+\begin{eqnarray*}
+S\parallel c \stackrel{f}{\Longrightarrow} \emptyset\parallel c
+\end{eqnarray*}
+which is called a failure step.
+\end{definition}
+\begin{definition}[Abstract ICP]
+An $n$-dimensional ICP framework is a transition system
+$$\langle \mathbb{IR}^n, \mathcal{S}, \mathcal{C}, \Longrightarrow,
+\varepsilon\rangle$$
+where $\mathcal{S}$ is the set of all interval assignment sequences over
+$\mathbb{IR}^n$, and $\mathcal{C}$ is any set of constraints over
+$\mathbb{R}^n$. A state is an element in $\mathcal{S}\parallel \mathcal{C}$. The
+transition rules $\Longrightarrow: \mathcal{S}\times \mathcal{C}\rightarrow
+\mathcal{S} \times \mathcal{C}$ are as specified in
+Definition~\ref{transitions}. $\varepsilon\in \mathbb{Q}^+$ is an
+error bound. A {\em run} of ICP is any sequence
+$$S_1\parallel c, ... , S_k\parallel c,$$
+where either $S_k$ is $\emptyset$, or $S_k\neq \emptyset$ and
+$||\beta(S_k)||<\varepsilon$.
+\end{definition}
+\begin{remark}
+We have defined ICP in a general way, without enforcing conditions
+on the pruning operators, such as well-definedness. Thus, many
+invalid ICP runs can be generated. In this way, we treat ICP as a proof
+searching algorithm, and rely on the proof checkers to determine the correctness
+of an ICP run. In practice, of course, only ``correct" ICP algorithms can
+provide proofs that can always be validated.
+\end{remark}
+\begin{example}~\label{icp-example}
+Consider a constraint $c(x,y) : y=x \wedge y = x^2$, and $x\in [1.5,2]$ and
+$y\in [1,2]$ are the initial interval assignment. A possible ICP run is:
+\begin{eqnarray*}
+x\in [1.5,2], y\in [1,2]\parallel c &\stackrel{br}{\Longrightarrow}& x\in [1,2],
+y\in [1,2], (x\in [1.7, 2])^d\parallel c\\
+&\stackrel{bt}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7]\parallel c\\
+& & \mbox{  (backtracking, since $\forall\vec a\in [1.7,2]\times [1,2]$,
+$c(\vec a)$ is false,}\\
+& & \ \ \mbox{and $[1.5,2]\subseteq[1.5,1.7]\cup [1.5, 2]$ for
+$x$)}\\
+&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7], x\in
+[1.5, 1.6]\parallel c\\
+& & \mbox{  (pruning, since $\forall \vec a\in[1.6,1.7]\times [1, 2]$, $c(\vec
+a)$ is false)}\\
+&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7],
+x\in [1.5, 1.6], x\in \emptyset\parallel c\\
+& & \mbox{  (pruning, since $\forall \vec a\in[1.5,1.6]\times [1, 2]$, $c(\vec
+a)$
+is false)}\\
+&\stackrel{f}{\Longrightarrow}& \emptyset||c\ \mbox{ (since
+$\forall \vec a\in \emptyset \times [1, 2], c(\vec a)$ is false.)}
+\end{eqnarray*}
+\end{example}
+
+
+\section{Extracting Proofs from ICP Runs}\label{icp}
+
+\subsection{First-Order Proofs of Unsatisfiability}
+
+We focus on the proof the unsatisfiability of conjunctions of theory
+atoms in the DPLL(T) framework, i.e., formulas of the form
+$$\exists^{I_1} x_1\cdots \exists^{I_n} x_n.\; \bigwedge_{i=1}^m
+f_i(x_1,...,x_n)\sim 0$$
+where $\sim \in \{=,\neq, >, \geq, <, \leq\}$. It is clear that once such
+proofs are obtained, the proof of unsatisfiability of Boolean combinations of
+the theory atoms can be obtained, by simply plugging them in the high level
+resolution proof. Also, it is important to note that the ICP algorithm solves
+{\em systems} of constraints, and it regards the conjunction $\bigwedge_{i=1}^m
+f_i(x_1,...,x_n)\sim 0$ as one constraint $c(x_1,...,x_n)$. Consequently, our
+task is now reduced to obtaining proofs for the validity of formulas of the form
+$\forall x_1 \cdots \forall x_n.(x_1\in I_1\wedge \cdots \wedge x_n\in I_n
+)\rightarrow \neg c(\vec x)$, from the failure of ICP
+search for a solution to the original SMT formula $\exists \vec x. \vec x\in
+\vec I\wedge c(\vec x)$.
+
+We will construct a simple first-order proof calculus, and show how to
+transform ICP runs into proofs in the system.
+
+Again, we consider formulas in a signature $\mathcal{L}_F = \langle <,
+\mathcal{F} \rangle$, where constants are considered as 0-ary functions in
+$\mathcal{F}$. When we write $x\in I$, where $I$ denotes an
+interval, it is regarded as an abbreviation for their
+equivalent $\mathcal{L}_\mathcal{F}$-formula. Note that this means that $I$ only
+uses $\mathcal{L}_{\mathcal{F}}$-terms as end-points. Also, as mentioned above,
+$c(\vec x)$ abbreviates a conjunction of atomic formulas. We also allow the use
+of vectors in the formulas, writing $\vec x\in \vec I$ to denote $\bigwedge_i
+x_i\in I_i$.
+
+\begin{definition}[System $\mathbb{D}_A$]
+We define $\mathbb{D}_A$ to be the first-order proof system consisting of only the
+following two rules:
+  \begin{mathpar}
+    \inferrule{
+      \forall \vec x (\psi \rightarrow \varphi)
+      \and
+    \forall \vec x (\psi' \rightarrow \varphi)
+    }
+  {
+  \forall \vec x ( \psi\vee \psi' \rightarrow \varphi)
+  }{\ \ \vee I}\and
+  \inferrule{
+  \forall x (\psi \rightarrow \varphi)
+    \and
+  \forall x (\psi' \rightarrow \psi)
+  }
+  {
+  \forall x (\psi' \rightarrow \varphi)
+  }{\ \ \forall\mbox{MP}}
+  \end{mathpar}
+and a set $A$ of axioms of the following two types:
+\paragraph{Interval Axioms}
+\begin{mathpar}
+\inferrule{ }{\forall \vec x (\vec x\in \vec I \rightarrow \vec x\in \vec I_1
+\vee \vec x\in \vec I_2 )}{\ \mbox{IA}}
+\end{mathpar}
+\paragraph{Constraint Axioms}
+\begin{mathpar}
+\inferrule{ }{\forall \vec x ( \vec x\in\vec I \rightarrow c(\vec x))}{\
+\mbox{CA}}
+\end{mathpar}
+\end{definition}
+Derivations in $\mathbb{D}_A$ are as standardly defined, as natural deductions
+following these rules. Clearly, the two first-order rules are valid. Thus,
+if all the axioms in $A$ are valid, then the system only produces valid
+formulas over $\mathbb{R}$.
+\begin{proposition}[Soundness] If $\mathbb{D}_A\vdash \varphi$ and
+$\mathbb{R}\models \bigwedge A$, then $\mathbb{R}\models \varphi$.
+\end{proposition}
+\begin{remark}
+ Clearly, the constraint axioms are the most nontrivial part. They are the
+basic facts of real functions that a numerical procedure relies on, usually
+concerning the range of functions within a small interval. The interval axioms
+are sometimes not trivial either (for instance, compare intervals ending with
+$e^{\pi}$ and $\pi^e$ respectively).  Proof-checking involves validation of
+these axioms, which we discuss in Section~\ref{validate}.
+\end{remark}
+
+We now describe the construction of proof trees from ICP runs, which will be
+represented as labeled binary trees. A labeled binary tree is defined as a
+tuple $T =
+\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$, is a finite set of nodes, where $v_0\in V$ always denotes the
+root
+node. $\Sigma$ is a set of labels, which in our case is the set of
+$\mathcal{L}_\mathcal{F}$-formulas. $\delta:\subseteq V\times \{l,r\}
+\rightarrow V$ is a
+partial mapping from a node to its descendant nodes, where $\delta(v, l)$ and
+$\delta(v, r)$ denote the left and right descendant nodes, respectively.
+$\sigma:\subseteq V\rightarrow \Sigma$ is a labeling function that maps each node
+$v\in V$ to a formula $\sigma(v) \in \Sigma$. In addition, the edges in the
+tree can be labeled as well, through a function $\tau: V\times V\rightarrow \Omega$
+where $\Omega$ is a set of edge-labels.
+
+\subsubsection{Tree Generation} Let an ICP run be
+$$S_0\parallel c\stackrel{t_1}{\Longrightarrow}\cdots
+\stackrel{t_m}{\Longrightarrow} S_m\parallel c,$$
+such that the ending transition $t_m$ is a failure step, i.e., $S_m=\emptyset$.
+We now define the procedure by defining the functions $\delta$ and
+$V_L$ through induction on $s_i$. The edges can be labeled naturally with
+$\Omega$ = \{{$\vee$I}, $\forall$M, IA, CA\}.
+
+\paragraph{Case $i= 0$.} We label the root node $v_0$ by
+$$\sigma(v_0) := \forall \vec x( \vec x\in \beta(S_0) \rightarrow \neg c).$$
+Let $V_L^0= \{v_0\}$ denote the current
+collection of leaf nodes. Note that this formula is the negation of the input
+SMT formula.
+
+
+%{\tt it's
+%probably better to define a leaf set and make the children mappings partial.
+%Otherwise it's cumbersome to talk about the leaves and the ones without
+%assigned formulas. }
+
+
+\paragraph{Case $i = k+1$ ($1< k \leq m$). }
+Suppose $V_L^k$ and $\sigma$ have been defined for $s_1, ...,s_k$. Write
+$s_k = S_k
+\parallel c$ and $s_{k+1} = S_{k+1} \parallel c$. Now we split
+the cases on the type of the step $t$ from $s_k$ to $s_{k+1}$ as follows.
+Again, we use the convention that $\beta(S)_i = I_i$ denotes the current
+interval assignment on a variable $x_i$.
+\paragraph{(Pruning Case)} Suppose $s_k\Longrightarrow s_{k+1}$ is a
+pruning step. That is,
+$$S_k\parallel c \stackrel{p}{\Longrightarrow} S_k, (x_i\in I_i^2)\parallel c,$$
+where $I_i\subseteq I_i^1\cup I_i^2$ and $\forall \vec
+a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. If we write
+$$\vec I_1 = \beta(S_k, (x_i\in I_i^1)), \vec I_2 = \beta(S_k, (x_i\in
+I_i^2)), \mbox{ and } \vec I= \beta(S_k),$$ then this step corresponds to
+the following sub-tree of the proof
+{\small
+\begin{mathpar}
+\inferrule{\inferrule{
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_2 \rightarrow \neg c)}
+    \and
+    \inferrule{\ }
+    {
+      \forall \vec x (\vec x \in \vec I_1 \rightarrow\neg c)
+      }\mbox{CA}
+   }
+  {
+  \forall x ( (\vec x\in \vec I_1\vee \vec x \in \vec I_2) \rightarrow \neg c)
+  }\mbox{$\vee$I}
+  \and
+  {
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
+I_i^1 \vee x\in I_i^2))}\mbox{IA}
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$M}
+\end{mathpar}}Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an
+existing
+leaf node that is labeled by the formula corresponding to $S_k\parallel c$;
+namely,
+$$\sigma(v) = \forall \vec x (\vec x\in\vec I \rightarrow \neg c).$$ (We
+will inductively prove that such a node exists.) We then define
+\begin{eqnarray*}
+\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
+( (\vec x \in \vec I_1 \vee \vec x \in \vec I_2) \rightarrow \neg c); \\
+\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
+I\rightarrow( \vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
+\in \vec I_1 \rightarrow\neg c)
+  \end{eqnarray*}
+and set $V_L^{k+1} = (V_L^k \setminus\{v\})\cup \{v_{k+1}^3\}$.
+
+\paragraph{(Branching Case)}Suppose $s_k\Longrightarrow s_{k+1}$ is a
+branching step. That is,
+\begin{eqnarray*}
+S_k\parallel c &\stackrel{br}{\Longrightarrow}& S_k, (x_i\in I_i^1)^d \parallel
+c,
+\end{eqnarray*}
+under the condition that $I_i^1\subseteq I_i$. If we write
+$$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
+I_i^2)), \mbox{ and } \vec I= \beta(S),$$ where $I\subseteq I_i^1\cup I_2$, then
+this step corresponds to the following sub-tree:
+{\small
+\begin{mathpar}
+\inferrule{\inferrule{
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
+    \and
+    \inferrule{\vdots }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+      }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$I}
+  \and
+  {
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
+I_i^1 \vee x\in I_i^2))}\mbox{IA}
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$M}
+   \end{mathpar}
+}Formally it is defined as follows. Again, let $v\in V_L^k$
+be a leaf node such that $\sigma(v) = \forall \vec x (\vec x\in\vec I
+\rightarrow \neg c).$ We then define
+\begin{eqnarray*}
+\delta(v, l) &=& v_{k+1}^1, \sigma(v_{k+1}^1) = \forall \vec x
+( \vec x \in \vec I_1 \vee \vec x \in \vec I_2 \rightarrow \neg c); \\
+\delta(v, r) &=& v_{k+1}^2, \sigma(v_{k+1}^2) = \forall \vec x ( \vec x\in \vec
+I\rightarrow(\vec x \in \vec I_1 \vee \vec x\in \vec I_2));\\
+ \delta(v_{k+1}^1, l) &=& v_{k+1}^3, \sigma(v_{k+1}^3) = \forall \vec x (\vec
+x\in
+\vec I_1 \rightarrow \neg c)\\
+ \delta(v_{k+1}^1, r) &=& v_{k+1}^4, \sigma(v_{k+1}^4) = \forall \vec x (\vec x
+\in \vec I_2 \rightarrow\neg c)
+  \end{eqnarray*}
+and set $V_L^{k+1} = (V_L^k\setminus \{v\}) \cup \{v_{k+1}^3, v_{k+1}^4 \}$.
+
+\paragraph{(Backtracking Case)}Suppose $s_k\Longrightarrow s_{k+1}$ is
+a branching step. That is,
+\begin{eqnarray*}
+S_{k'} , (x_i\in I_i)^d, S'\parallel c &\stackrel{bt}{\Longrightarrow}& S_{k'},
+(x_i\in I_i^2 ) \parallel c,
+\end{eqnarray*}
+when $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
+a)$ is false, and $I_i\subseteq I_i^2\cup I_i^1$, where $I_i =
+\beta(S_{k'})_i$. $S_{k'}$ is a previous interval assignment
+sequence, with $k'<k$. If we write
+$$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
+I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then this step corresponds to the
+following sub-tree of the proof.
+{\small
+\begin{mathpar}
+\inferrule{
+  \inferrule{
+    \inferrule*{
+      \inferrule*[vdots=1.5em, Right=\mbox{CA}]{ }{
+        \forall \vec x
+        (\vec x\in \beta(S_{k'},(x\in I_i^1)^d,S')\rightarrow \neg c)
+      }
+    }
+    {\forall \vec x (\vec x\in \vec I_1
+      \rightarrow \neg c)}
+    \and
+    \inferrule{
+      \vdots
+      }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+    }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$-I}
+  \and
+  {
+\vdots\ \ \
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$-MP}
+   \end{mathpar}
+}Formally, we simply set $V_L^{k+1} = V_L^{k}$, and do not update the labeling.
+
+\paragraph{(Fail Case)} Suppose it is a failure step. That is,
+\begin{eqnarray*}
+S\parallel c &\stackrel{f}{\Longrightarrow}& \emptyset \parallel c
+\end{eqnarray*}
+when $\forall \vec a\in \beta(S)$, $c(\vec a)$ is false and
+ $S$ has no $d$-assignments. Let $\vec I
+=\beta(S)$. This step corresponds to
+{\small\begin{mathpar}
+ \inferrule{\ }{\forall \vec x ( \vec x\in \vec I) \rightarrow \neg
+c}\mbox{FA}
+\end{mathpar}}We set $V_L^{k+1}=V_L^k\setminus\{v\}$ and do not update $\sigma$.
+
+\paragraph{Complete tree.} In all, after all the steps in the ICP run are
+followed, the tree that we construct is $ T = \langle V, V_L^m, \delta, \sigma
+\rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$
+
+
+It is easy to see that $T$ is a valid proof tree in $\mathbb{D}_A$:
+
+\begin{proposition}\label{successful_tree}
+For every ICP run ending with $\emptyset\parallel c$, the tree construction procedure above produces a valid natural deduction tree in $\mathbb{D}_A$. The size of the proofs is linear in the computation steps.
+\end{proposition}
+
+\begin{proof}
+It is clear that each proof step, as represented by the subtree created in each case, is a valud natural deduction step in $\mathbb{D}_A$. We only need to show that the tree can be constructed. For this, we need to show that for each step $S_k\parallel c\stackrel{t}{\Longrightarrow} S_{k+1}\parallel c$, where $S_{k+1}$ is not $\emptyset$, it is always the case that $S_k\parallel c$ labels a leaf node in the tree constructed so far. When $k=0$, this is the case since $V_L^0 = \{v_0\}$. Now suppose $S_k\parallel c$ labels a leaf node. If $t$ is a pruning step, then $\forall \vec x(\vec x\in \vec I_2\rightarrow \neg c)$ labels $v^3_{k+1}$, which is added in $V_L^{k+1}$. The same applies to the other branching and backtracking. Finally, the step $S_{m-1}||c\Longrightarrow \emptyset||c$ corresponds to closing the last leaf labelled by $\forall \vec x(\vec x \in \vec I\rightarrow \neg c)$.
+\end{proof}
+Again, once the proof tree is constructed, the details of
+the ICP algorithm no longer matters.  The only rules involved are the two
+first-order rules in $\mathbb{D}_{A}$. Following relative soundness of the
+system, to establish validity of the formula, now we only need to validate the
+axiom set $A$.
+
+\section{Validating the Proofs}\label{validate}
+
+\subsection{Validating the Axioms}
+
+There are two types of axioms that we allow in the proofs constructed from ICP runs: interval axioms and constraint axioms. To validate such axioms, we still need numerical computations. However, two aspects are different now. First, the axioms are not part of the 
+
+We can now use reliable arithmetic and check such facts in stand-alone 
+
+
+we will show that they only rely on simple computations that can be validated through stand-alone arbitrary-precision or symbolic computation. Note that the validation of the axioms can fail -- they can fail even when the solver correctly returns {\sf unsat}, if the solver uses advanced numerical heuristics leading to axioms that can not be verified by reliable numerical computation. In practice, we ensure the correctness of the proof checker first, and use an abstraction refinement loop that allows the proof checker to ask for more detailed proofs from the solver.
+
+The interval axioms do not contain any real functions, and are of the form
+$\forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$. We only need to
+check that $I$ is a subset of $I_1\cup I_2$ by comparing the end points of the
+intervals, which is an easy numerical task.
+
+The constraint axioms are of the form $\forall x (\vec x\in \vec I \rightarrow
+c(\vec x))$, and can only be verified by considering the functions that
+occur in $c$. Although they are of the same form as the formulas we solve,
+these axioms should contain evident properties of the functions involved,
+usually on small intervals. Such facts can be verified using reliable interval
+computations, for instance as follows.
+\begin{definition}[Interval Extensions]
+Let $f: \mathbb{R}^n\rightarrow \mathbb{R}$ be a real function. An interval
+function $F: \mathbb{IR}^n \rightarrow \mathbb{IR}$ is a function that
+satisfies:
+$$\forall I\in \dom(F), \{f(x): x\in I\}\subseteq F(I).$$
+\end{definition}
+A simple example of interval extensions is the {\em natural interval
+extension} for
+arithmetic operations, based on computations of functions on the end points of
+intervals.
+
+\begin{proposition}
+Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. If
+$F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$.
+\end{proposition}
+Thus, the axioms are validated if we can verify that they are consistent with
+all the interval extensions.
+\begin{example}
+The second pruning step in Example~\ref{icp-example} generates an axiom
+$$\forall
+x \forall y ( x\in [1.7, 2] \wedge y\in [1, 2] \rightarrow \neg (y=
+x^2)\vee \neg (y=x))$$
+This can be easily validated through the natural interval extension of
+$(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$.
+\end{example}
+
+{\bf[adding more materials below about Taylor expansions]}
+
+Suppose we want to verify the inequality $f(x_1,...,x_n) > 0$ on a domain $\vec x\in D = I_1\times \cdots \times I_n.$ Using the multivariate mean value theorem, we have that for any $\vec a, \vec b\in D$
+$$f(\vec b) - f(\vec a) = \nabla f(\xi)\cdot (\vec b - \vec a) = \sum_i \frac{\partial f}{\partial x_i}(\xi)\cdot (b_i-a_i)$$
+for some $\xi\in D$. Thus, we can bound $f(x)$ on $D$ by computing the interval bound on the function
+$$\sum_i \sharp\bigg(\frac{\partial f}{\partial x_i}\bigg)(\xi)\cdot (b_i-a_i) + f(\vec a)$$
+where $\sharp(\cdot)$ denotes interval extension, and $f(\vec a)$ is on the boundary of $D$.
+
+\begin{example}
+$f(x_1, x_2) = x_1^2 + x_2^2$ on domain $(x_1,x_2)\in [0,1]\times[0,1]$. We have $\partial f/\partial x_1 = 2x_1\in [0,2]$ and $\partial f/\partial x_2\in [0,2]$. Thus
+$$f(\vec x)\in \sum_{i=1,2} [0,2]\cdot (1-0) + 0 = [0,4].$$
+\end{example}
+
+
+\subsection{The Branch and Prove Loop}
+
+In practice, ICP usually implements complicated heuristics that are more
+powerful than what can be verified through direct interval arithmetic. In
+principle, we could simulate the numerical heuristics to a certain extent with
+reliable computations. However, a more practical approach first is to use an
+abstraction refinement loop that allows the proof checker to ask the
+solver for proof traces of the right amount of details.
+
+When we fail to prove an axiom through simple interval arithmetic, the proof
+checker generates new subproblems that are returned to the solver. At this
+stage, the axioms becomes the new theorems to be proved.
+This is an abstraction refinement procedure. By executing the loop, we obtain
+proof trees that contain more and more detailed steps. There are two ways that
+the prover can generate the subproblems, branching on a variable in the
+formula or using a smaller $\delta$. Note that under the condition that
+the pruning operators in the solver is well-defined, both procedures never
+change the {\sf unsat} result. The branching may give
+exponentially many new problems; while the $\delta$-change does not give new
+problems, but may exponentially slow down the solver in each round. In practice
+we observe that such a refinement loop is very useful, as we will show in the
+experiments.
+
+\section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
+
+We build the proof-producing capacity into our open-source tool
+{\sf dReal}\footnote{
+\url{http://dreal.cs.cmu.edu}
+}. All the experiments below are run on a
+machine of with a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
+\input{good_proofs.tex}
+A main motivation for us to build
+the proof checker is to contribute to the Flyspeck
+project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
+fully formalized proof of the Kepler conjecture. As lemmas for the proof,
+hundreds of nonlinear real inequalities need to be verified. Although the
+formulas usually contain only around ten variables, they contain a huge number
+of nonlinear arithmetic operations and trigonometric functions, and are
+mathematically challenging.
+The following is typical:
+\begin{align*}
+\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt
+2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}\\
+&+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq
+-\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
+\end{align*}
+where $a_i(\vec x)$ are quadratic and $\Delta(\vec x)$ is the
+determinant of a nonlinear matrix.
+
+In the original proof, Hales implemented
+procedures that combine linear programming and interval arithmetic to
+establish all these formulas, but the algorithms are hard to be formally
+verified. In fact, the formal verification of these formulas is the last main
+piece of work needed to complete the full project. The state of the art is
+explained in a very recent thesis~\cite{keplerthesis}, reporting the proofs of
+about 10 inequalities so far, using formal Taylor
+series and interval arithmetic.
+
+Without any particular optimization on ICP, we have already observed promising
+results. Out of a total number of 505 nonlinear formulas in the Flyspeck project
+repository, we solved
+137 of them returning {\sf unsat} with a timeout of 30 minutes and
+$\delta=10^{-3}$. Out of these formulas, we applied the proof checking
+algorithm, and formally proved 55 of them directly.The proof traces of these
+formulas can be very large; for
+instance, we proved one with 47k lines in the proof (1MB file). In
+Table~\ref{tbl:exp}, we list some of the representative benchmarks to show
+scalability. A full table for all the results is on the tool page. It also
+contains results for other standard benchmarks, such as
+from~\cite{DBLP:conf/cade/JovanovicM12}.
+
+As the proof-generation capacity is for debugging SMT solvers, the proofs have
+also been valuable for us to observe bugs during the process. For instance, we
+have observed unstable behavior in the trigonometric function evaluation in {\sf
+realpaver} (the cosine function around $4\pi/3$). On the other hand, our proof
+checker only involves simple operations written in {\sf OCaml}, and performs the
+checking completely independently from the solver.
+Thus, for the {\sf unsat} answers with proofs, we are
+confident about the correctness of the answer, which does not involve bugs from
+{\sf realpaver}. Ultimately, we aim for having a verified proof checker in
+systems such as HOL.
+
+
+\section{Conclusion}
+
+We presented our approach for extracting formal proofs from a numerically-driven
+decision procedure in the DPLL$\langle$ICP$\rangle$ framework. We formalized the ICP algorithm, and showed how to validate proof trees from the unsat answers.  A main focus for our tool is to prove
+nonlinear lemmas in the Flyspeck project, and we have observed promising
+experimental results. We believe the approach can be combined with exiting
+symbolic methods. We regard our work as a first step in a promising approach towards the formal
+verification of the nonlinear lemmas in the Flyspeck project. Further work
+would involve proof abstractions, local heuristics, and an implementation of our proof checker in HOL.
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{tau_cade}
+
+
+
+
+
+
+
+
+\end{document}

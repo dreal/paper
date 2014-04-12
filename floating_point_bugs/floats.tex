@@ -1,0 +1,431 @@
+%\documentclass[conference]{IEEEtran}
+\documentclass[12pt]{article}
+\usepackage{fullpage}
+
+\input{preamble}
+
+\usepackage{savesym}
+\restoresymbol{TXF}{iint}
+\restoresymbol{TXF}{iiint}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{color}
+\usepackage[all, knot]{xy}
+\usepackage{multirow}
+\usepackage{array}
+
+\usepackage{xcolor}
+
+\newcommand{\IFS}{IFS}
+
+\newtheorem*{method}{Proof Strategy}
+
+\newenvironment{defn}[1] {\begin{definition}[#1]} {\hfill$\lhd$ \end{definition}}
+\newenvironment{exm}{\begin{example}} {\hfill $\clubsuit$\end{example}}
+\newenvironment{rema} {\begin{remark}} {\hfill $\heartsuit$\end{remark}}
+%\newenvironment{proof} {\textsc{Proof}\quad} {\hfill \qed\medskip}
+\newenvironment{fac} {\begin{fact}} {\hfill $\spadesuit$\end{fact}}
+\newenvironment{thm}[1]{\begin{theorem}[#1]} {\hfill \end{theorem}}
+\newenvironment{thms}{\noindent\textbf{Theorem}\it \quad} {\hfill\medskip}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\s}{\mathbf{s}}
+\newcommand{\IEEE}{\mathbf{I}}
+\newcommand{\OL}{\overline}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand\algorithmicensure {\textbf{Output:} }
+
+
+\title{Verifying Floating Point Arithmetic}
+\author{Soonho Kong \and Sicun Gao \and Qinxiang Cao \and Edmund Clarke}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+ \end{abstract}
+
+%the right language
+        %% curve fitting for ODEs
+%pruning algorithms
+%forall t
+%experiements
+
+%cite Cimatti!
+
+
+\section{Introduction}
+
+talk about exp, sin errors. 
+
+
+\section{Decision Problems of Floating Point Arithmetic}
+
+
+Because of the binary representation and the intrinsic relationship with real numbers, the verification problems about floating point numbers are always connected with boolean, integer and real number problems.
+
+Among these three, verifying boolean formulas is quite basic. It is well known that the complexity of SAT problem is NP-complete and deciding whether a QBF sentence is true of false if a P-SPACE problem. In addition, many effective solvers of these problems have been developed.
+
+Integer case is more complicated. On one hand, the famous incompleteness theorem of Godel shows that first order theorem set about only integers, addition and multiplication is undecidable. On the other hand, due to successful axiomatization of integral number theory, symbolic method has been widely developed.
+
+When it comes to real numbers, the complexity of verification problems varied and depends on the functions included. The first order theorem set about real number arithmetics (addition, subtraction, multiplication and division) is decidable. And the complexity of linear problems is even only NP-complete. However, The first order theorem set about arithmetics and trigonometric functions is undecidable.
+
+Besides these completeness conclusion, the existence of bound of integral and real variables usually reduces complexity. Bounded integral variables can be treated as bit vectors. And recent researches have shown that first order theorem set about bounded variables is $\delta$-decidable.
+
+This paper is trying to reduce floating point verification into real number cases with adding any non-linear ingredient into formulas.
+
+\subsection{Formalization of Floating Point Formulas}\
+
+All previous articles used two ways to talk about floating point problems. One was talking about the real numbers that floating point numbers represent. For example, it is a famous conclusion `If $a$ and $b$ are positive floating point number and $a<b<2a$, the result of floating point $b$ minus $a$ would be exactly $b-a$'. In the other way, due to the binary representation of IEEE floating point numbers, every floating point number is defined as a triple $\langle s, e, f \rangle$, where $s$ represents the signal, $e$ represents exponent and $f$ represents fractions. And the value of floating point number $\langle s, e, f \rangle$ is $(-1)^s\cdot f\cdot 2^e$.
+
+The advantages and disadvantages are obvious. The formal way could express a property of floating point numbers in a more succinct way and using minimal numbers of variables. But relative research had shown that we cannot establish a complete proving system without the signal-exponent-fraction-split. For the latter way, either exponential functions would be involved (which would cause high complexity) or a large number of variables would be used.
+
+This paper formalize every floating point number as an entirety but different from a real number. In the algorithm solving floating point verification problems, this paper offers intermediate choices other than these two conventional way to interpret `being a floating point number'.
+
+\subsection{Formalization of Floating Point Standard} \
+
+The IEEE standard is the most widely used floating point standard. Beside it, many potential rounding algorithms and potential floating point representation has been discussed. What we would do in this section is to introduce a framework, which is able to talk about all reasonable floating point standard.
+
+Definition of floating point domain, rounding algorithm, floating point comparison and floating point functions are necessary parts of a floating point standard.
+
+\begin{definition}[Floating Point Standard]
+A floating point standard $\s$ defines the floating point domain and the behavior of rounding algorithm, floating point comparison and floating point functions. Formally, a standard $\s$ is a tuple $\langle \R, \F^\s, \mathfrak{F}, \mathfrak{F}^\s, Round^\s, <, Comp^\s, \equiv^\s \rangle$, in which $\mathfrak{F}$ is the set of real functions, $\mathfrak{F}^\s$ is the set of floating point functions, $Round^\s$ represents rounding algorithm, $Comp^\s$ are a set of floating point comparison relationship and $\equiv^\s$ is equality between $\s$ floating point numbers and real numbers.
+\end{definition}
+
+In the following part of this section, formal definitions of all components of a floating point standard is offered.
+
+\subsubsection{Floating Point Domain} \
+
+Floating point domain is the set of binary representation a floating point number possibly has. The notation $\F^\s$ will be used to represent the floating point domain defined by a specific standard $\s$. Given $x^\s, y^\s \in \F^\s$, $x^\s \equiv y^\s$ will be used to represent the identical relationship\footnote{$\equiv^\s$, $=$, $\equiv$ and $=^\s$ have different meanings here. $\equiv^\s$ represents equality between floating point numbers and real numbers. $=$ is a kind of real comparison. $\equiv$ is the identical relationship of floating point numbers. $=^\s$ is a kind of floating point comparison.}.
+
+A floating point number $x^\s \in \F ^\s$ may represent either an exceptional value or a real number. In the sections afterwards, we would simply call the real number its \emph{value}\footnote{An exceptional value will not be called a value.}, written as $\OL x^\s$. It is possible that two or more binary representations has the same value, like $+0$ and $-0$ in the IEEE standard.
+
+\subsubsection{Equality with Reals} \
+
+Formally, $\equiv^\s \subseteq \F^\s \times \R$. And $x^\s \equiv^\s y$ (i.e. $\langle x^\s, y \rangle \in \equiv^\s$) if and only if $x^\s$ does not represent a exceptional value and $\OL x^\s= y$.
+
+\subsubsection{Rounding Algorithm} \
+
+In this paper, the notation $Round^\s$ will be used to represent the rounding algorithm defined by $\s$. Formally, $Round^\s : \R \to \F^\s$.
+
+\subsubsection{Floating Point Functions} \
+
+Floating point functions are used by computer programs to mimic functions over real numbers, so in this paper, the notation $f^\mathbf{s}$ is used to represent a $s$-version of real function $f$\footnote{At the same time, different superscripts are used to distinguish `the symbol of function' and the function itself. For example, $-^F \in \mathfrak{F}^F$ and $-^\mathbf{I}\in \mathfrak{F}^\mathbf{I}$ represent the symbol of floating number substraction and the floating substraction defined by the IEEE standard. And, $-$ is used to express both the symbol of real number substraction and the function of  substraction itself.}. Formally, if the real counterpart $f$ is an $n$-ary function, $f^\mathbf{s}$ is a function $f^\mathbf{s} : \left(\F^\s\right)^n \to \F^\s$.
+
+While the IEEE standard and other widely discussed standards mainly focuses on a little number of functions which appears in ordinary program languages, we would allow a standard $\mathbf{s}$ to involve any possible floating point functions.
+
+\subsubsection{Floating Point Comparison} \
+
+Usually, comparison between floating numbers are quite easy for modern computers to implement. However, because of the existence of exceptional values, the result of comparison can be out of `less than', `equal to' and `greater than'.
+
+Formally, $Comp^\s = \{<^\s, =^\s, >^\s, UN^\s\}$, where $UN^\s$ represents \emph{unsorted} and $<^\s, =^\s, >^\s, UN^\s \subseteq \F^\s \times \F^\s$.
+
+\subsection{Reminder of IEEE Properties} \
+
+In this paper, we will use $\IEEE = \langle \R, \F^\IEEE, \mathfrak{F}, \mathfrak{F}^\IEEE, Round^\IEEE, <, Comp^\IEEE, \equiv^\IEEE \rangle$ to represent the IEEE standard\footnote{Formally, the format of single preciseness in IEEE 754}.
+
+\subsubsection{IEEE Floating Point Domain} \
+
+According to the IEEE standard, if $x^\IEEE \in \F^\IEEE$ does not represent an exceptional value, $\OL x^\IEEE$ will has one of the following absolute values
+\begin{eqnarray*}
+&& 0.f \times 2^{-126}; \\
+&& 1.f \times 2^{-126}; \\
+&& 1.f \times 2^{-125}; \\
+&& ... \\
+&& 1.f \times 2^{126}; \\
+&& 1.f \times 2^{127};
+\end{eqnarray*}
+in which $f$ is an arbitrary string 0s and 1s and the length of $f$ is always 23. An exceptional value can be positive infinity($+\infty$), negative infinity($- \infty$) or not a number(NaN)\footnote{In IEEE, two different kinds of NaNs are provided, termed quiet NaNs and signaling NaNs. But we do not distinguish them in this paper.}.
+
+\subsubsection{Bound of Value} \
+
+Let $M^\IEEE = 2^{128} - 2^{103}$. Obviously, for every non-exceptional $x^\IEEE \in \F^\IEEE$, $-M^\IEEE \leq \OL x^\IEEE \leq M^\IEEE$.
+
+\subsubsection{Signed Zero} \
+
+$+0$ and $-0$ are two special numbers in the IEEE standard. They represent the same real number, but using different representation. Mainly they act in the same way except the situation like $$1^\IEEE /^\IEEE (+0)^\IEEE \equiv +\infty$$ and $$1^\IEEE /^\IEEE (-0)^\IEEE \equiv -\infty$$ In summary, they are equal to each other but not identical to each other.
+
+\subsubsection{Bound of Rounding Errors} \
+
+We can see that when the absolute value is small, it is only a small step to the next floating point number, but when the absolute value is large, it is needed to take a much bigger step to the `neighborhood' number. This property is usually characterized as a bounded relative rounding error.
+
+Let $\varepsilon^\IEEE(x) = max(2^{-24} \cdot x, 2^{-150})$. The floating point domain defined by IEEE ($\F ^ \IEEE$) satisfies the following property: There exists a $y^\IEEE$ in $\F^\IEEE$ satisfies $$|x - \OL y^\IEEE| \leq \varepsilon^\IEEE(|\OL y|) $$ for every $x$ such that $$- M^\IEEE - \varepsilon^\IEEE(M^\IEEE) \leq x \leq  M^\IEEE + \varepsilon^\IEEE(M^\IEEE)$$
+
+Compared with fixed point number system, this property enables to keep a high level preciseness while calculation is executed in an extremely wide range.
+
+\subsubsection{IEEE Rounding Algorithm} \
+
+The IEEE standard requires every real number to be always rounded to the nearest one\footnote{The IEEE standard uses some subtle rules to defined the behavior of rounding algorithm when two floating point numbers are the same far away. However, these details are not important, thus will not be discussed in this paper.} in $\F^\IEEE$. According to this regulation, the rounding algorithm defined by IEEE, $Round^\mathbf{I}$, is determinate. And for every $x \in \R$ and non-exceptional $y^\IEEE \in \F^\IEEE$, if $|x|\leq M^\IEEE + \varepsilon^\IEEE(M^\IEEE)$, then
+$$ \left|\OL{Round^I(x)} - x \right| \leq |\OL y^\IEEE-x| $$
+
+\subsubsection{Basic Floating Point Function in IEEE} \
+
+The results of floating point addition, floating point substraction, floating point multiplication, floating point division and floating point square root should be rounded exactly by the IEEE standard. Rounding exactly means, the result of such IEEE functions should be the output of IEEE rounding algorithm when the input is the exact result of corresponding real function.
+
+Thus, these IEEE floating point functions are all determinate. For example, for every $x^\IEEE, y^\IEEE \in \F^\IEEE$, if $\left| \OL x^\IEEE + \OL y^\IEEE\right| \leq M^\IEEE + \varepsilon^\IEEE(M^\IEEE)$, then\footnote{Although all such requirements ensure every single floating point calculation to be precise enough, inaccuracies will still aggregate. Thus, it should be noticed that such kind cannot be preserved when functions are compounded together.} $$x^\IEEE +^\IEEE y^\IEEE \equiv Round^\mathbf{I}(\OL x^\IEEE + \OL y^\IEEE)$$
+This determinacy enables people to write reproducible programs.
+
+\subsubsection{Other Floating Point Functions} \
+
+In the contrary of the functions mentioned above, the result of other functions are not required to be rounded exactly, thus the outputs of the same function of the same arguments on different compilers are not required to be the same.
+
+For example, when it comes to the trigonometric function $sin$, most compilers can only ensure that, for every non-exceptional $x^\IEEE, y^\IEEE, z^\IEEE \in \F ^ \IEEE$, if $\OL x^\IEEE \in [-\pi, \pi]$\footnote{When $x$ is outside $[-\pi, \pi]$, most compile only deal with the remainder of dividing $\pi$ which cause bigger errors.} and $sin^\IEEE(x^\IEEE)\equiv y^\IEEE$, then
+$$sin(\OL x) \leq \OL z \to \OL y \leq \OL z$$
+$$sin(\OL x) \geq \OL z \to \OL y \geq \OL z$$
+
+\subsubsection{IEEE Comparison} \
+
+$Comp^\IEEE = \{<^\IEEE, =^\IEEE, >^\IEEE, \text{UN}^\IEEE\}$ and for any non-exceptional $x^\IEEE, y^\IEEE \in \F ^\IEEE$, these relationships ensure that
+$$\OL x < \OL y \iff x <^\IEEE y$$
+$$\OL x = \OL y \iff x =^\IEEE y$$
+$$\OL x > \OL y \iff x >^\IEEE y$$
+
+The following table shows all situations in IEEE comparison.
+
+\begin{tabular}{|c|c|c|c|c|}
+ \hline IEEE Comparison of $(x,y)$ & $x \equiv NaN$ & $x \equiv -\infty$ & $x \equiv +\infty$ & $x$ is non-exceptional  \\
+ \hline $y \equiv NaN$             & $\text{UN}^\IEEE$ &  $\text{UN}^\IEEE$ & $\text{UN}^\IEEE$&   $\text{UN}^\IEEE$    \\
+ \hline $y \equiv -\infty$         & $\text{UN}^\IEEE$ &      $=^\IEEE$     &     $>^\IEEE$    &       $>^\IEEE$        \\
+ \hline $y \equiv +\infty$         & $\text{UN}^\IEEE$ &      $<^\IEEE$     &     $=^\IEEE$    &       $<^\IEEE$        \\
+ \hline $y$ is non-exceptional     & $\text{UN}^\IEEE$ &      $<^\IEEE$     &     $>^\IEEE$    &  Real Comparison\\
+ \hline
+\end{tabular}
+
+\subsection{First Order Language of Floating Point Numbers} \
+
+What we need to establish here is a formal language that can talk about the floating point arithmetic and its connection with real number calculation. So, it should be a language which involves all floating point stuff and real number calculations.
+
+\begin{definition}[Real Terms of Floating Point Language]
+Assume that $\mathfrak{F}^R$ is a set of symbols of real number functions. The set of real terms $Term^R(\mathfrak{F}^R)$ is defined as follows.
+$$ t^R:= x^R \mid c^R \mid f^R(\vec{t}^R) $$
+in which $x^R$ stands for real variables, $c^R$ stands for real constants and $f^R \in \mathfrak{F}^R$.
+\end{definition}
+
+
+\begin{definition}[Floating Point Terms of Floating Point Language]
+Assume that $\mathfrak{F}^R$ is a set of symbols of real number functions and that $\mathfrak{F}^F$ is a set of symbols of floating point functions. The set of floating point terms $Term^F(\mathfrak{F}^R, \mathfrak{F}^F)$ is defined as follows.
+$$ t^F:= x^F \mid c^F \mid Round(t^R) \mid f^F(\vec{t}^F)$$
+in which $x^F$ stands for floating point variables, $c^F$ stands for floating point constants and $f^F \in \mathfrak{F}^R$, $t^R \in Term^R(\mathfrak{F}^R)$.
+\end{definition}
+
+\begin{example}
+$x^R + y^R$, $sin(x^R+\pi/6)$ are real terms and $x^F +^F 3.75^F, Round(x^R - 6) +^F 6^F, +\infty, NaN$ are floating point terms.
+\end{example}
+
+\begin{definition}[Atomic Formulas of Floating Point Language]
+Given $\langle \mathfrak{F}^R, \mathfrak{F}^F, Comp\rangle$\footnote{Always assume $Comp = \{<^F, =^F, >^F, \text{UN}^F\} $}. An atomic formula is one of the following.
+$$
+\begin{matrix}
+&&t_1^R<t_2^R   &&t_1^F \equiv t_2^F \\
+&&cp(t_1^F, t_2^F)  &&t^F \equiv^F t^R
+\end{matrix}
+$$
+where $t^R \in Term^R(\mathfrak{F}^R)$, $t^F \in Term^F$ and $cp \in Comp$.
+\end{definition}
+
+Here $cp(t_1^F, t_2^F)$ is used to represent floating point comparison, $\equiv$ is a logical symbol commonly used to represent identical relationship and $\equiv^F$ is used to represent the equivalence between a floating point term and a real term.
+
+\begin{definition}[Formulas of Floating Point Language]
+Given $\mathfrak{F}^R$, $\mathfrak{F}^F$ and $Comp$, the set of formulas of floating point language $Form(\mathfrak{F}^R,\mathfrak{F}^F, Comp)$ is defined as follows.
+$$ \varphi := Atom \mid \neg \varphi \mid (\varphi_1 \wedge \varphi_2) \mid \exists^R x^R \varphi \mid \exists^F x^F \varphi$$
+in which $x^R$ and $x^F$ stand for real variables and floating point variables.
+\end{definition}
+
+\begin{definition}[Abbreviations]
+Some symbols are used to represent an abbreviation.
+\begin{eqnarray*}
+\varphi_1 \vee \varphi_2 &\triangleq& \neg (\neg \varphi_1 \wedge \neg \varphi_2) \\
+\varphi_1 \to \varphi_2 &\triangleq& \neg(\varphi_1 \wedge \neg \varphi_2) \\
+\forall^R x^R \varphi &\triangleq& \neg \exists^R x^R \neg\varphi \\
+\forall^F x^F \varphi &\triangleq& \neg \exists^F x^F \neg\varphi \\
+t_1 \leq t_2 &\triangleq& \neg (t_2<t_1) \\
+t_1 > t_2 &\triangleq& t_2<t_1 \\
+t_1 \geq t_2 &\triangleq& \neg (t_1 <t_2) \\
+t_1 = t_2 &\triangleq& \neg (t_1 <t_2)\wedge\neg (t_1>t_2) \\
+\end{eqnarray*}
+\end{definition}
+
+\begin{example}
+$\exists^R x Round(x + 1) <^F Round(x)$ and $\exists^R x Round(x) +^F 1^F <^F Round(x)$ are floating point formulas.
+\end{example}
+
+\subsection{Semantic} \
+
+\begin{definition}[Value of Terms]
+Given $\s = \langle \R, \F^\s, \mathfrak{F}, \mathfrak{F}^\s, Round^\s, <, Comp^\s, \equiv^\s \rangle$, assume $\vec{r}$ are the numbers assigned to $\vec x$\footnote{Assume floating variables are always assigned with an element of $\F^\s$ and real variables are always assigned with a real number.}. $\s$-interpreted value of terms is defined as follows.
+\begin{eqnarray*}
+t(\vec x) = c^F &:& t[\vec r] = c ^ \s \\
+t(\vec x) = c^R &:& t[\vec r] = c \\
+t(\vec x) = x_i &:& t[\vec r] = r_i \\
+t(\vec x) = f^R(\vec t(\vec x)) &:& t[\vec r] = f(\vec t[\vec r]) \\
+t(\vec x) = f^F(\vec t(\vec x)) &:& t[\vec r] = f^\s(\vec t[\vec r]) \\
+t(\vec x) = Round(t(\vec x)) &:& t[\vec r] = Round^\s(t[\vec r])
+\end{eqnarray*}
+\end{definition}
+
+\begin{definition}[Satisfaction Relationship]
+Given $\s = \langle \R, \F^\s, \mathfrak{F}, \mathfrak{F}^\s, Round^\s, <, Comp^\s, \equiv^\s \rangle$, satisfaction relationship is defined by induction.
+\begin{eqnarray*}
+&&(\s, \vec{x}/\vec{r}) \vDash t^R_1(\vec{x}) < t^R_2(\vec{x}) \iff t^R_1[\vec{r}] < t^R_2[\vec{r}] \\
+&&(\s, \vec{x}/\vec{r}) \vDash cp(t^F_1(\vec{x}), t^F_2(\vec{x})) \iff \langle t^F_1[\vec{r}], t^F_2[\vec{r}]\rangle \in cp^\s \\
+&&(\s, \vec{x}/\vec{r}) \vDash t^F_1(\vec{x}) \equiv t^F_2(\vec{x})) \iff t^F_1[\vec{r}], t^F_2[\vec{r}] \text{ are identical in } \s\\
+&&(\s, \vec{x}/\vec{r}) \vDash t^R(\vec{x}) \equiv^F t^F(\vec{x})) \iff t^F[\vec{r}] \text{ is non-exceptional in } \s \text{ and } t^R[\vec{r}] = \OL{t^F[\vec{r}]}\\
+&&(\s, \vec{x}/\vec{r}) \vDash \neg\varphi(\vec{x}) \iff (\s, \vec{x}/\vec{r}) \not\vDash \varphi(\vec{x}) \\
+&&(\s, \vec{x}/\vec{r}) \vDash \varphi_1(\vec{x})\wedge\varphi_2(\vec{x}) \iff (\s, \vec{x}/\vec{r}) \vDash \varphi_1(\vec{x}) \text{ and } (\s, \vec{x}/\vec{r}) \vDash \varphi_1(\vec{x}) \\
+&&(\s, \vec{x}/\vec{r}) \vDash \exists^R x_0 \varphi(x_0, \vec{x}) \iff \text{There exists an } r_0\in\R \text{ such that }(\s, x_0/r_0, \vec{x}/\vec{r}) \vDash \varphi(x_0, \vec{x})\\
+&&(\s, \vec{x}/\vec{r}) \vDash \exists^F x_0 \varphi(x_0, \vec{x}) \iff \text{There exists an } r_0\in\F^\s \text{ such that }(\s, x_0/r_0, \vec{x}/\vec{r}) \vDash \varphi(x_0, \vec{x})
+\end{eqnarray*}
+\end{definition}
+
+\begin{example}
+$\IEEE \vDash NaN \equiv NaN$, $\IEEE \not\vDash NaN =^F NaN$ and $\IEEE \not\vDash \exists^R x^R NaN \equiv^F x^R$
+\end{example}
+
+\subsection{Reduction Algorithm Towards Quantifier Free Formulas} \
+
+In this section, we will focus on the satisfiability problems with respect to quantifier free formulas. Formally, our algorithm will take a quantifier free formula $\varphi$ and a class of standards $\mathbb{C}$\footnote{$\mathbb{C}$ is determined by some parameters in input. These parameters will be listed in subsection \ref{para}.} as input. And it will output a formula over reals and boolean $\varphi^{Real}$ which satisfies $$\exists \s \in \mathbb{C} \quad \s \vDash \varphi \iff \varphi^{Real} \text{ is satisfiable.}$$
+
+Assume $\mathfrak{F}^F = \{+^F, -^F, \times^F, /^F, \sqrt{}^F\}$ and $Comp = \{<^F, =^F, >^F, \text{UN}^F \}$.
+
+A floating-point class can have the following parameterized properties:
+
+1. $M$: The bound of values, i.e. for any non-exceptional $x^\s \in \F^\s$, $$|\OL x^\s| \leq M$$
+
+2. $\varepsilon()$: The bounding function of rounding errors, i.e. for any $x \in \R$ and non-exceptional $y^\s\in \F^\s$, if $\langle x, y^\s \rangle \in Round^\s$, then $$|x - \OL y^\s| \leq \varepsilon(\OL y^s)$$. Usually $\varepsilon()$ can be written as $\varepsilon(x) = max{2^{-150}, 2^{-23} \cdot |x|}$.
+
+3. Separate or not: If true, then for all non-exceptional $x^\s, y^\s \in \F^\s$, $\OL x^\s \neq \OL y^\s$ implies $$\left| \OL x^\s - \OL y^\s \right| \geq \frac{1}{4} \varepsilon(\left|\OL y^\s\right|)$$
+
+4. Binary representation or not: If true, then for all non-exceptional $x^\s \in \F^\s$, $\OL x^\s$ has the format of IEEE binary representation.
+
+5. Ascending or not: If true, then for all non-exceptional $x^\s, y^\s \in \F^\s$ and $u,v \in \R$, $Round^\s(u, x^\s)$, $Round^\s(v, y ^\s)$ and $u \leq v$ implies $$ \OL x^\s \leq \OL y ^\s$$
+
+6. Nearest-rounding or not: If true, then for all non-exceptional $x \in \R$ and $y^\s, z^\s\in \F^\s$, $Round^\s(x, y^\s)$ implies $$ \left| x - \OL y ^\s \right| \leq \left| x - \OL z ^\s \right|$$
+
+7. Semi-nearest-rounding or not: If true, then for all non-exceptional $x \in \R$ and $y^\s, z^\s\in \F^\s$, if $Round^\s(x, y^\s)$, then $$ x \leq \OL z^\s \to \OL y^\s \leq \OL z^\s$$ $$ x \geq \OL z^\s \to \OL y^\s \geq \OL z^\s$$
+
+Presumed properties:
+
+1. $\mathfrak{F}^\s = \{+^\s, -^\s, \times^\s, /^\s, \sqrt{}^\s\}$ and $Comp^\s = \{<^\s, =^\s, >^\s, \text{UN}^\s \}$.
+
+2. For every $f^\s \in \mathfrak{F}^\s$ and non-exceptional $\vec x^\s, y^\s \in \F^\s$, if $\OL {\vec x^\s} \in Domain(f)$, then $$f^\s(\vec x^\s) \equiv Round^\s(f(\OL{\vec x^\s})) $$
+
+\subsection{Framework} \
+
+The main strategy here is trying to treat floating point numbers as real numbers but not a combination of sign, exponent and fraction. Thus, The reduction results in a conjunction of the original formula and extra requirements which depict the properties those very new real variable should follow.
+
+\subsection{Deal with Exceptional Cases} \
+
+Here, we will use several boolean variables and real variables to describe a floating point variable or constant. Formally, for every $x$, $NI_x$(negative infinity) represents whether $x$ is $-\infty$. $PI_x$(positive infinity) represents whether $x$ is $+\infty$. $NaN_x$(not a number) represents whether $x$ is $NaN$. $NE_x$(non-exceptional) represents whether $x$ is a non-exceptional number. And $SP_x$ represent whether the sign of $x$ is positive. And when $x$ is a non-exceptional number, the real variable $V_x$ is to represent $\OL x$.
+
+
+Details about all $Situation$s and $Requirement$s are as follows.
+
+\begin{tabular}{|c|c|c|c|}
+ \hline
+ \multirow{5}{2.5cm}{$t_1^F <^F t_2^F$}
+ & 1 & $NE_{t_1^F} \wedge NE_{t_2^F}$ & $V_{t_1^F} < V_{t_2^F}$ \\ \cline{2-4}
+ & 2 & $NI_{t_1^F} \wedge NE_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 3 & $NE_{t_1^F} \wedge PI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 4 & $NI_{t_1^F} \wedge PI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 5 & Other Cases & $False$                                    \\ \cline{2-4}
+ \hline
+ \multirow{4}{2.5cm}{$t_1^F =^F t_2^F$}
+ & 1 & $NE_{t_1^F} \wedge NE_{t_2^F}$ & $V_{t_1^F} = V_{t_2^F}$ \\ \cline{2-4}
+ & 2 & $NI_{t_1^F} \wedge NI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 3 & $PI_{t_1^F} \wedge PI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 4 & Other Cases & $False$                                    \\ \cline{2-4}
+ \hline
+ \multirow{5}{2.5cm}{$t_1^F > ^F t_2^F$}
+ & 1 & $NE_{t_1^F} \wedge NE_{t_2^F}$ & $V_{t_1^F} > V_{t_2^F}$ \\ \cline{2-4}
+ & 2 & $NE_{t_1^F} \wedge NI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 3 & $PI_{t_1^F} \wedge NE_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 4 & $PI_{t_1^F} \wedge NI_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 5 & Other Cases & $False$                                    \\ \cline{2-4}
+ \hline
+ \multirow{2}{2.5cm}{$\text{UN}(t_1^F, t_2^F)$}
+ & 1 & $NaN_{t_1^F} \vee NaN_{t_2^F}$ & $True$                  \\ \cline{2-4}
+ & 2 & Other Cases & $False$                                    \\ \cline{2-4}
+ \hline
+ \multirow{4}{2.5cm}{$t_1^F \equiv t_2^F$}
+ & 1 & $NE_{t_1^F} \wedge SP_{t_1^F} $ & $NE_{t_2^F} \wedge SP_{t_2^F} \wedge (V_{t_1^F} = V_{t_2^F})$            \\ \cline{2-4}
+ & 2 & $NE_{t_1^F} \wedge \neg SP_{t_1^F} $ & $NE_{t_2^F} \wedge \neg SP_{t_2^F} \wedge (V_{t_1^F} = V_{t_2^F})$            \\ \cline{2-4}
+ & 3 & $NI_{t_1^F}$ & $NI_{t_2^F}$                              \\ \cline{2-4}
+ & 4 & $PI_{t_1^F}$ & $PI_{t_2^F}$                              \\ \cline{2-4}
+ & 5 & $NaN_{t_1^F}$ & $NaN_{t_2^F}$                            \\ \cline{2-4}
+ \hline
+ \multirow{4}{2.5cm}{$Round(t^R, t^F)$}
+ & 1 & $t^R < - M - \varepsilon(M)$ & $NI_{t^F}$                   \\ \cline{2-4}
+ & 2 & $t^R > M + \varepsilon(M)$   & $PI_{t^F}$                   \\ \cline{2-4}
+ & 3 & Other Cases & $NE_{t^F} \wedge R_i$                                      \\ \cline{2-4}
+ \hline
+ \multirow{4}{2.5cm}{$+^F(t^F_1, t^F_2, t^F_0)$\footnote{Similarly dealing with other floating point functions}}
+ & 1 & $NaN_{t^F_1} \vee NaN_{t^F_2}$ & $NaN_{t^F_0}$           \\ \cline{2-4}
+ & 2 & $NI_{t^F_1} \wedge PI_{t^F_2}$ & $NaN_{t^F_0}$           \\ \cline{2-4}
+ & 3 & $PI_{t^F_1} \wedge NI_{t^F_2}$ & $NaN_{t^F_0}$           \\ \cline{2-4}
+ & 4 & $PI_{t^F_1} \wedge PI_{t^F_2}$ & $PI_{t^F_0}$            \\ \cline{2-4}
+ & 5 & $PI_{t^F_1} \wedge NE_{t^F_2}$ & $PI_{t^F_0}$            \\ \cline{2-4}
+ & 6 & $NE_{t^F_1} \wedge PI_{t^F_2}$ & $PI_{t^F_0}$            \\ \cline{2-4}
+ & 7 & $NI_{t^F_1} \wedge NI_{t^F_2}$ & $NI_{t^F_0}$            \\ \cline{2-4}
+ & 8 & $NI_{t^F_1} \wedge NE_{t^F_2}$ & $NI_{t^F_0}$            \\ \cline{2-4}
+ & 9 & $NE_{t^F_1} \wedge NI_{t^F_2}$ & $NI_{t^F_0}$            \\ \cline{2-4}
+ &10 & $NE_{t^F_1} \wedge NE_{t^F_2} \wedge V_{t_1} + V_{t_2} > M + \varepsilon(M)$ & $PI_{t^F_0}$             \\ \cline{2-4}
+ &11 & $NE_{t^F_1} \wedge NE_{t^F_2} \wedge V_{t_1} + V_{t_2} < -M - \varepsilon(M)$ & $NI_{t^F_0}$            \\ \cline{2-4}
+ &12 & Other Cases & $NE_{t^F_0} \wedge R_i$                    \\ \cline{2-4}
+ \hline
+\end{tabular}
+
+In the case of {\em Binary Representation Or Not} is true, we will introduce much more boolean and real variables. Specifically, for every floating point variable or constant $x$, $f_{x,i}$ and $e_{x,i}$ are new boolean variables and $F_{x,i}$ and $E_{x,i}$ are new real variables.
+
+
+
+About the length of output formula, the following conclusions are obvious.
+
+\begin{theorem}[Length of output I]
+If  \emph{Ascending Or Not}, \emph{Nearest Rounding Or Not}, \emph{Semi Nearest Rounding Or Not} and \emph{Separate Or Not} are all false, $\left|\varphi^{Real}\right| = O(\left|\varphi\right|)$
+\end{theorem}
+
+\begin{theorem}[Length of output II]
+$\left|\varphi^{Real}\right| = O(\left|\varphi\right|^2)$
+\end{theorem}
+
+It should be noticed that $max$, $min$ and absolute value are the only non-linear functions our algorithm may add into formulas. But comparisons involving these three functions can be easily replaced by boolean combinations of linear comparison.
+
+Moreover, as the value of every floating point number $x^\s$ should be in the interval $[-M^\s, M^\s]$, all $V_x$s are always bounded real variables.
+
+As a result, in the following situations, original floating point verification problems can be reduced to corresponding real number problems which have low complexity.
+
+\begin{theorem}
+If $\varphi$ is linear, $\varphi^{Real}$ is linear. Thus, given parameters of $\mathbb{C}$, deciding whether a linear floating point formula is satisfiable in $\mathbb{C}$ has the complexity of NP-complete.
+\end{theorem}
+
+\begin{theorem}
+If the real part of $\varphi$ contains only arithmetics, $\varphi^{Real}$ contains only arithmetics\footnote{$x = \sqrt{y}$ can be rewrite as $x>=0 \wedge y = x^2$, thus this sub-formula only contains arithmetics.}. Thus, given parameters of $\mathbb{C}$, whether a floating point formula about arithmetics is satisfiable in $\mathbb{C}$ is decidable.
+\end{theorem}
+
+\begin{theorem}
+If all real variables are bounded, all variables in $\varphi^{Real}$ will be bounded. Thus, given parameters of $\mathbb{C}$, whether a floating point formula\footnote{Assume all real functions involved are computable functions.} with all real variable bounded is satisfiable in $\mathbb{C}$ is $\delta$-decidable.
+\end{theorem}
+
+
+
+
+
+\section{Program Analysis of Floating Point Algorithms}
+
+
+\section{Experimental Results}
+
+\section{Discussion and Related Work}
+
+\section{Conclusion}
+
+
+\bibliography{tau}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "sat_mod_ode.tex"
+%%% End:

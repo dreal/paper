@@ -1,0 +1,358 @@
+\documentclass[12pt]{article}
+%\documentclass{llncs}
+\usepackage{amsmath, amssymb, fancyvrb, multirow, color, relsize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% TECH REPORT %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Check if we are compiling under latex or pdflatex
+\ifx\pdftexversion\undefined
+  \usepackage[dvips]{graphics}
+\else
+  \usepackage[pdftex]{graphics}
+\fi
+
+\usepackage{fullpage,cmu-titlepage2}
+\usepackage{times}
+\usepackage{rotating}
+\usepackage{tabularx}
+\usepackage[
+%backref controls whether the bibliography has a list of backreferences
+%to where the citaiton is used
+%backref,
+pageanchor=true,
+plainpages=false,
+pdfpagelabels, % makes the status line page labels the same as latex ones
+bookmarks,
+bookmarksnumbered,
+pdfborder=0 0 0,
+pdfpagemode=UseOutlines]{hyperref}
+\usepackage{draftstamp}
+\usepackage{subfigure}
+\newcommand{\singlespace}{\renewcommand{\baselinestretch}{1.0}\normalsize}
+%\draftstamp{\today}{DRAFT}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\rup}[1]{\ensuremath{\mathrm{#1}^{\uparrow}}}
+\newcommand{\rdn}[1]{\ensuremath{\mathrm{#1}^{\downarrow}}}
+\newcommand{\rzr}[1]{\ensuremath{\mathrm{#1}^{\to 0}}}
+\newcommand{\rne}[1]{\ensuremath{\mathrm{#1}^{\cdot}}}
+\newcommand{\dreal}{\textsf{dReal}}
+
+\title{\mbox{Floating-point Bugs in Embedded GNU C Library}}
+
+\author{Soonho Kong \and Sicun Gao \and Edmund M. Clarke}
+%\institute{Carnegie Mellon University, Pittsburgh, PA 15213}
+\date{\today}
+
+\abstract{
+We report serious bugs in floating-point computations for evaluating elementary
+functions in the Embedded GNU C Library. For instance, the sine
+function can return values larger than $10^{53}$ in certain rounding
+modes. Further investigation also exposed faulty implementations in
+the most recent version of the library, which seemingly fixed some
+bugs, but only by discarding user-specified rounding-mode
+requirements.
+}
+
+\keywords{Floating-point computation, GNU C Library, Nonlinear
+  Arithmetic}
+
+\trnumber{CMU-CS-13-130}
+%\arpasupport{fox}
+\support{This research was sponsored by the National Science Foundation grants
+no. CNS1330014, no. CNS0926181 and no. CNS0931985, the GSRC under
+contract no. 1041377, the Semiconductor Research Corporation under
+contract no. 2005TJ1366, and the Office of Naval Research under award
+no. N000141010188.}
+
+\begin{document}
+\renewcommand*{\thepage}{title-\arabic{page}}
+\maketitle
+\renewcommand*{\thepage}{\arabic{page}}
+
+
+\section{Introduction}\label{sec:intro}
+
+We have found floating-point bugs in Linux systems using Embedded
+GLIBC (EGLIBC) version 2.16 or older. EGLIBC is a variant of the GNU C
+Library (GLIBC) which is used as the default implementation in many
+distributions including Debian, Ubuntu, and their variants.
+
+The following C program computes the value of $\sin(-2.437592)$ in
+double-precision after setting the rounding direction to upward
+($+\infty$).
+
+\begin{Verbatim}[numbers=left, frame=single, fontsize=\relsize{-1}]
+#include <math.h>
+#include <fenv.h>
+#include <stdio.h>
+
+int main() {
+    double x = -2.437592;
+    fesetround(FE_UPWARD);
+    printf("sin(%f)=%f\n", x, sin(x));
+    return 0;
+}
+\end{Verbatim}
+
+The IEEE754 standard~\cite{IEEE:1985:AIS} does not specify correct
+rounding methods on elementary functions such as the exponential,
+logarithm, and trigonometric functions. Programmers and engineers
+usually expect the program to print out an approximated value around
+$\sin(-2.437592) \simeq -0.64727239229$ with an ``acceptable'' amount
+error. However, they all should agree that the result be in the range
+between -1 and 1, even in the worst case.
+
+However, a surprising result appears if we compile and execute the
+program in a machine running Ubuntu 12.04 LTS (or any system with
+EGLIBC-2.15). The value is greater than $10^{53}$ and it should not be
+a return value of sine function in any sense.
+
+\begin{Verbatim}[frame=single, fontsize=\relsize{-1}]
+$ gcc exp_bug.c -lm && ./a.out
+sin(-2.437592)=191561981424936943059347927032148030287313979209416704.00000
+\end{Verbatim}
+% $
+
+Here is another C program computing $\cosh(3.113408)$ with directed
+rounding toward $+\infty$. This example is more interesting because it
+shows different results on Intel and AMD machines, and both of the
+results have serious problems.
+
+\begin{Verbatim}[numbers=left, frame=single, fontsize=\relsize{-1}]
+#include <math.h>
+#include <fenv.h>
+#include <stdio.h>
+
+int main() {
+    double x = 3.113408;
+    fesetround(FE_UPWARD);
+    printf("cosh(%f) = %f\n", x, cosh(x));
+    return 0;
+}
+\end{Verbatim}
+
+In a machine with Intel Core i7 CPU, the program outputs
+\textit{inf} while a machine with AMD Opteron processor produces
+$-160.191709$.
+
+\begin{Verbatim}[frame=single, fontsize=\relsize{-1}]
+[INTEL] $ gcc cosh_bug.c -lm && ./a.out
+cosh(3.113408) = inf
+[AMD]   $ gcc cosh_bug.c -lm && ./a.out
+cosh(3.113408) = -160.191709
+\end{Verbatim}
+% $
+
+Note that $\cosh(3.113408) \simeq 11.2710174432$ and the both results
+\textit{inf} and $-160.191709$ are simply wrong. Moreover, each of the
+wrong results have significant implications:
+
+\begin{itemize}
+\item Intel (\textit{inf}): It has a contagious effect in subsequent
+  computations. \textit{inf} is a special value in the IEEE754
+  standard which indicates an overflow in a computation. If one of
+  subexpressions is evaluated to \textit{inf}, then in general the
+  main expression also becomes infinity ($+\infty$ or $-\infty$) or
+  NaN (Not a Number).
+\item AMD (-160.191709): Mathematically, $\cosh(x)$ is greater than or
+  equal to $1$ for all $x \in \mathbb{R}$. As a result, programmers
+  and engineers write algorithms based on the invariant $\forall x. \
+  1 \le \cosh(x)$. This result, $-160.191709$, breaks the invariant
+  and could cause an unexpected behavior.
+\end{itemize}
+
+
+\section{Floating-point Bugs in EGLIBC ($\le 2.16$)}\label{sec:bugs}
+
+We have tested the following math functions in C standard library:
+
+\[
+\mathtt{sin}, \mathtt{cos}, \mathtt{tan}, \mathtt{acos},
+\mathtt{asin}, \mathtt{atan}, \mathtt{cosh}, \mathtt{sinh},
+\mathtt{tanh}, \mathtt{exp}, \mathtt{log}, \mathtt{log10},
+\mathtt{sqrt}.
+\]
+
+\begin{table}
+  \centering
+  \caption{Experiment Setup}
+  \begin{tabular}{l|c|c||l|c|c}
+    Function&               Domain&               Range& Function&    Domain &                    Range \\
+    \hline
+    \hline
+    sin&    $[-10^{306},  10^{306}]$& $[-1.0,     1.0]$   & acos & $[-1.0,    1.0]$     & $[-\infty, +\infty]$\\
+    cos&    $[-10^{306},  10^{306}]$& $[-1.0,     1.0]$   & asin & $[-1.0,    1.0]$     & $[-\infty, +\infty]$\\
+    tan&    $[-10^{306},  10^{306}]$& $[-\infty, +\infty]$& atan & $[-1.0,    1.0]$     & $[-\infty, +\infty]$\\
+    cosh&   $[-500, 500]$         & $[1.0,     +\infty]$& exp  & $[-100, 100]$        & $[0.0,     +\infty]$\\
+    sinh&   $[-500, 500]$         & $[-\infty, +\infty]$& log  & $[10^{-306}, 10^{306}]$& $[-\infty, +\infty]$\\
+    tanh&   $[-100, 100]$         & $[-1.0,     1.0]$   & log10& $[10^{-306}, 10^{306}]$& $[-\infty, +\infty]$\\
+    sqrt&   $[0.0, 10^{306}]$      & $[0.0,     +\infty]$&      &                      &
+  \end{tabular}
+  \label{tbl:exp_setup}
+\end{table}
+
+For each function $f$, we take $100,000$ random numbers from a subset
+of function $f$'s domain. Table~\ref{tbl:exp_setup} shows each
+function's sampling domain and range. We pick the sampling domain
+carefully so that the result of the computation can be fit in a
+double-precision variable. We consider the four rounding modes
+supported by C99 standard~\cite{ISO:C99}:
+\[
+\cdot \text{ (nearest)}, \
+\to\!\!0 \text{ (toward zero)}, \
+\uparrow \text{ (toward $+\infty$)}, \
+\downarrow \text{ (toward $-\infty$)}.
+\]
+
+\begin{table}[!h]
+  \centering
+  \caption{Experimental results on Intel and AMD machines:
+    $\mathrm{f}^{\uparrow}$, $\mathrm{f}^{\downarrow}$, and
+    $\mathrm{f}^{\to 0}$ indicate a function f with rounding mode toward
+    $+\infty$, toward $-\infty$, and toward $0$ respectively.
+    ``Inconsistent'' denotes the number of cases in which the difference
+    of two results are larger than $2^{20}$ ULP (Unit of Least Precision).
+    ``Incorrect'' denotes the number of cases in which
+    $\mathrm{f}_{\mathrm{C}}(x)$ is out of $f$'s mathematical range.
+    ``$\pm\infty$'' denotes the number of cases in which
+    $\mathrm{f}_{\mathrm{C}}(x)$ is either $-\infty$ or $+\infty$.
+  }
+  \begin{tabular}{l||r|r|r|r||r|r|r|r}
+\multirow{2}{*}{Function}&  \multicolumn{4}{c}{Intel}& \multicolumn{4}{|c}{AMD}\\
+\cline{2-9}
+       &   Inconsistent& Incorrect&$\pm\infty$& Total&  Inconsistent& Incorrect&$\pm\infty$& Total\\
+    \hline\hline
+    \rup{sin}&  10055&    446&   0&  10501&   9853&   450&   0&  10303\\
+    \rdn{sin}&   9619&    497&   0&  10116&  10009&   450&   0&  10459\\
+    \rzr{sin}&  10087&    436&   0&  10523&   9904&   423&   0&  10327\\
+    \rup{cos}&  10097&    434&   0&  10531&   9880&   423&   0&  10303\\
+    \rdn{cos}&   9815&    442&   0&  10257&   9910&   461&   0&  10371\\
+    \rzr{cos}&   9737&    444&   0&  10181&   9913&   441&   0&  10354\\
+    \rup{tan}&  12218&      0&   0&  12218&  12452&     0&   0&  12452\\
+    \rdn{tan}&  12387&      0&   0&  12387&  12378&     0&   0&  12378\\
+    \rzr{tan}&  12486&      0&   0&  12486&  12506&     0&   0&  12506\\
+   \rup{cosh}&  18768&  30139& 935&  49842&  37091& 12295& 291&  49677\\
+   \rdn{cosh}&  49766&      0&   0&  49766&  49673&     0&   0&  49673\\
+   \rzr{cosh}&  49713&      0&   0&  49713&  49772&     0&   0&  49772\\
+   \rup{sinh}&  47807&      0&   0&  47807&  47451&     0& 266&  47717\\
+   \rdn{sinh}&  47493&      0&   0&  47493&  47676&     0&   0&  47676\\
+   \rzr{sinh}&  47911&      0&   0&  47911&  48046&     0&   0&  48046\\
+   \rup{tanh}&   3107&      0&   0&   3107&   3242&     0&   0&   3242\\
+   \rdn{tanh}&   3135&      0&   0&   3135&   3268&     0&   0&   3268\\
+    \rup{exp}&  47386&   2536&   0&  49922&  37883& 11708& 124&  49715\\
+    \rdn{exp}&  49646&      0&   0&  49646&  49978&     0&   0&  49978\\
+    \rzr{exp}&  50022&      0&   0&  50022&  49836&     0&   0&  49836
+  \end{tabular}
+  \label{tbl:exp_result}
+\end{table}
+
+For each sample $x$ and for each rounding mode $rnd$, we compute two
+values $f^{\mathrm{rnd}}_{C}(x)$ and
+$f^{\mathrm{rnd}}_{\mathrm{MPFR}}(x)$ where $f_{C}$ is a function $f$
+in C standard library and $f_{\mathrm{MPFR}}$ is a function $f$ in the
+GNU MPFR library. MPFR supports arbitrary-precision floating-point
+computation and we use it as a reference implementation to have a
+comparison. The correctness of MPFR is, of course, another issue and
+we do not discuss it here. In the experiments, we use 256-bit
+precision for MPFR.
+
+We have the following expectations for the two values:
+\begin{itemize}
+\item Consistency: The difference between $f^{\mathrm{rnd}}_{C}(x)$
+  and $f^{\mathrm{rnd}}_{\mathrm{MPFR}}(x)$ should not be too large.
+  In this experiment, we set the threshold of $2^{20}$ ULP (Unit of
+  Least Precision) which is the spacing between two adjacent
+  floating-point numbers. Note that IEEE754 double-precision format
+  has 53 bits of precision and $2^{20}$ ULP implies that it loses
+  $20$-bit precision out of $53$. If $\lvert f^{\mathrm{rnd}}_{C}(x) -
+  f^{\mathrm{rnd}}_{\mathrm{MPFR}}(x) \rvert > 2^{20} \mathrm{ULP}$,
+  we label the case as ``inconsistent''.
+\item Correctness: The value of $f^{\mathrm{rnd}}_{C}(x)$ should be in
+  the range of the mathematical function $f$. For instance,
+  $\sin^{\mathrm{rnd}}_{C}(x)$ has to be between -1.0 and 1.0 no matter
+  how imprecise it is.
+\end{itemize}
+
+We run the experiments\footnote{Source code is available at
+  https://github.com/soonhokong/fp-test} on two machines -- one with
+Intel Core i7-2600 CPU (8-core, 3.40GHz) and another with AMD Opteron
+Processor 6134 (32-core, 2.30GHz). Both of them are running Ubuntu
+12.04 LTS in which uses EGLIBC-2.15 for the C standard library
+implementation. We use MPFR-3.1.1 and g++-4.8.1 C++ compiler in the
+experiments.
+
+The experimental results are summarized in table~\ref{tbl:exp_result}.
+\begin{enumerate}
+\item The implementations of $\mathrm{sin}$, $\mathrm{cos}$,
+  $\mathrm{tan}$, $\mathrm{cosh}$, $\mathrm{sinh}$, $\mathrm{tanh}$
+  and $\mathrm{exp}$ functions have severe problems when used with
+  non-default rounding modes (toward $\infty$, toward $-\infty$, and
+  toward $0$). It is also not rare to have the problematic case in
+  practice. For instance, $\rup{cosh}$ function gives wrong results
+  almost 50\% of cases (49,842 out of 100,000).
+\item We have not observed any problem under the default rounding mode
+  (toward nearest representable number). Also the implementations of
+  $\mathrm{acos}, \mathrm{asin}, \mathrm{atan}, \mathrm{tanh},
+  \mathrm{log}, \mathrm{log_{10}}$, and $\mathrm{sqrt}$ functions pass
+  our tests.
+\end{enumerate}
+
+\section{Patch in EGLIBC-2.17}\label{sec:fix}
+
+In EGLIBC-2.17, they provided a patch for the problem. The following
+is a part of the new implementation of sine function (IEEE754
+double-precision)\footnote{Available at
+  \url{http://www.eglibc.org/cgi-bin/viewvc.cgi/branches/eglibc-2_17/libc/sysdeps/ieee754/dbl-64/s_sin.c?view=markup}}:
+
+\begin{Verbatim}[numbers=left, frame=single, firstnumber=101,
+  commandchars=\\\{\}, fontsize=\relsize{-1}, label={\texttt{eglibc-2.17/libc/sysdeps/ieee754/dbl-64/s\_sin.c}}, labelposition=topline  ]
+__sin(double x)\{
+        double xx,res,t,cor,y,s,c,sn,ssn,cs,ccs,xn,a,da,db,eps,xn1,xn2;
+#if 0
+        double w[2];
+#endif
+        mynumber u,v;
+        int4 k,m,n;
+#if 0
+        int4 nn;
+#endif
+        double retval = 0;
+
+        \textbf{SET_RESTORE_ROUND_53BIT (FE_TONEAREST);}
+\end{Verbatim}
+
+We find that the patch does not really fix the problem. At line 113,
+it resets the rounding mode to ``round to nearest'' and compute the
+value of $\sin(x)$ while ignoring the user-specified rounding mode. We
+found a case in which the value of $\rup{\sin}_{C}(x)$ is smaller than
+the value of $\rne{\sin}_{\mathrm{MPFR}}(x)$, which violates the
+semantics of ``toward $+\infty$'' rounding mode:
+\begin{align*}
+            \rup{\sin}_{C}(-3.93799) & = 0.7148414480838297\underline{66879659928236}\\
+   \rne{\sin}_{\mathrm{MPFR}}(-3.93799) & = 0.7148414480838297\underline{71665831705916}
+\end{align*}
+
+\section{Conclusion}\label{sec:conclusion}
+We report serious bugs in floating-point computations for evaluating
+elementary functions in the Embedded GNU C Library. It is not a
+negligible numerical error but either a significant error ($2^{20}$
+ULP) or mathematically incorrect result (i.e. $\sin(x) > 10^{53}$)
+which can trigger severe problems in the following computations.
+Moreover, the chances of having these results are not rare at all as
+we have shown in section~\ref{sec:bugs}. The current fix does not
+mitigate the problem but hides it.
+
+\bibliographystyle{plain}
+\bibliography{soon}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "fp_bugs_tech_report.tex"
+%%% End:
