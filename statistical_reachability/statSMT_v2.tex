@@ -1,0 +1,361 @@
+
+%%%%%%%%%%%%%%%%%%%%%%% file typeinst.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is the LaTeX source for the instructions to authors using
+% the LaTeX document class 'llncs.cls' for contributions to
+% the Lecture Notes in Computer Sciences series.
+% http://www.springer.com/lncs       Springer Heidelberg 2006/05/04
+%
+% It may be used as a template for your own input - copy it
+% to a new file with a new name and use it as the basis
+% for your article.
+%
+% NB: the document class 'llncs' has its own and detailed documentation, see
+% ftp://ftp.springer.de/data/pubftp/pub/tex/latex/llncs/latex2e/llncsdoc.pdf
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{url}
+\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
+\urldef{\mailsb}\path|anna.kramer, leonie.kunz, christine.reiss, nicole.sator,|
+\urldef{\mailsc}\path|erika.siebert-cole, peter.strasser, lncs}@springer.com|    
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\newenvironment{proof}[1][Proof]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{definition}[1][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{example}[1][Example]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{remark}[1][Remark]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+\newcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi}
+      
+\noindent\keywordname\enspace\ignorespaces#1}
+
+\begin{document}
+
+\mainmatter  % start of an individual contribution
+
+% first the title is needed
+\title{statSMT: Combining $\delta$ - Complete Analysis and Statistical Tests for Probabilistic Bounded Reachability of Hybrid Systems}
+
+% a short form should be given in case it is too long for the running head
+%\titlerunning{Lecture Notes in Computer Science: Authors' Instructions}
+
+% the name(s) of the author(s) follow(s) next
+%
+% NB: Chinese authors should write their first names(s) in front of
+% their surnames. This ensures that the names appear correctly in
+% the running heads and the author index.
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\author{Alfred Hofmann%
+
+%\and Ursula Barth\and Ingrid Haas\and Frank Holzwarth\and\\
+%Anna Kramer\and Leonie Kunz\and Christine Rei\ss\and\\
+%Nicole Sator\and Erika Siebert-Cole\and Peter Stra\ss er}
+%
+%\authorrunning{Lecture Notes in Computer Science: Authors' Instructions}
+% (feature abused for this document to repeat the title also on left hand pages)
+
+% the affiliations are given next; don't give your e-mail address
+% unless you accept that it will be published
+%\institute{Springer-Verlag, Computer Science Editorial,\\
+%Tiergartenstr. 17, 69121 Heidelberg, Germany\\
+%\mailsa\\
+%\mailsb\\
+%\mailsc\\
+%\url{http://www.springer.com/lncs}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% NB: a more complex sample for affiliations and the mapping to the
+% corresponding authors can be found in the file "llncs.dem"
+% (search for the string "\mainmatter" where a contribution starts).
+% "llncs.dem" accompanies the document class "llncs.cls".
+%
+
+%\toctitle{Lecture Notes in Computer Science}
+%\tocauthor{Authors' Instructions}
+\maketitle
+
+
+\begin{abstract}
+We describe the probabilistic bounded reachability problem of hybrid systems with parameter uncertainty, i.e. checking whether a hybrid system with probabilistic system parameters satisfies a certain reachability property within bounded steps with a probability greater (or less) than a fixed threshold. Especially, we present a novel Satisfiability Modulo Theories (SMT) and statistical tests based approach. Standard approaches to the bounded reachability problem of hybrid systems require numerical solutions for huge optimization problems and become infeasible with nonlinear calculus over the reals. The recently defined $\delta-desicion\;problem$ easies the solving. Our approach solves the reachability problem by combining randomized sampling of probabilistic system parameters, $\delta-desicion\;problem$-based bounded reachability analysis of hybrid systems, and statistical tests. Comparing to the previous simulation-based analysis methods, our approach supports the non-deterministic branching, increases the coverage of simulation, and avoids the zero-crossing problem. We demonstrate that our method is feasible for general hybrid systems with probabilistic systems parameters via applying to a representative example: a hybrid model of the prostate cancer with probabilistic parameters representing personalized information. 
+\end{abstract}
+
+
+\section{Introduction}
+\begin{comment}
+- Start with the motivations (application areas needing both nonlinear arithmetic and probabilistic system parameters. (Hybrid systems))\\
+- Introduce dReal and dReach as the SMT solver and the checker for Hybrid models. (focus on the strength of dReal - sound and relatively complete for nonlinear)\\
+- Introduce the statistical model checking, especially different statistical analyzing methods to estimate the probability of a model satisfying a property.
+\end{comment}
+
+Hybrid systems, as models exhibiting both continuous and discrete dynamic behavior, have become a widely used modeling formalism. Their real-world safety-critical applications involve areas from cyber-physical systems [], to chemical-physical process control [], and to biomedical systems []. The core of hybrid systems analysis studies is how we can construct accurate computerized models for real-world systems, and validate that they are guaranteed to meet the design goals. Thus, formal verification of hybrid systems is extremely critical. Although many techniques have been proposed, such as simulation-based verification [smc, ], logic-based verification [andre, ...], and constraint solving [smt-based?, ...], it is still difficult to formally analyze hybrid systems with nonlinear dynamics and complex discrete controls [Alu11, Hen00]. Theoretically, it is well known that the safety verification problem for hybrid systems with simple dynamics is highly undecidable. Consequently, a unified framework for solving the reachability problem seems impossible, especially for nonlinear hybrid systems. [sean's thesis] In details, a major difficulty stems from the need of solving logic formulae with nonlinear functions over the reals. Recently, [sean's all dreal papers] have defined the $\delta-decision \;  problem$ which easies the solving to a great extend. The $\delta$-decision problem is decidable for bounded first-order formulae over the reals with arbitrary Type 2 computable functions, which covers almost all functions used in realistic hybrid systems. 
+
+In this paper, we address the bounded reachability problem for hybrid systems with probabilistic uncertainty in system parameters as our first step to handle the bounded reachability problem for the general stochastic hybrid systems. Although uncertainty raises naturally, and the cause for the parametric uncertainty is multifaceted, two factors are critical when building hybrid models for real-world systems. First of all, the probabilistic parameters are needed when the physics controlling the system is known, while some system parameters are either not known precisely, or are expected to vary from individual to individual, or may change by the end of the operational lifetime. The system uncertainty also happens when the model is constructed or learned directly from experimental data. Due to experimental measurements, the values of system parameters may have a range of variations with chances of occurrence. In both cases, it is assumed that, for probabilistic system parameters, the range of variation and probability density functions are known, and it is desired to design models which achieve specified performance for these variations. 
+
+While the area of reachability analysis of hybrid systems is not new, approaching the problem from a stochastic standpoint is only recently gaining attention [put all papers in the original related work section].
+
+do not support non-deterministic branching: paolo's smc, andre's, [wrr09]\\
+do not support nonlinear functions over reals: stochastic smt\\
+increase the coverage of simulation: use intervals instead of fixed points\\
+avoid the zero-crossing problem: (need to confirm the reason) For statistical model checking for stochastic hybrid systems, each trajectory from the random sampling only represents part of the possible system behavior. And, it is possible for this individual trace goes to a bad/impossible region due to the piecewise analysis adopted. However, for dReach + SMC, each sample return from the random sampling is a whole hybrid system. When dReach is applied to it, the $\delta$-decision problem guarantees that the error bound for the system considering bad/impossible regions can be arbitrary small. 
+ 
+
+\begin{comment} 
+
+\subsection{Related work}
+(TODO: Need to reword and reorganize in a more concise way)
+
+- Statistical Model Checking (point: Simulation-based analysis vs. decision procedure- based analysis. Correctness? $\delta$-decidable?)
+- Stochastic SMT, and its related work (it can handle more general stochastic hybrid systems – probabilistic hybrid automata, but cannot handle nonlinear arithmetic over Reals)
+
+1. Stochastic SMT (probabilistic hybrid automata)
+
+2. Paolo's Statistical Model Checker (the whole statMC techniques for model checking stochastic hybrid systems) (general stochastic hybrid systems): the statistical model checking procedure, however, does not belong to the class of exhaustive state-space exploration methods but is based on system simulation and on Bayesian statistics. As a consequence, the results obtained from statistical model checking are not guaranteed to be correct. Nevertheless, two reasons are presented to motivate this simulation-based approach: first, results are usually obtained much faster compared to exhaustive search and, second, the probability of returning a wrong result can be mad e arbitrarily small. [ZPC10] [Aba07] 
+
+3. Zhang et al. presented an approach to verification of safety properties concerning the probability of reaching unsafe states in probabilistic hybrid automat a [ZSR + 10]. More recently, the expressiveness of the above system model was enhanced considerably in [FHH + 11], namely by permitting continuous probability distributions in discrete state changes. The resulting system class is called stochastic hybrid automata. (stochastic hybrid automata)
+
+4. The recent work described in [HNP + 11] targets at the same problem as in [ZSR + 10], namely the probabilistic reachability analysis of probabilistic hybrid automata, with the suggested analysis approach also relying on finite-state abstract ion of the given infinite- state system. (probabilistic hybrid automata)
+
+5. In control theory, a model similar to probabilistic hybrid automaton is currently in the focus that is called discrete-time stochastic hybrid system (DTSHS) [AAP + 06b, AAP + 06a, Aba07, APLS08]. (DTSHS)
+
+6. Another approach to a very similar problem as above was suggested in [AKLP10, AKLP11], where the DTSHS model is autonomous, i.e. without non-deterministic control inputs. Akin to the method above, the probability of remaining in the safe region is also described as a dynamic programming scheme, and the continuous state space is again discretized by a finite-state grid. (DTSHS)
+
+7. The authors of [AKM11] proposed an approach to model checking autonomous DTSHSs against linear time objectives like, for instance, liveness instead of mere safety properties. (DTSHS)
+
+8. More recently, Platzer suggested a logic-based approach to safety analysis of stochastic hybrid systems [Pla11]. As a formal model, stochastic hybrid programs (SHPs) were introduced. This system class is very expressive on the stochastic side a s it comprises stochastic differential equations, discrete probabilistic branching, and random assignments to real- valued variables, while it seems that non-deterministic branching and parallel composition are not expressible. For the specification of system properties, a logic called stochastic differential dynamic logic is considered. A proof calculus is then proposed to verify logical properties of SHPs.  (SHPs)
+
+9. In [WZH07], model checking probabilistic programs against specifications of a fragment of PCTL is examined. Probabilistic programs are very similar to discrete-time probabilistic hybrid automata as they support non-deterministic and discrete probabilistic choices as well as arithmetic expressions over unbounded integers and reals to describe the program execution. (probabilistic programs)
+
+10. Aiming at probabilistic (unsafe) state reachability, the verification technique of [WZH07] was enhanced in [HWZ08] as follows: the authors suggested a method to refine the predicate abstraction based on counterexamples and furthermore ex tended the approach to falsification. (probabilistic programs)
+
+11. The work presented in [FHW10] discusses probabilistic reachability analysis of a rich probabilistic model that is called first-order probabilistic timed automaton (FPTA). 
+
+12. The work on probabilistic safety analysis of discrete -time Markov chains (DTMCs) published in [WBB09]. The considered system model is much more restrictive than probabilistic hybrid automata: the state space is finite and the behavior is fully probabilistic, i.e. without non-determinism. 
+
+
+
+\subsection{Structure of the paper}
+\end{comment}
+
+The paper is structured as follows. In Section 2 we give formal background including the $\delta$-complete decision procedure (dReal), formal definitions of hybrid automata, and the probabilistic bounded reachability problems, and the encoding from reachability problems into SMT problems. Then, in Section 3 we introduce our statSMT in details. We then demonstrate the feasibility of our method via applying to the prostate cancer model, and give some experimental results (Section 4). We conclude in Section 5.
+
+
+\section{Formal background}
+(@Sean, for this part, I am not sure, to what extent, I can use the related contents in your previous papers. So, I just wrote the outline first.)\\
+
+\subsection{$\delta$-complete decision procedure (dReal)}
+
+\subsection{Probabilistic bounded reachability for hybrid systems}
+formal definitions for\\
+- hybrid systems (hybrid automata)\\
+- probabilistic reachability problem
+
+\subsection{Encoding bounded reachability}
+
+
+
+\section{statSMT}
+
+To solve the probabilistic bounded reachability problem, {\bf statSMT} first samples the defined random variables according to the given distributions. Then, for each sample, we obtain a model of the hybrid system without any probabilistic parameters. We call this as a sampled model. {\bf statSMT} then calls {\bf dReach}, which is a bounded reachability analyzer based on {\bf dReal}, and returns either unsat or $\delta$ sat for each sampled model. With a sufficient number of sampled models, using distinct hypothesis testing and estimation methods, {\bf statSMT} terminates the entire procedure and returns the maximal probability of he system satisfying the given reachability property, and accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold.
+
+\subsection{Input format}
+The inputs to our {\bf statSMT} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, the description of a automaton is of the following structure.
+\begin{itemize}
+\item {\bf Preprocessor.} We can use the C language syntax to define constants and macros. When defining, random variables, which will be declared later, can also be used. For example, we can write,\\
+
+$\#define\;\; x \;\;2.0$\\
+$\#define\;\; y\;\; (z^2 \;+\; 1)$\\
+
+where $z$ can be a random variable.\\
+
+\item {\bf Variable declaration.} For a random variable, the declaration specifies its distribution and name, with the format - $Dist \; \; var_nam;$, where currently "$Dist$" can be "$B(p)$" (Bernoulli distribution), "$U(p, \;q)$" (Uniform distribution), "$N(p, \;q)$" (Gaussian distribution), and "$E(p)$" (Exponential distribution). $p$ and $q$ are parameters for these distributions. (Note: it is easy to include additional distributions if needed.)\\
+For the variables which are not random variables, they are required to be declared within bounds. For instance,\\
+$[-10, \; 20.1]\; \;  x;$\\
+
+\item {\bf Hybrid automaton.} A hybrid automaton is represented by a set of modes. Each mode is of the following structure.\\
+
+$
+\{\;\; mode \;\; <int>;\\
+invt: \;\; <mode\_invariant\; block>\\
+flow: \;\; <ODE\; block>\\
+jump: \;\; <jump\;block>\\
+\}
+$\\
+
+In the mode\_ invariant block, we can give any logic formula for the variables. For the ODE block, each differential equation is of the format: "$d/dt \; [<var>]\;\;=\;\;<fun>;$". As for the jump block, each jump condition is written as "$<logic\_formula1> \;\; ==> \;\; @<int>\;\;<logic\_formula2>;$", where the first logic formula is given as the guard of the jump, and the later one specifies the reset condition after the jump.\\
+
+\item {\bf Initial conditions and goal.}
+
+
+
+\end{itemize}
+
+\begin{example}
+The following example is a part of the input model file for our prostate cancer. It is constructed according to [].\\
+\noindent\rule{\textwidth}{0.7pt}
+
+$
+// model \; file \; for \; the \; prostate \; cancer\\
+\noindent\#define\;\;	alphax\;\;(alphax\_wod / d0)\\
+\cdots \\
+\#define\;\;k4\;\;0.5\\
+\#define\;\;m1\;\;(0.00005 / d0)\\
+\cdots \\
+\#define\;\;Gx\;\;((alphax * (k1 + ((1 - k1) * (z / (z + k2))))) - (betax * (k3 + (1 - k3) * (z / (z + k4)))))\\
+\cdots \\
+U(0.01836, \;0.02244)\;\; alphax\_wod;\\
+U(0.02178, \;0.02662)\;\; alphay\_wod;\\
+\cdots \\
+U(0, \;1) \;\;d0;\\
+\left[ 0.0, \;30.0\right[ \;\;x;\\
+\cdots \\
+\left[ 0, \;20\right[ \;\;time;\\
+\left[ 0, \;1000\right[ \;\;tau;\\
+// define\; modes\\
+\{mode\;1;\\
+invt:\\
+\indent(x >= 0.0);\\
+\indent(y >= 0.0);\\
+\indent(z >= 0.0);\\
+\indent(v >= 0.0);\\
+\indent(tau >= 0.0);\\
+flow:\\
+\indent d/dt\left[ x\right[  = scale * (((Gx - Mxy) * x) + c1 * x);\\
+\indent d/dt\left[ y\right[  = scale * (((Mxy * x) + Gy * y ) + c2 * y);\\
+\indent d/dt\left[ z\right[  = scale * (((z0 - z) / t) + c3 * z);\\
+\indent d/dt\left[ v\right[  = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));\\
+ \indent d/dt\left[ tau\right[  = scale * 1.0;\\
+ jump:\\
+ \indent (and (v >= r1) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) > 0)) ==> @2 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));\\
+\}\\
+\{mode 2;\\
+invt:\\
+\cdots \\
+flow:\\
+\cdots \\
+jump:\\
+\cdots \\
+\}\\
+// set\; initial\; values\\
+init:\\
+@2	(and (x = 15) (y = 0.1) (z = 30) (v = 15.1) (tau = 0));\\
+// the\; reachability\; property\\
+goal:\\
+@2	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0) (tau = 400.0));\\
+$
+\noindent\rule{\textwidth}{0.7pt}
+\end{example}
+
+
+\subsection{Command line}
+After building, {\bf statSMT} can be simply used through:\\
+
+{\bf   
+$statsmt\_sq\;\; <testfile> \;\;<pdrh-modelfile> \;\;<dReach>\;\;<k> $
+}\\
+
+where:
+\begin{itemize}
+\item $<testfile>$ is a text file containing a sequence of test specifications. We will cover different statistical tests in the next sub-section;
+\item $<pdrh-modelfile>$ is a .pdrh file describing the model of a hybrid system with probabilistic system parameters. It is of the input format described in last sub-section;
+\item $<dReach>$ is a bounded reachability analyzing tool for hybrid systems based on dReal; and
+\item $<k>$ is the number of steps of the model that the tool will explore.\\
+\end{itemize}
+
+
+\subsection{Statistical test options}
+Currently, {\bf statSMT} supports the following hypothesis testing methods and estimation methods.
+\begin{itemize}
+\item {\bf Hypothesis testing methods:}\\
+\begin{itemize}
+\item Lai's test [ai88]. As a simple class of sequential tests, it tests the one-sided composite hypotheses $H_0: \; \theta \leq \theta_0$ versus $H_1:\; \theta \geq \theta_1$ for the natural parameter $\theta$ of an exponential family of distributions under the $0-1$ loss and cost $c$ per observation. [Nearly Optimal Sequential Tests of Composite Hypotheses] shows that these tests have nearly optimal frequentist properties and also provide approximate Bayes solutions with respect to a large class of priors. Using this method, the user needs to specify a test option with the test file with this format: $Lai\;\; <theta>\;\; <cost per sample>$.\\
+\item Bayes factor test [RA95]. The use of Bayes factors is a Bayesian alternative to classical hypothesis testing. It is based on the Bayes' theorem. Hypothesis testing with Bayes factors is more robust than frequentist hypothesis testing, as the Bayesian form avoids model selection bias, evaluates evidence in favor the null hypothesis, includes model uncertainty, and allows non-nested models to be compared. Also, frequentist significance tests become biased in favor of rejecting the null hypothesis with sufficiently large sample size. $BFT\;\; <theta>\;\; <threshold T> \;\;<alpha> \;\;<beta>$ is the right format to specify Bayes factor test in {\bf statSMT}, where $\theta$ is a probability threshold satisfying $0 < \theta < 1$, $T$ is a ratio threshold satisfying $T > 1$, and $alpha$, and $beta$ are beta prior parameters.\\
+\item Bayes factor test with indifference region [citation for the "indifference region"?]. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses. (Needs to know more about the indifference region.) To use this option, we can simply type in this format: \\
+$BFTI \;\;<theta> \;\;<threshold T>\;\; <alpha> \;\;<beta> \;\;<indifference\; region\; delta>$.\\
+\item Sequential probability ratio test (SPRT) [WA45]. As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. To use this method in {\bf statSMT}, specify a test option in this form:\\ $SPRT\;\; <theta> \;\;<threshold T>\;\; <indifference\; region\; delta>$\\
+\end{itemize}
+
+\item {\bf Estimation methods:}\\
+\begin{itemize}
+\item Chernoff-Hoeffding bound []. (know nothing about this bound... @Sean, maybe we can ask Paolo to write a paragraph for it?)
+\item Bayesian Interval Estimation with Beta prior [ZPC10]. In this approach, we are interested in estimating $p$, the unknown probability that a random sampled model satisfies a specified reachability property. The estimate will be in the form of a confidence interval, congaing $p$ with an arbitrary high probability. [ZPC10] assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. The authors has showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing. To adopt this method, the user can follow the following format:\\
+$BEST\;\; <delta> \;\;<coverage probability>\;\; <alpha> \;\;<beta>$\\
+\end{itemize}
+\end{itemize}
+
+
+\section{Case studies}
+(@Sean, I am working on this model right now.)\\
+An introduction to all system parameters in the original model.\\
+The reason of the existing of probabilistic system parameters. (personalized difference)\\
+The way to choose the possible distributions for these random variables. (patient samples)\\
+Explain the reachability property w.r.t. the model (oscillation / treatment on and off)\\
+Show the results for different distribution settings, and discuss the results \\
+
+\section{Conclusion and future work}
+reword the abstract\\
+will consider stochastic jumps in the near future
+
+\section*{Reference}
+
+[AAP + 06a] Alessandro Abate, Saurabh Amin, Maria Prandini, John Lygeros, and Shankar Sastry. Probabilistic reachability and safe sets computation for discrete time stochastic hybrid systems. In 45th IEEE Conference on Deci- sion and Control , pages 258–263. IEEE, 2006.
+
+\noindent[AAP + 06b] Saurabh Amin, Alessandro Abate, Maria Prandini, John Lygero s, and Shankar Sastry. Reachability analysis of controlled discrete time stochastic hybrid systems. In Joao P. Hespanha and Ashish Tiwari, editors, Hybrid Systems: Computation and Control , volume 3927 of Lecture Notes in Computer Science , pages 49–63. Springer, 2006.
+
+\noindent[Aba07] Alessandro Abate. Probabilistic Reachability for Stochastic Hybrid Systems : Theory, Computations, and Applications . PhD thesis, EECS Department, University of California, Berkeley, 2007.
+
+\noindent[AKLP10] Alessandro Abate, Joost-Pieter Katoen, John Lygeros , and Maria Prandini. Approximate model checking of stochastic hybrid systems. European Jour- nal of Control , 16(6):624–641, 2010. 
+
+\noindent[AKLP11] Alessandro Abate, Joost-Pieter Katoen, John Lygeros , and Maria Prandini. A two-step scheme for approximate model checking of stochastic hybrid systems. In Proceedings of the 18th IFAC World Congress . IFAC, 2011.
+
+\noindent[AKM11] Alessandro Abate, Joost-Pieter Katoen, and Alexandru Mereacre. Quantitative automata model checking of autonomous stochastic hybrid systems. In Marco Caccamo, Emilio Frazzoli, and Radu Grosu, editors, Proceedings of the 14th ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2011) , pages 83–92. ACM, 2011.
+
+\noindent[APLS08] Alessandro Abate, Maria Prandini, John Lygeros, and Shankar Sastry. Probabilistic reachability and safety for controlled discrete time stochastic hybrid systems. Automatica , 44(11):2724–2734, 2008.
+
+\noindent[FHH + 11] Martin Fr?anzle, Ernst Moritz Hahn, Holger Hermanns, Nicolas Wolovick, and Lijun Zhang. Measurability and safety verification for stochas tic hybrid systems. In Marco Caccamo, Emilio Frazzoli, and Radu Grosu, editor s, Proceedings of the 14th ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2011) , pages 43–52. ACM, 2011.
+
+\noindent[FHW10] Arnaud Fietzke, Holger Hermanns, and Christoph Weidenba ch. Superposition-based analysis of first-order probabilistic timed automata. In Christian G. Fermuller and Andrei Voronkov, editors, Proceedings of the 17th International Conference on Logic for Programming , Artificial Intelligence, and Reasoning (LPAR-17) , volume 6397 of Lecture Notes in Computer Science , pages 302–316. Springer, 2010.
+
+\noindent[[HNP + 11] Ernst Moritz Hahn, Gethin Norman, David Parker, Bjorn Wachter, and Li- jun Zhang. Game-based abstraction and controller synthesis for probabilistic hybrid systems. In Proceedings of the Eighth International Conference on Quantitative Evaluation of Systems (QEST 2011) , pages 69–78. IEEE Computer Society, 2011.
+
+\noindent[HWZ08] Holger Hermanns, Bjorn Wachter, and Lijun Zhang. Probabilistic CEGAR. In Aarti Gupta and Sharad Malik, editors, 20th International Conference on Computer Aided Verification (CAV 2008) , volume 5123 of Lecture Notes in Computer Science , pages 162–175. Springer, 2008.
+
+\noindent[Lai88]. Lai, T. L. Nearly optimal sequential tests of composite hypotheses. Ann. Statist. 16 , 856-886.
+
+\noindent[Pla11] Andre Platzer. Stochastic differential dynamic logic for stochastic hybrid programs. In Nikolaj Bjørner and Viorica Sofronie-Stokkermans, editors, Proceedings of the 23rd International Conference on Automated Deduction (CADE-23) , volume 6803 of Lecture Notes in Computer Science , pages 446– 460. Springer, 2011.
+
+\noindent[RA95] Robert E. Kass and Adrian E. Raftery (1995). "Bayes Factors". Journal of the American Statistical Association 90 (430): 791.
+
+\noindent[WA45] Wald, Abraham (June 1945). "Sequential Tests of Statistical Hypotheses". Annals of Mathematical Statistics 16 (2): 117–186. doi:10.1214/aoms/1177731118. JSTOR 2235829].
+
+\noindent[WBB09] Ralf Wimmer, Bettina Braitling, and Bernd Becker. Counterexample generation for discrete-time Markov chains using bounded model checking. In Neil D. Jones and Markus Muller-Olm, editors, 10th International Conference on Verification, Model Checking, and Abstract Interpretation (VMCAI 2009) , volume 5403 of Lecture Notes in Computer Science , pages 366–380. Springer, 2009.
+
+\noindent[WZH07] Bjorn Wachter, Lijun Zhang, and Holger Hermanns. Probabilistic mode l checking modulo theories. In Fourth International Conference on the Quantitative Evaluation of Systems (QEST 2007) , pages 129–140. IEEE Computer Society, 2007.
+
+\noindent[ZPC10] Paolo Zuliani, Andr?e Platzer, and Edmund M. Clarke. Bayesian statisti- cal model checking with application to Simulink/Stateflow verification . In Karl Henrik Johansson and Wang Yi, editors, Hybrid Systems: Computation and Control , pages 243–252. ACM, 2010.
+
+\noindent[ZSR + 10] Lijun Zhang, Zhikun She, Stefan Ratschan, Holger Hermanns, and Ernst Moritz Hahn. Safety verification for probabilistic hybrid systems. In Tayssir Touili, Byron Cook, and Paul Jackson, editors, Proceedings of the 22nd International Conference on Computer Aided Verification, CAV 2010 , volume 6174 of Lecture Notes in Computer Science , pages 196–211. Springer, 2010.
+
+
+\end{document}
