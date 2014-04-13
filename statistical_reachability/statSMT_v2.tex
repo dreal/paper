@@ -108,9 +108,9 @@ large optimization problems, and become unfeasible for systems involving nonline
 over the reals. Our approach solves the reachability problem by combining randomized 
 sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
 and statistical tests. In particular, we utilize $\delta-$complete decision procedures 
-to solve reachability analysis in sound way, i.e., we always decide correctly if the system 
-actually reaches the unsafe region (in the opposite case we may generate false positives, but
-this can be controlled by a precision parameter $\delta>0$).
+to solve reachability analysis in sound way, i.e., we always decide correctly if, for a given
+combination of parameters, the system actually reaches the unsafe region (in the opposite case 
+we may generate false positives, but this can be controlled by a precision parameter $\delta>0$).
 Compared to other simulation-based analysis methods, our approach supports 
 non-deterministic branching, increases the coverage of simulation, and avoids the
 zero-crossing problem. We demonstrate that our method is feasible for general
