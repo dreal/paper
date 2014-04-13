@@ -98,7 +98,44 @@
 
 
 \begin{abstract}
-We describe the probabilistic bounded reachability problem of hybrid systems with parameter uncertainty, i.e. checking whether a hybrid system with probabilistic system parameters satisfies a certain reachability property within bounded steps with a probability greater (or less) than a fixed threshold. Especially, we present a novel Satisfiability Modulo Theories (SMT) and statistical tests based approach. Standard approaches to the bounded reachability problem of hybrid systems require numerical solutions for huge optimization problems and become infeasible with nonlinear calculus over the reals. The recently defined $\delta-desicion\;problem$ easies the solving. Our approach solves the reachability problem by combining randomized sampling of probabilistic system parameters, $\delta-desicion\;problem$-based bounded reachability analysis of hybrid systems, and statistical tests. Comparing to the previous simulation-based analysis methods, our approach supports the non-deterministic branching, increases the coverage of simulation, and avoids the zero-crossing problem. We demonstrate that our method is feasible for general hybrid systems with probabilistic systems parameters via applying to a representative example: a hybrid model of the prostate cancer with probabilistic parameters representing personalized information. 
+We present a novel approach that combines Satisfiability Modulo Theories (SMT) and 
+statistical testing to solve the probabilistic bounded reachability problem of 
+hybrid systems with parameter uncertainty. That is, we want to find out whether 
+a hybrid system with probabilistic system parameters reaches an unsafe region of the
+state space within a finite number of steps with a probability greater (or less) than a 
+fixed threshold. Standard approaches to this problem require numerical solutions for 
+large optimization problems, and become infeasible for systems involving nonlinear dynamics
+over the reals. Our approach solves the reachability problem by combining randomized 
+sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
+and statistical tests. In particular, we utilize $\delta-$complete decision procedures 
+to solve reachability analysis in sound way, i.e., we always decide correctly if the system 
+actually reaches the unsafe region (in the opposite case we may generate false positives, but
+this can be controlled by a precision parameter $\delta>0$).
+Compared to other simulation-based analysis methods, our approach supports 
+non-deterministic branching, increases the coverage of simulation, and avoids the
+zero-crossing problem. We demonstrate that our method is feasible for general
+hybrid systems with probabilistic systems parameters by applying it to a representative
+example: a hybrid model of the prostate cancer with probabilistic parameters
+representing personalized information.
+
+
+%We describe the probabilistic bounded reachability problem of hybrid systems with 
+%parameter uncertainty, i.e., checking whether a hybrid system with probabilistic 
+%system parameters satisfies a certain reachability property within bounded steps 
+%with a probability greater (or less) than a fixed threshold. Especially, we present 
+%a novel Satisfiability Modulo Theories (SMT) and statistical tests based approach. 
+%Standard approaches to the bounded reachability problem of hybrid systems require 
+%numerical solutions for huge optimization problems and become infeasible with 
+%nonlinear calculus over the reals. The recently defined $\delta-decision\;problem$ 
+%easies the solving. Our approach solves the reachability problem by combining 
+%randomized sampling of probabilistic system parameters, $\delta-decision\;problem$-based 
+%bounded reachability analysis of hybrid systems, and statistical tests. Comparing 
+%to the previous simulation-based analysis methods, our approach supports the 
+%non-deterministic branching, increases the coverage of simulation, and avoids the 
+%zero-crossing problem. We demonstrate that our method is feasible for general 
+%hybrid systems with probabilistic systems parameters via applying to a representative 
+%example: a hybrid model of the prostate cancer with probabilistic parameters 
+%representing personalized information. 
 \end{abstract}
 
 
