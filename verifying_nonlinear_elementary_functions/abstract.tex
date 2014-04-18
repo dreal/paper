@@ -1,3 +1,7 @@
+
+We present our approach and results for the verification of floating-point implementations of nonlinear elementrary functions in the Embedded GNU C Library. Our method combines testing, numerical analysis, and SMT solving. We generate point inputs to obtain preliminary coverage, and then use SMT formulas to verify the behavior of the implementations around the neighborhood of the tested points. In this way the algorithm can completely cover any bounded interval of interest. We have found serious bugs in the library through the method, and also report the intervals that guarantee correct implementations.  
+
+
 % We report serious bugs in floating-point computations for evaluating
 % elementary functions in the Embedded GNU C Library. For instance, the
 % sine function can return values larger than $10^{53}$ in certain
