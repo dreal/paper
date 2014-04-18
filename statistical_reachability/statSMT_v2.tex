@@ -156,7 +156,6 @@ do not support nonlinear functions over reals: stochastic smt\\
 increase the coverage of simulation: use intervals instead of fixed points\\
 avoid the zero-crossing problem: (need to confirm the reason) For statistical model checking for stochastic hybrid systems, each trajectory from the random sampling only represents part of the possible system behavior. And, it is possible for this individual trace goes to a bad/impossible region due to the piecewise analysis adopted. However, for dReach + SMC, each sample return from the random sampling is a whole hybrid system. When dReach is applied to it, the $\delta$-decision problem guarantees that the error bound for the system considering bad/impossible regions can be arbitrary small. 
  
-
 \begin{comment} 
 
 \subsection{Related work}
@@ -194,7 +193,7 @@ avoid the zero-crossing problem: (need to confirm the reason) For statistical mo
 \subsection{Structure of the paper}
 \end{comment}
 
-The paper is structured as follows. In Section 2 we give formal background including the $\delta$-complete decision procedure (dReal), formal definitions of hybrid automata, and the probabilistic bounded reachability problems, and the encoding from reachability problems into SMT problems. Then, in Section 3 we introduce our statSMT in details. We then demonstrate the feasibility of our method via applying to the prostate cancer model, and give some experimental results (Section 4). We conclude in Section 5.
+The paper is structured as follows. In Section 2 we give formal background including the $\delta$-complete decision procedure (dReal), formal definitions of hybrid automata, and the probabilistic bounded reachability problems, and the encoding from reachability problems into SMT problems. Then, in Section 3 we introduce our SReach in details. We then demonstrate the feasibility of our method via applying to the prostate cancer model, and give some experimental results (Section 4). We conclude in Section 5.
 
 
 \section{Formal background}
@@ -211,12 +210,12 @@ formal definitions for\\
 
 
 
-\section{statSMT}
+\section{SReach}
 
-To solve the probabilistic bounded reachability problem, {\bf statSMT} first samples the defined random variables according to the given distributions. Then, for each sample, we obtain a model of the hybrid system without any probabilistic parameters. We call this as a sampled model. {\bf statSMT} then calls {\bf dReach}, which is a bounded reachability analyzer based on {\bf dReal}, and returns either unsat or $\delta$ sat for each sampled model. With a sufficient number of sampled models, using distinct hypothesis testing and estimation methods, {\bf statSMT} terminates the entire procedure and returns the maximal probability of he system satisfying the given reachability property, and accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold.
+To solve the probabilistic bounded reachability problem, {\bf SReach} first samples the defined random variables according to the given distributions. Then, for each sample, we obtain a model of the hybrid system without any probabilistic parameters. We call this as a sampled model. {\bf SReach} then calls {\bf dReach}, which is a bounded reachability analyzer based on {\bf dReal}, and returns either unsat or $\delta$ sat for each sampled model. With a sufficient number of sampled models, using distinct hypothesis testing and estimation methods, {\bf SReach} terminates the entire procedure and returns the maximal probability of he system satisfying the given reachability property, and accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold.
 
 \subsection{Input format}
-The inputs to our {\bf statSMT} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, the description of a automaton is of the following structure.
+The inputs to our {\bf SReach} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, the description of a automaton is of the following structure.
 \begin{itemize}
 \item {\bf Preprocessor.} We can use the C language syntax to define constants and macros. When defining, random variables, which will be declared later, can also be used. For example, we can write,\\
 
@@ -305,10 +304,10 @@ $
 
 
 \subsection{Command line}
-After building, {\bf statSMT} can be simply used through:\\
+After building, {\bf SReach} can be simply used through:\\
 
 {\bf   
-$statsmt\_sq\;\; <testfile> \;\;<pdrh-modelfile> \;\;<dReach>\;\;<k> $
+$SReach\_sq\;\; <testfile> \;\;<pdrh-modelfile> \;\;<dReach>\;\;<k> $
 }\\
 
 where:
@@ -321,24 +320,43 @@ where:
 
 
 \subsection{Statistical test options}
-Currently, {\bf statSMT} supports the following hypothesis testing methods and estimation methods.
+
+Consider a hybrid system with parametric uncertainty $H$ and a reachability property $\phi$. {\bf SReach} can be used to answer two types of questions depending on which statistical testing technique is chosen: (1) Qualitative: Is the probability for $H$ to satisfy $\phi$ greater or less than a certain threshold? and
+(2) Quantitative: What is the probability for $H$ to satisfy $\phi$? Similar to SMC, the answer is given up to some correctness precision because of the use of statistical tests. 
+
+To deal with qualitative questions, {\bf SReach} provides the following hypothesis testing methods.
+
 \begin{itemize}
-\item {\bf Hypothesis testing methods:}\\
+
+\item {\bf Lai's test} [Lai88].
+As a simple class of sequential tests, it tests the one-sided composite hypotheses $H_0: \; \theta \leq \theta_0$ versus $H_1:\; \theta \geq \theta_1$ for the natural parameter $\theta$ of an exponential family of distributions under the $0-1$ loss and cost $c$ per observation. [Lai88] shows that these tests have nearly optimal frequentist properties and also provide approximate Bayes solutions with respect to a large class of priors. \\
+Usage: $Lai\;\; <\theta>\;\; <cost\_per\_ sample>$,\\
+where $\theta$ indicates the probability threshold.\\
+
+\item {\bf Bayes factor test} [RA95].
+The use of Bayes factors is a Bayesian alternative to classical hypothesis testing. It is based on the Bayes' theorem. Hypothesis testing with Bayes factors is more robust than frequentist hypothesis testing, as the Bayesian form avoids model selection bias, evaluates evidence in favor the null hypothesis, includes model uncertainty, and allows non-nested models to be compared. Also, frequentist significance tests become biased in favor of rejecting the null hypothesis with sufficiently large sample size. \\
+Usage: $BFT\;\; <\theta>\;\; <T> \;\;<\alpha> \;\;<\beta>$,\\
+where $\theta$ is a probability threshold satisfying $0 < \theta < 1$, $T$ is a ratio threshold satisfying $T > 1$, and $\alpha$, and $\beta$ are beta prior parameters.\\
+
+\item {\bf Bayes factor test with indifference region}. 
+A hypothesis test has ideal performance if the probability of the Type-I error (respectively, Type-II error) is exactly $\alpha$ (respectively, $\beta$). However, these requirements make it impossible to ensure a low probability for both types of errors simultaneously (see [You05] for details). A solution is to use an indifference region. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses.\\
+Usage: $BFTI \;\;<\theta> \;\;<T>\;\; <\alpha> \;\;<\beta> \;\;<\delta>$,\\
+where, besides the parameters used in the above Bayes factor test, $\delta$ is given to create the indifference region: [$p_0$, $p_1$], where $p_0 = \theta + \delta$ and $p_1 = \theta − \delta$.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .\\
+
+\item {\bf Sequential probability ratio test (SPRT)} [WA45]. 
+As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. In {\bf SReach}, we have implemented SPRT with indifference region.\\ 
+Usage: $SPRT\;\; <\theta> \;\;<T>\;\; <\delta>$.
+\end{itemize}
+To offer quantitative answers, {\bf SReach} also supports estimation procedures as below.
 \begin{itemize}
-\item Lai's test [ai88]. As a simple class of sequential tests, it tests the one-sided composite hypotheses $H_0: \; \theta \leq \theta_0$ versus $H_1:\; \theta \geq \theta_1$ for the natural parameter $\theta$ of an exponential family of distributions under the $0-1$ loss and cost $c$ per observation. [Nearly Optimal Sequential Tests of Composite Hypotheses] shows that these tests have nearly optimal frequentist properties and also provide approximate Bayes solutions with respect to a large class of priors. Using this method, the user needs to specify a test option with the test file with this format: $Lai\;\; <theta>\;\; <cost per sample>$.\\
-\item Bayes factor test [RA95]. The use of Bayes factors is a Bayesian alternative to classical hypothesis testing. It is based on the Bayes' theorem. Hypothesis testing with Bayes factors is more robust than frequentist hypothesis testing, as the Bayesian form avoids model selection bias, evaluates evidence in favor the null hypothesis, includes model uncertainty, and allows non-nested models to be compared. Also, frequentist significance tests become biased in favor of rejecting the null hypothesis with sufficiently large sample size. $BFT\;\; <theta>\;\; <threshold T> \;\;<alpha> \;\;<beta>$ is the right format to specify Bayes factor test in {\bf statSMT}, where $\theta$ is a probability threshold satisfying $0 < \theta < 1$, $T$ is a ratio threshold satisfying $T > 1$, and $alpha$, and $beta$ are beta prior parameters.\\
-\item Bayes factor test with indifference region [citation for the "indifference region"?]. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses. (Needs to know more about the indifference region.) To use this option, we can simply type in this format: \\
-$BFTI \;\;<theta> \;\;<threshold T>\;\; <alpha> \;\;<beta> \;\;<indifference\; region\; delta>$.\\
-\item Sequential probability ratio test (SPRT) [WA45]. As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. To use this method in {\bf statSMT}, specify a test option in this form:\\ $SPRT\;\; <theta> \;\;<threshold T>\;\; <indifference\; region\; delta>$\\
+
+\item {\bf Chernoff-Hoeffding bound} [Hoe63]. To estimate the probability $p$ for $H$ to satisfy $\phi$, given a precision $\delta'$, the Chernoff-Hoeffding bound can given a value $p'$ such that $|p' \; - \; p| \le \delta'$ with confidence $1\;-\; \alpha$.\\
+Usage: $CHB\;\; <\delta'> \;\;<coverage\_ probability>$,\\
+where $\delta'$ is the given precision, and $coverage\_ probability$ indicates the confidence.\\
+
+\item {\bf Bayesian Interval Estimation with Beta prior} [ZPC10]. This method estimates $p$, the unknown probability that a random sampled model satisfies a specified reachability property. The estimate will be in the form of a confidence interval, congaing $p$ with an arbitrary high probability. [ZPC10] assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. It has been showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing.\\ Usage: $BEST\;\; <\delta'> \;\;<coverage\_probability>\;\; <\alpha> \;\;<\beta>$.\\
 \end{itemize}
 
-\item {\bf Estimation methods:}\\
-\begin{itemize}
-\item Chernoff-Hoeffding bound []. (know nothing about this bound... @Sean, maybe we can ask Paolo to write a paragraph for it?)
-\item Bayesian Interval Estimation with Beta prior [ZPC10]. In this approach, we are interested in estimating $p$, the unknown probability that a random sampled model satisfies a specified reachability property. The estimate will be in the form of a confidence interval, congaing $p$ with an arbitrary high probability. [ZPC10] assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. The authors has showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing. To adopt this method, the user can follow the following format:\\
-$BEST\;\; <delta> \;\;<coverage probability>\;\; <alpha> \;\;<beta>$\\
-\end{itemize}
-\end{itemize}
 
 
 \section{Case studies}
@@ -375,6 +393,8 @@ will consider stochastic jumps in the near future
 
 \noindent[[HNP + 11] Ernst Moritz Hahn, Gethin Norman, David Parker, Bjorn Wachter, and Li- jun Zhang. Game-based abstraction and controller synthesis for probabilistic hybrid systems. In Proceedings of the Eighth International Conference on Quantitative Evaluation of Systems (QEST 2011) , pages 69–78. IEEE Computer Society, 2011.
 
+\noindent[Hoe63] W. Hoeffding. Probability inequalities. Journal of the American Statistical Association, 58:13–30, 1963.
+
 \noindent[HWZ08] Holger Hermanns, Bjorn Wachter, and Lijun Zhang. Probabilistic CEGAR. In Aarti Gupta and Sharad Malik, editors, 20th International Conference on Computer Aided Verification (CAV 2008) , volume 5123 of Lecture Notes in Computer Science , pages 162–175. Springer, 2008.
 
 \noindent[Lai88]. Lai, T. L. Nearly optimal sequential tests of composite hypotheses. Ann. Statist. 16 , 856-886.
@@ -388,6 +408,8 @@ will consider stochastic jumps in the near future
 \noindent[WBB09] Ralf Wimmer, Bettina Braitling, and Bernd Becker. Counterexample generation for discrete-time Markov chains using bounded model checking. In Neil D. Jones and Markus Muller-Olm, editors, 10th International Conference on Verification, Model Checking, and Abstract Interpretation (VMCAI 2009) , volume 5403 of Lecture Notes in Computer Science , pages 366–380. Springer, 2009.
 
 \noindent[WZH07] Bjorn Wachter, Lijun Zhang, and Holger Hermanns. Probabilistic mode l checking modulo theories. In Fourth International Conference on the Quantitative Evaluation of Systems (QEST 2007) , pages 129–140. IEEE Computer Society, 2007.
+
+\noindent[You05] H. L. S. Younes. Verification and Planning for Stochastic Processes with Asynchronous Events. PhD thesis, Carnegie Mellon, 2005.
 
 \noindent[ZPC10] Paolo Zuliani, Andr?e Platzer, and Edmund M. Clarke. Bayesian statisti- cal model checking with application to Simulink/Stateflow verification . In Karl Henrik Johansson and Wang Yi, editors, Hybrid Systems: Computation and Control , pages 243–252. ACM, 2010.
 
