@@ -1,3 +1,11 @@
+% We report serious bugs in floating-point computations for evaluating
+% elementary functions in the Embedded GNU C Library. For instance, the
+% sine function can return values larger than $10^{53}$ in certain
+% rounding modes. Further investigation also exposed faulty
+% implementations in the most recent version of the library, which
+% seemingly fixed some bugs, but only by discarding user-specified
+% rounding-mode requirements.
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
