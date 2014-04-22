@@ -113,9 +113,7 @@ we may generate false positives, but this can be controlled by a precision param
 Compared to other simulation-based analysis methods, our approach supports 
 non-deterministic branching, increases the coverage of simulation, and avoids the
 zero-crossing problem. We demonstrate that our method is feasible for general
-hybrid systems with parametric uncertainty by applying it to a representative
-example: a hybrid model of the prostate cancer with both nonlinear dynamics, and probabilistic parameters
-representing personalized information.
+hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to three representative example: the stabilization control of a quadcopter, the prostate cancer treatment, and the cardiac systems, and further through applications to additional benchmarks.
 
 
 %We describe the probabilistic bounded reachability problem of hybrid systems with 
@@ -240,12 +238,22 @@ $\\
 
 In the mode\_ invariant block, we can give any logic formula for the variables. For the ODE block, each differential equation is of the format: "$d/dt \; [<var>]\;\;=\;\;<fun>;$". As for the jump block, each jump condition is written as "$<logic\_formula1> \;\; ==> \;\; @<int>\;\;<logic\_formula2>;$", where the first logic formula is given as the guard of the jump, and the later one specifies the reset condition after the jump.\\
 
-\item {\bf Initial conditions and goal.}
+\item {\bf Initial conditions.} We can declare one initial mode with corresponding conditions via the following structure.\\
 
+$
+@Mode\_num\;\;\; [initial\_conditions]
+$\\
 
+\item{\bf Goals.} We can add the reachability properties in the end. Each property can be encoded in the following format.\\
+
+$
+@Mode\_num \;\;\; [reachability\_property]
+$\\
 
 \end{itemize}
 
+\begin{comment}
+%partial version
 \begin{example}
 The following example is a part of the input model file for our prostate cancer. It is constructed according to [].\\
 \noindent\rule{\textwidth}{0.7pt}
@@ -302,6 +310,95 @@ $
 \noindent\rule{\textwidth}{0.7pt}
 \end{example}
 
+\end{comment}
+
+
+\begin{comment}
+
+% Full version
+
+\begin{example}
+The following example is an input model file for our prostate cancer. It is constructed according to [].\\
+\noindent\rule{\textwidth}{0.7pt}
+
+$
+// model \; file \; for \; the \; prostate \; cancer\\
+\noindent\#define\;\;	alphax\;\;(alphax\_wod / d0)\\
+\#define \;\; alphay\;\;(alphay\_wod / d0)\\
+\#define\;\;	betax\;\;(betax\_wod / d0)\\
+\#define\;\;betay\;\;(betay\_wod / d0)\\
+\#define\;\;k1\;\;0.0\\
+\#define\;\;k1\;\;0.0\\
+\#define\;\;k2\;\;2.0\\
+\#define\;\;k3\;\;0.8\\
+\#define\;\;k4\;\;0.5\\
+\#define\;\;m1\;\;(0.00005 / d0)\\
+\#define\;\;z0\;\;30.0\\
+\#define\;\;t\;\;12.5\\
+\#define\;\;r1\;\;15.0\\
+\#define\;\;r0\;\;10.0\\
+\#define\;\;c1\;\;0.0\\
+\#define\;\;c2\;\;0.0\\
+\#define\;\;c3\;\;0.0\\
+\#define\;\;Gx\;\;((alphax * (k1 + ((1 - k1) * (z / (z + k2))))) - (betax * (k3 + (1 - k3) * (z / (z + k4)))))\\
+\#define\;\;Gy\;\;((alphay * (1 - (d0 * (z / z0)))) - betay)\\
+\#define\;\;Mxy\;\;(m1 * (1 - (z / z0)))\\
+\#define\;\;scale\;\;50.0\\
+U(0.01836, \;0.02244)\;\; alphax\_wod;\\
+U(0.02178, \;0.02662)\;\; alphay\_wod;\\
+U(0.00684, \;0.00836)\;\; betax\_wod;\\
+U(0.01512, \;0.01848) \;\;betay\_wod;\\
+U(0, \;1) \;\;d0;\\
+\left[ 0.0, \;30.0\right[ \;\;x;\\
+\left[ 0.0, \;30.0\right[ \;\;y;\\
+\left[ 0.0, \;30.0\right[ \;\;z;\\
+\left[ 0.0, \;30.0\right[ \;\;v;\\
+\left[ 0, \;20\right[ \;\;time;\\
+\left[ 0, \;1000\right[ \;\;tau;\\
+// define\; modes\\
+\{mode\;1;\\
+invt:\\
+\indent(x >= 0.0);\\
+\indent(y >= 0.0);\\
+\indent(z >= 0.0);\\
+\indent(v >= 0.0);\\
+\indent(tau >= 0.0);\\
+flow:\\
+\indent d/dt\left[ x\right[  = scale * (((Gx - Mxy) * x) + c1 * x);\\
+\indent d/dt\left[ y\right[  = scale * (((Mxy * x) + Gy * y ) + c2 * y);\\
+\indent d/dt\left[ z\right[  = scale * (((z0 - z) / t) + c3 * z);\\
+\indent d/dt\left[ v\right[  = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));\\
+ \indent d/dt\left[ tau\right[  = scale * 1.0;\\
+ jump:\\
+ \indent (and (v >= r1) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) > 0)) ==> @2 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));\\
+\}\\
+\{mode 2;\\
+invt:\\
+ \indent (x >= 0.0);\\
+ \indent  (y >= 0.0);\\
+ \indent (z >= 0.0);\\
+ \indent (v >= 0.0);\\
+ \indent (tau >= 0.0);\\
+flow:\\
+ \indent d/dt\left[ x\right[  = scale * (((Gx - Mxy) * x) + c1 * x);\\
+ \indent d/dt\left[ y\right[  = scale * (((Mxy * x) + Gy * y ) + c2 * y);\\
+ \indent d/dt\left[ z\right[  = scale * (((0 - z) / t) + c3 * z);\\
+ \indent d/dt\left[ v\right[  = scale * ((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y));\\
+ \indent d/dt\left[ tau\right[  = scale * 1.0;\\
+jump:\\
+ \indent (and (v <= r0) (((((Gx - Mxy) * x) + c1 * x) + (((Mxy * x) + Gy * y ) + c2 * y)) < 0)) ==> @1 (and (tau' = tau) (x' = x) (y'= y) (z' = z) (v' = v));\\
+\}\\
+// set\; initial\; values\\
+init:\\
+@2	(and (x = 15) (y = 0.1) (z = 30) (v = 15.1) (tau = 0));\\
+// the\; reachability\; property\\
+goal:\\
+@2	(and (x >= 0.0) (y >= 0.0) (z >= 0.0) (v >= 0.0) (tau = 400.0));\\
+$
+\noindent\rule{\textwidth}{0.7pt}
+\end{example}
+
+\end{comment}
 
 \subsection{Command line}
 After building, {\bf SReach} can be simply used through:\\
@@ -341,7 +438,7 @@ where $\theta$ is a probability threshold satisfying $0 < \theta < 1$, $T$ is a 
 \item {\bf Bayes factor test with indifference region}. 
 A hypothesis test has ideal performance if the probability of the Type-I error (respectively, Type-II error) is exactly $\alpha$ (respectively, $\beta$). However, these requirements make it impossible to ensure a low probability for both types of errors simultaneously (see [You05] for details). A solution is to use an indifference region. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses.\\
 Usage: $BFTI \;\;<\theta> \;\;<T>\;\; <\alpha> \;\;<\beta> \;\;<\delta>$,\\
-where, besides the parameters used in the above Bayes factor test, $\delta$ is given to create the indifference region: [$p_0$, $p_1$], where $p_0 = \theta + \delta$ and $p_1 = \theta − \delta$.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .\\
+where, besides the parameters used in the above Bayes factor test, $\delta$ is given to create the indifference region: [$p_0$, $p_1$], where $p_0 = \theta + \delta$ and $p_1 = \theta  - \delta$.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .\\
 
 \item {\bf Sequential probability ratio test (SPRT)} [WA45]. 
 As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. In {\bf SReach}, we have implemented SPRT with indifference region.\\ 
@@ -359,13 +456,80 @@ where $\delta'$ is the given precision, and $coverage\_ probability$ indicates t
 
 
 
-\section{Case studies}
-(@Sean, I am working on this model right now.)\\
-An introduction to all system parameters in the original model.\\
-The reason of the existing of probabilistic system parameters. (personalized difference)\\
-The way to choose the possible distributions for these random variables. (patient samples)\\
-Explain the reachability property w.r.t. the model (oscillation / treatment on and off)\\
-Show the results for different distribution settings, and discuss the results \\
+\section{Experiments}
+
+Our tool {\bf SReach} implements the techniques presented in the paper. The tool is open-source at \url{https://github.com/rachelwang/SReach}. In this section, we demonstrate the feasibility of our method by applying {\bf SReach} to three representative hybrid systems with both nonlinear dynamics and parametric uncertainty: the stabilization control of a quadcopter, the prostate cancer treatment, and the cardiac systems, and further through applications to a set of additional benchmarks. All benchmarks and data shown in here are also accessible on the tool website. All experiments were conducted on a machine with 2.9 GHz Intel Core i7 processor and 8 GB 1600 MHz DDR3, running OS X 10.9.2.
+
+
+\subsection{Application to the prostate cancer treatment}
+
+\textit{Model Description}.
+We modified the model of the intermittent androgen suppression (IAS) therapy in [THG10] by adding parametric uncertainty. The model has two modes: treatment-on, and treatment-off. IAS therapy switches between them by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA). In details, when the PSA level falls below a threshold, denoted as $r_0$, androgen suppression is suspended. While, if the PSA level increases and reaches a upper threshold value $r_1$, androgen suppression is resumed by the administration of medical agents. This model describes the growth of a prostate tumor as the dynamics of a mixed population of androgen-dependent (AD) and androgen-independent (AI) cells ([THG10] for details of the involved system parameters). 
+
+As suggested by the clinical trials [BKC06], an effective IAS therapy highly depends on the individual patient. Thus, we created a new and general model, based on the one in [THG10], by taking the parametric variation caused by the personalized differences into account. in details, according to the clinic data from hundreds of patients [BKC07], we replaced 6 system parameter with random variables with appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of AD cells), $\alpha_y$ (the proliferation rate of AI cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level).
+
+\textit{Experiments and Results}. To evaluate this new model, in other words, to check whether this general model with parametric uncertainty can prevent the relapse of prostate cancer with a high probability, we apply {\bf SReach} to it with the BEST statistical testing. (see Table ())
+
+
+\subsection{Application to cardiac models}
+\textit{Model Description}.
+[AEF08] has developed a minimum resistor model (MRM), which reproduces experimentally measured characteristics of human ventricular cell dynamics. MRM reduces the complexity of existing models via representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. With this application, we will show that {\bf SReach} can also be adopted to identify appropriate ranges and distributions for model parameters, a.k.a parameter estimation.
+
+\textit{Experiments and Results}. To illustrate the way that {\bf SReach} is used to conduct parameter estimation, we chose two system parameters - $EPI\_TO1$, and $EPI\_TO2$, and varied their distributions to see with which distributions for these two system parameters, the model can present the desired pattern. The model has 4 modes. In the experiments, we chose 3 as the unfolding steps, 0.001 as the precision for the $\delta$-decision problem, and BEST as the statistical testing option with $\delta' = 0.01$, 0.99 as the coverage probability, $\alpha = 1$, and $\beta = 1$. For each sample generated, {\bf SReach} dealt with 62 variables, and 24 ODEs. As in the Table \ref{table:cardiac}, when $EPI_TO1$ is either close to 400, or between 0.0061 and 0.007, and $EPI_TO2$ is close to 6, the model can satisfy the given bounded reachability property with a probability very close to 1. 
+
+\begin{table}[h]
+    \begin{tabular}{|l|l|l|l|l|l|l|l|}
+    \hline
+    Model         & \#RVs & EPI\_TO1            & EPI\_TO2         & \#S\_S & \#T\_S & Est\_P & T\_per\_S(s) \\ \hline
+    Cd\_to1\_s    & 1     & U(0.0061, 0.007)    & 6.0              & 227       & 227      & 0.996     & 0.362        \\ \hline
+    Cd\_to1\_uns  & 1     & U(0.0055, 0.0059)   & 6.0              & 0         & 227      & 0.004     & 0.124        \\ \hline
+    Cd\_to2\_s    & 1     & 400.0               & U(0.131, 6.0)    & 227       & 227      & 0.996     & 0.361        \\ \hline
+    Cd\_to2\_uns  & 1     & 400.0               & U(0.1, 0.129)    & 0         & 227      & 0.004     & 0.139        \\ \hline
+    Cd\_to12\_s   & 2     & N(400, 0.0001)      & N(6, 0.0001)     & 227       & 227      & 0.996     & 0.373        \\ \hline
+    Cd\_to12\_uns & 2     & N(0.0055, 10e-6) & N(0.11, 10e-5) & 0         & 227      & 0.004     & 0.131        \\ \hline
+    \end{tabular}
+    \caption { \#RVs = the number of random variables in the model, \#S\_S = the number of samples with which dReal returns $\delta$-Sat, \#T\_S = the number of total samples, Est\_P indicates the estimated probability of the given model meeting the bounded reachability property, and T\_per\_S(s) gives the average CPU time costed by each sample in seconds.}
+    \label{table:cardiac}
+\end{table}
+
+
+\subsection{Application to the stabilization control of quadcopters}
+
+\textit{Model Description}.
+We modeled the stabilization control of a quadcopter, and are interested in analyzing its robustness. In other words, given an arbitrary initial location and position, this model will guarantee that the quadcopter will soon become stable via adjusting velocities of four rotors. To specify the arbitrary initial status, we introduced 6 random variables: ($x_0$, $y_0$, $z_0$) (the initial location),  $\phi_0$ (the initial roll angle), $\theta_0$ (the initial pitch angle), and $\psi_0$ (the initial yaw angle).
+
+\textit{Experiments and Results}. To validate this model, {\bf SReach} was adopted with the BIFT statistical testing option.  
+
+
+\subsection{Additional benchmarks}
+To further demonstrate the feasibility of {\bf SReach}, we also applied it to the following benchmarks. Table \ref{table:exp} shows the results of experiments where BEST was used as the statistical testing option with $\delta' = 0.01$, 0.99 as the coverage probability, $\alpha = 1$, and $\beta = 1$. 
+
+\begin{table}[h]
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+    Benchmark & \#Modes & K & \#ODEs & \#RVs & $\delta$ & Est\_P & \#Succ\_S & \#Tot\_S & Time\_per\_S(s) \\ \hline
+    BBK1      & 1       & 1 & ~      & 3     & 0.001           & 0.754  & 5372   & 7126   & 0.086        \\ \hline
+    BBK5      & 1       & 5 & ~      & 3     & 0.001           & 0.059  & 209    & 3628   & 0.253        \\ \hline
+    BBwDv1    & 2       & 2 & ~      & 4     & 0.001           & 0.208  & 2206   & 10919  & 0.080        \\ \hline
+    BBwDv2K2  & 2       & 2 & ~      & 3     & 0.001           & 0.845  & 7330   & 8669   & 0.209        \\ \hline
+    BBwDv2K8  & 2       & 8 & ~      & 3     & 0.001           & 0.207  & 2259   & 10901  & 0.858        \\ \hline
+    Tld       & 2       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    Ted       & 2       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    DTldK3    & 2       & 3 & ~      & 2     & 0.001           & 0.996  & 227    & 227    & 0.382        \\ \hline
+    DTldK5    & 2       & 5 & ~      & 2     & 0.001           & 0.161  & 1442   & 8961   & 0.280        \\ \hline
+    W4m       & 4       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    DWK1      & 2       & 1 & ~      & 5     & 0.001           & 0.996  & 227    & 227    & 0.171        \\ \hline
+    DWK3      & 2       & 3 & ~      & 5     & 0.001           & 0.996  & 227    & 227    & 0.215        \\ \hline
+    DWK9      & 2       & 9 & ~      & 5     & 0.001           & 0.996  & 227    & 227    & 5.144        \\ \hline
+    Gear      & 4       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    Que       & 3       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    3dOsc     & 3       & ~ & ~      & ~     & 0.001           & ~      & ~      & ~      & ~            \\ \hline
+    \end{tabular}
+    \caption {BB refers to the bouncing ball models, Tld the thermostat model with linear decrease, Ted the thermostat model with exponential decrease, DT the dual\_thermostat models, W the watertank model, DW the dual\_watertank models, Gear the gear shift control model, Que the model for queuing system, and 3dOsc the model for 3d oscillator. K indicates the unfolding steps, \#ODEs = the number of ODEs in the unfolded formulae, \#RVs = the number of random variables in the model, $\delta$ is the precision for the $\delta$-decision procedure, \#Succ\_S = the number of samples with which dReal returns $\delta$-Sat, \#Tot\_S = the number of total samples, Est\_P indicates the estimated probability of the given model meeting the bounded reachability property, and Time\_per\_S(s) gives the average CPU time costed by each sample in seconds.}
+    \label{table:exp}
+\end{table}
+
+
 
 \section{Conclusion and future work}
 reword the abstract\\
@@ -379,6 +543,8 @@ will consider stochastic jumps in the near future
 
 \noindent[Aba07] Alessandro Abate. Probabilistic Reachability for Stochastic Hybrid Systems : Theory, Computations, and Applications . PhD thesis, EECS Department, University of California, Berkeley, 2007.
 
+\noindent[AEF08] Alfonso Bueno-Orovio, Elizabeth M. Cherry, and Flavio H. Fenton. Minimal model for human ventricular action potentials in tissue. Journal of Theoretical Biology, 253:544–560, 2008.
+
 \noindent[AKLP10] Alessandro Abate, Joost-Pieter Katoen, John Lygeros , and Maria Prandini. Approximate model checking of stochastic hybrid systems. European Jour- nal of Control , 16(6):624–641, 2010. 
 
 \noindent[AKLP11] Alessandro Abate, Joost-Pieter Katoen, John Lygeros , and Maria Prandini. A two-step scheme for approximate model checking of stochastic hybrid systems. In Proceedings of the 18th IFAC World Congress . IFAC, 2011.
@@ -387,13 +553,17 @@ will consider stochastic jumps in the near future
 
 \noindent[APLS08] Alessandro Abate, Maria Prandini, John Lygeros, and Shankar Sastry. Probabilistic reachability and safety for controlled discrete time stochastic hybrid systems. Automatica , 44(11):2724–2734, 2008.
 
+\noindent[BKC06] N. Bruchovsky, L. Klotz, J. Crook, S. Malone, C. Ludgte, W. Morris, M. E. Gleave, S. L. Goldenberg, and P. S. Rennie. Final results of the canadian prospective phase II trial of intermittent androgen suppression for men in biochemical recurrence after radiotherapy for locally advanced prostate cancer. Cancer, 107:389–395, 2006.
+
+\noindent[BKC07] N. Bruchovsky, L. Klotz, J. Crook, S. Malone, C. Ludgte, W. Morris, M. E. Gleave, S. L. Goldenberg, and P. S. Rennie. Locally advanced prostate cancerbiochemical results from a prospective phase II study of intermittent androgen suppression for men with evidence of prostate-specific antigen recurrence after radiotherapy. Cancer, 109:858–867, 2007.
+
 \noindent[FHH + 11] Martin Fr?anzle, Ernst Moritz Hahn, Holger Hermanns, Nicolas Wolovick, and Lijun Zhang. Measurability and safety verification for stochas tic hybrid systems. In Marco Caccamo, Emilio Frazzoli, and Radu Grosu, editor s, Proceedings of the 14th ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2011) , pages 43–52. ACM, 2011.
 
 \noindent[FHW10] Arnaud Fietzke, Holger Hermanns, and Christoph Weidenba ch. Superposition-based analysis of first-order probabilistic timed automata. In Christian G. Fermuller and Andrei Voronkov, editors, Proceedings of the 17th International Conference on Logic for Programming , Artificial Intelligence, and Reasoning (LPAR-17) , volume 6397 of Lecture Notes in Computer Science , pages 302–316. Springer, 2010.
 
 \noindent[[HNP + 11] Ernst Moritz Hahn, Gethin Norman, David Parker, Bjorn Wachter, and Li- jun Zhang. Game-based abstraction and controller synthesis for probabilistic hybrid systems. In Proceedings of the Eighth International Conference on Quantitative Evaluation of Systems (QEST 2011) , pages 69–78. IEEE Computer Society, 2011.
 
-\noindent[Hoe63] W. Hoeffding. Probability inequalities. Journal of the American Statistical Association, 58:13–30, 1963.
+\noindent[Hoe63] W. Hoeffding. Probability inequalities for sums of bounded random variables. Journal of the American Statistical Association, 58:13–30, 1963.
 
 \noindent[HWZ08] Holger Hermanns, Bjorn Wachter, and Lijun Zhang. Probabilistic CEGAR. In Aarti Gupta and Sharad Malik, editors, 20th International Conference on Computer Aided Verification (CAV 2008) , volume 5123 of Lecture Notes in Computer Science , pages 162–175. Springer, 2008.
 
@@ -402,6 +572,8 @@ will consider stochastic jumps in the near future
 \noindent[Pla11] Andre Platzer. Stochastic differential dynamic logic for stochastic hybrid programs. In Nikolaj Bjørner and Viorica Sofronie-Stokkermans, editors, Proceedings of the 23rd International Conference on Automated Deduction (CADE-23) , volume 6803 of Lecture Notes in Computer Science , pages 446– 460. Springer, 2011.
 
 \noindent[RA95] Robert E. Kass and Adrian E. Raftery (1995). "Bayes Factors". Journal of the American Statistical Association 90 (430): 791.
+
+\noindent[THG10] mathematical modelling of prostate cancer growth and its application to hormone therapy.
 
 \noindent[WA45] Wald, Abraham (June 1945). "Sequential Tests of Statistical Hypotheses". Annals of Mathematical Statistics 16 (2): 117–186. doi:10.1214/aoms/1177731118. JSTOR 2235829].
 
