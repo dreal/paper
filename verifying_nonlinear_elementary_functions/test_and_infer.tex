@@ -1,0 +1,85 @@
+\subsection{The main loop}
+%Give the over loop here and explain the general ideas.
+We want to partition a given subset $S \subseteq \mathbb{R}$ of the
+domain of a nonlinear elementary function $f : \mathbb{R} \to
+\mathbb{R}$ into two sets of intervals:
+\begin{align*}
+  P & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | < \varepsilon \}\\
+  F & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | \ge \varepsilon \}
+\end{align*}
+where $F_f$ denotes the function encoding the program. The set $P$
+represents a set of points which satisfy the specification while the
+set $F$ represents all points which possibly violate the
+specification.
+
+\begin{algorithm}
+  \centering
+  \caption{Main Loop}
+  \label{fig:main_loop}
+  \begin{algorithmic}[1]
+    \Procedure{MainLoop}{f, lb, ub, $\varepsilon$}
+    \If {$i\geq maxval$}
+    \State $i\gets 0$
+    \Else
+    \If {$i+k\leq maxval$}
+    \State $i\gets i+k$
+    \EndIf
+    \EndIf
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Figure~\ref{fig:main_loop} illustrates the main loop of the
+test-and-infer approach.
+
+
+\subsection{Verifying Good Intervals}
+For each good input $a\in \mathbb{R}$ and error bound $\varepsilon$,
+we find a neighborhood $I$ around $a$ such that
+$$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|\leq \varepsilon$$
+where $F_{\sin}$ denotes the function encoding the program.
+
+By triangle inequality, we have
+\begin{eqnarray}
+|F_{\sin}(x) - \sin(x)| \leq |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)|,
+\end{eqnarray}
+and we only need to show
+
+\begin{eqnarray}
+\forall x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| \leq \varepsilon.
+\end{eqnarray}
+
+For this, we can check satisfiability of the negation of the formula, i.e.:
+\begin{eqnarray}
+\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| > \varepsilon.
+\end{eqnarray}
+
+With Taylor expansion, we know
+\begin{eqnarray}
+|\sin(x) - \sin(a)| > \cos(a) |x - a| - \frac{\sin(a)}{2}(x-a)^2 + ... %check it
+\end{eqnarray}
+
+Thus, we only need to show
+\begin{eqnarray}
+\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + \cos(a) |x - a| -
+\frac{\sin(a)}{2}(x-a)^2 > \varepsilon.
+\end{eqnarray}
+
+The program encoding can be sliced based on monitoring on the input.
+Basically we only need the slice that's used in producing the output.
+
+\subsection{Debugging Bad Intervals}
+
+For a bad input $b$ and error bound $\varepsilon$, we aim to find a
+neighborhood $I$ around $b$ such that the error always exhibits:
+
+$$ \forall x\in I.\; |F_{\sin}(x) - \sin(x)| > \varepsilon$$
+
+The bad cases usually come from some bugs in the program. For that we
+can have a formula encoding conditions on intermediate variables.
+Formalize this ...
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

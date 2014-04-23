@@ -1,4 +1,7 @@
 \documentclass{acm_proc_article-sp}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \begin{document}
 \title{Verifying Nonlinear Elementary Functions in the Embedded GNU C Library}
@@ -14,71 +17,22 @@
 %\keywords{ACM proceedings, \LaTeX, text tagging}
 
 \section{Introduction}
-
-
+\input{intro.tex}
 
 \section{Preliminaries}
-
-\subsection{Structure of the implementation of the function}
-
-\subsection{SMT over the reals}
-
+\input{prelim.tex}
 
 \section{The Test-and-Infer Loop}
-
-\subsection{The main loop}
-
-Give the over loop here and explain the general ideas. 
-
-
-\subsection{Verifying Good Intervals}
-
-For each good input $a\in \mathbb{R}$ and error bound $\varepsilon$, we find a neighborhood $I$ around $a$ such that 
-$$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|\leq \varepsilon$$
-where $F_{\sin}$ denotes the function encoding the program.  
-
-Clearly, we have
-\begin{eqnarray}
-|F_{\sin}(x)-\sin(x)|\leq |F_{\sin}(x)-\sin(a)|+|\sin(x)-\sin(a)|,
-\end{eqnarray}
-and we only need to show
-\begin{eqnarray}
-\forall x\in I.\;|F_{\sin}(x)-\sin(a)|+|\sin(x)-\sin(a)|\leq \varepsilon.
-\end{eqnarray}
-For this, we can check satisfiability of the negation of the formula, i.e.:
-\begin{eqnarray}
-\exists x\in I.\;|F_{\sin}(x)-\sin(a)|+|\sin(x)-\sin(a)|> \varepsilon.
-\end{eqnarray}
-With Taylor expansion, we know
-\begin{eqnarray}
-|\sin(x)-\sin(a)|>\cos(a)|x-a|-\frac{\sin(a)}{2}(x-a)^2 + ... %check it
-\end{eqnarray}
-Thus, we only need to show
-\begin{eqnarray}
-\exists x\in I.\;|F_{\sin}(x)-\sin(a)|+\cos(a)|x-a|-\frac{\sin(a)}{2}(x-a)^2> \varepsilon.
-\end{eqnarray}
-
-The program encoding can be sliced based on monitoring on the input. Basically we only need the slice that's used in producing the output. 
-
-\subsection{Debugging Bad Intervals}
-
-For a bad input $b$ and error bound $\varepsilon$, we aim to find a neighborhood $I$ around $b$ such that the error always exhibits:
-$$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|>\varepsilon$$
-The bad cases usually come from some bugs in the program. For that we can have a formula encoding conditions on intermediate variables. Formalize this ...
-
+\input{test_and_infer.tex}
 
 \section{Results}
-
-Generate a picture of the segmentation of the real line. 
-
-A table for running time. Focus on coverage rate of each iteration of the loop. Compare with pure testing. 
-
+\input{results}
 
 \section{Conclusion}
+\input{conclusion}
 
-The point is that the method is not limited to the functions, but for any implementation of a mathematically defined continuous process. The same methods can be used to test controllers for instance. 
-
-
+\bibliographystyle{abbrv}
+\bibliography{ref}
 
 \end{document}
 
