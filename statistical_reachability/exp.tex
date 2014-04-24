@@ -1,0 +1,91 @@
+\section{Experiments}
+
+Our tool {\bf SReach} implements the techniques presented in the paper. The tool is open-source at \url{https://github.com/rachelwang/SReach}. In this section, we demonstrate the feasibility of our method by applying {\bf SReach} to representative hybrid systems with both nonlinear dynamics and parametric uncertainty - the prostate cancer treatment and the cardiac systems, and further through applications to a set of additional benchmarks. All benchmarks and data shown in here are also accessible on the tool website. All experiments were conducted on a machine with 2.9 GHz Intel Core i7 processor and 8 GB 1600 MHz DDR3, running OS X 10.9.2. For illustration, we used $0.001$ as the precision for the $\delta$-decision problem, and BEST as the statistical testing option with $\delta' = 0.01$, $0.99$ as the coverage probability, $\alpha = 1$, and $\beta = 1$. 
+
+
+\subsection{Application to the prostate cancer treatment}
+
+\textit{Model Description}.
+We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The model has two modes: treatment-on, and treatment-off. IAS therapy switches between them by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA). In details, when the PSA level falls below a threshold, denoted as $r_0$, androgen suppression is suspended. While, if the PSA level increases and reaches a upper threshold value $r_1$, androgen suppression is resumed by the administration of medical agents. This model describes the growth of a prostate tumor as the dynamics of a mixed population of androgen-dependent (AD) and androgen-independent (AI) cells (\cite{tanaka2010mathematical} for details of the involved system parameters). 
+
+As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we created a new and general model, based on the one in \cite{tanaka2010mathematical},  by taking the parametric variation caused by the personalized differences into account. in details, according to the clinic data from hundreds of patients \cite{bruchovsky2007locally}, we replaced 6 system parameter with random variables with appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of AD cells), $\alpha_y$ (the proliferation rate of AI cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level).
+
+\begin{table}[h]
+\centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|}
+    \hline
+    Model & \#RVs & $r_0$ & $r_1$ & Est\_P & \#S\_S & \#T\_S & T\_pre\_S(s) \\ \hline
+    PCT1  & 6     & 5.0  & 10.0 & 0.04   & 0      & 227    & 0.145        \\ \hline
+    PCT2  & 6     & 7.0  & 11.0 & 0.591  & 2144   & 3628   & 432.491      \\ \hline
+    PCT3  & 6     & 10.0 & 15.0 & 0.996  & 227    & 227    & 692.861      \\ \hline
+    \end{tabular}
+    \caption {\#RVs = the number of random variables in the model, $\delta$ is the precision for the $\delta$-decision procedure, \#S\_S = the number of samples with which dReal returns $\delta$-Sat, \#T\_S = the number of total samples, $r_0$ is the lower threshold of the serum PSA level, $r_1$ is the upper threshold, Est\_P indicates the estimated probability of the given model meeting the bounded reachability property, and T\_per\_S(s) gives the average CPU time costed by each sample in seconds.}
+    \label{table:prostate}
+\end{table}
+
+\textit{Experiments and Results}. To describe the variations due to individual difference, we assigned $\alpha_x$ to be $U(0.0193, 0.0214)$, $\alpha_y$ to be $U(0.0230, 0.0254)$, $\beta_x$ to be $U(0.0072, 0.0079)$, $\beta_y$ to be $U(0.0160, 0.0176)$, $m_1$ to be $U(0.0000475, 0.0000525) $, and $z_0$ to be $N(30.0, 0.001)$. We, then, used {\bf SReach} to estimate the probabilities of the model preventing the relapse of the prostate cancer with three distinct pairs of treatment thresholds ($r_0$, and $r_1$).  In the experiments, we chose 2 as the unfolding steps. For each sample generated, {\bf SReach} dealt with $41$ variables, and $10$ ODEs. As shown in Table \ref{table:prostate}, the model with thresholds $r_0 = 10$, and $r_1 = 15$ has the probability approaching to 1, indicating that these thresholds can be considered for the general treatment. 
+
+\subsection{Application to cardiac models}
+
+\textit{Model Description}.
+\cite{bueno2008minimal} has developed a minimum resistor model (MRM), which reproduces experimentally measured characteristics of human ventricular cell dynamics. MRM reduces the complexity of existing models via representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. With this application, we will show that {\bf SReach} can also be adopted to identify appropriate ranges and distributions for model parameters, a.k.a parameter estimation.
+\begin{table}[h]
+\centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|}
+    \hline
+    Model         & \#RVs & EPI\_TO1            & EPI\_TO2         & \#S\_S & \#T\_S & Est\_P & T\_per\_S(s) \\ \hline
+    Cd\_to1\_s    & 1     & U(0.0061, 0.007)    & 6.0              & 227       & 227      & 0.996     & 0.362        \\ \hline
+    Cd\_to1\_uns  & 1     & U(0.0055, 0.0059)   & 6.0              & 0         & 227      & 0.004     & 0.124        \\ \hline
+    Cd\_to2\_s    & 1     & 400.0               & U(0.131, 6.0)    & 227       & 227      & 0.996     & 0.361        \\ \hline
+    Cd\_to2\_uns  & 1     & 400.0               & U(0.1, 0.129)    & 0         & 227      & 0.004     & 0.139        \\ \hline
+    Cd\_to12\_s   & 2     & N(400, 0.0001)      & N(6, 0.0001)     & 227       & 227      & 0.996     & 0.373        \\ \hline
+    Cd\_to12\_uns & 2     & N(0.0055, 10e-6) & N(0.11, 10e-5) & 0         & 227      & 0.004     & 0.131        \\ \hline
+    \end{tabular}
+    \caption { \#RVs = the number of random variables in the model, \#S\_S = the number of samples with which dReal returns $\delta$-Sat, \#T\_S = the number of total samples, Est\_P indicates the estimated probability of the given model meeting the bounded reachability property, and T\_per\_S(s) gives the average CPU time costed by each sample in seconds.}
+    \label{table:cardiac}
+\end{table}
+
+\textit{Experiments and Results}. To illustrate the way that {\bf SReach} is used to conduct parameter estimation, we chose two system parameters - $EPI\_TO1$, and $EPI\_TO2$, and varied their distributions to see with which distributions for these two system parameters, the model can present the desired pattern. The model has 4 modes. In the experiments, we chose $3$ as the unfolding steps. For each sample generated, {\bf SReach} dealt with $62$ variables, and $24$ ODEs. As in the Table \ref{table:cardiac}, when $EPI\_TO1$ is either close to $400$, or between $0.0061$ and $0.007$, and $EPI\_TO2$ is close to $6$, the model can satisfy the given bounded reachability property with a probability very close to $1$. 
+
+\begin{comment}
+
+\subsection{Application to the stabilization control of quadcopters}
+
+\textit{Model Description}.
+We modeled the stabilization control of a quadcopter, and are interested in analyzing its robustness. In other words, given an arbitrary initial location and position, this model will guarantee that the quadcopter will soon become stable via adjusting velocities of four rotors. To specify the arbitrary initial status, we introduced 6 random variables: ($x_0$, $y_0$, $z_0$) (the initial location),  $\phi_0$ (the initial roll angle), $\theta_0$ (the initial pitch angle), and $\psi_0$ (the initial yaw angle).
+
+\textit{Experiments and Results}. To validate this model, {\bf SReach} was adopted with the BIFT statistical testing option.  
+
+\end{comment}
+
+
+\subsection{Additional benchmarks}
+To further demonstrate the feasibility of {\bf SReach}, we also applied it to the following benchmarks. Table \ref{table:exp} shows the results of experiments. BB refers to the bouncing ball models, Tld the thermostat model with linear temperature decrease, Ted the thermostat model with exponential decrease, DT the dual\_thermostat models, W the watertank models, DW the dual\_watertank models, Gear the gear shift control model, Que the model for queuing system, 3dOsc the model for 3d oscillator, and GuadC the model for quadcopter stabilization control. 
+\begin{table}[h]
+\centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+    Benchmark & \#Modes & K & \#ODEs & \#Vars & \#RVs & $\delta$ & Est\_P & \#S\_S & \#T\_S & T\_per\_S(s) \\ \hline
+    BBK1      & 1       & 1 & 2      & 14    & 3     & 0.001 & 0.754  & 5372      & 7126     & 0.086           \\ \hline
+    BBK5      & 1       & 5 & 2      & 38    & 3     & 0.001 & 0.059  & 209       & 3628     & 0.253           \\ \hline
+    BBwDv1    & 2       & 2 & 4      & 20    & 4     & 0.001 & 0.208  & 2206      & 10919    & 0.080           \\ \hline
+    BBwDv2K2  & 2       & 2 & 4      & 20    & 3     & 0.001 & 0.845  & 7330      & 8669     & 0.209           \\ \hline
+    BBwDv2K8  & 2       & 8 & 4      & 56    & 3     & 0.001 & 0.207  & 2259      & 10901    & 0.858           \\ \hline
+    Tld       & 2       & 7 & 2      & 33     & 4     & 0.001 & 0.996      & 227         & 227        & 0.213               \\ \hline
+    Ted       & 2       & 7 & 4      & 50     & 4     & 0.001 & 0.996      & 227         & 227       & 12.839               \\ \hline
+    DTldK3    & 2       & 3 & 4      & 26    & 2     & 0.001 & 0.996  & 227       & 227      & 0.382           \\ \hline
+    DTldK5    & 2       & 5 & 4      & 38    & 2     & 0.001 & 0.161  & 1442      & 8961     & 0.280           \\ \hline
+    W4mv1       & 4       & 3 & 8      & 26     & 6     & 0.001 & 0.381      & 5953         & 15639        & 0.238         \\ \hline
+    W4mv2K3       & 4       & 3 & 8      & 26     & 6     & 0.001 & 0.996      & 227         & 227        & 0.673          \\ \hline
+    W4mv2K7       & 4       & 7 & 8      & 50     & 6     & 0.001 & 0.004     & 0         & 227        & 0.120               \\ \hline
+    DWK1      & 2       & 1 & 4      & 14    & 5     & 0.001 & 0.996  & 227       & 227      & 0.171           \\ \hline
+    DWK3      & 2       & 3 & 4      & 26    & 5     & 0.001 & 0.996  & 227       & 227      & 0.215           \\ \hline
+    DWK9      & 2       & 9 & 4      & 62    & 5     & 0.001 & 0.996  & 227       & 227      & 5.144           \\ \hline
+    Gear      & 4       & ~ & ~      & ~     & ~     & 0.001 & ~      & ~         & ~        & ~               \\ \hline
+    Que       & 3       & 2 & ~      & ~     & ~     & 0.001 & 0.228      & 2662         & 11677        & 0.095       \\ \hline
+    3dOsc     & 3       & 2 & 18      & 48     & 2     & 0.001 & 0.996      & 227         & 227        & 8.273      \\ \hline
+    GuadC     & 1       & 0 & 14      & 44     & 6     & 0.001 & 0.996      & 227         & 227        & 825.641     \\ \hline
+    \end{tabular}
+    \caption {K indicates the unfolding steps, \#ODEs = the number of ODEs in the model, \#Vars = the number of total variables in the unfolded formulae, \#RVs = the number of random variables in the model, $\delta$ is the precision for the $\delta$-decision procedure, \#S\_S = the number of samples with which dReal returns $\delta$-Sat, \#T\_S = the number of total samples, Est\_P indicates the estimated probability of the given model meeting the bounded reachability property, and T\_per\_S(s) gives the average CPU time costed by each sample in seconds.}
+    \label{table:exp}
+\end{table}
