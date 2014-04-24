@@ -1,21 +1,34 @@
-\section{SReach}
-To solve the probabilistic bounded reachability problem, {\bf SReach} first samples the defined random variables according to the given distributions. Then, for each sample, we obtain a model of the hybrid system without any probabilistic parameters. We call this as a sampled model. {\bf SReach} then calls {\bf dReach}, which is a bounded reachability analyzer based on {\bf dReal}, and returns either unsat or $\delta$ sat for each sampled model. With a sufficient number of sampled models, using distinct hypothesis testing and estimation methods, {\bf SReach} terminates the entire procedure and returns the maximal probability of he system satisfying the given reachability property, and accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold.
-
+\section{The SReach tool}
 \subsection{Input format}
 The inputs to our {\bf SReach} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, the description of a automaton is of the following structure.
-\begin{itemize}
-\item {\bf Preprocessor.} We can use the C language syntax to define constants and macros. When defining, random variables, which will be declared later, can also be used. For example, we can write,\\
+
+{\bf Preprocessor.} We can use the C language syntax to define constants and macros. When defining, random variables, which will be declared later, can also be used. 
+
+\begin{comment}
+For example, we can write,\\
 
 $\#define\;\; x \;\;2.0$\\
 $\#define\;\; y\;\; (z^2 \;+\; 1)$\\
 
 where $z$ can be a random variable.\\
+\end{comment}
 
-\item {\bf Variable declaration.} For a random variable, the declaration specifies its distribution and name, with the format - $Dist \; \; var_nam;$, where currently "$Dist$" can be "$B(p)$" (Bernoulli distribution), "$U(p, \;q)$" (Uniform distribution), "$N(p, \;q)$" (Gaussian distribution), and "$E(p)$" (Exponential distribution). $p$ and $q$ are parameters for these distributions. (Note: it is easy to include additional distributions if needed.)\\
-For the variables which are not random variables, they are required to be declared within bounds. For instance,\\
+{\bf Variable declaration.} For a random variable, the declaration specifies its distribution and name. For the variables which are not random variables, they are required to be declared within bounds. 
+\begin{comment}
+with the format - $Dist \; \; var_nam;$, where currently "$Dist$" can be "$B(p)$" (Bernoulli distribution), "$U(p, \;q)$" (Uniform distribution), "$N(p, \;q)$" (Gaussian distribution), and "$E(p)$" (Exponential distribution). $p$ and $q$ are parameters for these distributions. (Note: it is easy to include additional distributions if needed.)
+
+For instance,\\
 $[-10, \; 20.1]\; \;  x;$\\
+\end{comment}
 
-\item {\bf Hybrid automaton.} A hybrid automaton is represented by a set of modes. Each mode is of the following structure.\\
+{\bf Hybrid automaton.} A hybrid automaton is represented by a set of modes. Within each mode declaration, users can specify statements for mode invariant(s), flow function(s), and jump condition(s). For a mode invariant, we can give any logic formula for the variables. For a flow function, it is expressed by an ODE.  As for a jump condition, it is written as 
+\begin{verbatim} 
+<logic_formula1>  ==> @<tagert_mode>  <logic_formula2>,
+\end{verbatim}
+where the first logic formula is given as the guard of the jump, and the later one specifies the reset condition after the jump.
+
+\begin{comment}
+each differential equation is of the format: "$d/dt \; [<var>]\;\;=\;\;<fun>;$". 
 
 $
 \{\;\; mode \;\; <int>;\\
@@ -24,60 +37,81 @@ flow: \;\; <ODE\; block>\\
 jump: \;\; <jump\;block>\\
 \}
 $\\
+\end{comment}
 
-In the mode\_ invariant block, we can give any logic formula for the variables. For the ODE block, each differential equation is of the format: "$d/dt \; [<var>]\;\;=\;\;<fun>;$". As for the jump block, each jump condition is written as "$<logic\_formula1> \;\; ==> \;\; @<int>\;\;<logic\_formula2>;$", where the first logic formula is given as the guard of the jump, and the later one specifies the reset condition after the jump.\\
 
-\item {\bf Initial conditions.} We can declare one initial mode with corresponding conditions via the following structure.\\
+{\bf Initial conditions and Goals.} Following the declaration of modes, we can declare one initial mode with corresponding conditions, and the reachability properties in the end.\\
+\begin{comment}
+ via the following structure.\\
 
 $
 @Mode\_num\;\;\; [initial\_conditions]
 $\\
 
-\item{\bf Goals.} We can add the reachability properties in the end. Each property can be encoded in the following format.\\
+{\bf Goals.} We can add the reachability properties in the end. Each property can be encoded in the following format.\\
 
 $
 @Mode\_num \;\;\; [reachability\_property]
 $\\
 
-\end{itemize}
+\end{comment}
 
+\noindent\textit{Example 3.1}. The following is an example input file. Currently, users can specify random variables with Bernoulli distribution, Uniform distribution, Gaussian distribution, and Exponential distribution. (Note: it is easy to include additional distributions if needed.)
+\lstset{basicstyle=\ttfamily\small, numbers=left, breaklines=true }
+\begin{lstlisting}
+#define pi 3.1416
+N(1,0.1) mu1;
+U(10,15) thro;
+E(0.49) theta1;
+B(0.75) xinit;
+[0,5] x;
+[0,3] time;
+{ mode 1; 
+  invt:
+         (x<=1.5);
+         (x>=0);
+  flow:
+	 d/dt[x]=thro*(1/(theta1*sqrt(2*pi)))
+	          *exp(0-((x-mu1)^2)/(2*theta1^2));
+  jump:
+        (x>=(thre1+5))==>@2(x'=x);
+}
+init:
+@1	(x=xinit);
+goal:
+@4	(x>=50);
+\end{lstlisting}
 
-\subsection{Statistical test options}
-
-Consider a hybrid system with parametric uncertainty $H$ and a reachability property $\phi$. {\bf SReach} can be used to answer two types of questions depending on which statistical testing technique is chosen: (1) Qualitative: Is the probability for $H$ to satisfy $\phi$ greater or less than a certain threshold? and
-(2) Quantitative: What is the probability for $H$ to satisfy $\phi$? Similar to SMC, the answer is given up to some correctness precision because of the use of statistical tests. 
-
-To deal with qualitative questions, {\bf SReach} provides the following hypothesis testing methods.
-
+\subsection{Command line}
+After building, {\bf SReach} can be simply used through:
+\begin{verbatim} 
+SReach <statistical_testing_option> <filename> <dReach> <k> 
+\end{verbatim} 
+where:
 \begin{itemize}
-
-\item {\bf Lai's test} \cite{lai1988nearly}.
-As a simple class of sequential tests, it tests the one-sided composite hypotheses $H_0: \; \theta \leq \theta_0$ versus $H_1:\; \theta \geq \theta_1$ for the natural parameter $\theta$ of an exponential family of distributions under the $0-1$ loss and cost $c$ per observation. \cite{lai1988nearly} shows that these tests have nearly optimal frequentist properties and also provide approximate Bayes solutions with respect to a large class of priors. \\
-Usage: $Lai\;\; <\theta>\;\; <cost\_per\_ sample>$,\\
-where $\theta$ indicates the probability threshold.\\
-
-\item {\bf Bayes factor test} \cite{kass1995bayes}.
-The use of Bayes factors is a Bayesian alternative to classical hypothesis testing. It is based on the Bayes' theorem. Hypothesis testing with Bayes factors is more robust than frequentist hypothesis testing, as the Bayesian form avoids model selection bias, evaluates evidence in favor the null hypothesis, includes model uncertainty, and allows non-nested models to be compared. Also, frequentist significance tests become biased in favor of rejecting the null hypothesis with sufficiently large sample size. \\
-Usage: $BFT\;\; <\theta>\;\; <T> \;\;<\alpha> \;\;<\beta>$,\\
-where $\theta$ is a probability threshold satisfying $0 < \theta < 1$, $T$ is a ratio threshold satisfying $T > 1$, and $\alpha$, and $\beta$ are beta prior parameters.\\
-
-\item {\bf Bayes factor test with indifference region}. 
-A hypothesis test has ideal performance if the probability of the Type-I error (respectively, Type-II error) is exactly $\alpha$ (respectively, $\beta$). However, these requirements make it impossible to ensure a low probability for both types of errors simultaneously (see \cite{younes2005verification} for details). A solution is to use an indifference region. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses.\\
-Usage: $BFTI \;\;<\theta> \;\;<T>\;\; <\alpha> \;\;<\beta> \;\;<\delta>$,\\
-where, besides the parameters used in the above Bayes factor test, $\delta$ is given to create the indifference region: [$p_0$, $p_1$], where $p_0 = \theta + \delta$ and $p_1 = \theta  - \delta$.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .\\
-
-\item {\bf Sequential probability ratio test (SPRT)} \cite{wald1945sequential}. 
-As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. In {\bf SReach}, we have implemented SPRT with indifference region.\\ 
-Usage: $SPRT\;\; <\theta> \;\;<T>\;\; <\delta>$.
+\item \verb+statistical_testing_option+ is a text file containing a sequence of test specifications. We will introduce the usages of statistical testing options in the following part;
+\item \verb+filename+ is a .pdrh file describing the model of a hybrid system with probabilistic system parameters. It is of the input format described in last sub-section;
+\item \verb+dReach+ is a bounded reachability analyzing tool for hybrid systems based on dReal; and
+\item \verb+k+ is the number of steps of the model that the tool will explore.\\
 \end{itemize}
-To offer quantitative answers, {\bf SReach} also supports estimation procedures as below.
-\begin{itemize}
 
-\item {\bf Chernoff-Hoeffding bound} \cite{hoeffding1963probability}. To estimate the probability $p$ for $H$ to satisfy $\phi$, given a precision $\delta'$, the Chernoff-Hoeffding bound can given a value $p'$ such that $|p' \; - \; p| \le \delta'$ with confidence $1\;-\; \alpha$.\\
-Usage: $CHB\;\; <\delta'> \;\;<coverage\_ probability>$,\\
-where $\delta'$ is the given precision, and $coverage\_ probability$ indicates the confidence.\\
+\subsection{Statistical testing options}
 
-\item {\bf Bayesian Interval Estimation with Beta prior} \cite{zuliani2010bayesian}. This method estimates $p$, the unknown probability that a random sampled model satisfies a specified reachability property. The estimate will be in the form of a confidence interval, congaing $p$ with an arbitrary high probability.  \cite{zuliani2010bayesian} assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. It has been showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing.\\ Usage: $BEST\;\; <\delta'> \;\;<coverage\_probability>\;\; <\alpha> \;\;<\beta>$.\\
-\end{itemize}
+{\bf SReach} can be used with different statistical testing methods through the following specifications.
+
+\textit {Lai's test}: \verb+Lai <theta> <cost_per_sample>+, where \verb+theta+ indicates the probability threshold.
+ 
+\textit {Bayes factor test}: \verb+BFT <theta> <T> <alpha> <beta>+,
+where \verb+theta+ is a probability threshold satisfying \verb+0 < theta < 1+, \verb+T+ is a ratio threshold satisfying \verb+T > 1+, and \verb+alpha+, and \verb+beta+ are beta prior parameters.
+
+\textit {BFT with indifference region}: \verb+BFTI <theta> <T> <alpha> <beta> <delta>+,
+where, besides the parameters used in the above Bayes factor test, \verb+delta+ is given to create the indifference region - [$p_0$, $p_1$], where $p_0$ = \verb+theta+ + \verb+delta+ and $p_1$ = \verb+theta+  - \verb+delta+.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .
+
+\textit {Sequential probability ratio test (SPRT)}: \verb+SPRT <theta> <T> <delta>+.
+
+\textit {Chernoff-Hoeffding bound}: \verb+CHB <delta1> <coverage_probability>+,
+where \verb+delta1+ is the given precision, and \verb+coverage_probability+ indicates the confidence.
+
+\textit {Bayesian Interval Estimation with Beta prior}: \\ \verb+BEST <delta1> <coverage_probability> <alpha> <beta>+.
 
 
