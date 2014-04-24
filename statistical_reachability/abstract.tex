@@ -1,0 +1,17 @@
+We present a novel approach that combines Satisfiability Modulo Theories (SMT) and 
+statistical testing to solve the probabilistic bounded reachability problem of 
+hybrid systems with parameter uncertainty. That is, we want to find out whether 
+a hybrid system with probabilistic system parameters reaches an unsafe region of the
+state space within a finite number of steps with a probability greater (or less) than a 
+fixed threshold. Standard approaches to this problem require numerical solutions for 
+large optimization problems, and become unfeasible for systems involving nonlinear dynamics
+over the reals. Our approach solves the reachability problem by combining randomized 
+sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
+and statistical tests. In particular, we utilize $\delta-$complete decision procedures 
+to solve reachability analysis in a sound way, i.e., we always decide correctly if, for a given
+combination of parameters, the system actually reaches the unsafe region (in the opposite case 
+we may generate false positives, but this can be controlled by a precision parameter $\delta>0$).
+Compared to other simulation-based analysis methods, our approach supports 
+non-deterministic branching, increases the coverage of simulation, and avoids the
+zero-crossing problem. We demonstrate that our method is feasible for general
+hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to two representative examples - the prostate cancer treatment control and the cardiac system, and further through applications to additional benchmarks.
