@@ -4,9 +4,12 @@
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
 \usepackage{verbatim}
+\usepackage{amsmath}
 \usepackage{url}
 \usepackage{cite}
 \usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
 \urldef{\mailsb}\path|anna.kramer, leonie.kunz, christine.reiss, nicole.sator,|
 \urldef{\mailsc}\path|erika.siebert-cole, peter.strasser, lncs}@springer.com|    
@@ -68,14 +71,7 @@
 \input{abstract}
 \end{abstract}
 \input{intro}
-\section{Bounded reachability analysis for hybrid systems}
-wait for Paolo to finish this part with the following outline\\
-\subsection{$\delta$-complete decision procedure (dReal)}
-\subsection{Probabilistic bounded reachability for hybrid systems}
-formal definitions for\\
-- hybrid systems (hybrid automata)\\
-- probabilistic reachability problem
-\subsection{Encoding bounded reachability}
+\input{theory}
 \input{tool}
 \input{exp}
 \input{con}
