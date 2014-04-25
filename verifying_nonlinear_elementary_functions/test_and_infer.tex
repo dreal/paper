@@ -26,12 +26,12 @@ We want to partition a given subset $S \subseteq \mathbb{R}$ of the
 domain of a nonlinear elementary function $f : \mathbb{R} \to
 \mathbb{R}$ into two sets of intervals:
 \begin{align*}
-  P & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | \le \varepsilon \}\\
-  F & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | > \varepsilon \}
+  G & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | \le \varepsilon \}\\
+  B & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | > \varepsilon \}
 \end{align*}
-where $F_f$ denotes the function encoding the program. The set $P$
+where $F_f$ denotes the function encoding the program. The set $G$
 represents a set of points which satisfy the specification while the
-set $F$ represents all points which possibly violate the
+set $B$ represents all points which possibly violate the
 specification.
 
 \begin{algorithm}
@@ -39,48 +39,72 @@ specification.
   \caption{Test-and-Infer}
   \label{fig:test-and-infer}
   \begin{algorithmic}[1]
-    \Procedure{Test-and-Infer}{f, g, lb, ub, $\varepsilon$}
-        \State $c \gets lb$
-        \State $P \gets \{\}$
-        \State $F \gets \{\}$
-        \While{$c \le ub$}
-            \If {$ |f(c) - g(c)| \le \varepsilon$}
+    \Procedure{Test-and-Infer}{$f$, $F_f$, $l$, $u$, $\varepsilon$}
+        \State $G \gets \{\}$
+        \State $B \gets \{\}$
+        \State $c \gets l$
+        \While{$c \le u$}
+            \If {$ |f(c) - F_f(c)| \le \varepsilon$}
                 % Good
-                \State $\delta \gets \mathrm{FindDelta}(f, g(c), c, \varepsilon)$
-                \State $P \gets P \cup
-                                \{ [c - \delta, c + \delta] \}$
+                \State $P(x) \gets |f(x) - F_f(x)| \le \varepsilon$
+                \State $r \gets \mathrm{Infer}(P, r, \delta)$
+                \State $G \gets G \cup
+                                \{ [c - r, c + r] \}$
             \Else
                 % Bad
-                \State $\delta \gets \mathrm{FindDelta}(f, g(c), c, \varepsilon)$
-                \State $F \gets F \cup
-                                \{ [c - \delta, c + \delta] \}$
+                \State $P(x) \gets |f(x) - F_f(x)| > \varepsilon$
+                \State $r \gets \mathrm{Infer}(P, r, \delta)$
+                \State $B \gets B \cup
+                                \{ [c - r, c + r] \}$
             \EndIf
-            \State $c \gets c + \delta$
+            \State $c \gets c + r$
         \EndWhile
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
 
-Figure~\ref{fig:test-and-infer} illustrates the main algorithm of our
-approach. Given a function $f$, range $[lb, ub]$, and an error-bound
-$\varepsilon$, \texttt{Test-and-Infer} returns the two sets $P$ and
-$F$. After initialization (line 2 - 4), it executes $f(c)$ and store
+\begin{algorithm}
+  \centering
+  \caption{Infer}
+  \label{fig:good}
+  \begin{algorithmic}[1]
+    \Procedure{Infer}{$P$, $\delta$, $r$}
+        \While{true}
+            \State $R \gets Solve_{\delta}(\exists x. \; |x - c| \le r \land \neg P(x))$
+            \If {$ R = UNSAT$}
+                % There is no x violating the property within
+                % [c - \delta, c + \delta]
+                \State \Return $r$
+            \ElsIf {$R = \delta$-$SAT$ with $x \mapsto c'$}
+                % \delta-SMT finds a counterexample c'
+                \If {$\neg P(c')$}
+                    % c' is a good point
+                    \State $r \gets |c - c'|$
+                    \Comment $\delta$-$SAT \to SAT$
+                \Else
+                    % c' is a bad point
+                    \State $\delta \gets \delta / 2$
+                    \Comment $\delta$-$SAT \to UNSAT$
+                \EndIf
+            \EndIf
+        \EndWhile
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{fig:test-and-infer} illustrates the main algorithm of our
+approach. Given a function $f$, a range $[l, u]$, and an error-bound
+$\varepsilon$, \texttt{Test-and-Infer} returns the two sets $G$ and
+$B$. After initialization (line 2 - 4), it executes $f(c)$ and store
 the result at $r$ (line 6).
 
 \subsection{Encoding the Implementation}
 
-
-
-
-
-
-Show many snippets of the code. 
-
-
-
+Show many snippets of the code.
 
 
 \subsection{Verifying Good Intervals}
+
 For each good input $a\in \mathbb{R}$ and error bound $\varepsilon$,
 we find a neighborhood $I$ around $a$ such that
 $$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|\leq \varepsilon$$
