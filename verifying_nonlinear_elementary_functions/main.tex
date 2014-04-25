@@ -3,6 +3,31 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{fancyvrb}
+\newtheorem{definition}{Definition}
+
+\usepackage{amsmath, amssymb, fancyvrb, multirow, color, relsize}
+\usepackage{times}
+\usepackage{rotating}
+\usepackage{tabularx}
+\usepackage[
+%backref controls whether the bibliography has a list of backreferences
+%to where the citaiton is used
+%backref,
+pageanchor=true,
+plainpages=false,
+pdfpagelabels, % makes the status line page labels the same as latex ones
+bookmarks,
+bookmarksnumbered,
+pdfborder=0 0 0,
+pdfpagemode=UseOutlines]{hyperref}
+\usepackage{subfigure}
+\newcommand{\singlespace}{\renewcommand{\baselinestretch}{1.0}\normalsize}
+\newcommand{\rup}[1]{\ensuremath{\mathrm{#1}^{\uparrow}}}
+\newcommand{\rdn}[1]{\ensuremath{\mathrm{#1}^{\downarrow}}}
+\newcommand{\rzr}[1]{\ensuremath{\mathrm{#1}^{\to 0}}}
+\newcommand{\rne}[1]{\ensuremath{\mathrm{#1}^{\cdot}}}
+\newcommand{\dreal}{\textsf{dReal}}
+
 
 \begin{document}
 \title{Verifying Nonlinear Elementary Functions in the Embedded GNU C Library}
@@ -27,6 +52,7 @@
 
 \input{conclusion}
 
+\newpage
 \bibliographystyle{abbrv}
 \bibliography{ref}
 

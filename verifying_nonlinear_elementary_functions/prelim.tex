@@ -1,8 +1,54 @@
 \section{Preliminaries}
 
-\subsection{Structure of the Implementation of the Function}
+We give an overview of the floating point implementation of the sine function in the Embedded GNU C Library. We then briefly review SMT solving of nonlinear formulas over the reals and features of our solver dReal~\cite{}.
+
+\subsection{Floating-Point Representations and Errors}
+
+Floating point representations. 
+
+It is well-known that floating point computation introduces errors. For basic arithmetic operations, the error can be estimated by the following formula. 
+
+We use this formula to overapproximate the result of floating point arithmetic with real arithmetic. 
+
+\subsection{Structure of the Implementation}
+
+The basic idea of evaluating the sine function is, naturally, to combine the periodic nature of the function and estimate the value with Taylor series. For each input number, the routine checks its position with respect to multiples of $\pi/4$, and then evaluate the value with appropriate Taylor expansion. 
+
+The implementation of the sine function has the following structure. 
+\begin{verbatim}
+Give a simplified skeleton
+\end{verbatim}
+
+We should highlight the bit-level operations and table look up in the formula. 
 
 \subsection{SMT over the Reals}
+
+
+SMT formulas over the real numbers are very hard to solve when nonlinear functions are involved. 
+We let $\mathcal{F}$ denote a set of continuous real functions. $\mathcal{L}_{\mathcal{F}}$ denotes the first-order signature and $\mathbb{R}_{\mathcal{F}}$ is the standard structure $\langle \mathbb{R}, \mathcal{F}\rangle$. We can then consider the SMT problem over $\mathbb{R}_{\mathcal{F}}$, namely, satisfiability of quantifier-free $\mathcal{L}_{\mathcal{F}}$-formulas over $\mathbb{R}_{\mathcal{F}}$. We consider formulas whose variables take values from bounded intervals. Because of this, it is more convenient to directly write the bounds on existential quantifiers and express bounded SMT problems as $\Sigma_1$-sentences with bounded quantifiers.
+\begin{definition}[Bounded $\Sigma_1$-Sentences]
+A bounded $\Sigma_1$-sentence in $\mathcal{L}_{F}$ is
+$$\varphi:\ \exists^{I_1}x_1\cdots \exists^{I_n}x_n. \psi(x_1,...,x_n).$$
+We can write a bounded $\Sigma_1$-sentence as $\exists^{\vec I}\vec x.\psi(\vec x)$ for short.
+\end{definition}
+It is well-known that the first-order theory with transcendental functions is undecidable. However, it is recently shown in~\cite{} that if we consider numerical perturbations as part of the decisions of the logic formulas, we have a decidable problem~\cite{}. Let $\delta$ be any positive rational number. Define a syntactic variation of a formula as follows:
+\begin{definition}[$\delta$-Weakening~\cite{DBLP:conf/cade/GaoAC12}]
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
+$\Sigma_1$-sentence in a standard form 
+$$\varphi:= \exists^{\vec I}\vec
+x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)= 0)).$$The $\delta$-weakening of $\varphi$ defined as:
+$$\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+|f_{ij}(\vec x)|\leq \delta)).$$
+\end{definition}
+The $\delta$-decision problem is then defined as follows. On a given SMT formula $\varphi$, we can ask for one of the following answers:
+\begin{itemize}
+ \item {\sf unsat}: $\varphi$ is unsatisfiable.
+ \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
+\end{itemize}
+When the two cases overlap, either answer can be returned. It is important to note that error is only one-sided. 
+
+With such relaxation, $\delta$-complete decision procedures can fully exploit the power of scalable numerical algorithms to solve nonlinear problems, and at the same time provide suitable correctness guarantees for many correctness-critical problems. {\sf dReal}\footnote{{\sf dReal} is available at \url{http://dreal.cs.cmu.edu}.} implements this framework. It solves SMT problems over the reals with nonlinear functions, such as polynomials, sine, exponentiation, logarithm, etc. The user can obtain certificates (proof of unsatisfiability or solution) for the answers.
 
 %%% Local Variables:
 %%% mode: latex

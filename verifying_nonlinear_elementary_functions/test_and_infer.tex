@@ -21,18 +21,25 @@ it accelerates the overall verification process. In our experiment
 shows that it takes about XXX minutes to check a property of sine
 implementation on the same interval $[0, 1]$.
 
+It is important to note that the final results do not contain false positives or negatives. 
+
+
+
 \subsection{The Main Algorithm}
-We want to partition a given subset $S \subseteq \mathbb{R}$ of the
+The overall goal is the following. We want to partition a given subset $S \subseteq \mathbb{R}$ of the
 domain of a nonlinear elementary function $f : \mathbb{R} \to
-\mathbb{R}$ into two sets of intervals:
+\mathbb{R}$ into three sets of intervals:
 \begin{align*}
   G & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | \le \varepsilon \}\\
-  B & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | > \varepsilon \}
+  B & = \{ [l, u] \mid \forall x \in [l, u]. \; | F_f(x) - f(x) | > \varepsilon \}\\
+  grey area &
 \end{align*}
 where $F_f$ denotes the function encoding the program. The set $G$
 represents a set of points which satisfy the specification while the
 set $B$ represents all points which possibly violate the
-specification.
+specification. 
+
+Note that the partitioning into good and bad regions is always mathematically possible over the reals. However, the reliant on $\delta$-complete procedures may lead to blurring boundaries that give the grey areas. One goal is to minimize the grey area and have complete partitioning as much as possible. In the grey areas, more expensive algorithms, for instance based on theorem proving, can be used, which is not our focus.  
 
 \begin{algorithm}
   \centering
@@ -62,11 +69,89 @@ specification.
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+Algorithm~\ref{fig:test-and-infer} illustrates the main algorithm of our
+approach. Given a function $f$, a range $[l, u]$, and an error-bound
+$\varepsilon$, \texttt{Test-and-Infer} returns the two sets $G$ and
+$B$. After initialization (line 2 - 4), it executes $f(c)$ and store
+the result at $r$ (line 6).
+
+\subsection{Encoding the Implementation}
+
+The structure of the code is a set of branches based on the interval that the input of the function lies in. 
+
+
+
+Show snippet of the full structure code.
+
+\paragraph{Bit-level operations}
+A main operation in the program is that we need to extract the last two significant bit of a floating point number. We need the following encoding. 
+\begin{verbatim}
+code
+\end{verbatim}
+corresponds to
+\[
+k\cdot 2^e< y <(k+1)\cdot 2^e
+\]
+Note the exponent requires reasoning about the bit-level representation of the number, which is difficult to do in general with logic formulas. The benefit of only reasoning about the function in the neighborhood of a test case becomes apparent. We can obtain the desired significant bits by directly obtaining them from the number itself, and use the information in the encoding. 
+
+\paragraph{Arrays and Tables}
+
+The calculation of the function uses a table of predefined values. It is clear that the table can be directly encoded as a disjunction of the different cases of the index. 
+
+\paragraph{Special Data Structures}
+
+mynumber
+
+\paragraph{Run-time Exceptions}
+
+In the implementation, the main run-time errors come from the possibility of having division by zero, or array out of bounds. We can insert a check for zeros, although in the sine function there is no division used. For arrays, we insert a check for the bound on the index. That is, we use the following encoding. 
+\begin{verbatim}
+Code
+\end{verbatim}
+corresponds to the following sub formula
+\begin{eqnarray*}
+k
+\end{eqnarray*}
+
+
+\subsection{Verifying Good Intervals}
+
+For each good input $a\in \mathbb{R}$ and error bound $\varepsilon$,
+we find a neighborhood $I$ around $a$ such that
+$$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|\leq \varepsilon$$
+where $F_{\sin}$ denotes the function encoding the program.
+
+By triangle inequality, we have
+\begin{eqnarray}
+|F_{\sin}(x) - \sin(x)| \leq |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)|,
+\end{eqnarray}
+and we only need to show
+\begin{eqnarray}
+\forall x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| \leq \varepsilon.
+\end{eqnarray}
+
+For this, we can check satisfiability of the negation of the formula, i.e.:
+\begin{eqnarray}
+\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| > \varepsilon.
+\end{eqnarray}
+
+With Taylor expansion, we know
+\begin{eqnarray}
+|\sin(x) - \sin(a)| > \cos(a) |x - a| - \frac{\sin(a)}{2}(x-a)^2 + ... %check it
+\end{eqnarray}
+
+Thus, we only need to show
+\begin{eqnarray}
+\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + \cos(a) |x - a| -
+\frac{\sin(a)}{2}(x-a)^2 > \varepsilon.
+\end{eqnarray}
+
+The program encoding can be sliced based on monitoring on the input.
+Basically we only need the slice that's used in producing the output.
 
 \begin{algorithm}
   \centering
-  \caption{Infer}
-  \label{fig:good}
+  \caption{Verify neighborhood for good inputs}
   \begin{algorithmic}[1]
     \Procedure{Infer}{$P$, $\delta$, $r$}
         \While{true}
@@ -92,53 +177,6 @@ specification.
   \end{algorithmic}
 \end{algorithm}
 
-Algorithm~\ref{fig:test-and-infer} illustrates the main algorithm of our
-approach. Given a function $f$, a range $[l, u]$, and an error-bound
-$\varepsilon$, \texttt{Test-and-Infer} returns the two sets $G$ and
-$B$. After initialization (line 2 - 4), it executes $f(c)$ and store
-the result at $r$ (line 6).
-
-\subsection{Encoding the Implementation}
-
-Show many snippets of the code.
-
-
-\subsection{Verifying Good Intervals}
-
-For each good input $a\in \mathbb{R}$ and error bound $\varepsilon$,
-we find a neighborhood $I$ around $a$ such that
-$$\forall x\in I.\; |F_{\sin}(x)-\sin(x)|\leq \varepsilon$$
-where $F_{\sin}$ denotes the function encoding the program.
-
-By triangle inequality, we have
-\begin{eqnarray}
-|F_{\sin}(x) - \sin(x)| \leq |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)|,
-\end{eqnarray}
-and we only need to show
-
-\begin{eqnarray}
-\forall x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| \leq \varepsilon.
-\end{eqnarray}
-
-For this, we can check satisfiability of the negation of the formula, i.e.:
-\begin{eqnarray}
-\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + |\sin(x) - \sin(a)| > \varepsilon.
-\end{eqnarray}
-
-With Taylor expansion, we know
-\begin{eqnarray}
-|\sin(x) - \sin(a)| > \cos(a) |x - a| - \frac{\sin(a)}{2}(x-a)^2 + ... %check it
-\end{eqnarray}
-
-Thus, we only need to show
-\begin{eqnarray}
-\exists x\in I.\; |F_{\sin}(x) - \sin(a)| + \cos(a) |x - a| -
-\frac{\sin(a)}{2}(x-a)^2 > \varepsilon.
-\end{eqnarray}
-
-The program encoding can be sliced based on monitoring on the input.
-Basically we only need the slice that's used in producing the output.
-
 \subsection{Debugging Bad Intervals}
 
 For a bad input $b$ and error bound $\varepsilon$, we aim to find a
@@ -149,6 +187,34 @@ $$ \forall x\in I.\; |F_{\sin}(x) - \sin(x)| > \varepsilon$$
 The bad cases usually come from some bugs in the program. For that we
 can have a formula encoding conditions on intermediate variables.
 Formalize this ...
+
+\begin{algorithm}
+  \centering
+  \caption{Falsify neighborhood for bad inputs}
+  \begin{algorithmic}[1]
+    \Procedure{Infer}{$P$, $\delta$, $r$}
+        \While{true}
+            \State $R \gets Solve_{\delta}(\exists x. \; |x - c| \le r \land \neg P(x))$
+            \If {$ R = UNSAT$}
+                % There is no x violating the property within
+                % [c - \delta, c + \delta]
+                \State \Return $r$
+            \ElsIf {$R = \delta$-$SAT$ with $x \mapsto c'$}
+                % \delta-SMT finds a counterexample c'
+                \If {$\neg P(c')$}
+                    % c' is a good point
+                    \State $r \gets |c - c'|$
+                    \Comment $\delta$-$SAT \to SAT$
+                \Else
+                    % c' is a bad point
+                    \State $\delta \gets \delta / 2$
+                    \Comment $\delta$-$SAT \to UNSAT$
+                \EndIf
+            \EndIf
+        \EndWhile
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 %%% Local Variables:
 %%% mode: latex

@@ -1,8 +1,142 @@
-\section{Results}
+\section{Experimental Results}
+
+We first report serious bugs that we have found using the methodology, and then show the partitioning of the real line for the sine function. 
+
+\subsection{Serious Bugs}
+
+
+For each function $f$, we take $100,000$ random numbers from a subset
+of function $f$'s domain. Table~\ref{tbl:exp_setup} shows each
+function's sampling domain and range. We pick the sampling domain
+carefully so that the result of the computation can be fit in a
+double-precision variable. We consider the four rounding modes
+supported by C99 standard~\cite{ISO:C99}:
+\[
+\cdot \text{ (nearest)}, \
+\to\!\!0 \text{ (toward zero)}, \
+\uparrow \text{ (toward $+\infty$)}, \
+\downarrow \text{ (toward $-\infty$)}.
+\]
+\begin{table*}[h!t]
+  \centering
+  \caption{Experimental results on Intel and AMD machines:
+    $\mathrm{f}^{\uparrow}$, $\mathrm{f}^{\downarrow}$, and
+    $\mathrm{f}^{\to 0}$ indicate a function f with rounding mode toward
+    $+\infty$, toward $-\infty$, and toward $0$ respectively.
+    ``Inconsistent'' denotes the number of cases in which the difference
+    of two results are larger than $2^{20}$ ULP (Unit of Least Precision).
+    ``Incorrect'' denotes the number of cases in which
+    $\mathrm{f}_{\mathrm{C}}(x)$ is out of $f$'s mathematical range.
+    ``$\pm\infty$'' denotes the number of cases in which
+    $\mathrm{f}_{\mathrm{C}}(x)$ is either $-\infty$ or $+\infty$.
+  }
+  \begin{tabular}{l||r|r|r|r||r|r|r|r}
+\multirow{2}{*}{Function}&  \multicolumn{4}{c}{Intel}& \multicolumn{4}{|c}{AMD}\\
+\cline{2-9}
+       &   Inconsistent& Incorrect&$\pm\infty$& Total&  Inconsistent& Incorrect&$\pm\infty$& Total\\
+    \hline\hline
+    \rup{sin}&  10055&    446&   0&  10501&   9853&   450&   0&  10303\\
+    \rdn{sin}&   9619&    497&   0&  10116&  10009&   450&   0&  10459\\
+    \rzr{sin}&  10087&    436&   0&  10523&   9904&   423&   0&  10327\\
+    \rup{cos}&  10097&    434&   0&  10531&   9880&   423&   0&  10303\\
+    \rdn{cos}&   9815&    442&   0&  10257&   9910&   461&   0&  10371\\
+    \rzr{cos}&   9737&    444&   0&  10181&   9913&   441&   0&  10354\\
+    \rup{tan}&  12218&      0&   0&  12218&  12452&     0&   0&  12452\\
+    \rdn{tan}&  12387&      0&   0&  12387&  12378&     0&   0&  12378\\
+    \rzr{tan}&  12486&      0&   0&  12486&  12506&     0&   0&  12506\\
+   \rup{cosh}&  18768&  30139& 935&  49842&  37091& 12295& 291&  49677\\
+   \rdn{cosh}&  49766&      0&   0&  49766&  49673&     0&   0&  49673\\
+   \rzr{cosh}&  49713&      0&   0&  49713&  49772&     0&   0&  49772\\
+   \rup{sinh}&  47807&      0&   0&  47807&  47451&     0& 266&  47717\\
+   \rdn{sinh}&  47493&      0&   0&  47493&  47676&     0&   0&  47676\\
+   \rzr{sinh}&  47911&      0&   0&  47911&  48046&     0&   0&  48046\\
+   \rup{tanh}&   3107&      0&   0&   3107&   3242&     0&   0&   3242\\
+   \rdn{tanh}&   3135&      0&   0&   3135&   3268&     0&   0&   3268\\
+    \rup{exp}&  47386&   2536&   0&  49922&  37883& 11708& 124&  49715\\
+    \rdn{exp}&  49646&      0&   0&  49646&  49978&     0&   0&  49978\\
+    \rzr{exp}&  50022&      0&   0&  50022&  49836&     0&   0&  49836
+  \end{tabular}
+  \label{tbl:exp_result}
+\end{table*}
+For each sample $x$ and for each rounding mode $rnd$, we compute two
+values $f^{\mathrm{rnd}}_{C}(x)$ and
+$f^{\mathrm{rnd}}_{\mathrm{MPFR}}(x)$ where $f_{C}$ is a function $f$
+in C standard library and $f_{\mathrm{MPFR}}$ is a function $f$ in the
+GNU MPFR library. MPFR supports arbitrary-precision floating-point
+computation and we use it as a reference implementation to have a
+comparison. The correctness of MPFR is, of course, another issue and
+we do not discuss it here. In the experiments, we use 256-bit
+precision for MPFR.
+
+We run the experiments\footnote{Source code is available at
+  https://github.com/soonhokong/fp-test} on two machines -- one with
+Intel Core i7-2600 CPU (8-core, 3.40GHz) and another with AMD Opteron
+Processor 6134 (32-core, 2.30GHz). Both of them are running Ubuntu
+12.04 LTS in which uses EGLIBC-2.15 for the C standard library
+implementation. We use MPFR-3.1.1 and g++-4.8.1 C++ compiler in the
+experiments.
+
+The experimental results are summarized in table~\ref{tbl:exp_result}.
+\begin{enumerate}
+\item The implementations of $\mathrm{sin}$, $\mathrm{cos}$,
+  $\mathrm{tan}$, $\mathrm{cosh}$, $\mathrm{sinh}$, $\mathrm{tanh}$
+  and $\mathrm{exp}$ functions have severe problems when used with
+  non-default rounding modes (toward $\infty$, toward $-\infty$, and
+  toward $0$). It is also not rare to have the problematic case in
+  practice. For instance, $\rup{cosh}$ function gives wrong results
+  almost 50\% of cases (49,842 out of 100,000).
+\item We have not observed any problem under the default rounding mode
+  (toward nearest representable number). Also the implementations of
+  $\mathrm{acos}, \mathrm{asin}, \mathrm{atan}, \mathrm{tanh},
+  \mathrm{log}, \mathrm{log_{10}}$, and $\mathrm{sqrt}$ functions pass
+  our tests.
+\end{enumerate}
+
+\subsection{Partitioning}
+
 Generate a picture of the segmentation of the real line.
 
 A table for running time. Focus on coverage rate of each iteration of
 the loop. Compare with pure testing.
+
+
+
+\subsection{Patch in EGLIBC-2.17}\label{sec:fix}
+
+In EGLIBC-2.17, they provided a patch for the problem. The following
+is a part of the new implementation of sine function (IEEE754
+double-precision)\footnote{Available at
+  \url{http://www.eglibc.org/cgi-bin/viewvc.cgi/branches/eglibc-2_17/libc/sysdeps/ieee754/dbl-64/s_sin.c?view=markup}}:
+
+\begin{Verbatim}[numbers=left, frame=single, firstnumber=101,
+  commandchars=\\\{\}, fontsize=\relsize{-1}, label={\texttt{eglibc-2.17/libc/sysdeps/ieee754/dbl-64/s\_sin.c}}, labelposition=topline  ]
+__sin(double x)\{
+        double xx,res,t,cor,y,s,c,sn,ssn,cs,ccs,xn,a,da,db,eps,xn1,xn2;
+#if 0
+        double w[2];
+#endif
+        mynumber u,v;
+        int4 k,m,n;
+#if 0
+        int4 nn;
+#endif
+        double retval = 0;
+
+        \textbf{SET_RESTORE_ROUND_53BIT (FE_TONEAREST);}
+\end{Verbatim}
+
+We find that the patch does not really fix the problem. At line 113,
+it resets the rounding mode to ``round to nearest'' and compute the
+value of $\sin(x)$ while ignoring the user-specified rounding mode. We
+found a case in which the value of $\rup{\sin}_{C}(x)$ is smaller than
+the value of $\rne{\sin}_{\mathrm{MPFR}}(x)$, which violates the
+semantics of ``toward $+\infty$'' rounding mode:
+\begin{align*}
+            \rup{\sin}_{C}(-3.93799) & = 0.7148414480838297\underline{66879659928236}\\
+   \rne{\sin}_{\mathrm{MPFR}}(-3.93799) & = 0.7148414480838297\underline{71665831705916}
+\end{align*}
+
+
 
 %%% Local Variables:
 %%% mode: latex
