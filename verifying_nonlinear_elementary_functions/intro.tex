@@ -1,4 +1,55 @@
 \section{Introduction}
+
+A major obstacle in ensuing the correctness of critical embedded applications comes from floating-point computations. It is well-known that it is erroneous to compute with floating-point numbers and operations as though they were real numbers~\cite{pitfalls}. A lot of effort has been devoted to ensuring the correctness of basic arithmetic operations of floating point numbers, such as Goppa~\cite{}. Testing and verification methods for embedded software can rely on an abstraction of the basic arithmetic functions, and treat them as over-approximations of the corresponding real operations. Steady progress is made in this direction~\cite{}. 
+
+If we solve the basic arithmetic operations correctly, the next natural step is to ensure properties for basic elementrary real functions, such as exponentiation and trignometric functions. The importance of the functions is clear. Although there are approaches for verifying the correctness of theoretical algorithms~\cite{harrison}, but practical implementations are rarely handled, because of the abundant use of table look up and bit-level operations. The scale of the functions also makes it hard to have complete verification on the full interval, since the computation is usually very expensive. However, multiple problems are involved that render the problem harder than what can be solved in the existing approaches:
+\begin{itemize}
+\item No IEEE standard.
+\item Nonlinear arithmetic. 
+\item Table lookup and bit-level operations.  
+\item Transcendental functions have no solvers. 
+\end{itemize}
+As a result, the implementation of these functions is easily problematic. One surprising bug we have found in our attempt of verifying these functions is the following. In Linux systems using Embedded
+GLIBC (EGLIBC) version 2.16 or older\footnote{EGLIBC is a variant of the GNU C Library (GLIBC) which is used as the default implementation in many distributions including Debian, Ubuntu, and their variants.}, the following C program computes the value of $\sin(-2.437592)$ in double-precision after setting the rounding direction to upward ($+\infty$).
+\begin{Verbatim}[numbers=left, frame=single]
+#include <math.h>
+#include <fenv.h>
+#include <stdio.h>
+
+int main() {
+    double x = -2.437592;
+    fesetround(FE_UPWARD);
+    printf("sin(%f)=%f\n", x, sin(x));
+    return 0;
+}
+\end{Verbatim}
+The output value turns our to be: 
+\begin{Verbatim}[frame=single]
+$ gcc exp_bug.c -lm && ./a.out
+sin(-2.437592)=191561981424936943059347927032148030287313979209416704.00000
+\end{Verbatim}
+Problems as such are serious and bring the immediate need for verifying the correctness of the implementations. Although there is no exact IEEE standard for these functions and the result is often platform-dependent, there is at least the expectation that for the interval of interest, the value computed by the program is within a user-tolerable error bound with the correct mathematical result of the function.
+
+We present an approach that establishes such results. Our approach combines testing and static analysis using our SMT solver dReal. We provide a methodology that can generalize testing for both good and bad inputs. As a result, we obtain a detailed segmentation of the real line that divided input values into different regions. Note that this is doable for user defined error bounds. We give a visualization of the result in Section~\ref{}. 
+
+We believe the our result is important in several aspects. 
+\begin{itemize}
+\item It is the first method for verifying properties of transcendetal functions. 
+\item We report concrete bugs in the implementation and verified intervals. 
+\end{itemize}
+We remark that the approach is not just applicable to the basic functions but also many control software implementations. The verification results can be used as a building block that can be bootstrapped to more complex functions. 
+
+The paper is organized as follows. 
+
+
+
+
+
+
+
+
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
