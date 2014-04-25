@@ -85,14 +85,15 @@ goal:
 \subsection{Command line}
 After building, {\bf SReach} can be simply used through:
 \begin{verbatim} 
-SReach <statistical_testing_option> <filename> <dReach> <k> 
+SReach <statistical_testing_option> <filename> <dReach> <k> <delta>
 \end{verbatim} 
 where:
 \begin{itemize}
 \item \verb+statistical_testing_option+ is a text file containing a sequence of test specifications. We will introduce the usages of statistical testing options in the following part;
 \item \verb+filename+ is a .pdrh file describing the model of a hybrid system with probabilistic system parameters. It is of the input format described in last sub-section;
-\item \verb+dReach+ is a bounded reachability analyzing tool for hybrid systems based on dReal; and
-\item \verb+k+ is the number of steps of the model that the tool will explore.\\
+\item \verb+dReach+ is a bounded reachability analyzing tool for hybrid systems based on dReal;
+\item \verb+k+ is the number of steps of the model that the tool will explore; and
+\item \verb+delta+ is the precision for the $\delta$-decision problem.
 \end{itemize}
 
 \subsection{Statistical testing options}
