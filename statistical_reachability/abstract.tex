@@ -1,3 +1,19 @@
+
+We present a novel approach solve the probabilistic bounded reachability problem of 
+hybrid systems with parameter uncertainty. Standard approaches to this problem require 
+numerical solutions for large optimization problems, and become unfeasible for systems 
+involving nonlinear dynamics over the reals. Our approach combines randomized 
+sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
+and statistical tests. We utilize $\delta-$complete decision procedures 
+to solve reachability analysis in a sound way, i.e., we always decide correctly if, for a given
+combination of parameters, the system actually reaches the unsafe region.
+Compared to standard simulation-based analysis methods, our approach supports 
+non-deterministic branching, increases the coverage of simulation, and avoids the
+zero-crossing problem. We demonstrate that our method is feasible for general
+hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to
+a range of nonlinear hybrid systems.
+
+\hide{
 We present a novel approach that combines Satisfiability Modulo Theories (SMT) and 
 statistical testing to solve the probabilistic bounded reachability problem of 
 hybrid systems with parameter uncertainty. That is, we want to find out whether 
@@ -14,4 +30,7 @@ we may generate false positives, but this can be controlled by a precision param
 Compared to other simulation-based analysis methods, our approach supports 
 non-deterministic branching, increases the coverage of simulation, and avoids the
 zero-crossing problem. We demonstrate that our method is feasible for general
-hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to two representative examples - the prostate cancer treatment control and the cardiac system, and further through applications to additional benchmarks.
+hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to
+a wide range of nonlinear hybrid systems.}
+%to two representative examples - the prostate cancer treatment control and the cardiac system, 
+%and further through applications to additional benchmarks.

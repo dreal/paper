@@ -20,6 +20,8 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
 
+
+
 \newenvironment{proof}[1][Proof]{\begin{trivlist}
 \item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
 \newenvironment{definition}[1][Definition]{\begin{trivlist}
@@ -35,6 +37,7 @@
       \vrule height0.75em width0.5em depth0.25em\fi}
       
 \noindent\keywordname\enspace\ignorespaces#1}
+\newcommand{\hide}[1]{}
 
 \begin{document}
 
@@ -77,7 +80,7 @@
 \input{con}
 
 \bibliography{ref}{}
-\bibliographystyle{plain}
+\bibliographystyle{abbrv}
 
 
 \end{document}
