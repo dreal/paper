@@ -64,24 +64,11 @@ To solve the probabilistic bounded reachability problem for a given hybrid model
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Statistical tests}.
-Consider a hybrid system with parametric uncertainty $H$ and a reachability property $\phi$. Algorithm \ref{fig:sreach} can be used to answer two types of questions depending on which statistical testing technique is chosen: (1) Qualitative: Is the probability for $H$ to satisfy $\phi$ greater or less than a certain threshold? and
-(2) Quantitative: What is the probability for $H$ to satisfy $\phi$? Similar to SMC, the answer is given up to some correctness precision because of the use of statistical tests.  To deal with qualitative questions, we consider the following hypothesis testing methods.
-
-\textit{Lai's test} \cite{lai1988nearly}.
-As a simple class of sequential tests, it tests the one-sided composite hypotheses $H_0: \; \theta \leq \theta_0$ versus $H_1:\; \theta \geq \theta_1$ for the natural parameter $\theta$ of an exponential family of distributions under the $0-1$ loss and cost $c$ per observation. \cite{lai1988nearly} shows that these tests have nearly optimal frequentist properties and also provide approximate Bayes solutions with respect to a large class of priors. 
-
-\textit{Bayes factor test} \cite{kass1995bayes}.
-The use of Bayes factors is a Bayesian alternative to classical hypothesis testing. It is based on the Bayes' theorem. Hypothesis testing with Bayes factors is more robust than frequentist hypothesis testing, as the Bayesian form avoids model selection bias, evaluates evidence in favor the null hypothesis, includes model uncertainty, and allows non-nested models to be compared. Also, frequentist significance tests become biased in favor of rejecting the null hypothesis with sufficiently large sample size. 
-
-\textit{Bayes factor test with indifference region}. 
-A hypothesis test has ideal performance if the probability of the Type-I error (respectively, Type-II error) is exactly $\alpha$ (respectively, $\beta$). However, these requirements make it impossible to ensure a low probability for both types of errors simultaneously (see \cite{younes2005verification} for details). A solution is to use an indifference region. The indifference region indicates the distance between two hypotheses, which is set to separate two hypotheses.
-
-\textit{Sequential probability ratio test (SPRT)} \cite{wald1945sequential}. 
-As for he SPRT, we consider a simple hypothesis $H_0:\;\theta = \theta_0$ against a simple alternative $H_1:\;\theta = \theta_1$. With the critical region $\Lambda_n$ and two thresholds $A$, and $B$, SPRT decides that $H_0$ is true and stops when $\Lambda_n < A$. It decides that $H_1$ is true and terminates if $\Lambda_n > B$. If $A\; < \Lambda_n < B$, it will collect another observation to obtain a new critical region $\Lambda_{n+1}$. The SPRT is optimal, among all sequential tests, in the sense that it minimizes the average sample size. In {\bf SReach}, we have implemented SPRT with indifference region.
-
-To offer quantitative answers, {\bf SReach} also supports estimation procedures as below.
-
-\textit{Chernoff-Hoeffding bound} \cite{hoeffding1963probability}. To estimate the probability $p$ for $H$ to satisfy $\phi$, given a precision $\delta'$, the Chernoff-Hoeffding bound can given a value $p'$ such that $|p' \; - \; p| \le \delta'$ with confidence $1\;-\; \alpha$.
-
-\textit{Bayesian Interval Estimation with Beta prior} \cite{zuliani2010bayesian}. This method estimates $p$, the unknown probability that a random sampled model satisfies a specified reachability property. The estimate will be in the form of a confidence interval, congaing $p$ with an arbitrary high probability.  \cite{zuliani2010bayesian} assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. It has been showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing.
+\subsection{Statistical tests}
+Consider a hybrid system $H$ with parametric uncertainty  and a reachability property $\phi$. Algorithm \ref{fig:sreach} can be used to answer two types of questions: (1) Qualitative: Does $H$ satisfy $\phi$ with probability
+greater than a certain threshold? and (2) Quantitative: What is the probability that $H$ satisfies $\phi$?
+Qualitative questions can be answered by hypothesis testing, while quantitative questions are addressed with
+statistical estimation methods. Both hypothesis testing and estimation produce answers up to some correctness 
+precision which can be set arbitrarily by the user.
+We have implemented in {\bf SReach} a number of statistical estimation and hypothesis testing techniques ---
+more details can be found in Appendix \ref{apndx:stat}.
