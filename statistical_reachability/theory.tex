@@ -1,7 +1,9 @@
-\section{Probabilistic bounded reachability for hybrid systems with parametric uncertainty}
+%\section{Probabilistic bounded reachability for hybrid systems with parametric uncertainty}
+\section{Probabilistic bounded reachability}
 
 \subsection{Hybrid automata with parametric uncertainty}
-The purpose of this subsection is to present a model for hybrid systems with probabilistic system parameters using the framework of hybrid automata in \cite{henzinger2000theory}. The difference between a hybrid automaton and one with parametric uncertainty lies in the existence of random variables as probabilistic system parameters (See Definition \ref{def:ha} for details).
+We present a model for hybrid systems with probabilistic parameters using the framework of hybrid automata \cite{henzinger2000theory}. A hybrid automaton with parametric uncertainty introduces a finite number of random 
+parameters with given distributions.
 \begin{definition}
 \label{def:ha}
 {\rm(Hybrid Automata with Parametric Uncertainty)} A hybrid automaton with probabilistic parameters $H_p$ consists of the following components.
@@ -35,17 +37,16 @@ The bounded reachability problem for $H$ asks if there is a trace $\sigma \in R_
 The probabilistic bounded reachability for $H_p$ estimates the maximum probability, over $\Omega_{H_p}$, of the bounded reachability for $H_{p}[s_i/Y_{H_p}]$, where $s_i \in S(Y_{H_p})$.
 \end{definition}
 
-\subsection{The main algorithm}.
+\subsection{The main algorithm}
 To solve the probabilistic bounded reachability problem for a given hybrid model with probabilistic parameters $MP$, our method first samples the involved set of random variables, denoted as $RV$, according to their distributions. Then, according to each sample $S_i$, we obtain a model of the hybrid system without any probabilistic parameters $M_i$. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the precision $\delta$ and the unfolding steps $k$. {\bf dReach} is a bounded reachability analyzer based on {\bf dReal} \cite{gao2013dreal}, and returns either unsat or $\delta$-sat for $M_i$. With a sufficient number of sampled models, and a specified statistical testing method $ST$, {\bf SReach} terminates the entire procedure. It either returns the maximal probability of the system satisfying the given reachability property, or accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold. Algorithm \ref{fig:sreach} illustrates the main algorithm of our approach.
-
 \begin{algorithm}
   \centering
   \caption{SReach}
   \label{fig:sreach}
   \begin{algorithmic}[1]
-    \Procedure{SReach}{$MP$, $ST$, $\delta$, $k$}
+    \Function{SReach}{$MP$, $ST$, $\delta$, $k$}
         \State $Succ \gets 0$
-        \State $Fail \gets 0$
+        \State $N \gets 0$
         \State $RV \gets \mathrm{ExtractRV}(MP)$
         \Repeat
         	   \State $S_i \gets \mathrm{Sim}(RV)$
@@ -54,13 +55,16 @@ To solve the probabilistic bounded reachability problem for a given hybrid model
             \If{$Res = sat$}
             	%Good
 		\State $Succ \gets Succ + 1$
-	  \Else
-	   	%Bad
-		\State $Fail \gets Fail + 1$
+%	  \Else
+%	   	%Bad
+%		\State $Fail \gets Fail + 1$
+	    
 	  \EndIf
-        \Until{$ST.done$}
-        \State $Est\_prob \gets Succ / (Succ + Fail)$
-   \EndProcedure
+	\State $N \gets N + 1$
+        \Until{$ST.done(Succ, N)$}\\
+        %\State $Est\_prob \gets Succ / N$
+	\quad\hspace{0.5ex} \Return $ST.output$
+   \EndFunction
   \end{algorithmic}
 \end{algorithm}
 
