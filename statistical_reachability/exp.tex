@@ -13,6 +13,7 @@ with $\delta' = 0.01$, coverage probability $0.99$, and uniform prior ($\alpha =
 \textit{Model Description}.
 We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The IAS therapy switches between  treatment-on, and treatment-off with respect to the serum level thresholds of prostate-specific antigen (PSA) - $r_0$ and $r_1$. As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we modified the model by taking the parametric variation caused by the personalized differences into account. In details, according to the clinic data from hundreds of patients \cite{bruchovsky2007locally}, we replaced 6 system parameter with random variables with appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of AD cells), $\alpha_y$ (the proliferation rate of AI cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level).
 \begin{table}[h]
+\captionsetup{font=scriptsize}
 \centering
     \begin{tabular}{c|c|c|c|c|c|c|c|c}
     \hline
@@ -21,7 +22,7 @@ We modified the model of the intermittent androgen suppression (IAS) therapy in 
     PCT2  & 6     & 7.0  & 11.0 & 0.591  & 2144   & 3628   & 432.491 & 1569077.348     \\ \hline
     PCT3  & 6     & 10.0 & 15.0 & 0.996  & 227    & 227    & 692.861   & 157279.446   \\ \hline
     \end{tabular}
-    \caption {\#RVs = number of random variables in the model, \#S\_S = number of $\delta$-sat samples, 
+    \caption{\#RVs = number of random variables in the model, \#S\_S = number of $\delta$-sat samples, 
 \#T\_S = total number of samples, $r_0$ = lower threshold of the serum PSA level, $r_1$ = upper threshold, 
 Est\_P = estimated probability of the property,  Avg\_T(s) = average CPU time of each sample in seconds, and Tot\_T(s) = total CPU time for all samples in seconds.}
     \label{table:prostate}
@@ -37,6 +38,7 @@ The minimum resistor model (MRM) reproduces experimentally measured characterist
 of human ventricular cell dynamics \cite{bueno2008minimal}. 
 The MRM reduces the complexity of existing models by representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. With this application, we will show that {\bf SReach} can also be adopted to identify appropriate ranges and distributions for model parameters, \ie, parameter estimation.
 \begin{table}[h]
+\captionsetup{font=scriptsize}
 \centering
     \begin{tabular}{c|c|c|c|c|c|c|c|c}
     \hline
@@ -71,6 +73,7 @@ We modeled the stabilization control of a quadcopter, and are interested in anal
 \subsection{Additional benchmarks}
 To further demonstrate the feasibility of {\bf SReach}, we also applied it to the following benchmarks. Table \ref{table:exp} shows the results of experiments. BB refers to the bouncing ball models, Tld the thermostat model with linear temperature decrease, Ted the thermostat model with exponential decrease, DT the dual\_therm-\\ostat models, W the watertank models, DW the dual\_watertank models, Gear the gear shift control model, Que the model for queuing system, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter stabilization control. 
 \begin{table}[h]
+\captionsetup{font=scriptsize}
 \centering
     \begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
     \hline

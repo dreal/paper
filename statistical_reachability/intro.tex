@@ -1,34 +1,36 @@
 \section{Introduction}  
 Hybrid systems, as models exhibiting both continuous and discrete dynamic behavior, have become 
-a widely used modeling formalism. They are used for modelling real-world safety-critical systems,
+a widely used modeling formalism for real-world safety-critical systems,
 including for example cyber-physical systems, chemical-physical process control, and biomedical systems. 
 The core of hybrid system analysis studies is to construct accurate computational models for real-world systems, 
 and to verify that they meet their design requirements. To verify hybrid models, simulation-based testing 
-is still the most used approach, even though it is an inherently incomplete technique as the set of inputs
-is theoretically infinite (uncountable). Reachability analysis computes instead set over-approximation that
-cover all system behaviors, which lead to a better coverage rate. 
-Also, reachability analysis can handle models with infinite time, and models with nondeterminism as well. 
+is still the most used approach, even though it is an inherently incomplete technique as input set 
+is theoretically infinite (uncountable). Reachability analysis computes instead set over-approximations that
+cover all system behaviors, which lead to a better input coverage.
+Also, reachability analysis can handle models with infinite time, and with nondeterminism as well. 
 
-In this paper, we address the bounded reachability problem for hybrid systems with probabilistic uncertainty in system parameters as our first step to handle the reachability problem for general stochastic hybrid systems. 
+In this paper, we address the reachability problem for hybrid systems with probabilistic uncertainty in 
+system parameters, with the aim to handle the reachability problem for general stochastic hybrid systems in
+the future.
+The {\em probabilistic bounded reachability problem} is to decide whether
+a hybrid system with probabilistic system parameters reaches an unsafe region of the
+state space within a finite number of steps with a probability greater than a given threshold.
 Although uncertainty raises naturally and the cause for the parametric uncertainty is multifaceted, two factors 
 are critical when building hybrid models for real-world systems. 
 First, probabilistic parameters are needed when the physics controlling the system is known, but some 
 parameters are either not known precisely, or are expected to vary from individual to individual, 
-or may change by the end of the operational lifetime. 
+or may change by the end of the system operational lifetime. 
 Second, system uncertainty may occur when the model is constructed or learned directly from experimental data. 
-Due to experimental measurements, the values of system parameters may have ranges of variation with some
-associated likelihood of occurrence. 
+Due to imprecise experimental measurements, the values of system parameters may have ranges of variation 
+with some associated likelihood of occurrence. 
 In both cases we assume that, for probabilistic system parameters, their probability distributions functions 
 are known, and it is desired to design models which achieve specified performance for these variations.   
-In particular, the probabilistic bounded reachability problem is to decide whether
-a hybrid system with probabilistic system parameters reaches an unsafe region of the
-state space within a finite number of steps with a probability greater than a given threshold.
 
 To verify the correctness of stochastic hybrid models, researchers have proposed several techniques, such as simulation-based verification \cite{zuliani2010bayesian, abate2007probabilistic}, logic-based verification \cite{platzer2011stochastic}, and constraint solving \cite{franzle2008stochastic}. However, it is still difficult to formally analyze stochastic hybrid systems with nonlinear dynamics and complex discrete controls \cite{alur2011formal, henzinger2000theory}. Theoretically, it is well known that the safety verification problem for hybrid systems with simple dynamics is highly undecidable. Consequently, a unified framework for solving the reachability problem seems impossible, especially for nonlinear hybrid systems. In details, a major difficulty stems from the need of solving logic formulae with nonlinear functions over the reals. Recently, \cite{gao2013dreal, gao2013satisfiability} 
 have defined a sound relaxation of this problem and associated decision procedures that always decide correctly 
 if, for a given combination of parameters, the system actually reaches the unsafe region (in the opposite case
 false positives may be generated, but this can be controlled by a precision parameter $\delta>0$).
-The $\delta$-decision problem is decidable for bounded first-order formulae over the reals with arbitrary 
+The $\delta${\em -decision problem} is decidable for bounded first-order formulae over the reals with arbitrary 
 Type 2 computable functions, which include almost all functions used in realistic hybrid systems.   
 
 This paper presents a tool - {\bf SReach} - that integrates the existing $\delta$-complete bounded 
