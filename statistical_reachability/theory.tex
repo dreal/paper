@@ -39,7 +39,30 @@ The probabilistic bounded reachability for $H_p$ estimates the maximum probabili
 \end{definition}
 }
 
-To solve the probabilistic bounded reachability problem for a given hybrid model with probabilistic parameters $MP$, our method first samples the involved set of random variables, denoted as $RV$, according to their distributions. Then, according to each sample $S_i$, we obtain a model of the hybrid system without any probabilistic parameters $M_i$. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the precision $\delta$ and the unfolding steps $k$. {\bf dReach} is a bounded reachability analyzer based on {\bf dReal} \cite{gao2013dreal}, and returns either unsat or $\delta$-sat for $M_i$. With a sufficient number of sampled models, and a specified statistical testing method $ST$, {\bf SReach} terminates the entire procedure. It either returns the maximal probability of the system satisfying the given reachability property, or accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold. Algorithm \ref{fig:sreach} illustrates the main algorithm of our approach.
+% this should be said a bit earlier
+%{\bf dReach} is a bounded reachability analyzer based on {\bf dReal} \cite{gao2013dreal}, and returns either unsat or $\delta$-sat for $M_i$. 
+
+Let $RV$ be the set of probabilistic parameters for a probabilistic hybrid model $MP$, and $\phi$ a reachability
+property. To solve the 
+probabilistic bounded reachability problem, our method first samples the parameters in $RV$ according 
+to their distributions. Then, for each sample $S_i$ we obtain a hybrid model $M_i$ without any probabilistic 
+parameter. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the desidered precision $\delta$ and 
+unfolding steps $k$. {\bf dReach} returns either unsat or $\delta$-sat for $M_i$, and this information
+is then used by a statistical test to decide whether stopping or repeat the entire procedure.
+Algorithm \ref{fig:sreach} illustrates the main algorithm of our approach.
+{\bf SReach} can be used to answer two types of questions: (1) Qualitative: Does $MP$ satisfy $\phi$ with probability
+greater than a certain threshold? (2) Quantitative: What is the probability that $MP$ satisfies $\phi$?
+Qualitative questions can be answered by hypothesis testing, while quantitative questions are addressed with
+statistical estimation methods. Both methods produce answers up to some correctness 
+precision that can be set arbitrarily by the user.
+We have implemented in {\bf SReach} a number of statistical estimation and hypothesis testing techniques ---
+more details can be found in Appendix \ref{apndx:stat}.
+
+ 
+\hide{
+With a sufficient number of sampled models, and a specified statistical testing method $ST$, {\bf SReach} terminates the entire procedure. It either returns the maximal probability of the system satisfying the given reachability property, or accepts or rejects according to the comparison whether the returned probability is larger (or smaller) than the specified threshold. 
+}
+
 \begin{algorithm}
   \centering
   \caption{SReach}
@@ -69,11 +92,3 @@ To solve the probabilistic bounded reachability problem for a given hybrid model
   \end{algorithmic}
 \end{algorithm}
 
-Consider a hybrid system $H$ with parametric uncertainty  and a reachability property $\phi$. {\bf SReach} 
-can be used to answer two types of questions: (1) Qualitative: Does $H$ satisfy $\phi$ with probability
-greater than a certain threshold? and (2) Quantitative: What is the probability that $H$ satisfies $\phi$?
-Qualitative questions can be answered by hypothesis testing, while quantitative questions are addressed with
-statistical estimation methods. Both methods produce answers up to some correctness 
-precision that can be set arbitrarily by the user.
-We have implemented in {\bf SReach} a number of statistical estimation and hypothesis testing techniques ---
-more details can be found in Appendix \ref{apndx:stat}.
