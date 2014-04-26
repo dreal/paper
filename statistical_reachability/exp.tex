@@ -1,7 +1,9 @@
 \section{Experiments}
 
-Our tool {\bf SReach} implements the techniques presented in the paper. The tool is open-source and 
-available at \url{https://github.com/rachelwang/SReach}. In this section, we demonstrate the feasibility of our method by applying {\bf SReach} to representative hybrid systems with both nonlinear dynamics and parametric uncertainty - the prostate cancer treatment and the cardiac systems, and further through applications to a set of additional benchmarks. All benchmarks and data shown in here are also accessible on the tool website. All experiments were conducted on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. 
+
+We demonstrate the feasibility of our method by applying {\bf SReach} to representative hybrid systems with both nonlinear dynamics and parametric uncertainty. 
+The tool is open-source and available at \url{https://github.com/rachelwang/SReach}. 
+All benchmarks and data shown in here are also accessible on the tool website. All experiments were conducted on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. 
 In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; Bayesian estimation
 with $\delta' = 0.01$, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$). 
 
@@ -12,7 +14,6 @@ with $\delta' = 0.01$, coverage probability $0.99$, and uniform prior ($\alpha =
 We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The model has two modes: treatment-on, and treatment-off. IAS therapy switches between them by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA). In details, when the PSA level falls below a threshold, denoted as $r_0$, androgen suppression is suspended. While, if the PSA level increases and reaches a upper threshold value $r_1$, androgen suppression is resumed by the administration of medical agents. This model describes the growth of a prostate tumor as the dynamics of a mixed population of androgen-dependent (AD) and androgen-independent (AI) cells (see \cite{tanaka2010mathematical} for details of the involved system parameters). 
 
 As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we created a new and general model, based on the one in \cite{tanaka2010mathematical},  by taking the parametric variation caused by the personalized differences into account. In details, according to the clinic data from hundreds of patients \cite{bruchovsky2007locally}, we replaced 6 system parameter with random variables with appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of AD cells), $\alpha_y$ (the proliferation rate of AI cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level).
-
 \begin{table}[h]
 \centering
     \begin{tabular}{|l|l|l|l|l|l|l|l|}
