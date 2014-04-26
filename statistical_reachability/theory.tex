@@ -46,14 +46,14 @@ To solve the probabilistic bounded reachability problem for a given hybrid model
   \label{fig:sreach}
   \begin{algorithmic}[1]
     \Function{SReach}{$MP$, $ST$, $\delta$, $k$}
-        \State $Succ \gets 0$
-        \State $N \gets 0$
-        \State $RV \gets \mathrm{ExtractRV}(MP)$
+        \State $Succ \gets 0$	\Comment{number of $\delta$-sat samples}
+        \State $N \gets 0$	\Comment{total number of samples}
+        \State $RV \gets \mathrm{ExtractRV}(MP)$	\Comment{get the RVs from the probabilistic model}
         \Repeat
-        	   \State $S_i \gets \mathrm{Sim}(RV)$
-            \State $M_i \gets \mathrm{Gen}(MP, S_i)$
-            \State $Res \gets \mathrm{dReach}(M_i, \delta, k)$
-            \If{$Res = sat$}
+            \State $S_i \gets \mathrm{Sim}(RV)$		\Comment{sample the parameters}
+            \State $M_i \gets \mathrm{Gen}(MP, S_i)$	\Comment{generate a dReach model}
+            \State $Res \gets \mathrm{dReach}(M_i, \delta, k)$	\Comment{call dReach to solve $k$-step $\delta$-reachability}
+            \If{$Res$ = $\delta$-sat}
             	%Good
 		\State $Succ \gets Succ + 1$
 %	  \Else
@@ -62,17 +62,18 @@ To solve the probabilistic bounded reachability problem for a given hybrid model
 	    
 	  \EndIf
 	\State $N \gets N + 1$
-        \Until{$ST.done(Succ, N)$}\\
+        \Until{$ST.done(Succ, N)$}	\Comment{perform statistical test}\\
         %\State $Est\_prob \gets Succ / N$
 	\quad\hspace{0.5ex} \Return $ST.output$
    \EndFunction
   \end{algorithmic}
 \end{algorithm}
 
-Consider a hybrid system $H$ with parametric uncertainty  and a reachability property $\phi$. Algorithm \ref{fig:sreach} can be used to answer two types of questions: (1) Qualitative: Does $H$ satisfy $\phi$ with probability
+Consider a hybrid system $H$ with parametric uncertainty  and a reachability property $\phi$. {\bf SReach} 
+can be used to answer two types of questions: (1) Qualitative: Does $H$ satisfy $\phi$ with probability
 greater than a certain threshold? and (2) Quantitative: What is the probability that $H$ satisfies $\phi$?
 Qualitative questions can be answered by hypothesis testing, while quantitative questions are addressed with
-statistical estimation methods. Both hypothesis testing and estimation produce answers up to some correctness 
-precision which can be set arbitrarily by the user.
+statistical estimation methods. Both methods produce answers up to some correctness 
+precision that can be set arbitrarily by the user.
 We have implemented in {\bf SReach} a number of statistical estimation and hypothesis testing techniques ---
 more details can be found in Appendix \ref{apndx:stat}.
