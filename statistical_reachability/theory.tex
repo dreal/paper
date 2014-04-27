@@ -8,7 +8,7 @@ Hybrid automata combine finite automata and dynamical systems~\cite{henzinger200
 {\rm(Hybrid Automata with Parametric Uncertainty)} A hybrid automaton with probabilistic parameters is a tuple $H_p = \langle Q,X,RX,\mathsf{jump},\mathsf{inv},\mathsf{init}\rangle$
 with the following components. $X = \{x_1,...,x_n\}$ is a finite set of real variables and $Q=\{q_1,...,q_m\}$ a finite set of discrete modes. $RX = \{ u_1, \cdots, u_k \}$ is a finite set of random variables, where the distribution of $u_i$ is denoted by $P_i$. The other components are jumps, invariants, and initial condition predicates over $X\cup RX$, as standardly defined for hybrid automata.
 \end{definition}
-We write $\Omega_{RX_{H_p}}$ to be the sample space of the probabilistic parameters.
+We write $\Omega_{RX_{H_p}}$ to be the sample space of the probabilistic parameters, , and $S: RX_{H_p} \to \Omega_{RX_{H_p}}$ as a sampler.
 \begin{definition}
 \label{def:pbr}
 {\rm (Probabilistic Bounded Reachability)}
