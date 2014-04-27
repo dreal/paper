@@ -1,6 +1,6 @@
 \section{Experiments}
 Our method is implemented in the open-source tool {\bf SReach} (\url{https://github.com/rachelwang/SReach}). See Appendix \ref{apndx:usage} for its usage. All benchmarks and data shown below are on the tool website. All experiments were conducted on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. 
-In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; Bayesian sequential estimation
+In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian sequential estimation
 with $0.01$ half-interval width, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$). 
 
 {\bf Prostate cancer treatment.}
@@ -23,7 +23,7 @@ parameters with random variables with appropriate (continuous) distributions, in
 Est\_P = estimated probability of the property,  Avg\_T(s) = average CPU time of each sample in seconds, and Tot\_T(s) = total CPU time for all samples in seconds.}
     \label{table:prostate}
 \end{table}
-\vspace{-1cm}
+\vspace{-1.1cm}
 %\subsection{Cardiac models}
 %\textit{Experiments and Results} 
 
@@ -36,7 +36,7 @@ The MRM reduces the complexity of existing models by representing channel gates 
 
 %\textit{Experiments and Results} 
 To illustrate the way that {\bf SReach} is used to conduct parameter estimation, we chose two system parameters - $EPI\_TO1$, and $EPI\_TO2$, and varied their distributions to see with which distributions for these two system parameters, the model can present the desired pattern. The model has 4 modes. In the experiments, we chose $3$ as the unfolding steps. For each sample generated, {\bf SReach} dealt with $62$ variables, and $24$ ODEs. As in the Table \ref{table:cardiac}, when $EPI\_TO1$ is either close to $400$, or between $0.0061$ and $0.007$, and $EPI\_TO2$ is close to $6$, the model can satisfy the given bounded reachability property with a probability very close to $1$. 
-\vspace{-.3cm}
+\vspace{-.5cm}
 \begin{table}[h!]
 \captionsetup{font=scriptsize}
 \centering
@@ -71,11 +71,12 @@ We modeled the stabilization control of a quadcopter, and are interested in anal
 {\noindent\bf Additional benchmarks.} To further demonstrate the feasibility of {\bf SReach}, we also applied it to the following benchmarks. 
 Table \ref{table:exp} shows the results of experiments. BB refers to the bouncing ball models, 
 Tld the thermostat model with linear temperature decrease, Ted the thermostat model with exponential decrease, 
-DT the dual thermostat models, W the watertank models, DW the dual watertank models, Gear the gear shift control 
-model, Que the model for queuing system, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter 
+DT the dual thermostat models, W the watertank models, DW the dual watertank models, 
+%Gear the gear shift control model, 
+Que the model for queuing system, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter 
 stabilization control. 
-
-\begin{table}[h]
+\vspace{-.5cm}
+\begin{table}[h!]
 \captionsetup{font=scriptsize}
 \centering
     \begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
@@ -96,8 +97,8 @@ stabilization control.
     DWK1      & 2       & 1 & 4      & 14    & 5     & 0.001 & 0.996  & 227       & 227      & 0.171   & 38.817      \\ \hline
     DWK3      & 2       & 3 & 4      & 26    & 5     & 0.001 & 0.996  & 227       & 227      & 0.215    & 48.806      \\ \hline
     DWK9      & 2       & 9 & 4      & 62    & 5     & 0.001 & 0.996  & 227       & 227      & 5.144   &  1167.688      \\ \hline
-    Gear      & 4       & ~ & ~      & ~     & ~     & 0.001 & ~      & ~         & ~        & ~     & ~          \\ \hline
-    Que       & 3       & 2 & ~      & ~     & ~     & 0.001 & 0.228      & 2662         & 11677        & 0.095   & 1109.315   \\ \hline
+   % Gear      & 4       & ~ & ~      & ~     & ~     & 0.001 & ~      & ~         & ~        & ~     & ~          \\ \hline
+    Que       & 3       & 2 & 3      & 13     & ~     & 0.001 & 0.228      & 2662         & 11677        & 0.095   & 1109.315   \\ \hline
     3dOsc     & 3       & 2 & 18      & 48     & 2     & 0.001 & 0.996      & 227         & 227        & 8.273  & 1877.969   \\ \hline
     QuadC     & 1       & 0 & 14      & 44     & 6     & 0.001 & 0.996      & 227         & 227        & 825.641 & 187420.507   \\ \hline
     \end{tabular}
@@ -106,3 +107,4 @@ stabilization control.
 probability of the property,  A\_T(s) = average CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.}
     \label{table:exp}
 \end{table}
+\vspace{-1.1cm}
