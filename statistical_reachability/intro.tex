@@ -3,16 +3,12 @@ Hybrid systems, as models exhibiting both continuous and discrete dynamic behavi
 a widely used modeling formalism for real-world safety-critical systems,
 including for example cyber-physical systems, chemical-physical process control, and biomedical systems. 
 The core of hybrid system analysis studies is to construct accurate computational models for real-world systems, 
-and to verify that they meet their design requirements. To verify hybrid models, simulation-based testing 
-is still the most used approach, even though it is an inherently incomplete technique as input set 
-is theoretically infinite (uncountable). Reachability analysis computes instead set over-approximations that
-cover all system behaviors, which lead to a better input coverage.
-Also, reachability analysis can handle models with infinite time, and with nondeterminism as well. 
+and to verify that they meet their design requirements. Simulation-based testing 
+is the most used approach regardless of its incompleteness. Reachability analysis computes instead set over-approximations that
+cover all system behaviors, which lead to a better input coverage but are naturally harder to scale.
+It is important to note that reachability analysis can handle models with nondeterminism, and in many cases aim for an infinite time horizon.
 
-In this paper, we address the reachability problem for hybrid systems with probabilistic uncertainty in 
-system parameters, with the aim to handle the reachability problem for general stochastic hybrid systems in
-the future.
-The {\em probabilistic bounded reachability problem} is to decide whether
+We consider the {\em probabilistic bounded reachability problem}, which is to decide whether
 a hybrid system with probabilistic system parameters reaches an unsafe region of the
 state space within a finite number of steps with a probability greater than a given threshold.
 Although uncertainty raises naturally and the cause for the parametric uncertainty is multifaceted, two factors 
@@ -26,16 +22,15 @@ with some associated likelihood of occurrence.
 In both cases we assume that, for probabilistic system parameters, their probability distributions functions 
 are known, and it is desired to design models which achieve specified performance for these variations.   
 
-To verify the correctness of stochastic hybrid models, researchers have proposed several techniques, such as simulation-based verification \cite{zuliani2010bayesian, abate2007probabilistic}, logic-based verification \cite{platzer2011stochastic}, and constraint solving \cite{franzle2008stochastic}. However, it is still difficult to formally analyze stochastic hybrid systems with nonlinear dynamics and complex discrete controls \cite{alur2011formal, henzinger2000theory}. Theoretically, it is well known that the safety verification problem for hybrid systems with simple dynamics is highly undecidable. Consequently, a unified framework for solving the reachability problem seems impossible, especially for nonlinear hybrid systems. In details, a major difficulty stems from the need of solving logic formulae with nonlinear functions over the reals. Recently, \cite{gao2013dreal, gao2013satisfiability} 
+We describe our tool {\bf SReach} that integrates the existing $\delta$-complete bounded 
+reachability analysis technique \cite{gaodelta} with statistical testing, in order
+to support bounded probabilistic reachability analysis for hybrid systems with parametric uncertainty. 
+%It helps developers, and researchers in estimating appropriate values, ranges, or distributions for system parameters when constructing models for probabilistic hybrid systems, and in validating hybrid models with probabilistic parameters according to given reachability properties. 
+We show experiment results of {\bf SReach} for the probabilistic reachability analysis of many realistic hybrid systems that are highly nonlinear and nondeterministic, including a prostate cancer treatment model and cardiac atrial fibrillation model. 
+
+\paragraph{Related Work.}To verify the correctness of stochastic hybrid models, researchers have proposed several techniques, such as simulation-based verification \cite{zuliani2010bayesian, abate2007probabilistic}, logic-based verification \cite{platzer2011stochastic}, and constraint solving \cite{franzle2008stochastic}. However, it is still difficult to formally analyze stochastic hybrid systems with nonlinear dynamics and complex discrete controls \cite{alur2011formal, henzinger2000theory}. Theoretically, it is well known that the safety verification problem for hybrid systems with simple dynamics is highly undecidable. Consequently, a unified framework for solving the reachability problem seems impossible, especially for nonlinear hybrid systems. In details, a major difficulty stems from the need of solving logic formulae with nonlinear functions over the reals. Recently, \cite{gao2013dreal, gao2013satisfiability} 
 have defined a sound relaxation of this problem and associated decision procedures that always decide correctly 
 if, for a given combination of parameters, the system actually reaches the unsafe region (in the opposite case
 false positives may be generated, but this can be controlled by a precision parameter $\delta>0$).
 The $\delta${\em -decision problem} is decidable for bounded first-order formulae over the reals with arbitrary 
 Type 2 computable functions, which include almost all functions used in realistic hybrid systems.   
-
-This paper presents a tool - {\bf SReach} - that integrates the existing $\delta$-complete bounded 
-reachability analysis technique \cite{gaodelta} with statistical testing, in order
-to support bounded probabilistic reachability analysis for hybrid systems with parametric uncertainty. 
-%It helps developers, and researchers in estimating appropriate values, ranges, or distributions for system parameters when constructing models for probabilistic hybrid systems, and in validating hybrid models with probabilistic parameters according to given reachability properties. 
-We used {\bf SReach} for probabilistic reachability analysis of two representative examples - a prostate cancer 
-treatment control and a cardiac system model, and of additional 19 benchmarks.
