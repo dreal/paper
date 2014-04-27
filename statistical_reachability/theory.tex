@@ -15,7 +15,7 @@ Let $\Omega_{RX_{H_p}}$ to be the sample space of the probabilistic parameters, 
 \end{definition}
 To solve probabilistic bounded reachability, we sample parameters in $RX$ according 
 to their distributions and obtain a hybrid model $M_i$ with no probabilistic 
-parameter. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the desidered precision $\delta$ and 
+parameter. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the desired precision $\delta$ and 
 unfolding steps $k$. {\bf dReach} returns either unsat or $\delta$-sat for $M_i$, and this information
 is then used by statistical tests to decide whether stopping or repeat the procedure. The procedure is illustrated in Algorithm \ref{fig:sreach}. {\bf SReach} can answer two types of questions: (1) Does $MP$ satisfy $\phi$ with probability greater than a certain threshold? and (2) What is the probability that $MP$ satisfies $\phi$?
 These two types of questions can be answered by hypothesis testing, 

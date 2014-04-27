@@ -3,10 +3,10 @@ Our method is implemented in the open-source tool {\bf SReach} (\url{https://git
 In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian sequential estimation
 with $0.01$ half-interval width, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$). 
 
-{\bf Prostate cancer treatment.}
+{\bf\noindent Prostate cancer treatment.}
 %\textit{Model Description}.
 We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The IAS therapy switches between  treatment-on, and treatment-off with respect to the serum level thresholds of prostate-specific antigen (PSA) - $r_0$ and $r_1$. As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we modified the model by taking the parametric variation caused by the personalized differences into account. In details, according to the clinic data from hundreds of patients \cite{bruchovsky2007locally}, we replaced 6 system 
-parameters with random variables with appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of AD cells), $\alpha_y$ (the proliferation rate of AI cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level).
+parameters with random variables with appropriate (continuous) distributions, including $\alpha_x$ (proliferation rate of AD cells), $\alpha_y$ (proliferation rate of AI cells), $\beta_x$ (apoptosis rate of AD cells), $\beta_y$ (apoptosis rate of AI cells), $m_1$ (mutation rate from AD to AI cells), and $z_0$ (normal androgen level).
 \vspace{-.5cm}
 \begin{table}[th!]
 \captionsetup{font=scriptsize}
