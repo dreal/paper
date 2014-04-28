@@ -1,8 +1,10 @@
-\documentclass[12pt]{article}
-\usepackage{fullpage,mathpartir}
+\documentclass{llncs}
+\usepackage{mathpartir}
 \input{preamble}
 
-\title{Automatic Proof Generation from Delta-Decisions}
+\title{Proof Generation from Delta-Decisions}
+\author{Sicun Gao \and Soonho Kong \and Edmund Clarke}
+\institute{Computer Science Department, Carnegie Mellon University, Pittsburgh, PA, USA}
 
 \begin{document}
 \maketitle
@@ -12,29 +14,13 @@ Solving constraints over the real numbers plays a critical role in the formal ve
 
 \section{Introduction}
 
-Solving constraints over the real numbers plays an important role in the formal verification of embedded software~\cite{DBLP:conf/cade/GaoAC12}. The goal of formal verification is to find mathematical proofs for the correctness of software systems. Using standard verification techniques, such as Bounded Model Checking~\cite{DBLP:journals/fmsd/ClarkeBRZ01}, we can formulate safety properties of embedded software as constraint systems, whose solutions witness software bugs. We conclude that a piece of software is safe, if its corresponding encoding as a constraint system does {\em not} have a solution. In short, ``no solution" means ``safety", and constraint solvers are used for ensuring the {\em absence} of solutions. Thus, a new requirement is posed on constraint solvers. Simply returning ``no solution" is not enough, and valid ``proofs of unsatisfiability" are needed, so that the answers can be trusted and used for formal verification.
+Solving constraints over the real numbers plays an important role in the formal verification of embedded software~\cite{DBLP:conf/cade/GaoAC12}. Using standard verification techniques, we can formulate safety properties of embedded software as constraint systems, whose solutions witness software bugs. In most cases, we conclude that a piece of software is safe, if its corresponding encoding as a constraint system does {\em not} have a solution. In short, ``no solution" means ``safety", and constraint solvers are used for ensuring the {\em absence} of solutions. Thus, a new requirement is posed on constraint solvers. Simply returning ``no solution" is not enough, and valid ``proofs of unsatisfiability" are needed, so that the answers can be trusted and used for formal verification.
 
-Interval Constraint Propagation (ICP)~\cite{handbookICP} finds solutions of constraints over the reals using a ``branch-and-prune'' method. Given a constraint system with its variables in an initial domain, the algorithm uses interval arithmetic and consistency conditions to recursively ``prune" away subsets of the domain that do not contain solutions, and ``branch'' on the domain when pruning does not make progress. Theoretically, correctness of the ``no solution" answers can be guaranteed as long as the pruning operators are {\em conservative}, which means it never discards actual solutions of the system~\cite{handbookICP,DBLP:conf/cade/GaoAC12}. However, in practice, constraint solvers are themselves complex software that involves sophisticated numerical heuristics and error-prone floating point arithmetic. Theoretical guarantees are easily violated in actual implementation. For instance, the following is an actual bug we experienced in practice~\cite{bug}. With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the simple program:
-\begin{verbatim}
-#include <stdio.h>
-#include <math.h>
-#include <fenv.h>
-#define ROUND_UPWARD() fesetround(FE_UPWARD)
-int main()
-{
-    double x = 0.6932;
-    printf("No Rounding: exp(%lf) = %lf\n", x, exp(x));
-    ROUND_UPWARD(); 
-    printf("Outward Rounding : exp(%lf) = %lf\n", x, exp(x));
-    return 0;
-}
-\end{verbatim}
-produces the following output on Intel machines (also wrong on AMD):
-\begin{verbatim}
-No Rounding: exp(0.693200) = 2.000106
-Outward Rounding: exp(0.693200) = 0.000000
-\end{verbatim}
-In words, when rounded upward, the exponential function contains serious errors. Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library (e.g., {\sf realpaver}~\cite{realpaver_paper}). With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound). This shows the importance of validating the results, through proofs that can ensure the correctness of ``no solution" results and reject the wrong answers. It is worth noting that such problems are not obvious when constraint solving actually obtains solutions, whose correctness can be checked by plugging them back in the original constraints. This is why we emphasize on proofs of {\em unsatisfiability}, for which we do not have direct witnesses to check. 
+Interval Constraint Propagation (ICP)~\cite{handbookICP} finds solutions of constraints over the reals using a ``branch-and-prune'' method. Theoretically, correctness of the ``no solution" answers can be guaranteed as long as the pruning operators are {\em conservative}, which means it never discards actual solutions of the system~\cite{handbookICP,DBLP:conf/cade/GaoAC12}. However, in practice, constraint solvers are themselves complex software that involves sophisticated numerical heuristics and error-prone floating point arithmetic. Theoretical guarantees are easily violated in actual implementation. For instance, the following is an actual bug we experienced in building our SMT solver dReal~\cite{dreal,bug}. 
+\begin{quote}
+With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. ... Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library. With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound). 
+\end{quote}
+This shows the importance of validating the results, through proofs that can ensure the correctness of ``no solution" results and reject the wrong answers. It is worth noting that such problems are not obvious when constraint solving actually obtains solutions, whose correctness can be checked by plugging them back in the original constraints. This is why we emphasize on proofs of {\em unsatisfiability}, for which we do not have direct witnesses to check. 
 
 Obtaining such proofs is also very useful in automated theorem proving~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}. Constraint systems can encode counterexamples to mathematical theorems. Consequently, if no solution is found, then the theorem has no counterexamples, and should be established as correct. If valid proofs of unsatisfiability can be provided, they can be directly used as formal proofs for the theorems. This would lead to a new approach to automated theorem proving over the real numbers, and its scalability can significantly outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
 $$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
@@ -662,7 +648,7 @@ would involve proof abstractions, local heuristics, and an implementation of our
 
 
 \bibliographystyle{abbrv}
-\bibliography{ref}
+\bibliography{ref_cade}
 
 
 
