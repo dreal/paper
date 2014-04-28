@@ -1,0 +1,243 @@
+\documentclass[envcountsect]{llncs}
+%\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage{amsmath,amssymb,newlfont,graphicx,caption,verbatim,hyperref}
+\usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
+\newcommand{\dom}{\mathrm{dom}}
+\newtheorem{notation}[theorem]{Notation}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+
+%\setlength{\textwidth}{5.7in}
+%\setlength{\textheight}{8.2in}
+%\setlength{\topmargin}{0in}
+%\setlength{\oddsidemargin}{.4in}
+%\setlength{\evensidemargin}{.4in}
+
+\title{{\sf dReal}: An SMT Solver for Nonlinear Theories over the Reals\thanks{This research was sponsored by the National Science Foundation grants no. DMS1068829, no. CNS0926181 and no. CNS0931985, the GSRC under contract no. 1041377, the Semiconductor Research Corporation under contract no.~2005TJ1366, and the Office of Naval Research under award no.~N000141010188.}}
+\author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
+\institute{Carnegie Mellon University, Pittsburgh, PA 15213}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We describe the open-source tool {\sf dReal}, an SMT solver for nonlinear formulas over the reals. The tool can handle various nonlinear real functions such as polynomials, trigonometric functions, exponential functions, etc. {\sf dReal} implements the framework of $\delta$-complete decision procedures: It returns either {\sf unsat} or {\sf $\delta$-sat} on input formulas, where $\delta$ is a numerical error bound specified by the user. {\sf dReal} also produces certificates of correctness for both {\sf $\delta$-sat} (a solution) and {\sf unsat} answers (a proof of unsatisfiability).  
+%{\sf dReal} integrates Interval Constraint Propagation methods in the DPLL(T) framework to handle nonlinearity, and is designed to be easily extendable with other numerical algorithms.
+\end{abstract}
+
+\section{Introduction}
+
+SMT formulas over the real numbers can encode a wide range of problems in theorem proving and formal verification. Such formulas are very hard to solve when nonlinear functions are involved. Our recent work on {$\delta$-complete decision procedures} provided a new framework for this problem~\cite{DBLP:conf/cade/GaoAC12,DBLP:conf/lics/GaoAC12}. We say a decision procedure is {\em $\delta$-complete} for a set $S$ of SMT formulas, where $\delta$ is a positive rational number, if for any $\varphi$ from $S$, the procedure returns one of the following:
+\begin{itemize}
+ \item {\sf unsat}: $\varphi$ is unsatisfiable.
+ \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
+\end{itemize}
+Here, $\varphi^{\delta}$ is a syntactic variant of $\varphi$ that encodes a notion of numerical perturbation on logic formulas~\cite{DBLP:conf/cade/GaoAC12}. With such relaxation, $\delta$-complete decision procedures can fully exploit the power of scalable numerical algorithms to solve nonlinear problems, and at the same time provide suitable correctness guarantees for many correctness-critical problems. {\sf dReal} implements this framework. It solves SMT problems over the reals with nonlinear functions, such as polynomials, sine, exponentiation, logarithm, etc. The tool is open-source\footnote{{\sf dReal} is available at \url{http://dreal.cs.cmu.edu}.}, built on {\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10} for the
+high-level DPLL(T) framework, and {\sf
+realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} for the Interval
+Constraint Propagation algorithm. It returns {\sf unsat} or {\sf $\delta$-sat}
+on input formulas, and the user can obtain certificates (proof of
+unsatisfiability or solution) for the answers.
+
+In this paper we describe the usage, design, and some results of the tool.
+
+\paragraph{Related Work.} 
+
+SMT solving for nonlinear formulas over the reals has gained much attention in recent years and many tools are now available. The symbolic approaches include Cylindrical Decomposition~\cite{collins}, with significant recent improvement~\cite{PassmoreJ09,DBLP:conf/cade/JovanovicM12}, and Gr\"obner bases~\cite{PlatzerQR09}. A drawback of symbolic algorithms is that it is restricted to arithmetic, namely polynomial constraints, with the exception of~\cite{metitarski}. On the other hand, many practical solvers incorporate scalable numerical computations. Examples of numerical algorithms that have been exploited include optimization algorithms~\cite{BorrallerasLNRR09,DBLP:conf/fmcad/NuzzoPSS10}, interval-based algorithms~\cite{HySAT,DBLP:conf/atva/EggersFH08,DBLP:conf/fmcad/Gao10}, Bernstein polynomials~\cite{bern}, and linearization algorithms~\cite{cordic}. All solvers show promising results on various nonlinear benchmarks. Our goal is to provide an open-source platform for the rigorous combination of numerical and symbolic algorithms under the framework of $\delta$-complete decision procedures~\cite{DBLP:conf/cade/GaoAC12}. 
+
+\section{Usage}
+
+\subsection{Input Format}
+
+We accept formulas in the standard SMT-LIB 2.0 format~\cite{BarST-SMT-10} with extensions. In addition to nonlinear arithmetic (polynomials), we allow transcendental functions such as $\sin, \tan, \arcsin$, $\arctan$, $\exp$, $\log$, pow, $\sinh$. More nonlinear functions (for instance, solution of differential equations) can be added when needed, by providing the corresponding numerical evaluation algorithms. Floating-point numbers are allowed as constants in the formula. 
+
+Bound information on variables can be declared using a list of simple atomic formulas. For instance ``{\tt (assert (< 0 x))}", which sets $x\in (0, +\infty)$ at parsing time. Also, the user can set the precision by writing
+``{\tt (set-info :precision 0.0001)}." The default precision is $10^{-3}$, and can be set through command line.
+\begin{example}\label{example} The following is an example input file.
+It is taken from the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05}. (Filename {\tt flyspeck/172.smt2}. Flyspeck {\tt ID (6096597438b)})
+ \begin{verbatim}
+(set-logic QF_NRA)
+(set-info :precision 0.001)
+(declare-fun x () Real)
+(assert (<= 3.0 x))
+(assert (<= x 64.0))
+(assert (not (> (- (* 2.0 3.14159265) (* 2.0 (* x (arcsin (* (cos
+0.797) (sin (/ 3.14159265 x))))))) (+ (- 0.591 (* 0.0331 x))
+(+ (* 0.506 (/ (- 1.26 1.0) (- 1.26 1.0))) 1.0)))))
+(check-sat)
+(exit)
+\end{verbatim}
+\end{example}
+
+\subsection{Command Line Options}
+
+After building, {\tt dReal} can be simply used through:
+\begin{verbatim}
+dReal [--verbose] [--proof] [--precision <double>] <filename>
+\end{verbatim}
+The default output is {\sf unsat} or {\sf delta-sat}. When the flags are
+enabled, the following output will be provided.
+\begin{itemize}
+ \item If {\tt --verbose} is set, then the solver will output the detailed
+decision traces along with the solving process. 
+\item If {\tt --proof} is set, the solver produces an addition file
+``{\tt filename.proof}'' upon termination, and provides the following
+information.
+\begin{itemize}
+\item If the answer is {\sf delta-sat},
+then {\tt filename.proof} contains a witnessing solution, plugged into a
+$\delta$-perturbation of the original formula, such
+that the correctness can be easily checked externally. 
+
+\item If the answer is {\sf unsat}, then {\tt filename.proof} contains a trace
+of the solving steps, which can be verified as a proof tree that establishes the
+unsatisfiability of the formula.  
+\end{itemize}
+\item The {\tt --precision} flag gives the option of overwriting the
+default precision, and the one set in the benchmark.
+\end{itemize}
+When the {\tt --proof} flag is set, the solver produces a file that certifies
+the answer. In the {\tt delta-sat} case, the solution is plugged in the
+formula, and its correctness can be checked externally. For the {\tt unsat}
+cases, we provide a proof checker that verifies the proof. It can be used with the following command:
+\begin{verbatim}
+proofcheck [--timeout <int>] <filename>
+\end{verbatim}
+The proof checker will create a new folder called {\tt filename.extra}, which
+contains auxiliary files needed. It is possible for the proof
+checking procedure to produce a large number of new files, so setting a
+ timeout is important. By default, the timeout is {\tt 30min}. The proof
+checker will return either ``{\sf proof verified}'' or ``{\sf timeout}''.
+
+\begin{example}
+With default parameters, {\sf dReal} solves the formula in
+Example~\ref{example} in {\tt 10ms}, returning {\sf unsat}, on a machine with
+a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM. We then run {\sf proofcheck} on the same machine. The proof checker returns
+``{\sf proof verified}'' in 10.08s, after making 8 branching steps and
+checking 77 axioms.
+\end{example}
+
+\section{Design}
+
+\subsection{The $\delta$-Decision Problem}\label{lbl:deltas}
+
+The standard decision problem is undecidable for SMT formulas
+over the reals with trigonometric functions. Instead, we proposed to focus on the so-called $\delta$-decision problem, which relaxes the standard decision problem. Let $\delta$ be any positive rational number. On a given SMT formula $\varphi$, we ask for one of the
+following answers:
+\begin{itemize}
+ \item {\sf unsat}: $\varphi$ is unsatisfiable.
+ \item {\sf $\delta$-sat}: $\varphi^{\delta}$ is satisfiable.
+\end{itemize}
+When the two cases overlap, either answer can be returned. Here,
+$\varphi^{\delta}$ is called the $\delta$-perturbation (or $\delta$-weakening)
+of $\varphi$, which is formally defined as follows.
+\begin{definition}[$\delta$-Weakening~\cite{DBLP:conf/cade/GaoAC12}]
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a
+$\Sigma_1$-sentence in a standard form $\varphi:= \exists^{\vec I}\vec
+x\;(\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i}
+f_{ij}(\vec x)= 0))$. The $\delta$-weakening of $\varphi$ defined as:
+$\varphi^{\delta}:= \exists^{\vec I} \vec x\;(\bigwedge_{i=1}^m(\bigvee_{j=1}^k
+|f_{ij}(\vec x)|\leq \delta)).$
+\end{definition}
+Solving the $\delta$-decision problem is as useful as the standard one for many
+problems. For instance, suppose we perform bounded
+model checking on hybrid systems, and encode safety properties as an SMT
+formula $\varphi$. Then following standard model checking techniques, if we
+decide that $\varphi$ is {\sf unsat}, then the system is indeed ``safe'' with in
+some bounds; if we decide that $\varphi$ is {\sf $\delta$-sat}, then the system
+would become ``unsafe'' under some $\delta$-perturbation on the system. In this
+way, when $\delta$ is reasonably small, we have essentially taken into account
+the robustness properties of the system, and can justifiably conclude that the
+system is unsafe in practice.
+
+\subsection{DPLL$\langle$ICP$\rangle$}
+
+Interval Constraint Propagation (ICP)~\cite{handbookICP} is a constraint solving
+algorithm that finds
+solutions of real constraints using a ``branch-and-prune'' method, combining
+interval arithmetic and constraint propagation. The idea is to use interval
+extensions of functions to ``prune'' out sets of points that are not in the
+solution set, and ``branch'' on intervals when such pruning can not be done,
+until a small enough box that may contain a solution is found. In a DPLL(T) framework, ICP can be used as the theory solver that checks the
+consistency of a set of theory atoms. We use
+{\sf opensmt}~\cite{DBLP:conf/tacas/BruttomessoPST10} for the
+general
+DPLL(T) framework, and integrate {\sf realpaver}~\cite{DBLP:journals/toms/GranvilliersB06} which performs ICP. We now describe the design of the interface. A high-level structure of the theory solver is shown in Algorithm \ref{algo1}. 
+\begin{algorithm}[h!]
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{A conjunction of theory atoms, seen as constraints, $c_1(x_1,...,x_n),...,c_m(x_1,...,x_n)$, the initial interval bounds on all variables $B^0 = I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision $\delta\in \mathbb{Q}^+$.}
+\Output{{\sf $\delta$-sat}, or {\sf unsat} with learned conflict clauses.}
+\BlankLine
+$S.\mathrm{push}(B_0)$\;
+\While{$S\neq \emptyset$}{\label{while}
+$B\leftarrow S.\mathrm{pop}()$ \;
+\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,c_i)$}{ 
+%\For{$j\leftarrow 1$ \KwTo $m$}{
+\CommentSty{//Pruning without branching, used as the assert() function.}
+	$B\leftarrow\mathrm{Prune}(B, c_i)$\;
+%	\If{$B=\emptyset$}{break\;}
+}
+\CommentSty{//The $\varepsilon$ below is computed from $\delta$ and the Lipschitz constants of functions beforehand.}\\
+\If{$B\neq \emptyset$}
+{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}
+{$\{B_1,B_2\}\leftarrow \mathrm{Branch}(B, i)$;\CommentSty{  //Splitting on the intervals}
+$S.\mathrm{push}(\{B_1,B_2\})$\;}{
+return {\sf $\delta$-sat}; \CommentSty{   //Complete check() is successful.}}}
+}
+return {\sf unsat}\;
+\caption{Theory Solving in DPLL$\langle$ICP$\rangle$}\label{algo1}
+\end{algorithm}
+
+
+\paragraph{Check and Assert.} For incomplete checks in the assert function,
+we use the pruning operator provided in ICP to contract the interval assignments
+on all the variables, by eliminating the boxes in the domain that do not contain
+any solutions. At complete checks, we perform both pruning and branching, and
+look for one interval solution of the system. That is, we prune and branch on
+the interval assignment of all variables, and stop when either we have obtained
+an interval vector that is smaller than the preset error bound, or when we have
+traversed all the possible branching on the interval assignments.
+\paragraph{Backtracking and Learning.} We maintain a stack of assignments on the variables,
+which are mappings from variables to unions of intervals. When we reach a
+conflict, we backtrack to the previous environment in the pushed stack. We also collect all the
+constraints that have appeared in the pruning process leading to the conflict.
+We then turn this subset of constraints into a learned clause and add it to the
+original formula.
+\paragraph{Witness for $\delta$-Satisfiabillity.} When the answer is {\sf $\delta$-sat} on $\varphi(\vec x)$, we provide a solution $\vec a\in \mathbb{R}^n$, such
+that $\varphi^{\delta}(\vec a)$ is a ground formula that can be easily checked
+to be true. It is important to note that the
+solution witnesses $\delta$-satisfiability, instead of standard satisfiability
+of the original formula. While the latter problem is undecidable, {\em any} point in the interval assignment returned by ICP can witness the satisfiability
+of $\varphi^{\delta}$ when the intervals are smaller than an appropriate error
+bound.
+\paragraph{Proofs of Unsatisfiability.} When the answer is {\sf unsat}, we
+produce a proof tree that can be verified to establish the validity of the
+negation of the formula, i.e., $\forall \vec x \neg\varphi(\vec x)$. We
+devised a simple first-order natural deduction system, and transform the
+computation trace of the solving process into a proof tree. We then use
+interval arithmetic and simple rules to check the correctness of the proof
+tree. The proof check procedure recursively divide the problem into subproblems
+with smaller domains. More details can be found in~\cite{cade2013extended}.
+
+\section{Results}
+
+Besides solving the standard benchmarks~\cite{DBLP:conf/cade/JovanovicM12} (data shown on the tool website), we managed to solve many challenging nonlinear benchmarks from the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05} for the formal proof of the Kepler conjecture. The following is a typical formula:
+\begin{align*}
+\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt
+2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}\\
+&+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq
+-\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
+\end{align*}
+where $a_i(\vec x)$ are quadratic and $\Delta(\vec x)$ is the
+determinant of a nonlinear matrix. We solved 828 out of the 916 formulas (returning {\sf
+  unsat}) with a timeout of 5 minutes and $\delta=10^{-3}$, without domain-specific heuristics. The proof traces of these formulas can be large. In Table~\ref{tbl:exp}, we list
+some of the representative benchmarks to show scalability. Complete
+tables are on the tool page.
+\input{good_benchmarks.tex}
+
+\bibliographystyle{abbrv}
+\bibliography{tau_cade}
+\end{document}
