@@ -1,9 +1,9 @@
 \section{Experiments}
 \vspace{-.1cm}
-Our method is implemented in the open-source tool {\bf SReach} (\url{https://github.com/rachelwang/SReach}). See Appendix \ref{apndx:usage} for its usage. All benchmarks and data shown below are on the tool website. All experiments were conducted on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. 
+Our method is implemented in the open-source tool {\bf SReach} (\url{https://github.com/dreal/SReach}). See Appendix \ref{apndx:usage} for its usage. All benchmarks and data shown below are on the tool website. All experiments were conducted on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. 
 In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian sequential estimation
 with $0.01$ half-interval width, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$). The 
-detailed description of the following models in Appendix \ref{apndx:model} demonstrates their highly nonlinear and nondeterministic characteristics.
+detailed description of the following models in Appendix \ref{apndx:model} demonstrates their highly nonlinear characteristics.
 
 {\bf\noindent Prostate cancer treatment.}
 %\textit{Model Description}.
@@ -59,23 +59,12 @@ CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples
 \end{table}
 \vspace{-1cm}
 
-\begin{comment}
-
-\subsection{Application to the stabilization control of quadcopters}
-
-\textit{Model Description}.
-We modeled the stabilization control of a quadcopter, and are interested in analyzing its robustness. In other words, given an arbitrary initial location and position, this model will guarantee that the quadcopter will soon become stable via adjusting velocities of four rotors. To specify the arbitrary initial status, we introduced 6 random variables: ($x_0$, $y_0$, $z_0$) (the initial location),  $\phi_0$ (the initial roll angle), $\theta_0$ (the initial pitch angle), and $\psi_0$ (the initial yaw angle).
-
-\textit{Experiments and Results}. To validate this model, {\bf SReach} was adopted with the BIFT statistical testing option.  
-
-\end{comment}
-
 {\noindent\bf Additional benchmarks.} To further demonstrate the feasibility of {\bf SReach}, we also applied it to the following benchmarks. 
 Table \ref{table:exp} shows the results of experiments. BB refers to the bouncing ball models, 
 Tld the thermostat model with linear temperature decrease, Ted the thermostat model with exponential decrease, 
 DT the dual thermostat models, W the watertank models, DW the dual watertank models, 
 %Gear the gear shift control model, 
-Que the model for queuing system, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter 
+Que the model for queuing system which has both nonlinear functions and nondeterministic jumps, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter 
 stabilization control. 
 \vspace{-.5cm}
 \begin{table}[h!]
