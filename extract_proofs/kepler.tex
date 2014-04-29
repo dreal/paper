@@ -36,16 +36,16 @@ proofs of about 10 inequalities so far, using formal Taylor series and
 interval arithmetic.
 
 Without any particular optimization on ICP, we have already observed
-promising results. Out of a total number of 505 nonlinear formulas in
-the Flyspeck project repository, we solved 137 of them returning {\sf
-  unsat} with a timeout of 30 minutes and $\delta=10^{-3}$. Out of
-these formulas, we applied the proof checking algorithm, and formally
-proved 55 of them directly.The proof traces of these formulas can be
-very large; for instance, we proved one with 47k lines in the proof
-(1MB file). In Table~\ref{tbl:exp}, we list some of the representative
-benchmarks to show scalability. A full table for all the results is on
-the tool page. It also contains results for other standard benchmarks,
-such as from~\cite{DBLP:conf/cade/JovanovicM12}.
+promising results. Out of 916 nonlinear formulas in the Flyspeck
+project repository, we solved 111 of them returning {\sf unsat} with a
+timeout of 180 seconds and precision $\delta=10^{-3}$. Out of these
+formulas, we applied the proof checking algorithm, and formally proved
+72 of them directly.The proof traces of these formulas can be very
+large; for instance, we proved one with more than 2M lines in the
+proof (54MB file). In Table~\ref{tbl:exp}, we list some of the
+representative benchmarks to show scalability. A full table for all
+the results is on the tool page. It also contains results for other
+standard benchmarks, such as from~\cite{DBLP:conf/cade/JovanovicM12}.
 
 As the proof-generation capacity is for debugging SMT solvers, the
 proofs have also been valuable for us to observe bugs during the
