@@ -19,11 +19,11 @@ To solve probabilistic bounded reachability, we sample parameters in $RX$ accord
 to their distributions and obtain a hybrid model $M_i$ with no probabilistic 
 parameter. {\bf SReach} then calls {\bf dReach} \cite{gaodelta} with the desired precision $\delta$ and 
 unfolding steps $k$. {\bf dReach} returns either unsat or $\delta$-sat for $M_i$, and this information
-is then used by statistical tests to decide whether stopping or repeat the procedure. The procedure is illustrated in Algorithm \ref{fig:sreach}. {\bf SReach} can answer two types of questions: (1) Does $MP$ satisfy $\phi$ with probability greater than a certain threshold? and (2) What is the probability that $MP$ satisfies $\phi$?
-These two types of questions can be answered by hypothesis testing, 
-statistical estimation methods respectively. Both methods produce answers up to some correctness 
+is then used by statistical tests to decide whether stopping or repeat the procedure. The full procedure is illustrated in Algorithm \ref{fig:sreach}. {\bf SReach} can answer two types of questions: (1) Does $MP$ satisfy $\phi$ with probability greater than a certain threshold? and (2) What is the probability that $MP$ satisfies $\phi$?
+These two types of questions can be answered by hypothesis testing and 
+statistical estimation methods, respectively. Both methods produce answers up to some correctness 
 precision that can be set arbitrarily by the user.
-We have implemented in {\bf SReach} a number of statistical estimation and hypothesis testing techniques including: {Lai's test} \cite{lai1988nearly}, {Bayes factor test} \cite{kass1995bayes}, {Bayes factor test with indifference region} \cite{younes2005verification}, {Sequential probability ratio test (SPRT)}\cite{wald1945sequential}, {Chernoff-Hoeffding bound} \cite{hoeffding1963probability}, and {Bayesian Interval Estimation with Beta prior}\cite{zuliani2010bayesian}. (See Appendix \ref{apndx:stat} for more details.) 
+We have implemented in {\bf SReach} a number of hypothesis testing and statistical estimation techniques including: {Lai's test} \cite{lai1988nearly}, {Bayes factor test} \cite{kass1995bayes}, {Bayes factor test with indifference region} \cite{younes2005verification}, {Sequential probability ratio test (SPRT)}\cite{wald1945sequential}, {Chernoff-Hoeffding bound} \cite{hoeffding1963probability}, and {Bayesian Interval Estimation with Beta prior}\cite{zuliani2010bayesian}. (See Appendix \ref{apndx:stat} for more details.) 
 \vspace{-.5cm}
 \begin{algorithm}
   \centering

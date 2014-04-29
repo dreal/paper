@@ -1,8 +1,11 @@
 \section{The SReach tool}\label{apndx:usage}
 \subsection{Input format}
-The inputs to our {\bf SReach} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, the description of a automaton is of the following structure.
+The inputs to our {\bf SReach} tool are descriptions of hybrid automata with random variables (representing the probabilistic system parameters), and the reachability property to be checked. Following roughly the same format as the above definition of hybrid automata, and adding the declarations of random variables, 
+the description of an automaton is as follows.
 
-{\bf Preprocessor.} We can use the C language syntax to define constants and macros. When defining, random variables, which will be declared later, can also be used. 
+{\bf Preprocessor.} We can use the C language syntax to define constants and macros. It can also be used
+for defining random variables --- see below.
+%When defining, random variables, which will be declared later, can also be used. 
 
 \begin{comment}
 For example, we can write,\\
@@ -21,11 +24,11 @@ For instance,\\
 $[-10, \; 20.1]\; \;  x;$\\
 \end{comment}
 
-{\bf Hybrid automaton.} A hybrid automaton is represented by a set of modes. Within each mode declaration, users can specify statements for mode invariant(s), flow function(s), and jump condition(s). For a mode invariant, we can give any logic formula for the variables. For a flow function, it is expressed by an ODE.  As for a jump condition, it is written as 
+{\bf Hybrid automaton.} A hybrid automaton is represented by a set of modes. Within each mode declaration, users can specify statements for mode invariant(s), flow function(s), and jump condition(s). For a mode invariant, we can give any logic formula of the variables. For a flow function, it is expressed by an ODE.  As for a jump condition, it is written as 
 \begin{verbatim} 
 <logic_formula1>  ==> @<tagert_mode>  <logic_formula2>,
 \end{verbatim}
-where the first logic formula is given as the guard of the jump, and the later one specifies the reset condition after the jump.
+where the first logic formula is given as the guard of the jump, and the second one specifies the reset condition after the jump.
 
 \begin{comment}
 each differential equation is of the format: "$d/dt \; [<var>]\;\;=\;\;<fun>;$". 
