@@ -16,13 +16,13 @@ Solving constraints over the real numbers plays a critical role in the formal ve
 
 Decision solvers for logic formulas over the real numbers play a crucial role in the formal verification of safety-critical embedded systems. To guarantee correctness, decision solvers should provide, besides ``{\sf sat}/{\sf unsat}" answers, certificates for the answers that can be easily validated. For {\sf sat} answers, a solution (value assignments for all variables) usually suffices. For {\sf unsat} answers, we need mathematical {\em proofs of unsatisfiability}, which can be more tricky. This is an especially important issue in the framework of $\delta$-complete decision procedures over the reals~\cite{}, because of its use of numerical procedures that necessarily contain numerical approximations and floating point arithmetic. For instance, the following is an actual bug we experienced in building our SMT solver dReal~\cite{bug}:
 \begin{quote}
-With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. ... Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library. With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound). 
+With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. ... Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library. With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound).
 \end{quote}
-This shows the importance of validating the results, through proofs that can ensure the correctness of ``no solution" results and reject the wrong answers. Such problems are not obvious when constraint solving actually obtains solutions, whose correctness can be checked by plugging them back in the original constraints. This is why we emphasize on proofs of unsatisfiability, for which we do not have direct witnesses to check. 
+This shows the importance of validating the results, through proofs that can ensure the correctness of ``no solution" results and reject the wrong answers. Such problems are not obvious when constraint solving actually obtains solutions, whose correctness can be checked by plugging them back in the original constraints. This is why we emphasize on proofs of unsatisfiability, for which we do not have direct witnesses to check.
 
 Obtaining such proofs is also important in automated theorem proving~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}. Constraint systems can encode counterexamples to mathematical theorems. Consequently, if no solution is found, then the theorem has no counterexamples, and should be established as correct. If valid proofs of unsatisfiability can be provided, they can be directly used as formal proofs for the theorems. This would lead to a new approach to automated theorem proving over the real numbers, and its scalability can outperform existing symbolic approaches for instance that allow numerical relaxations. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
 $$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
-where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many such formulas. 
+where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many such formulas.
 
 We describe our approach for generating proofs from decision procedures over formulas over the reals. We make the following contributions:
 
@@ -32,7 +32,7 @@ We describe our approach for generating proofs from decision procedures over for
 
 3. We show how to validate the generated proofs using a stand-alone proof checker implementing simple rules and reliable interval arithmetic. The proof checker interacts with the solver in an abstraction refinement loop to obtain proof trees of sufficient detail. (Section~\ref{validate})
 
-The challenge lies in the formalization of ICP, the proof system, and translations of computation steps. These we give a complete answers to. The second challenge is to validate axioms that are extracted from numerical axioms, which we can only use heuristics approaches. In the end, we show promising experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}. 
+The challenge lies in the formalization of ICP, the proof system, and translations of computation steps. These we give a complete answers to. The second challenge is to validate axioms that are extracted from numerical axioms, which we can only use heuristics approaches. In the end, we show promising experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}.
 
 \paragraph{Related Work.} Our work is closely related to several lines
 of research in the existing literature. For proving formulas with
@@ -492,9 +492,9 @@ axiom set $A$.
 
 \subsection{Validating the Axioms}
 
-There are two types of axioms that we allow in the proofs constructed from ICP runs: interval axioms and constraint axioms. To validate such axioms, we still need numerical computations. However, two aspects are different now. First, the axioms are not part of the 
+There are two types of axioms that we allow in the proofs constructed from ICP runs: interval axioms and constraint axioms. To validate such axioms, we still need numerical computations. However, two aspects are different now. First, the axioms are not part of the
 
-We can now use reliable arithmetic and check such facts in stand-alone 
+We can now use reliable arithmetic and check such facts in stand-alone
 
 
 we will show that they only rely on simple computations that can be validated through stand-alone arbitrary-precision or symbolic computation. Note that the validation of the axioms can fail -- they can fail even when the solver correctly returns {\sf unsat}, if the solver uses advanced numerical heuristics leading to axioms that can not be verified by reliable numerical computation. In practice, we ensure the correctness of the proof checker first, and use an abstraction refinement loop that allows the proof checker to ask for more detailed proofs from the solver.
@@ -573,65 +573,7 @@ problems, but may exponentially slow down the solver in each round. In practice
 we observe that such a refinement loop is very useful, as we will show in the
 experiments.
 
-\section{Case Study: Proving Lemmas for the Kepler Conjecture}\label{kepler}
-
-We build the proof-producing capacity into our open-source tool
-{\sf dReal}\footnote{
-\url{http://dreal.cs.cmu.edu}
-}. All the experiments below are run on a
-machine of with a 32-core 2.3GHz AMD Opteron Processor and 94GB of RAM.
-\input{good_proofs.tex}
-A main motivation for us to build
-the proof checker is to contribute to the Flyspeck
-project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
-fully formalized proof of the Kepler conjecture. As lemmas for the proof,
-hundreds of nonlinear real inequalities need to be verified. Although the
-formulas usually contain only around ten variables, they contain a huge number
-of nonlinear arithmetic operations and trigonometric functions, and are
-mathematically challenging.
-The following is typical:
-\begin{align*}
-\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt
-2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}\\
-&+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq
--\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
-\end{align*}
-where $a_i(\vec x)$ are quadratic and $\Delta(\vec x)$ is the
-determinant of a nonlinear matrix.
-
-In the original proof, Hales implemented
-procedures that combine linear programming and interval arithmetic to
-establish all these formulas, but the algorithms are hard to be formally
-verified. In fact, the formal verification of these formulas is the last main
-piece of work needed to complete the full project. The state of the art is
-explained in a very recent thesis~\cite{keplerthesis}, reporting the proofs of
-about 10 inequalities so far, using formal Taylor
-series and interval arithmetic.
-
-Without any particular optimization on ICP, we have already observed promising
-results. Out of a total number of 505 nonlinear formulas in the Flyspeck project
-repository, we solved
-137 of them returning {\sf unsat} with a timeout of 30 minutes and
-$\delta=10^{-3}$. Out of these formulas, we applied the proof checking
-algorithm, and formally proved 55 of them directly.The proof traces of these
-formulas can be very large; for
-instance, we proved one with 47k lines in the proof (1MB file). In
-Table~\ref{tbl:exp}, we list some of the representative benchmarks to show
-scalability. A full table for all the results is on the tool page. It also
-contains results for other standard benchmarks, such as
-from~\cite{DBLP:conf/cade/JovanovicM12}.
-
-As the proof-generation capacity is for debugging SMT solvers, the proofs have
-also been valuable for us to observe bugs during the process. For instance, we
-have observed unstable behavior in the trigonometric function evaluation in {\sf
-realpaver} (the cosine function around $4\pi/3$). On the other hand, our proof
-checker only involves simple operations written in {\sf OCaml}, and performs the
-checking completely independently from the solver.
-Thus, for the {\sf unsat} answers with proofs, we are
-confident about the correctness of the answer, which does not involve bugs from
-{\sf realpaver}. Ultimately, we aim for having a verified proof checker in
-systems such as HOL.
-
+\input{kepler}
 
 \section{Conclusion}
 
