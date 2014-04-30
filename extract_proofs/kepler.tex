@@ -59,6 +59,19 @@ of the answer, which does not involve bugs from {\sf realpaver}.
 Ultimately, we aim for having a verified proof checker in systems such
 as HOL.
 
+
+\begin{align*}
+  \forall \vec{x} \in [4.0, 6.3504]. & - \mathrm{atan2}(\sqrt{\Delta_1(\vec{x})}, - \Delta_2(\vec{x})) - 0.458(\sqrt{x_2} + \sqrt{x_3} +\sqrt{x_4} + \sqrt{x_5})\\
+  & + 0.342\sqrt{x_1} + 3.319204 < 0.0
+\end{align*}
+where
+\begin{align*}
+  \Delta_1(\vec{x}) = & 4x_1 (8x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8)\\
+                      & \qquad     + x_2 x_5 (x_1 - x_2 + x_3 + x_4 - x_5 + 8 \\
+                      & \qquad \qquad         + x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)\\
+                      & \qquad \qquad         - 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
+\Delta_2(\vec{x}) = & -x_2 x_3 - 8.0 x_1 + x_2 x_5 + x_3x_4 - x_4 x_5 + x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8.0)
+\end{align*}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
