@@ -1,9 +1,10 @@
 \section{Experiments}\label{kepler}
-
 We build the proof generation capacity into our open-source solver {\sf
   dReal}\footnote{\url{http://dreal.cs.cmu.edu} }. All the
 experiments below are performed on a machine of with a 32-core 2.0GHz Intel
 Xeon E5-2600 Processor and 64GB of RAM.
+\input{good_proofs.tex}
+\input{bad_proofs.tex}
 \paragraph{Nonlinear Lemmas in the Kepler Conjecture.} A main motivation for us to build the proof checker is to contribute
 to the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
 fully formalized proof of the Kepler conjecture. As lemmas for the
@@ -14,11 +15,7 @@ trigonometric functions, and are mathematically challenging. In the original pro
 linear programming and interval arithmetic to establish all these
 formulas, but the algorithms are formally verify. In
 fact, the formal verification of these nonlinear inequalities is the last main piece
-of work needed to complete the full project. The state of the art is
-explained in a very recent thesis~\cite{keplerthesis}, reporting the
-proofs of about 10 inequalities so far, using formal Taylor series and
-interval arithmetic.
-
+of work needed to complete the full project. 
 %update this section
 Without any particular optimization on ICP, we have already observed
 promising results. Out of 916 nonlinear formulas in the Flyspeck
@@ -41,10 +38,6 @@ where
 & &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
 \Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2 - x_1x_3 - x_1x_4 -x_1 x_5
 \end{eqnarray*}
-
-\input{good_proofs.tex}
-\input{bad_proofs.tex}
-
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
