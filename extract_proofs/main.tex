@@ -18,11 +18,11 @@ Decision solvers for logic formulas over the real numbers play a crucial role in
 \begin{quote}
 With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. ... Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library. With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound), which can lead to incorrect {\sf unsat} answers in {\sf dReal}.
 \end{quote}
-Note that when we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them. 
+Note that when we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them.
 
 Obtaining such proofs is also important from the perspective of automated theorem proving. Decision solvers can estalbish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absense of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
 $$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
-where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many of such instances. 
+where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many of such instances.
 
 It is worth pointing out that proof checking becomes a nontrivial problem for procedures involving numerical algorithms. In fact, not all of the {\sf unsat} answers that we have obtained can be proof checked. The challenge is that the basic axioms, which encode what the numerical solver determines as facts over the reals, can not be validated logically. To do this, we need to formalize a significant amount of numerical algorithms in the solver, such as interval-based Newton Iteration.
 
@@ -59,7 +59,7 @@ interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set and ``branch'' on intervals when
 such pruning can not be done, recursively until a small enough box
-that may contain a solution is found or inconsistency is observed. ICP uses interval extensions of functions to ``prune'' out sets of points that are not in the solution set, and ``branch'' on intervals when such pruning can not be done, until a small enough box that may contain a solution is found. A high-level description of the decision version of ICP is given in Algorithm~\ref{icpalgo}~\cite{handbookICP,DBLP:conf/cade/GaoAC12}.  
+that may contain a solution is found or inconsistency is observed. ICP uses interval extensions of functions to ``prune'' out sets of points that are not in the solution set, and ``branch'' on intervals when such pruning can not be done, until a small enough box that may contain a solution is found. A high-level description of the decision version of ICP is given in Algorithm~\ref{icpalgo}~\cite{handbookICP,DBLP:conf/cade/GaoAC12}.
 \begin{algorithm}\label{algo1}
 \caption{ICP($f_1,...,f_m, B_0 = I_1^0\times\cdots\times I_n^0, \delta$)}\label{icpalgo}
 \begin{algorithmic}[1]
@@ -603,6 +603,7 @@ may exponentially slow down the solver in each round. In practice we
 observe that such a refinement loop is very useful, as we will show in
 the experiments.
 
+\input{aircraft}
 \input{kepler}
 
 \section{Conclusion}
