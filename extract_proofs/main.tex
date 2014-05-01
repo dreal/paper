@@ -572,11 +572,35 @@ solver for proof traces of the right amount of details.
 
 \begin{algorithm}
   \centering
+  \caption{ProofCheck}
+  \label{alg:proofcheck}
+  \begin{algorithmic}[1]
+    \Procedure{ProofCheck}{$p$, $\delta$}
+        \If {$p = \forall x (\vec x\in \vec I \rightarrow c(\vec x))$}
+            \If {$\sharp c(\vec I)$} \Comment use interval arithmetic, taylor extension..
+                \State \Return $\emptyset$
+            \Else
+                \State $(\vec I_1, \vec I_2) \gets \mathrm{Split}(\vec I)$
+                \State $(\delta_1, \delta_2) \gets (\min( \delta, \frac{1}{4}||I_1||), \min( \delta, \frac{1}{4}||I_2||))$
+                \State \Return $\{
+                (\forall x (\vec x\in \vec I_1 \rightarrow c(\vec x)), \delta_1),
+                (\forall x (\vec x\in \vec I_2 \rightarrow c(\vec x)), \delta_2)
+                \}$
+            \EndIf
+        % \ElsIf {$p = \forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$}
+        %     \State \Return $I \subseteq (I_1 \cup I_2)$
+        \EndIf
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \centering
   \caption{Branch-and-Prove}
   \label{alg:branch-and-prove}
   \begin{algorithmic}[1]
     \Procedure{Branch-and-Prove}{$p$, $\delta$}
-        \State $U \gets \mathrm{ProofCheck}(p)$
+        \State $U \gets \mathrm{ProofCheck}(p, \delta)$
         \If {$U \not = \emptyset$}
             \ForAll {$(a, \delta') \in U$}
                 \State $p' \gets \mathrm{Solve}(a, \delta')$
