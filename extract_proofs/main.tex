@@ -570,19 +570,38 @@ reliable computations. However, a more practical approach first is to use an
 abstraction refinement loop that allows the proof checker to ask the
 solver for proof traces of the right amount of details.
 
-When we fail to prove an axiom through simple interval arithmetic, the proof
-checker generates new subproblems that are returned to the solver. At this
-stage, the axioms becomes the new theorems to be proved.
-This is an abstraction refinement procedure. By executing the loop, we obtain
-proof trees that contain more and more detailed steps. There are two ways that
-the prover can generate the subproblems, branching on a variable in the
-formula or using a smaller $\delta$. Note that under the condition that
-the pruning operators in the solver is well-defined, both procedures never
-change the {\sf unsat} result. The branching may give
-exponentially many new problems; while the $\delta$-change does not give new
-problems, but may exponentially slow down the solver in each round. In practice
-we observe that such a refinement loop is very useful, as we will show in the
-experiments.
+\begin{algorithm}
+  \centering
+  \caption{Branch-and-Prove}
+  \label{alg:branch-and-prove}
+  \begin{algorithmic}[1]
+    \Procedure{Branch-and-Prove}{$p$, $\delta$}
+        \State $U \gets \mathrm{ProofCheck}(p)$
+        \If {$U \not = \emptyset$}
+            \ForAll {$(a, \delta') \in U$}
+                \State $p' \gets \mathrm{Solve}(a, \delta')$
+                \State \Call{Branch-and-Prove}{$p'$, $\delta'$}
+            \EndFor
+        \EndIf
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+When we fail to prove an axiom through simple interval arithmetic, the
+proof checker generates new subproblems that are returned to the
+solver. At this stage, the axioms becomes the new theorems to be
+proved. This is an abstraction refinement procedure.
+Algorithm~\ref{alg:branch-and-prove} illustrates the procedure. By
+executing the loop, we may obtain proof trees that contain more and more
+detailed steps. There are two ways that the prover can generate the
+subproblems, branching on a variable in the formula or using a smaller
+$\delta$. Note that under the condition that the pruning operators in
+the solver is well-defined, both procedures never change the {\sf
+  unsat} result. The branching may give exponentially many new
+problems; while the $\delta$-change does not give new problems, but
+may exponentially slow down the solver in each round. In practice we
+observe that such a refinement loop is very useful, as we will show in
+the experiments.
 
 \input{kepler}
 
