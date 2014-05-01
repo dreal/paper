@@ -24,6 +24,8 @@ Obtaining such proofs is also important from the perspective of automated theore
 $$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
 where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many of such instances. 
 
+It is worth pointing out that proof checking becomes a nontrivial problem for procedures involving numerical algorithms. In fact, not all of the {\sf unsat} answers that we have obtained can be proof checked. The challenge is that the basic axioms, which encode what the numerical solver determines as facts over the reals, can not be validated logically. To do this, we need to formalize a significant amount of numerical algorithms in the solver, such as interval-based Newton Iteration.
+
 We describe our approach for generating proofs from decision procedures over formulas over the reals. We make the following contributions:
 
 1. We formalize the ICP algorithm in the framework of Abstract DPLL~\cite{DBLP:journals/jacm/NieuwenhuisOT06}. The similarity between ICP and SAT solving techniques has been explored in existing work~\cite{HySAT}. With this formulation, the branch-and-prune framework is viewed as a transition system with a small set of transition rules. (Section~\ref{formalization})
@@ -31,8 +33,6 @@ We describe our approach for generating proofs from decision procedures over for
 2. We use a simple first-order proof calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and show how to transform a run of the Abstract ICP to a proof in the system. (Section~\ref{icp})
 
 3. We show how to validate the generated proofs using a stand-alone proof checker implementing simple rules and reliable interval arithmetic. The proof checker interacts with the solver in an abstraction refinement loop to obtain proof trees of sufficient detail (Section~\ref{validate}). In the end, we show experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}.
-
-It is worth pointing out that not all of the {\sf unsat} answers that we have obtained can be proof checked. The challenge is that the basic axioms, which encode what the numerical solver determines as facts over the reals, can not be validated logically. To do this, we need to formalize a significant amount of numerical algorithms in the solver, such as interval-based Newton Iteration. This should hint a fundamental difficulty... 
 
 \paragraph{Related Work.} Our work is closely related to several lines
 of research in the existing literature. For proving formulas with
@@ -493,12 +493,7 @@ axiom set $A$.
 
 \subsection{Validating the Axioms}
 
-There are two types of axioms that we allow in the proofs constructed from ICP runs: interval axioms and constraint axioms. To validate such axioms, we still need numerical computations. However, two aspects are different now. First, the axioms are not part of the
-
-We can now use reliable arithmetic and check such facts in stand-alone
-
-
-we will show that they only rely on simple computations that can be validated through stand-alone arbitrary-precision or symbolic computation. Note that the validation of the axioms can fail -- they can fail even when the solver correctly returns {\sf unsat}, if the solver uses advanced numerical heuristics leading to axioms that can not be verified by reliable numerical computation. In practice, we ensure the correctness of the proof checker first, and use an abstraction refinement loop that allows the proof checker to ask for more detailed proofs from the solver.
+There are two types of axioms that we allow in the proofs constructed from ICP runs: interval axioms and constraint axioms. To validate such axioms, we still need numerical computations. The difference is that the proof checker only needs to implement simple interval computation that can be validated through stand-alone arbitrary-precision or symbolic computation. Note that the validation of the axioms can fail when the solver correctly returns {\sf unsat}, if the solver uses complex numerical heuristics that can not be verified by reliable numerical computation. In practice, we ensure the correctness of the proof checker first, and use an abstraction refinement loop that allows the proof checker to ask for more detailed proofs from the solver.
 
 The interval axioms do not contain any real functions, and are of the form
 $\forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$. We only need to
@@ -521,7 +516,6 @@ A simple example of interval extensions is the {\em natural interval
 extension} for
 arithmetic operations, based on computations of functions on the end points of
 intervals.
-
 \begin{proposition}
 Let $F$ be an interval extension of $f$, and $I\subseteq \dom(f)$. If
 $F(I)\subseteq A$, then $\forall x (x\in I \rightarrow f(x)\in A)$.

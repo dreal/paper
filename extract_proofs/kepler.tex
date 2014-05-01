@@ -1,12 +1,9 @@
 \section{Experiments}\label{kepler}
 
-We build the proof generation capacity into our open-source tool {\sf
-  dReal}\footnote{ \url{http://dreal.cs.cmu.edu} }. All the
+We build the proof generation capacity into our open-source solver {\sf
+  dReal}\footnote{\url{http://dreal.cs.cmu.edu} }. All the
 experiments below are performed on a machine of with a 32-core 2.0GHz Intel
 Xeon E5-2600 Processor and 64GB of RAM.
-
-\input{good_proofs.tex}
-
 \paragraph{Nonlinear Lemmas in the Kepler Conjecture.} A main motivation for us to build the proof checker is to contribute
 to the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
 fully formalized proof of the Kepler conjecture. As lemmas for the
@@ -34,17 +31,21 @@ proof (54MB file). In Table~\ref{tbl:exp}, we list some of the
 representative benchmarks to show scalability. A full table for all
 the results is on the tool page.
 \begin{multline*}
-\forall\vec{x} \in [4.0, 6.3504]^5\Big(- \mathrm{arctan2}(\sqrt{\Delta_1(\vec{x})}, - \Delta_2(\vec{x})) - 0.458(\sqrt{x_2} + \sqrt{x_3} +\sqrt{x_4} + \sqrt{x_5})\\
+\forall\vec{x} \in [4.0, 6.3504]^5\Big(- \mathrm{atan2}(\sqrt{\Delta_1(\vec{x})}, - \Delta_2(\vec{x})) - 0.458(\sqrt{x_2} + \sqrt{x_3} +\sqrt{x_4} + \sqrt{x_5})\\
  + 0.342\sqrt{x_1} + 3.319204 < 0.0\Big)
 \end{multline*}
 where
 \begin{eqnarray*}
 %give this definition
-\mathrm{arctan2} &=& 2 \mathrm{arctan} \frac{y}{\sqrt{x^2 + y^2} + x}\\
+\mathrm{atan2} &=& 2 \mathrm{arctan} \frac{y}{\sqrt{x^2 + y^2} + x}\\
   \Delta_1(\vec{x}) &=& 4x_1 (8x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8) + x_2 x_5 (x_1 - x_2 + x_3 + x_4 - x_5+8\\%sure there's a plus 8 here?
 & &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
 \Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2 - x_1x_3 - x_1x_4 -x_1 x_5
 \end{eqnarray*}
+
+\input{good_proofs.tex}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
