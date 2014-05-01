@@ -576,7 +576,7 @@ solver for proof traces of the right amount of details.
   \label{alg:proofcheck}
   \begin{algorithmic}[1]
     \Procedure{ProofCheck}{$p$, $\delta$}
-        \If {$p = \forall x (\vec x\in \vec I \rightarrow c(\vec x))$}
+        \If {$p = \mathrm{Axiom}(\forall x (\vec x\in \vec I \rightarrow c(\vec x)))$}
             \If {$\sharp c(\vec I)$} \Comment use interval arithmetic, taylor extension..
                 \State \Return $\emptyset$
             \Else
@@ -587,8 +587,14 @@ solver for proof traces of the right amount of details.
                 (\forall x (\vec x\in \vec I_2 \rightarrow c(\vec x)), \delta_2)
                 \}$
             \EndIf
-        % \ElsIf {$p = \forall \vec x(x\in I_1\vee x\in I_2\rightarrow x\in I)$}
-        %     \State \Return $I \subseteq (I_1 \cup I_2)$
+        \ElsIf {$p = \mathrm{Branch}(p_1, p_2, \vec I)$}
+            \State $U_1 \gets ProofCheck(p_1, \delta)$
+            \State $U_2 \gets ProofCheck(p_2, \delta)$
+            \If{$\vec I \not \subseteq (\dom(p_1) \cup \dom(p_2))$}
+                \State \Return Error
+            \Else
+                \State \Return $U_1 \cup U_2$
+            \EndIf
         \EndIf
     \EndProcedure
   \end{algorithmic}
