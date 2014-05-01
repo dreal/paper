@@ -1,0 +1,21 @@
+language: cpp
+cache: apt
+env:
+  global:
+    # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
+    - secure: "GeJaXTtv2nlbWG6ztQvOimvL7nLFw/xlYCCRF1ezLbhQnjanScMrK8HyN7Y3pFnFzDsc4x9W9JpGhbDyH79arNOvXBr2loVr9cGk3tCVI7PJhkzQQzWYTU3wEnWwk0HRRlq1jZg0A5BKD8HYd12T+HmpKFEBdmyskDQZ/6C+GLU="
+    # PAPERLREPO - encrypt "BLESSED" with private key (travis-ci)
+    - secure: "A6EjfO+7FQvO7TAKCGR0phVWSfATAsxFdyf2QtrOT8bJKVNwFbcvxDHLK1+nrVva66J4IYc06Vvxzq+BpNSP9Mcv3vzS3CkHupQZURRh/Dt9urOkOYWNaWANgPVfZFIRQ277QQxvHi8vtipoegJQIuDXiwubYUERrglbX7uawYY="
+
+install:
+  # PUSH TO BACKUP REPO
+  - if [[ $PAPERREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
+    fi
+
+notifications:
+  email:
+    recipients:
+     - dreal-paper@googlegroups.com
+    on_success: change
+    on_failure: always
