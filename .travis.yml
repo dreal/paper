@@ -2,20 +2,20 @@ language: cpp
 cache: apt
 env:
   global:
-    # BB_TOKEN - encrypt "bitbucket key" with travis-ci key
-    - secure: "JU39lD2xuNO5ljkiUdYz2k8YXqpI69+xE20oFCLDaDqflQFBR2QrGZOzowI2encCx5Bi6NbOavGSJEEv9VHooL7JRuTiPRleLZCflqgVtYjo0uW3SqWEHCgyBwgQ1R+AEwP617sHyHxWX8ckXzBjwYhzOLq8BQ5kb810pdim2rg="
-    # PAPERLREPO - encrypt "BLESSED" with private key (travis-ci)
-    - secure: "A6EjfO+7FQvO7TAKCGR0phVWSfATAsxFdyf2QtrOT8bJKVNwFbcvxDHLK1+nrVva66J4IYc06Vvxzq+BpNSP9Mcv3vzS3CkHupQZURRh/Dt9urOkOYWNaWANgPVfZFIRQ277QQxvHi8vtipoegJQIuDXiwubYUERrglbX7uawYY="
-
+    # BB_TOKEN=xxxx - encrypt "bitbucket key" with travis-ci key
+    - secure: "N7aOr6ozt5ZH4pAFWlAzSrt7+HCpt346eJWSOfpeBTn+6QrTBAqQMsRjkyD4pei37Ycv9UoOcE+wyTGeSREmJlmOvD6n/ameA0PBwhyQWla0VnsFbr4oUyAH8SpRHTuEpZBvj+Ol0gH+IPkwrvCdaT59LaTEvpi862mOrvYDJ1s="
+    # REPO=BLESSED - encrypt "BLESSED" with private key (travis-ci)
+    - secure: "pBGtqqdnaK4CkmzsYwSNTnGEnnQvjbKwL4tmS2AZMfdHoW9KGqHrUZUKhhB6jxS/mPENyd9e66c5ngYb0xQ8mMcXN7y75FAWFtHLQSvDb2nYaHLBW6z0N8hurWiPs3GWd8d3PFCT+pn9LyfjJNnAHoi5lrjz4GME8rD/yZxt9/Q="
 install:
   # PUSH TO BACKUP REPO
-  - if [[ $PAPERREPO == BLESSED ]]; then
+  - if [[ $REPO == BLESSED ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
     fi
   - sudo apt-get -qq install texlive-common texlive-binaries texlive-base
 
 script:
   - echo "done"
+  - make -C extract_proofs
 
 notifications:
   email:
