@@ -1,5 +1,5 @@
 \documentclass{llncs}
-\usepackage{mathpartir}
+\usepackage{mathpartir,amsmath,mathtools}
 \input{preamble}
 
 \title{Proof Generation from Delta-Decisions}
@@ -18,11 +18,11 @@ Decision solvers for logic formulas over the real numbers play a crucial role in
 \begin{quote}
 With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. ... Clearly, this leads to bugs in (even if correctly implemented) constraint solvers using the standard C library. With standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound), which can lead to incorrect {\sf unsat} answers in {\sf dReal}.
 \end{quote}
-Note that if we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them. 
+Note that when we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them. 
 
 Obtaining such proofs is also important from the perspective of automated theorem proving~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}. Decision solvers can estalbish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absense of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
 $$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
-where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many such formulas.
+where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that automated proofs can be extracted for many of such instances. 
 
 We describe our approach for generating proofs from decision procedures over formulas over the reals. We make the following contributions:
 
@@ -30,9 +30,9 @@ We describe our approach for generating proofs from decision procedures over for
 
 2. We use a simple first-order proof calculus $\mathbb{D}_A$, relativized to a set $A$ of axioms over the reals, and show how to transform a run of the Abstract ICP to a proof in the system. (Section~\ref{icp})
 
-3. We show how to validate the generated proofs using a stand-alone proof checker implementing simple rules and reliable interval arithmetic. The proof checker interacts with the solver in an abstraction refinement loop to obtain proof trees of sufficient detail. (Section~\ref{validate})
+3. We show how to validate the generated proofs using a stand-alone proof checker implementing simple rules and reliable interval arithmetic. The proof checker interacts with the solver in an abstraction refinement loop to obtain proof trees of sufficient detail (Section~\ref{validate}). In the end, we show experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}.
 
-The challenge lies in the formalization of ICP, the proof system, and translations of computation steps. These we give a complete answers to. The second challenge is to validate axioms that are extracted from numerical axioms, which we can only use heuristics approaches. In the end, we show promising experimental results towards the proving nonlinear lemmas in the Flyspeck project, in Section~\ref{kepler}.
+It is worth pointing out that not all of the {\sf unsat} answers that we have obtained can be proof checked. The challenge is that the basic axioms, which encode what the numerical solver determines as facts over the reals, can not be validated logically. To do this, we need to formalize a significant amount of numerical algorithms in the solver, such as interval-based Newton Iteration. This should hint a fundamental difficulty... 
 
 \paragraph{Related Work.} Our work is closely related to several lines
 of research in the existing literature. For proving formulas with
@@ -537,8 +537,7 @@ This can be easily validated through the natural interval extension of
 $(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$.
 \end{example}
 
-{\bf[adding more materials below about Taylor expansions]}
-
+\subsection{Taylor Proofs}
 Suppose we want to verify the inequality $f(x_1,...,x_n) > 0$ on a domain $\vec x\in D = I_1\times \cdots \times I_n.$ Using the multivariate mean value theorem, we have that for any $\vec a, \vec b\in D$
 $$f(\vec b) - f(\vec a) = \nabla f(\xi)\cdot (\vec b - \vec a) = \sum_i \frac{\partial f}{\partial x_i}(\xi)\cdot (b_i-a_i)$$
 for some $\xi\in D$. Thus, we can bound $f(x)$ on $D$ by computing the interval bound on the function
