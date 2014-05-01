@@ -9,10 +9,13 @@ env:
 
 install:
   # PUSH TO BACKUP REPO
-  - if [[ $PAPERREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+  - if [[ $PAPERREPO == BLESSED ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
     fi
   - sudo apt-get -qq install texlive-common texlive-binaries texlive-base
+
+script:
+  - echo "done"
 
 notifications:
   email:
