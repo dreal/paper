@@ -327,17 +327,13 @@ Now, asymptotic stability is defined as:
 \begin{definition}[{\sf A\_stable}]
 We define {\sf A\_stable} to be the following $\lrf$-formula
 \begin{eqnarray*}
-& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& &\hspace{.5cm}\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
-& &\wedge \exists^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& & \hspace{.3cm}\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
+& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
+& &\hspace{2cm}\wedge \exists^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
 \end{eqnarray*}
 The bounded form of {\sf A\_stable} is defined as:
 \begin{eqnarray*}
-& &\forall^{[0,e]} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,T]} t\forall^X x_0\forall^X x_t\\
-& &\hspace{.5cm}\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
-& &\wedge \exists^{[0,d]} \delta'  \forall^{[0,T']} t\forall^X x_0\forall^X x_t\\
-& & \hspace{.3cm}\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow T'} ||x_t|| = 0\Big) 
+& &\forall^{[0,e]} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,T]} t\forall^X x_0\forall^X x_t\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
+& &\hspace{2cm}\wedge \exists^{[0,d]} \delta'  \forall^{[0,T']} t\forall^X x_0\forall^X x_t\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow T'} ||x_t|| = 0\Big) 
 \end{eqnarray*}
 where $e,T,T',d\in \mathbb{R}^+$ and $X$ is a compact set. 
 \end{definition}
@@ -361,10 +357,8 @@ Suppose all terms in the $\lrf$-representation of a system are in Type 2 complex
 \begin{proof}
 The complexity of the formula is higher than the one encoding Lyapunov stability, because of the quantification structure in the encoding of the limit. After rearranging the formula, we have
 \begin{eqnarray*}
-& &\forall^{[0,e]} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,T]} t\forall^X x_0\forall^X x_t\\
-& &\hspace{.5cm}\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
-& &\wedge\; \exists^{[0,d]} \delta'  \forall^{[0,T']} t\forall^X x_0\forall^X x_t\forall^{[0,e']} \varepsilon' \exists^{[0,d']} \delta'' \forall^{[-\delta'',+\delta'']}t \\
-& & \hspace{.3cm}\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t|| < \varepsilon'\Big) 
+& &\forall^{[0,e]} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,T]} t\forall^X x_0\forall^X x_t\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
+& &\hspace{.5cm}\wedge\; \exists^{[0,d]} \delta'  \forall^{[0,T']} t\forall^X x_0\forall^X x_t\forall^{[0,e']} \varepsilon' \exists^{[0,d']} \delta'' \forall^{[-\delta'',+\delta'']}t \Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t|| < \varepsilon'\Big) 
 \end{eqnarray*}
 This is a $\Sigma_4$-formula. Following Theorem~\ref{compmain} we know that the problem resides in $\mathsf{{(\Sigma_4^P)}^C}$. 
 \end{proof}
@@ -381,10 +375,8 @@ There is also the notion of ``asymptotic stability in the large," which ensures 
 \begin{proposition}[Asymptotic Stability in the Large]
 The origin is an asymptotically stable equilibrium point iff the following $\lrf$-formula is true
 \begin{eqnarray*}
-& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& &\hspace{.5cm}\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
-& &\wedge \forall^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& & \hspace{.3cm}\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
+& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\Big((||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon\Big)\\
+& &\hspace{2cm}\wedge \forall^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\Big( (||x_0||<\delta'\wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
 \end{eqnarray*}
 \end{proposition}
 Computationally, this is in fact a simpler task than asymptotic stability. We state the following result without duplicating the proofs. 
@@ -406,10 +398,10 @@ We show that Lyapunov methods reduce the complexity of stability problems. We on
 \item The following $\lrf$-formula is a sufficient condition for stability in the sense of Lyapunov
 $$\exists p^D\forall^X x\; \bigg(\frac{\partial V(p,x)}{\partial x}f(x)\leq 0\bigg)$$
 \item The following is a sufficient condition for asymptotic stability:
-\begin{multline*}
-\exists p^D\forall^X x\;\bigg(\Big(x=0\rightarrow\frac{\partial V(p,x)}{\partial x}f(x)= 0\bigg)\\
+\begin{eqnarray*}
+\exists p^D\forall^X x\;\bigg(\Big(x=0\rightarrow\frac{\partial V(p,x)}{\partial x}f(x)= 0\bigg)
 \wedge \bigg(x\neq 0 \rightarrow \frac{\partial V(p,x)}{\partial x}f(x)< 0\Big)\bigg)
-\end{multline*}
+\end{eqnarray*}
 \end{itemize}
 \end{proposition}
 
@@ -439,7 +431,7 @@ We first show that $\lrf$-formulas can concisely represent hybrid automata.
 \begin{definition}\label{lrf-definition}
 A hybrid automaton in $\lrf$-representation is a tuple
 \begin{multline*}
-H = \langle X, Q, \{{\flow}_q(\vec x, \vec y, t): q\in Q\},\{\inv_q(\vec x): q\in Q\},\\
+H = \langle X, Q, \{{\flow}_q(\vec x, \vec y, t): q\in Q\},\{\inv_q(\vec x): q\in Q\},
 \{\jump_{q\rightarrow q'}(\vec x, \vec y): q,q'\in Q\},\{\init_q(\vec x): q\in Q\}\rangle
 \end{multline*}
 where $X\subseteq \mathbb{R}^n$ for some $n\in \mathbb{N}$, $Q=\{q_1,...,q_m\}$ is a finite set of modes, and the other components are finite sets of quantifier-free $\lrf$-formulas.
@@ -501,30 +493,25 @@ We omit the subscript $Q$ when the context is clear.\end{definition}
 \begin{definition}[$k$-Step Reachable Set]
 Suppose $H$ is invariant-free, and $U$ a subset of its state space represented by $\unsafe$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
 \begin{eqnarray*}
-& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\\
-& &\hspace{2cm} \wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q}(\vec x_{0}, \vec x, t)\rightarrow \inv_{q}(\vec x))\Big) \\
+& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q}(\vec x_{0}, \vec x, t)\rightarrow \inv_{q}(\vec x))\Big) \\
 & &\wedge\; \bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec
-x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\\
-& & \hspace{2cm}\wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
+x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
 t)\rightarrow \inv_{q'}(\vec x)) )\\
-& &\hspace{2cm}\wedge \enforce(q,q',i)\wedge\enforce(q',i+1)\Big)\bigg)
+& &\hspace{9cm}\wedge \enforce(q,q',i)\wedge\enforce(q',i+1)\Big)\bigg)
 \end{eqnarray*}
 \end{definition}
 
 \begin{proposition}[Hybrid Lyapunov Stability]
 The origin is a stable equilibrium point if 
 \begin{eqnarray*}
-& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& &\hspace{1cm}(||x_0||<\delta \wedge \reach(x_0,x_t,t) )\rightarrow ||x_t||<\varepsilon.
+\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,\infty)} t\forall x_0\forall x_t (||x_0||<\delta \wedge \reach(x_0,x_t,t) )\rightarrow ||x_t||<\varepsilon.
 \end{eqnarray*}
 \end{proposition}
 \begin{proposition}[Asymptotic Stability]
 The origin is an asymptotically stable equilibrium point if 
 \begin{eqnarray*}
-& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& &\hspace{.5cm}\Big((||x_0||<\delta \wedge \reach(x_0,x_t,t) )\rightarrow ||x_t||<\varepsilon\Big)\\
-& &\wedge \exists^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\\
-& & \hspace{.3cm}\Big( (||x_0||<\delta'\wedge \reach(x_0,x_t,t))\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
+& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta\forall^{[0,\infty)} t\forall x_0\forall x_t\Big((||x_0||<\delta \wedge \reach(x_0,x_t,t) )\rightarrow ||x_t||<\varepsilon\Big)\\
+& &\wedge \exists^{[0,\infty)} \delta'  \forall^{[0,\infty)} t\forall x_0\forall x_t\Big( (||x_0||<\delta'\wedge \reach(x_0,x_t,t))\rightarrow \lim_{t\rightarrow \infty} ||x_t|| = 0\Big). 
 \end{eqnarray*}
 \end{proposition}
 The definition is $\delta$-stability is the same as in the continuous case. 

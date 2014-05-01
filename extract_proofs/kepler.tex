@@ -1,12 +1,11 @@
 \section{Experiments}\label{kepler}
-We build the proof generation capacity into our open-source solver {\sf
-  dReal}\footnote{\url{http://dreal.cs.cmu.edu} }. All the
-experiments below are performed on a machine of with a 32-core 2.0GHz Intel
-Xeon E5-2600 Processor and 64GB of RAM.
+We implemented the proof generation capacity into our open-source solver {\sf
+  dReal}\footnote{\url{http://dreal.cs.cmu.edu} }. All the experiments below are performed on a machine of with a 32-core 2.0GHz Intel
+Xeon E5-2600 Processor and 64GB of RAM. The benchmarks and full tables of experiment statistics are also available on the tool page. 
 \input{good_proofs.tex}
 \input{bad_proofs.tex}
-\paragraph{Nonlinear Lemmas in the Kepler Conjecture.} A main motivation for us to build the proof checker is to contribute
-to the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05}, for the
+
+A main set of benchmarks that we studied is from the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:conf/nfm/SolovyevH13}, which aims at a 
 fully formalized proof of the Kepler conjecture. As lemmas for the
 proof, hundreds of nonlinear real inequalities need to be verified.
 Although the formulas usually contain only around ten variables, they
@@ -17,16 +16,12 @@ formulas, but the algorithms are formally verify. In
 fact, the formal verification of these nonlinear inequalities is the last main piece
 of work needed to complete the full project. 
 %update this section
-Without any particular optimization on ICP, we have already observed
+Without any particular optimization on ICP, we have observed
 promising results. Out of 916 nonlinear formulas in the Flyspeck
-project repository, we solved 111 of them returning {\sf unsat} with a
-timeout of 180 seconds and precision $\delta=10^{-3}$. Out of these
-formulas, we applied the proof checking algorithm, and formally proved
-72 of them directly.The proof traces of these formulas can be very
+project repository, the solver returns {\sf unsat} for 107 of them with a timeout of 5 minute each, and a precision $\delta=10^{-3}$. Out of these formulas, we automatically generated and validated the proofs for 72 instances. The proof traces of these formulas can be very
 large; for instance, we proved one with more than 2M lines in the
 proof (54MB file). In Table~\ref{tbl:exp}, we list some of the
-representative benchmarks to show scalability. A full table for all
-the results is on the tool page.
+representative benchmarks to show scalability. Many of these formulas are highly nonlinear, for instance the formula encoded in 760.smt2 is following one 
 \begin{multline*}
 \forall\vec{x} \in [4.0, 6.3504]^5\; \Big(2\mathrm{arctan} (\frac{\Delta_2(\vec x)}{\sqrt{\Delta_1(\vec x) + \Delta_2(\vec x)^2} + \sqrt{\Delta_1(\vec x)}})\\
 - 0.458(\sqrt{x_2} + \sqrt{x_3} +\sqrt{x_4} + \sqrt{x_5}) + 0.342\sqrt{x_1} + 3.319204\Big) < 0.0
@@ -38,6 +33,9 @@ where
 & &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
 \Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2 - x_1x_3 - x_1x_4 -x_1 x_5
 \end{eqnarray*}
+
+On the other hand, as mentioned above, we fail to establish about the proofs of unsatisfiability of about 30 instances. Table 2 shows some of these instances. They typically generate proofs that are large in size, or that the branch-and-prove loop has to generate too many sub-instances such that the proof checking can not terminate. 
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
