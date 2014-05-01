@@ -588,8 +588,8 @@ solver for proof traces of the right amount of details.
                 \}$
             \EndIf
         \ElsIf {$p = \mathrm{Branch}(p_1, p_2, \vec I)$}
-            \State $U_1 \gets ProofCheck(p_1, \delta)$
-            \State $U_2 \gets ProofCheck(p_2, \delta)$
+            \State $U_1 \gets \Call{ProofCheck}{p_1, \delta}$
+            \State $U_2 \gets \Call{ProofCheck}{p_2, \delta}$
             \If{$\vec I \not \subseteq (\dom(p_1) \cup \dom(p_2))$}
                 \State \Return Error
             \Else
@@ -606,10 +606,10 @@ solver for proof traces of the right amount of details.
   \label{alg:branch-and-prove}
   \begin{algorithmic}[1]
     \Procedure{Branch-and-Prove}{$p$, $\delta$}
-        \State $U \gets \mathrm{ProofCheck}(p, \delta)$
+        \State $U \gets \Call{ProofCheck}{p, \delta}$
         \If {$U \not = \emptyset$}
             \ForAll {$(a, \delta') \in U$}
-                \State $p' \gets \mathrm{Solve}(a, \delta')$
+                \State $p' \gets \Call{Solve}{a, \delta'}$
                 \State \Call{Branch-and-Prove}{$p'$, $\delta'$}
             \EndFor
         \EndIf
