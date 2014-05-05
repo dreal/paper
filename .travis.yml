@@ -9,6 +9,10 @@ env:
 install:
   # PUSH TO BACKUP REPO
   - if [[ $REPO == BLESSED ]]; then
+<<<<<<< HEAD
+=======
+      git fetch --unshallow;
+>>>>>>> 322cfd9b8f64c43d87a1421c81134945543af7d6
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
     fi
   - sudo apt-get -qq install texlive-common texlive-binaries texlive-base
