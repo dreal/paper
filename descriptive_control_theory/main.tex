@@ -1,0 +1,195 @@
+\documentclass[10pt]{article}
+\usepackage{amssymb,amsthm,hyperref,fullpage}
+\hypersetup{
+    colorlinks,%
+    citecolor=blue,%
+    filecolor=blue,%
+    linkcolor=blue,%
+    urlcolor=blue
+}
+
+\newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{goal}{Goal}
+
+\setlength{\textwidth}{7in}
+\setlength{\oddsidemargin}{-0.25in}
+
+\title{Descriptive Control Theory}
+\author{Sicun Gao}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section{Overview}
+
+Digital computing units are part of most complex machines around us, from airplanes to cardiac pacemakers to nuclear plants. These applications of computing are just the beginning of the convergence between the computational world and the physical world. At the convergence point lies a future when smart houses, autonomous cars, and medical robots should receive no more attention than laptops. Such a future still seems distant. The unification of the discrete and the continuous is hard, primarily because of the apparent gaps between methodologies in the two domains: computing systems are designed based on logic and automata theory, while mechanical systems are engineered based on control theory and numerical calculations. To change this situation, I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The project consists of three main components:
+\begin{itemize}
+\item The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
+\item The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
+\item The third component is to develop practical decision procedures for the logic formulas involved, which can serve as general algorithms for solving the control problems. As logical decision procedures usually target at hard problems (NP-hard and beyond), they may significantly extend existing methods in control theory, which mostly rely on polynomial-time matrix operations. Moreover, the decision procedures should always produce proofs that can certify correctness of the answers, through interactive theorem provers. 
+\end{itemize}
+In what follows, I will give more background, and then sketch the main approaches for each task. 
+
+\paragraph{Background.}
+
+Control theory studies methods for regulating the behaviors of dynamical systems to achieve desired goals. The topics can be categorized into the study of ``what can be controlled" and ``how to control them." The first category includes properties of dynamical systems (with inputs) such as stability, controllability, and observability. The second category is the study of techniques for designing controllers, which are functions over time that satisfy certain conditions. Topics include feedback control, optimal control, robust control, etc. There exists mature methods, based on linear algebra and complex analysis, for controlling continuous systems governed by linear differential equations. Problems in nonlinear and hybrid system control are either localized to the linear cases, or remain mostly open. 
+
+Logical approaches are rare for control theory. An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
+\begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
+Here the integral is a Type 2 computable term. We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
+\begin{definition}[$\delta$-Decisions~\cite{DBLP:conf/lics/GaoAC12}] Let $\varphi$ be an $\lrf^1$-sentence and $\delta$ a positive rational number. The $\delta$-decision problem asks for one of the following answers: ``$\varphi$ is false" or ``$\varphi^{\delta}$ is true." Here $\varphi^{\delta}$ is a syntactic variant of $\varphi$, defined by relaxing some constant terms in $\varphi$ by numerical errors bounded by $\delta$. 
+\end{definition}
+\begin{theorem}[$\delta$-Decidability and Complexity~\cite{DBLP:conf/lics/GaoAC12}] The $\delta$-decision problem for arbitrary bounded sentences in $\lrf^1$ is decidable. Moreover, for classes of bounded sentences whose terms are in Type 2 complexity class $\mathsf{C}$, the complexity of $\Sigma_k$-sentences in $\lrf^1$ resides in ${\sf (\Sigma^P_k)^C}$. 
+\end{theorem}
+It follows immediately that the bounded reachability problem above resides in ${\sf NP^C}$ when $\int_{0}^t f(x(s),s)\mathrm{d}s$ is in ${\sf C}$, and the unbounded version is in ${\sf \Sigma^0_1}$. We have also developed algorithms for solving such formulas~\cite{DBLP:conf/fmcad/GaoKC13}. These results are the basis of using logical methods to analyze control problems and design algorithms at the same time. 
+
+\paragraph{Descriptive Complexity.}
+Our first goal is to characterize the descriptive complexity of standard control problems. We need a logic that can encode the problems and map them to complexity classes. 
+
+The majority of control problems ask for real functions that satisfy certain properties. Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
+\begin{eqnarray*}
+& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'} \;\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \;\wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
+\;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
+& &\hspace{9.5cm} \rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
+\end{eqnarray*}
+$U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
+
+We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. In all, the two main goals are:
+\begin{goal}
+Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
+\end{goal}
+\begin{goal}
+Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions, and categorize control problems into complexity classes or computability hierarchies.
+\end{goal}
+
+\paragraph{Logical Foundations.}
+
+The next task is to develop logical theories that can derive the main results in control theory.
+The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
+$[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." The mathematical content in control theory mostly consists of linear algebra, complex analysis, and functional analysis. Some valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, he showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
+
+The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. In all, the two main goals in this part are:
+\begin{goal}
+Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
+\end{goal}
+\begin{goal}
+Formalize the main contents in control theory in a standard interactive theorem prover.  
+\end{goal}
+
+
+\paragraph{Computational Engines.}
+
+The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
+
+We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+\begin{goal}
+Develop practical algorithms for the $\delta$-decision problem of $\exists\forall$-sentences in $\lrf^1$.
+\end{goal}
+\begin{goal}
+Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
+\end{goal}
+
+\paragraph{Theoretical and Practical Significance}
+
+
+\section{Background}
+
+
+Control theory studies methods for regulating the behaviors of dynamical systems to achieve desired goals. The topics can be categorized into the study of ``what can be controlled" and ``how to control them." The first category includes properties of dynamical systems (with inputs) such as stability, controllability, and observability. The second category is the study of techniques for designing controllers, which are functions over time that satisfy certain conditions. Topics include feedback control, optimal control, robust control, etc. There exists mature methods, based on linear algebra and complex analysis, for controlling continuous systems governed by linear differential equations. Problems in nonlinear and hybrid system control are either localized to the linear cases, or remain mostly open. 
+
+Logical approaches are rare for control theory. An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
+\begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
+Here the integral is a Type 2 computable term. We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
+\begin{definition}[$\delta$-Decisions~\cite{DBLP:conf/lics/GaoAC12}] Let $\varphi$ be an $\lrf^1$-sentence and $\delta$ a positive rational number. The $\delta$-decision problem asks for one of the following answers: ``$\varphi$ is false" or ``$\varphi^{\delta}$ is true." Here $\varphi^{\delta}$ is a syntactic variant of $\varphi$, defined by relaxing some constant terms in $\varphi$ by numerical errors bounded by $\delta$. 
+\end{definition}
+\begin{theorem}[$\delta$-Decidability and Complexity~\cite{DBLP:conf/lics/GaoAC12}] The $\delta$-decision problem for arbitrary bounded sentences in $\lrf^1$ is decidable. Moreover, for classes of bounded sentences whose terms are in Type 2 complexity class $\mathsf{C}$, the complexity of $\Sigma_k$-sentences in $\lrf^1$ resides in ${\sf (\Sigma^P_k)^C}$. 
+\end{theorem}
+It follows immediately that the bounded reachability problem above resides in ${\sf NP^C}$ when $\int_{0}^t f(x(s),s)\mathrm{d}s$ is in ${\sf C}$, and the unbounded version is in ${\sf \Sigma^0_1}$. We have also developed algorithms for solving such formulas~\cite{DBLP:conf/fmcad/GaoKC13}. These results are the basis of using logical methods to analyze control problems and design algorithms at the same time. 
+
+
+\section{Descriptive Complexity}
+
+
+Our first goal is to characterize the descriptive complexity of standard control problems. We need a logic that can encode the problems and map them to complexity classes. 
+
+The majority of control problems ask for real functions that satisfy certain properties. Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
+\begin{eqnarray*}
+& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'} \;\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \;\wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
+\;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
+& &\hspace{9.5cm} \rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
+\end{eqnarray*}
+$U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
+
+We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. In all, the two main goals are:
+\begin{goal}
+Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
+\end{goal}
+\begin{goal}
+Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions, and categorize control problems into complexity classes or computability hierarchies.
+\end{goal}
+
+
+\section{Logical Foundations}
+
+
+The next task is to develop logical theories that can derive the main results in control theory.
+The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
+$[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." The mathematical content in control theory mostly consists of linear algebra, complex analysis, and functional analysis. Some valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, he showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
+
+The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. In all, the two main goals in this part are:
+\begin{goal}
+Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
+\end{goal}
+\begin{goal}
+Formalize the main contents in control theory in a standard interactive theorem prover.  
+\end{goal}
+
+
+
+\section{Computational Engines}
+
+
+The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
+
+We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+\begin{goal}
+Develop practical algorithms for the $\delta$-decision problem of $\exists\forall$-sentences in $\lrf^1$.
+\end{goal}
+\begin{goal}
+Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
+\end{goal}
+
+\section{Summary and Timeline}
+
+A table of timelines and evaluation of the easiness. 
+
+
+
+
+
+
+
+
+
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{tau}
+
+
+
+
+
+
+\end{document}
+
+
+
