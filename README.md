@@ -1,6 +1,5 @@
 Repository for dReal-related papers
 ===================================
 
-Please join [dreal-paper][dreal-paper] mailing list to get commit notifications.
+[![Build Status](https://travis-ci.org/dreal/paper.svg?branch=master)](https://travis-ci.org/dreal/paper)
 
-[dreal-paper]: https://groups.google.com/forum/#!forum/dreal-paper
