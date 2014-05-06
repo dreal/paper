@@ -128,13 +128,6 @@ The majority of control problems ask for real functions that satisfy certain pro
 $U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
 
 We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. In all, the two main goals are:
-\begin{goal}
-Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
-\end{goal}
-\begin{goal}
-Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions, and categorize control problems into complexity classes or computability hierarchies.
-\end{goal}
-
 
 \section{Logical Foundations}
 
@@ -144,13 +137,6 @@ The work will be done in suitable subsystems of second-order arithmetic followin
 $[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." The mathematical content in control theory mostly consists of linear algebra, complex analysis, and functional analysis. Some valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, he showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
 
 The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. In all, the two main goals in this part are:
-\begin{goal}
-Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
-\end{goal}
-\begin{goal}
-Formalize the main contents in control theory in a standard interactive theorem prover.  
-\end{goal}
-
 
 
 \section{Computational Engines}
@@ -159,13 +145,6 @@ Formalize the main contents in control theory in a standard interactive theorem 
 The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
 
 We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
-\begin{goal}
-Develop practical algorithms for the $\delta$-decision problem of $\exists\forall$-sentences in $\lrf^1$.
-\end{goal}
-\begin{goal}
-Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
-\end{goal}
-
 \section{Summary and Timeline}
 
 A table of timelines and evaluation of the easiness. 
@@ -182,7 +161,7 @@ A table of timelines and evaluation of the easiness.
 
 
 \bibliographystyle{abbrv}
-\bibliography{tau}
+\bibliography{ref}
 
 
 
