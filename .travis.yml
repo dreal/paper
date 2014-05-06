@@ -3,16 +3,13 @@ cache: apt
 env:
   global:
     # BB_TOKEN=xxxx - encrypt "bitbucket key" with travis-ci key
-    - secure: "N7aOr6ozt5ZH4pAFWlAzSrt7+HCpt346eJWSOfpeBTn+6QrTBAqQMsRjkyD4pei37Ycv9UoOcE+wyTGeSREmJlmOvD6n/ameA0PBwhyQWla0VnsFbr4oUyAH8SpRHTuEpZBvj+Ol0gH+IPkwrvCdaT59LaTEvpi862mOrvYDJ1s="
+    - secure: "b/FnRElKTGmMvtT9moFcc5oTU7vrwIm5CWfsvzmDly8qzP2+cDLE5WEmjxxG5NuGwNKT5iiQHb/OrtK5ASWXmlKgFGyK1vF2C44kqXXCs/QlBA+awsh/0GXGYj4mtlnJFBOFfd8dDRVqfyh98+WeYswu4nWx7yNAdJJhwiEwFSA="
     # REPO=BLESSED - encrypt "BLESSED" with private key (travis-ci)
     - secure: "pBGtqqdnaK4CkmzsYwSNTnGEnnQvjbKwL4tmS2AZMfdHoW9KGqHrUZUKhhB6jxS/mPENyd9e66c5ngYb0xQ8mMcXN7y75FAWFtHLQSvDb2nYaHLBW6z0N8hurWiPs3GWd8d3PFCT+pn9LyfjJNnAHoi5lrjz4GME8rD/yZxt9/Q="
 install:
   # PUSH TO BACKUP REPO
   - if [[ $REPO == BLESSED ]]; then
-<<<<<<< HEAD
-=======
       git fetch --unshallow;
->>>>>>> 322cfd9b8f64c43d87a1421c81134945543af7d6
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
     fi
   - sudo apt-get -qq install texlive-common texlive-binaries texlive-base
