@@ -29,7 +29,11 @@
 
 \section{Introduction}
 
-Digital computing units are part of most complex machines around us, from airplanes to cardiac pacemakers to nuclear plants. These applications of computing are just the beginning of the convergence between the computational world and the physical world. At the convergence point lies a future when smart houses, autonomous cars, and medical robots should receive no more attention than laptops. Such a future still seems distant. The unification of the discrete and the continuous is hard, primarily because of the apparent gaps between methodologies in the two domains: computing systems are designed based on logic and automata theory, while mechanical systems are engineered based on control theory and numerical calculations. To change this situation, I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The project consists of three main components:
+Digital computing units are part of most complex machines around us, from airplanes to cardiac pacemakers to nuclear plants. 
+
+%These applications of computing are just the beginning of the convergence between the computational world and the physical world. At the convergence point lies a future when smart houses, autonomous cars, and medical robots should receive no more attention than laptops. Such a future still seems distant. 
+
+The unification of the discrete and the continuous is hard, primarily because of the apparent gaps between methodologies in the two domains: computing systems are designed based on logic and automata theory, while mechanical systems are engineered based on control theory and numerical calculations. To change this situation, I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The project consists of three main components:
 \begin{itemize}
 \item The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
 \item The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
@@ -79,9 +83,8 @@ The search for a logical foundation will be accompanied by the formalization of 
 Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
 \end{goal}
 \begin{goal}
-Formalize the main contents in control theory in a standard interactive theorem prover.  
+Formalize the main contents in control theory in an interactive theorem prover.  
 \end{goal}
-
 
 \paragraph{Computational Engines.}
 
