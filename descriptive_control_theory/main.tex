@@ -118,7 +118,33 @@ It follows immediately that the bounded reachability problem above resides in ${
 
 Our first goal is to characterize the descriptive complexity of standard control problems. We need a logic that can encode the problems and map them to complexity classes. 
 
-The majority of control problems ask for real functions that satisfy certain properties. Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
+\paragraph{Expressiveness of $\lrf^1$.} The majority of control problems ask for real functions that satisfy certain properties. The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. For instance, following standard definition, a system is stable i.s.L. if given any $\varepsilon$, there exists $\delta$ such that for any initial value $x_0$ that is within $\delta$ from the origin, the system stays in $\varepsilon$-distance from the origin. The $\lrf$-representation of stability in the sense of Lyapunov is naturally the following formula. 
+\begin{definition}[{\sf L\_stable}]
+We encode conditions for Lyapunov stability with the formula {\sf L\_stable} as follows. 
+\begin{eqnarray*}
+& &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,\infty)} t\forall x_0\forall x_t .\; (||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon.
+\end{eqnarray*}
+The {\em bounded form} of {\sf L\_stable} is defined by bounding the quantifiers in the formula as follows:
+\begin{eqnarray*}
+& &\forall^{[0, e]} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,T]} t\forall^X x_0\forall^X x_t. \;(||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon, 
+\end{eqnarray*}
+where $e, T\in \mathbb{R}^+$ and $X$ is a compact set.
+\end{definition}
+
+It is not hard to see that the formula encodes the definition of stability in the sense of Lyapunov; namely, the origin is a stable equilibrium point iff {\sf L\_stable} is true. We can then define the $\delta$-stability problem using the $\lrf$-representation.  
+\begin{definition}[$\delta$-Stability i.s.L.]\label{sl}
+The $\delta$-stability problem i.s.L. asks for one of the following answers:
+\begin{itemize}
+\item {\sf stable}: The system is stable i.s.L. ({\sf L\_stable} is true). 
+\item {\sf $\delta$-unstable}: Some $\delta$-perturbation of {\sf L\_stable} is false. 
+\end{itemize}
+\end{definition}
+We defined the {\em bounded} $\delta$-stability problem by replacing {\sf L\_stable} with the bounded form of {\sf L\_stable} in the definition. Now, using the complexity of the formulas, we have the following complexity results for the bounded version of Lyapunov stability. 
+\begin{theorem}[Complexity]
+Suppose all terms in the $\lrf$-representation of a system are in Type 2 complexity class $\mathsf{C}$.  Then the bounded $\delta$-stability problem i.s.L. resides in complexity class $\mathsf{(\Pi^P_3)^C}$. 
+\end{theorem}
+
+\paragraph{Expressiveness of $\lrf^2$.} Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
 \begin{eqnarray*}
 & &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'} \;\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \;\wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
 \;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
@@ -132,18 +158,23 @@ We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order langu
 
 
 The next task is to develop logical theories that can derive the main results in control theory.
-The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
+The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. 
+
+\paragraph{Typical Theorems in Control Theory.} Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
 $[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." The mathematical content in control theory mostly consists of linear algebra, complex analysis, and functional analysis. Some valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, he showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
 
-The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. In all, the two main goals in this part are:
-
+\paragraph{Formalization in Proof Assistants.} The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. 
 
 \section{Computational Engines}
 
 
 The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
 
-We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+\paragraph{Alternation of Quantifiers.} We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. 
+
+Vector Optimization. Set Optimization. 
+
+\paragraph{Second-order Quantification.} Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
 \section{Summary and Timeline}
 
 A table of timelines and evaluation of the easiness. 
