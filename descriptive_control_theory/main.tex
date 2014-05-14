@@ -29,9 +29,9 @@
 
 \section{Introduction}
 
-Logic lies at the core of the design and analysis of digital systems, and defines the basic mechanism of how we process symbolic systems (mathematics, computation, information). The rest of the {\em real} world has rarely been under the investigation of logic. Advancement in computational logic has made it clear that logic is not just for finding a foundation, but the path for a high degree of automation and reliability. 
-
-Digital computing units are part of most complex machines around us, from airplanes to cardiac pacemakers to nuclear plants. These applications of computing are just the beginning of the convergence between the computational world and the physical world. At the convergence point lies a future when smart houses, autonomous cars, and medical robots should receive no more attention than laptops. Such a future still seems distant. The unification of the discrete and the continuous is hard, primarily because of the apparent gaps between methodologies in the two domains: computing systems are designed based on logic and automata theory, while mechanical systems are engineered based on control theory and numerical calculations. To change this situation, I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The project consists of three main components:
+Logic lies at the core of the design and analysis of digital systems, and defines the basic mechanism of how we process symbolic systems (mathematics, computation, etc). The rest of the {\em real} world has rarely been under the investigation of logic. Advancement in computational logic has made it clear that logic is not just for finding a foundation, but the path for a high degree of automation and reliability. 
+ 
+I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The project consists of three main components:
 \begin{itemize}
 \item The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
 \item The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
@@ -96,7 +96,7 @@ Develop practical algorithms for the $\delta$-decision problem of $\exists\foral
 Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
 \end{goal}
 
-\paragraph{Theoretical and Practical Significance}
+\paragraph{Significance.} 
 
 
 \section{Background}
@@ -109,7 +109,22 @@ Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences
 
 \paragraph{First-order Theories over the Reals.} Logical approaches are rare for control theory. An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
 \begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
-Here the integral is a Type 2 computable term. We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
+Here the integral is a Type 2 computable term. 
+
+
+
+\paragraph{Delta-Decidability.} We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
+
+\begin{definition}[$\delta$-Variants]
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ a bounded $\mathcal{L}_{\mathcal{F}}$-sentence of the form
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>0; t_j\geq 0],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$. The {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > \delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>\delta; t_j\geq \delta],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
+Similarly, the {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > -\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>-\delta; t_j\geq -\delta].$$
+\end{definition}
+Note that in the definition, the bounds on the quantifiers are not changed. 
 \begin{definition}[$\delta$-Decisions~\cite{DBLP:conf/lics/GaoAC12}] Let $\varphi$ be an $\lrf^1$-sentence and $\delta$ a positive rational number. The $\delta$-decision problem asks for one of the following answers: ``$\varphi$ is false" or ``$\varphi^{\delta}$ is true." Here $\varphi^{\delta}$ is a syntactic variant of $\varphi$, defined by relaxing some constant terms in $\varphi$ by numerical errors bounded by $\delta$. 
 \end{definition}
 \begin{theorem}[$\delta$-Decidability and Complexity~\cite{DBLP:conf/lics/GaoAC12}] The $\delta$-decision problem for arbitrary bounded sentences in $\lrf^1$ is decidable. Moreover, for classes of bounded sentences whose terms are in Type 2 complexity class $\mathsf{C}$, the complexity of $\Sigma_k$-sentences in $\lrf^1$ resides in ${\sf (\Sigma^P_k)^C}$. 
