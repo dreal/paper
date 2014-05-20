@@ -15,8 +15,7 @@ install:
   - sudo apt-get -qq install texlive-common texlive-binaries texlive-base latexmk texlive-latex3 texlive-science texlive-math-extra texlive-latex-recommended
 
 script:
-  - echo "done"
-  - make -C extract_proofs
+  - make
 
 notifications:
   email:
