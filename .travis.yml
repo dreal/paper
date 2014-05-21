@@ -12,11 +12,10 @@ install:
       git fetch --unshallow;
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/dreal/paper.git +master;
     fi
-  - sudo apt-get -qq install texlive-common texlive-binaries texlive-base latexmk texlive-latex3 texlive-science texlive-math-extra texlive-latex-recommended
+  - sudo apt-get -qq install texlive-common texlive-binaries texlive-base latexmk texlive-latex3 texlive-science texlive-math-extra texlive-latex-recommended texlive-latex-extra
 
 script:
-  - echo "done"
-  - make -C extract_proofs
+  - make
 
 notifications:
   email:
