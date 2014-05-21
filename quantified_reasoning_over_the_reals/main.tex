@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass{llncs}
 
 \title{Quantified Reasoning over the Reals}
 \author{Sicun Gao, Soonho Kong, and Edmund Clarke}
@@ -7,19 +7,39 @@
 
 \maketitle
 
-
 \begin{abstract}
-
+Exists-forall sentences over real numbers correspond to general non-smooth optimization problems, which are the bottleneck problems in numerous areas such as control, robotics, and
+verification. Successful algorithms for these formulas should exploit
+the full power of both logical decision procedures and numerical
+optimization algorithms. Such combination of symbolic and numerical
+algorithms can be rigorously developed in the framework of
+delta-complete decision procedures. We suggest two concrete
+directions. The first one can be named "satisfiability modulo
+optimizations," which uses optimization algorithms to handle partially
+universally quantified theory atoms. The second approach is the
+recursive CEGAR-based pruning of the search space, which repeatedly
+find overapproximations of assignments for existentially quantified
+variables and underapproximations for the universally quantified ones.
+The two approaches complement each other, and their unification would
+lead to an interesting convergence of numerical optimization and
+decision procedures.
 \end{abstract}
-
 
 \section{Introduction}
 
-\section{Recursive Procedure}
+Solving $\exists\forall$-formulas over the real numbers corresponds to a wide range of problems. Optimization as is conventionally conceived, which optimizes one scalar function, can be encoded as $\exists\forall$ problems with just one existentially-quantified variable. The generic problem of multiple existentially-quantified variables corresponds to vector optimization problems, which is a very hard problem. Moreover, with logic structures, the logically encoded classes are significantly wider than standard optimization problems, as non-smooth problems appear. Naturally, solving the formulas would be much harder than optimization problems. 
 
-\section{}
+Although the connection is straightforward, the standard practice has not frequently connected logic problems with optimization problems as described above. The missing link has been the presumed high complexity of deciding formulas over the real numbers, which asks for symbolic precise answers, which optimization normally only asks for answers within a numerical error bound. The link is made explicit through our recent work~\cite{} on delta-decisions over the reals, which defines a notion of numerical errors such that decision problems can be easily related to numerical problems. A byproduct of doing this is a clear theoretical understanding of optimization problems through many functions, especially upper bounds on a wide range of nonlinear functions. Note that the complexity measures, which we will see later, are similar to the min-max hierarchy as developed in Ko's work in computable analysis. The difference is that we are able to bring the connection to conventional complexity classes, rather than complexity classes over the reals, whose definition is sometimes less-known and unsettled. 
 
 
+
+
+
+\section{Preliminaries}
+
+\section{Generic Procedures}
+
+\section{Using Optimization Algorithms}
 
 
 \end{document}
