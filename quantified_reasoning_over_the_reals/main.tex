@@ -1,8 +1,11 @@
 \documentclass{llncs}
+\usepackage{amsmath,amssymb}
+\newcommand{\dom}{\mathrm{dom}}
+
 
 \title{Quantified Reasoning over the Reals}
-\author{Sicun Gao, Soonho Kong, and Edmund Clarke}
-
+\author{Sicun Gao \and Soonho Kong \and Edmund M. Clarke}
+\institute{Carnegie Mellon University, Pittsburgh, PA, USA 15213}
 \begin{document}
 
 \maketitle
@@ -31,13 +34,65 @@ Solving $\exists\forall$-formulas over the real numbers corresponds to a wide ra
 
 Although the connection is straightforward, the standard practice has not frequently connected logic problems with optimization problems as described above. The missing link has been the presumed high complexity of deciding formulas over the real numbers, which asks for symbolic precise answers, which optimization normally only asks for answers within a numerical error bound. The link is made explicit through our recent work~\cite{} on delta-decisions over the reals, which defines a notion of numerical errors such that decision problems can be easily related to numerical problems. A byproduct of doing this is a clear theoretical understanding of optimization problems through many functions, especially upper bounds on a wide range of nonlinear functions. Note that the complexity measures, which we will see later, are similar to the min-max hierarchy as developed in Ko's work in computable analysis. The difference is that we are able to bring the connection to conventional complexity classes, rather than complexity classes over the reals, whose definition is sometimes less-known and unsettled. 
 
+We describe two approaches to solve these formulas. 
+\begin{itemize}
+\item The first one is the straightforward way of solving the two blocks of quantifiers recursively: pass the universal quantifiers inside, and solve them as abstract constraints first; after that, solve the negations of the innermost quantifiers and prune on the universal quantifiers. This is a generic procedure. The key difficulty of doing this is that, to ensure delta-completeness of the decision procedure, one has to reason with under approximations of constraints when pruning on the universal quantifiers. 
+\item The second one, more specialized and probably more efficient when possible, is to put formulas in a form such that optimization solvers can be used as an oracle, similar to the role that a theory solver plays in DPLL(T). Some care on the syntactic form is important, which we will give some details in Section~\cite{}. 
+\end{itemize}
 
-
-
+In what follows we will first briefly review delta-decidability of exists-forall sentences over the reals, and then sketch the two approaches. 
 
 \section{Preliminaries}
+Real numbers can be encoded as infinite strings, and computability of real functions can be studied with oracle machines that perform operations using oracles encoding real numbers. Details can be found in the standard references~\cite{CAbook,Kobook,vasco}. A real function $f$ is computable if there is a function-oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+\begin{definition}[Computable Real Functions]
+A name of a real number $a\in \mathbb{R}$ is defined as a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{D}$ satisfying $\forall i\in \mathbb{N}, |\gamma_a(i) - a|<2^{-i}.$
+For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.  We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists a function-oracle Turing machine $\mathcal{M}_f$, outputting dyadic rationals, such that: 
+$\forall \vec x \in \dom(f)\ \forall \gamma_{\vec x}\in \Gamma(\vec x)\ \forall i \in \mathbb{N}.\ |M_f^{\gamma_{\vec x}}(i) - f(\vec x)|<2^{-i}.$
+\end{definition}
+Without going further into details, we remark that most common continuous real functions are computable~\cite{CAbook}. Addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$; in fact, these functions are numerically computable in polynomial time~\cite{}. Solutions of Lipschitz-continuous ordinary differential equations are computable in polynomial space. 
+
+We can now consider first-order formulas with Type 2 computable functions interpreted over the reals. We write $\mathcal{F}$ to denote an arbitrary collection of symbols representing Type 2 computable functions over $\mathbb{R}^n$ for various $n$. Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle \mathcal{F}, >\rangle$. $\mathcal{L}_{\mathcal{F}}$-formulas are always evaluated in the standard way over the corresponding structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$. It is not hard to see that we only need to use atomic formulas of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, where $t(x_1,...,x_n)$ are built up from functions in $\mathcal{F}$. We say a sentence is bounded if it only involves bounded quantifiers. We then define $\delta$-weakening and $\delta$-strengthening of $\mathcal{L}_{\mathcal{F}}$-formulas as follows. 
+\begin{definition}[$\delta$-Variants]
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ a bounded $\mathcal{L}_{\mathcal{F}}$-sentence of the form
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>0; t_j\geq 0],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$. The {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > \delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>\delta; t_j\geq \delta],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
+Similarly, the {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > -\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>-\delta; t_j\geq -\delta].$$
+\end{definition}
+The main theorems are:
+\begin{theorem}\label{main}
+There is an algorithm which, given any bounded $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ and $\delta\in \mathbb{Q}^+$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\mathsf{True}$'': $\varphi$ is true. 
+\item ``$\delta$-$\mathsf{False}$": $\varphi^{+\delta}$ is false. 
+\end{itemize}
+\end{theorem}
+
+Note that the two cases can overlap. If $\varphi$ is true and $\varphi^{+\delta}$ is false, then the algorithm is allowed to return either one. 
 
 \section{Generic Procedures}
+Consider a formula of the form 
+$$\exists^{\vec I} \vec x \forall^{\vec J} \vec y \varphi(\vec x, \vec y)$$
+An algorithm can work as follows:
+\begin{enumerate}
+\item Fix $x$ to be in the intervals $I$ and treat them as parameters. 
+\item Solve the negation of the universally quantified formula. 
+\end{enumerate}
+
+\begin{definition}[Underapproximation]
+
+\end{definition}
+
+\begin{theorem}
+The generic algorithm is delta-complete using under-approximations. 
+\end{theorem}
+
+We now consider the case without using under approximations. 
+
+
+
 
 \section{Using Optimization Algorithms}
 
