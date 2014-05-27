@@ -29,7 +29,39 @@
 
 \section{Introduction}
 
-Logic lies at the core of the design and analysis of digital systems, and defines the basic mechanism of how we process symbolic systems (mathematics, computation, etc). The rest of the {\em real} world has not been examined... Logical methods are rare in control theory, and in the process of engineering. Yet many problems are essentially logical. The search of an optimal design is the same as the search of a solution of a logical formula, whose equivalence will be a key fact that we will explain. 
+Logic lies at the indisputable core of how we process symbolic systems, and the information revolution. Logic lies the basic rules of creation and the mechanism, in many sense industrialization, of how we process this world. People use, implicitly or explicitly, logic to construct the symbolic world. This creation of the digital world is making its inevitable turn back to the physical world. As the start in this century, robots, smart cars, surgical robots, cardiac pacemakers, all are making computation, and thus logic, into part of our environment, and ourselves. The continuous world, however, is not part of what logic has been dealing with. As a result, new objects become non-smooth, mixed analog and digital. One would imagine that if there is a way of making things into logic, this separation would be unnecessary and a unified methodology of making things. This is gaining more importance if we consider the fact that logic brings automation of creation of these processes, with the usual reliability guarantee. The methodology is thus important ...
+
+A methodology analyzes the future of a process and find ways of regulating it to satisfy a certain need. The continuous world has seemed alien to the realm of logic and symbolic methods. Difficulty starts its reflection in dealing with the first-order theory of real arithmetic with trigonometric functions. Consider the simplest question of whether a continuous process, usually governed by some differential equation $\dot{x} = f(x,t)$, can exhibit a certain behavior. A direct expression of such a question would be a formula such as follows
+$$\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).$$
+Answering such questions in general would require a method for deciding $\Sigma_1$-sentences in this logic, which would require us to contain all functions that are needed for expressing continuous processes. Going further from here, recall the attempt of incorporating digital switches in this process. This is apparently very hard~\cite{}. However, a simple reflection of the practice in reality gives as the following idea. Instead of deciding the formula precisely, all we really need to know is whether 
+$$\exists x_0 \exists t \exists x_t\; \bigg(|x_0| \leq \delta \;\wedge\; |x_t - (x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s)| \leq \delta\; \wedge\; |x_t - 1|\leq \delta\bigg).$$
+for some $\delta$ that is agreed for the context (pick $\delta$ as the smallest one across all literals). It would then appear that if we have a way of reasoning about the relaxation of such formulas, or even compute answers for them, we would have a natural way of dealing with the continuous problems, which does not violate any practical concerns. In this way, we realize that solving the problem is almost the same as deciding sigma-1 sentences in this logic, if that can be defined precisely. 
+
+This is indeed the direction that we are setting in this domain and we have prepared a theoretical basis and practical start for it. This is the theory of $\delta$-decisions over real numbers~\cite{}. We change the standard decision problem, which asks whether a sentence is true or false, to the version that asks whether a sentence is true or its ``delta-strengthening" is false. With this change, the decision problem for logic formulas with arbitrary numerically computable functions becomes decidable in bounded domains. The complexity. 
+
+These results naturally bridge the gap and give us tools for dealing with the real questions about continuous or hybrid processes. The goal of this proposal is to set the direction to take off. 
+
+
+
+
+
+
+ The focus on it in the past century or so is coming back to 
+
+
+ symbolic, digital, discrete world. It is often put in contrast with calculus, which governs the core of the world of science and engineering. 
+
+But how in essence are they different? Are there ways of unifying them? The way that we build things? Are they subject to the logical, which is almost the same as computational, investigation? Are such investigations gonna provide a new way of dealing with this system? Are they fundamentally different from what we do in the symbolic world? 
+
+The analogy is, however, abound. The search for a solution in the real world is similar to the search of the search for solution of a discrete problem. 
+
+The rest of the {\em real} world has not been examined... Logical methods are rare in control theory, and in the process of engineering. Yet many problems are logical in its essence. 
+
+The descriptive approach emphasis on using a language to express what we want to do, and use logical and computational methods to analyze and, reliably, automate the task. 
+
+The search of an optimal design is the same as the search of a solution of a logical formula, whose equivalence will be a key fact that we will explain. 
+
+A logical foundation is tightly coupled with computational power, and almost all logical questions have become computationally relevant. 
 
 Logical methods are important in several aspects. Advancement in computational logic has made it clear that logic is not just for finding a foundation, but the path for a high degree of automation and reliability. 
  %Control theory studies methods for regulating the behaviors of dynamical systems to achieve desired goals. Topics include behaviors of dynamical systems with inputs, such as stability, controllability, and observability, and the study of techniques for avhiedesigning controllers, which are functions over time that satisfy certain conditions. Topics include feedback control, optimal control, robust control, etc. There exists mature methods, based on linear algebra and complex analysis, for controlling continuous systems governed by linear differential equations. Problems in nonlinear and hybrid system control are either localized to the linear cases, or remain mostly open. 
@@ -37,16 +69,6 @@ Logical methods are important in several aspects. Advancement in computational l
 An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. 
 
 Our first goal is to characterize the descriptive complexity of standard control problems. We need a logic that can encode the problems and map them to complexity classes. The majority of control problems ask for real functions that satisfy certain properties...
-
-Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. I will show that it is natural to write a formula such as follows:
-\begin{eqnarray*}
-& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'} \;\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \;\wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
-\;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
-& &\hspace{9.5cm} \rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg)
-\end{eqnarray*}
-to express the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the above formula is true. $U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
-
-We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. In all, the two main goals are:
 
 The next task is to develop logical theories that can derive the main results in control theory.
 The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
