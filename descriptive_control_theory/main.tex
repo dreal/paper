@@ -1,5 +1,5 @@
 \documentclass[10pt]{article}
-\usepackage{amssymb,amsthm,hyperref,fullpage}
+\usepackage{amssymb,amsthm,hyperref}
 \hypersetup{
     colorlinks,%
     citecolor=blue,%
@@ -11,13 +11,17 @@
 \newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
 
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}
-\newtheorem{theorem}{Theorem}
-\newtheorem{conjecture}{Conjecture}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}{Conjecture}[section]
 \newtheorem{goal}{Goal}
 
-\setlength{\textwidth}{7in}
-\setlength{\oddsidemargin}{-0.25in}
+\renewcommand\qedsymbol{$\blacksquare$}
+
+
+\setlength{\textwidth}{6in}
+\setlength{\oddsidemargin}{0.25in}
 
 \title{Descriptive Control Theory}
 \author{Sicun Gao}
@@ -29,7 +33,9 @@
 
 \section{Introduction}
 
-Ideally, to engineer a system is to prove a theorem. Here a theorem is logically construed, as a true sentence in a suitable theory, which expresses that the system satisfies a certain set of specifications. Localized to the construction of computer programs, this is, in an exact and constructive sense, the Curry-Howard correspondence between programs and proofs. The goal of this proposal is to set the foundations for applying this slogan to the broadly considered notion of engineering in the ``real" world: to successfully build a reliable real-world system, be it an airplane, a surgery robot, a nuclear plant, is, ultimately, to establish the truth of logic sentences over the real numbers, which is a process that may be automated and made reliable by computational logic. 
+Ideally, to engineer a system is to prove a theorem. While this rings a bell at the level of computer programs through the exact sense of Curry-Howard correspondence, the majority ``systems" are engineered with methodology that is remotely exemplifying this slogan. Here a theorem is logically construed, as a true sentence in a suitable theory, which expresses that the system satisfies a certain set of specifications. The goal of this proposal is change that situation, and to set the foundations for applying this slogan to the broadly considered notion of engineering in the ``real" world: to successfully build a reliable real-world system, be it an airplane, a surgery robot, a nuclear plant, is, ultimately, to establish the truth of logic sentences over the real numbers, which is a process that may be automated and made reliable by computational logic. 
+
+Unlike in the digital world, where logic lies at the core of everything, engineering is around way before we can reflect about theorem proving. The fundamental challenge is thus to carry the material in engineering, whose rigorous part is based on control theory, under the lens of logic. Yet this is not just going backward to fit things into a new language. The benefit of doing this brings the computational power and formal rigor of logic-based methods to this domain, which will be able to handle combinations of digital and analogue systems, nonlinear systems, etc. 
 
 Logic lies at the indisputable core of how we process symbolic systems, and the information revolution. Logic lies the basic rules of creation and the mechanism, in many sense industrialization, of how we process this world. People use, implicitly or explicitly, logic to construct the symbolic world. This creation of the digital world is making its inevitable turn back to the physical world. As the start in this century, robots, smart cars, surgical robots, cardiac pacemakers, all are making computation, and thus logic, into part of our environment, and ourselves. The continuous world, however, is not part of what logic has been dealing with. As a result, new objects become non-smooth, mixed analog and digital. One would imagine that if there is a way of making things into logic, this separation would be unnecessary and a unified methodology of making things. This is gaining more importance if we consider the fact that logic brings automation of creation of these processes, with the usual reliability guarantee. The methodology is thus important ...
 
@@ -58,7 +64,7 @@ In what follows I will first cover the background, and then explain the three go
 
 \section{Background}
 
-\subsection{First-order Theories over the Reals and Delta-Decidability} 
+\subsection{Delta-Decidability over the Reals} 
 
 Logical approaches are rare for control theory. An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
 \begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
@@ -99,26 +105,50 @@ Control theory is the study of ways of regulating dynamical systems and properti
 
 \subsection{Computational Framework}
 
+The theory of delta-decidability now only defines a new perspective to look at decision problems over the reals, but also a way of obtaining concrete algorithms for solving the delta-decision problems, which we say are delta-complete if they provide the correctness guarantee. We have formally analyzed constraint solving algorithms, interval constraint propagation, and show that they provide delta-complete decision procedures when used in the DPLL(T) way. 
 
-\subsection{Descriptive Complexity}
+We have developed a solver dReal that solves nonlinear formulas over the reals, under the theory of delta-complete decision procedures. We have solved the Kepler conjecture benchmarks, hybrid system benchmarks with hundreds of ODEs, and solved realistic benchmarks by control engineers in Toyota labs~\cite{}. 
+
+We will also touch on the problem of deriving formal proofs for control theory. Here there are two types of formal proofs. One is the kind that we need to manually understand the proofs and encode them into Coq. The other is the theorems that encode the correctness of a real system design. Ideally, those should be the theorems that are derived from the basic theorems of the first type. A major way of deriving the second category of theorems can be automatic generation from decision procedures. In our solver dReal, we provide such capacity of generating formal proofs of theorems. Such proofs are output in a format that can be directly used in a proof assistant. 
 
 
-Our first goal is to characterize the descriptive complexity of standard control problems. We need a logic that can encode the problems and map them to complexity classes. 
+\section{Descriptive Complexity}
 
-\subsection{Descriptive Complexity in $\lrf^1$} The majority of control problems ask for real functions that satisfy certain properties. The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. For instance, following standard definition, a system is stable i.s.L. if given any $\varepsilon$, there exists $\delta$ such that for any initial value $x_0$ that is within $\delta$ from the origin, the system stays in $\varepsilon$-distance from the origin. The $\lrf$-representation of stability in the sense of Lyapunov is naturally the following formula. 
+The first goal is simply to express standard problems in control theory in a first-order theory. The benefit is upper bounds on their complexity can be easily derived. For instance, we ask what is the complexity of deciding stability of a system, what is the complexity of coming up with an optimal design to achieve a goal. Such questions have not been answered for most of the problems in general. We argue that the delta-version of the complexity is the right questions to answer. 
+
+Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. 
+
+In what follows I will explain the approach taken by the delta-decision, and then the perspectives on extending to second-order formalism. 
+
+\subsection{Descriptive Complexity in $\lrf^1$} 
+
+The majority of control problems ask for real functions that satisfy certain properties. 
+
+We need to justify the focus on the $\delta$-perturbed version of the problems. The ability of reasoning with both $\delta$-weakening and delta-strengthening gives us the ability of choosing the right perturbation to use. 
+\begin{itemize}
+\item For the problems that are concerned with a positive property, such as stability, controllability, observability, the perturbation on the negative side strengthens the problems, and are in fact the problems that we would like to solve, rather than the precise ones. 
+\item For problems that are concerned with finding a witness such that some property holds, such as an optimal controller, it is more important to solve the perturbation on the positive side. The interpretation would be that the synthesized plan 
+\end{itemize}
+
+The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. Here is an example of how this approach can be applied, with more details in~\cite{}. 
+\begin{example}
+Following standard definition, a system is stable i.s.L. if given any $\varepsilon$, there exists $\delta$ such that for any initial value $x_0$ that is within $\delta$ from the origin, the system stays in $\varepsilon$-distance from the origin. Naturally, the $\lrf$-representation of stability in the sense of Lyapunov is encoded in the following way:
+\begin{quote}
+\vspace{-.5cm}
 \begin{definition}[{\sf L\_stable}]
-We encode conditions for Lyapunov stability with the formula {\sf L\_stable} as follows. 
+We define the $\lrf^1$-formula {\sf L\_stable} to be:
 \begin{eqnarray*}
 & &\forall^{[0,\infty)} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,\infty)} t\forall x_0\forall x_t .\; (||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon.
 \end{eqnarray*}
-The {\em bounded form} of {\sf L\_stable} is defined by bounding the quantifiers in the formula as follows:
-\begin{eqnarray*}
+The {\em bounded form} of {\sf L\_stable} is defined by bounding the quantifiers as:\begin{eqnarray*}
 & &\forall^{[0, e]} \varepsilon\exists^{[0,\varepsilon]} \delta \forall^{[0,T]} t\forall^X x_0\forall^X x_t. \;(||x_0||<\delta \wedge x_t = \int_0^t f(s)ds + x_0 )\rightarrow ||x_t||<\varepsilon, 
 \end{eqnarray*}
 where $e, T\in \mathbb{R}^+$ and $X$ is a compact set.
 \end{definition}
-
-It is not hard to see that the origin is a stable equilibrium point iff {\sf L\_stable} is true. We can then define the $\delta$-stability problem using the $\lrf$-representation.  
+\end{quote}
+We can then define the $\delta$-stability problem using the $\lrf$-representation:  
+\begin{quote}
+\vspace{-.5cm}
 \begin{definition}[$\delta$-Stability i.s.L.]\label{sl}
 The $\delta$-stability problem i.s.L. asks for one of the following answers:
 \begin{itemize}
@@ -126,18 +156,30 @@ The $\delta$-stability problem i.s.L. asks for one of the following answers:
 \item {\sf $\delta$-unstable}: Some $\delta$-perturbation of {\sf L\_stable} is false. 
 \end{itemize}
 \end{definition}
+\end{quote}
 We defined the {\em bounded} $\delta$-stability problem by replacing {\sf L\_stable} with the bounded form of {\sf L\_stable} in the definition. Now, using the complexity of the formulas, we have the following complexity results for the bounded version of Lyapunov stability. 
+\begin{quote}
+\vspace{-.5cm}
 \begin{theorem}[Complexity]
 Suppose all terms in the $\lrf$-representation of a system are in Type 2 complexity class $\mathsf{C}$.  Then the bounded $\delta$-stability problem i.s.L. resides in complexity class $\mathsf{(\Pi^P_3)^C}$. 
 \end{theorem}
+\end{quote}
+This completes the example of obtaining complexity.\qed
+\end{example}
+Note that in the example, the new problems are defined through delta-perturbations of their logical encoding. Thus the new definitions are dependent on the descriptive approach. 
 
-\subsection{Descriptive Complexity in $\lrf^2$} 
+The same methodology can be extended to a wide range of topics in control theory. 
+
+Major fields in control design can all be characterized in this way. Optimal, robust, adaptive control design, which are themselves fields in control theory, provides plenty of opportunity for descriptive formalization. By abstracting away the specific techniques, it helps to characterize the different problems and their different algorithms as specific methods for solving the logic formulas. 
+
+\subsection{Decidability and Parametric Complexity in $\lrf^2$} 
 
 Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
 \begin{eqnarray*}
-& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'} \;\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \;\wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
+& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'}\\
+& &\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
 \;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
-& &\hspace{9.5cm} \rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
+& &\hspace{6.5cm}\rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
 \end{eqnarray*}
 $U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
 
@@ -154,19 +196,36 @@ This part consists of the following two goals.
 
 \section{Axiomatic Foundations}
 
-
 The next task is to develop logical theories that can derive the main results in control theory.
-The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded. 
+The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded -- the elementary functions are limits of their Taylor expansions, etc. 
 
-\subsection{Reverse Mathematics for Control Theory} 
+Previous work. There are various approaches in providing logic-based approaches to dynamical systems and control theory, but they are not what is intended here. Andre's work. Various formalisms for real systems. Discrete dynamical systems. 
+
+The goal is, on the one hand, to find the core minimal mathematical commitment, and on the other hand, to provide a framework for deriving theorems from existing control theory. 
+
+\subsection{Control Theory in Subsystems of Second-Order Arithmetic} 
+
 Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
 $[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." 
 
 The mathematical content in control theory mostly consists of linear algebra, complex analysis, and functional analysis. Some valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, he showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
 
+$\mathsf{RCA}_0$ is enough to develop much of linear algebra~\cite{}, Exercise II.4.11. 
+
 \subsection{Formalization of Proofs}
 
-The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. 
+The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. The interactive proofs do not necessarily start from the weak subsystems. 
+
+
+Besides the mathematical value of such formalization, these proofs can serve as a basis for formal verification of practical control designs. 
+
+The following are interesting theorems in control theory. 
+\begin{itemize}
+\item Control conditions. 
+\item Karlman Filters. 
+\end{itemize}
+
+\subsection{Summary of Goals}
 
 \begin{goal}
 Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
@@ -182,15 +241,24 @@ Formalize the main contents in control theory in an interactive theorem prover.
 
 The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
 
-\subsection{Alternation of Quantifiers} 
+\subsection{From $\Sigma_1$ to $\Sigma_2$ Sentences} 
 
 We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. 
 
-Vector Optimization. Set Optimization. 
+There are two ways we can go to solve these formulas. 
+\begin{itemize}
+\item The first one is to use optimization solvers as oracles, and solve problems in the DPLL(T) way. This direction should extend all benefits of existing optimization algorithms. Ideally, this provides a framework that strictly generalizes existing practice in control theory. The key is to formalize the numerical procedures such that delta-completeness is achieved. 
+\item The second one is the generic procedure of calling the solver itself recursively. One would need to solve 
+\end{itemize}
+
+This is vector optimization.  
 
 \subsection{Second-order Quantification} 
 
 Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+
+
+\subsection{Summary of Goals}
 
 \begin{goal}
 Develop practical algorithms for the $\delta$-decision problem of $\exists\forall$-sentences in $\lrf^1$.
