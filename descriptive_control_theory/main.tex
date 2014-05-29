@@ -102,6 +102,15 @@ It follows immediately that the bounded reachability problem above resides in ${
 
 Control theory is the study of ways of regulating dynamical systems and properties of these dynamical systems under regulation. 
 
+We will study two types of problems in control theory. One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
+
+The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability. 
+
+There are two scenarios where existing control theory has difficulty with. One is nonlinear problems, the other is the combination of digital and analog systems, which are so called hybrid systems. Most of the work for nonlinear systems, or systems with uncertainty, is based on the approach of Lyapunov. Basically, to prove the stability of a system, one has to come up with an energy function that monotonically decreases. The search for such functions, however, is hard. The computational issues underlying this search is usually unclear.~\cite{}
+
+In terms of control design, the scenario is similar. We have clear methodology for dealing with purely linear systems, but have great difficulty in handling systems with nonlinear behavior and discrete components. Optimal control, for instance, is the field studying the design of controllers that can achieve a certain goal while keeping some cost at a minimal level. 
+
+The methodology that will be developed in this project will cover nonlinear and hybrid systems. While existing research can be regarded as algorithms for specific subclasses of the problems, the general idea is to give a definite categorization and generic methods for solving the problems. The ultimate goal combines automation and certification: when the solving process is mechanized, checking the correctness of the mechanism becomes a simpler way of ensuring the correctness of the results. 
 
 \subsection{Computational Framework}
 
@@ -172,7 +181,7 @@ The same methodology can be extended to a wide range of topics in control theory
 
 Major fields in control design can all be characterized in this way. Optimal, robust, adaptive control design, which are themselves fields in control theory, provides plenty of opportunity for descriptive formalization. By abstracting away the specific techniques, it helps to characterize the different problems and their different algorithms as specific methods for solving the logic formulas. 
 
-\subsection{Decidability and Parametric Complexity in $\lrf^2$} 
+\subsection{Descriptions in $\lrf^2$} 
 
 Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
 \begin{eqnarray*}
