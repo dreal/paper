@@ -56,8 +56,8 @@ Control theory, just like other theories from a logical perspective, is just a s
 
 I take these to be the core themes of descriptive control theory. I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The study consists of three main components:
 \begin{itemize}
-\item {\bf Descriptive Complexity. } The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
-\item {\bf Axiomatic Foundations. } The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
+\item {\bf Descriptive Complexity.} The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
+\item {\bf Logical Foundation.} The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
 \item {\bf Computational Engine.} The third component is to develop practical decision procedures for the logic formulas involved, which can serve as general algorithms for solving the control problems. As logical decision procedures usually target at hard problems (NP-hard and beyond), they may significantly extend existing methods in control theory, which mostly rely on polynomial-time matrix operations. Moreover, the decision procedures should always produce proofs that can certify correctness of the answers, through interactive theorem provers. 
 \end{itemize}
 In what follows I will first cover the background, and then explain the three goals in turn. 
@@ -105,7 +105,9 @@ Control theory is the study of ways of regulating dynamical systems and properti
 We will study two types of problems in control theory. One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
 
 The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability. 
+\begin{example}
 
+\end{example}
 There are two scenarios where existing control theory has difficulty with. One is nonlinear problems, the other is the combination of digital and analog systems, which are so called hybrid systems. Most of the work for nonlinear systems, or systems with uncertainty, is based on the approach of Lyapunov. Basically, to prove the stability of a system, one has to come up with an energy function that monotonically decreases. The search for such functions, however, is hard. The computational issues underlying this search is usually unclear.~\cite{}
 
 In terms of control design, the scenario is similar. We have clear methodology for dealing with purely linear systems, but have great difficulty in handling systems with nonlinear behavior and discrete components. Optimal control, for instance, is the field studying the design of controllers that can achieve a certain goal while keeping some cost at a minimal level. 
@@ -221,7 +223,7 @@ The mathematical content in control theory mostly consists of linear algebra, co
 
 $\mathsf{RCA}_0$ is enough to develop much of linear algebra~\cite{}, Exercise II.4.11. 
 
-\subsection{Formalization of Proofs}
+\subsection{Formal Proofs}
 
 The search for a logical foundation will be accompanied by the formalization of the proofs in an interactive theorem prover. The interactive proofs do not necessarily start from the weak subsystems. 
 
@@ -245,12 +247,12 @@ Formalize the main contents in control theory in an interactive theorem prover.
 
 
 
-\section{Computational Engines}
+\section{Computational Engine}
 
 
 The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
 
-\subsection{From $\Sigma_1$ to $\Sigma_2$ Sentences} 
+\subsection{$\Sigma_1$ and $\Sigma_2$ Sentences in $\lrf^1$} 
 
 We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. 
 
@@ -262,7 +264,10 @@ There are two ways we can go to solve these formulas.
 
 This is vector optimization.  
 
-\subsection{Second-order Quantification} 
+\subsection{Towards $\lrf^2$} 
+
+The goal is to incorportate dynamical programming, calculus of variations, etc. 
+
 
 Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
 
