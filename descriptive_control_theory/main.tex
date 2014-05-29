@@ -62,6 +62,8 @@ I take these to be the core themes of descriptive control theory. I propose to s
 \end{itemize}
 In what follows I will first cover the background, and then explain the three goals in turn. 
 
+\newpage
+
 \section{Background}
 
 \subsection{Delta-Decidability over the Reals} 
@@ -104,7 +106,7 @@ Control theory is the study of ways of regulating dynamical systems and properti
 
 We will study two types of problems in control theory. One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
 
-The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability. 
+The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability is as follows. 
 \begin{example}
 
 \end{example}
@@ -122,14 +124,18 @@ We have developed a solver dReal that solves nonlinear formulas over the reals, 
 
 We will also touch on the problem of deriving formal proofs for control theory. Here there are two types of formal proofs. One is the kind that we need to manually understand the proofs and encode them into Coq. The other is the theorems that encode the correctness of a real system design. Ideally, those should be the theorems that are derived from the basic theorems of the first type. A major way of deriving the second category of theorems can be automatic generation from decision procedures. In our solver dReal, we provide such capacity of generating formal proofs of theorems. Such proofs are output in a format that can be directly used in a proof assistant. 
 
+Nonlinear solver dReal (\url{http://github.com/dreal}) since late 2012. It has grown into a team of almost 10 collaborators, and applied to many problems such as theorem proving~\cite{}, control system design~\cite{}, biology~\cite{}, etc. Progress on the solver is made on a daily basis. 
 
+\newpage
 \section{Descriptive Complexity}
 
-The first goal is simply to express standard problems in control theory in a first-order theory. The benefit is upper bounds on their complexity can be easily derived. For instance, we ask what is the complexity of deciding stability of a system, what is the complexity of coming up with an optimal design to achieve a goal. Such questions have not been answered for most of the problems in general. We argue that the delta-version of the complexity is the right questions to answer. 
+The first goal is to encode standard problems in control theory in a first-order theory and have a logical description of control theory. This step is the basis for both a logical foundation and a computational treatment of the problems. An immediate utility of doing this, following the theory of delta-decisions over the reals, is that upper bounds on the complexity of these problems become immediately clear. For instance, we ask what is the complexity of deciding stability of a system, what is the complexity of coming up with an optimal design to achieve a goal. Such questions have not been answered for most of the problems in general. 
 
-Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. 
+For control design problems, the goal is usually to find a function that satisfies certain goals. These problems are most naturally expressed with second-order quantification, which is the motivation for investigating second-order theories written in $\lrf^2$. 
 
 In what follows I will explain the approach taken by the delta-decision, and then the perspectives on extending to second-order formalism. 
+
+\paragraph{Related Work.} Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. 
 
 \subsection{Descriptive Complexity in $\lrf^1$} 
 
@@ -204,17 +210,22 @@ This part consists of the following two goals.
 \item Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions, and categorize control problems into complexity classes or computability hierarchies.
 \end{itemize}
 
+\newpage
+\section{Logical Foundation}
 
-\section{Axiomatic Foundations}
+The next task is to develop a logical foundation for main results in control theory. Doing so is important in at least two aspects. Mathematically, a formal foundation of control methods is is a basis for the development in the field. Computationally, formal proofs of the main theorems can be used to construct proofs of correctness of concrete practical system designs. 
 
-The next task is to develop logical theories that can derive the main results in control theory.
-The work will be done in suitable subsystems of second-order arithmetic following the program of reverse mathematics. With such weak theories, we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded -- the elementary functions are limits of their Taylor expansions, etc. 
+The mathematical part, the goal is to work out the basis of control theory in suitable subsystems of second-order arithmetic, following the program of reverse mathematics. The benefit of focusing on weak theories, compared to ZFC or higher, is that we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded -- the elementary functions are limits of their Taylor expansions, etc. 
 
-Previous work. There are various approaches in providing logic-based approaches to dynamical systems and control theory, but they are not what is intended here. Andre's work. Various formalisms for real systems. Discrete dynamical systems. 
+
+
+\paragraph{Related Work. } There are various approaches in providing logic-based approaches to dynamical systems and control theory, but they are not what is intended here. Andre's work. Various formalisms for real systems. Discrete dynamical systems. 
 
 The goal is, on the one hand, to find the core minimal mathematical commitment, and on the other hand, to provide a framework for deriving theorems from existing control theory. 
 
-\subsection{Control Theory in Subsystems of Second-Order Arithmetic} 
+\subsection{Reverse Mathematics for Control Theory} 
+
+It is an interesting question to know the mathematical commitment that we have when proving facts about dynamical systems. 
 
 Theorems in control theory typically give conditions about when a system satisfies certain control properties. For instance, the {\em Kalman test for controllability} states that ``An $n$-dimensional linear system $\dot {\bf x} = A{\bf x}+B{\bf u}$ is {\em controllable} iff the {\em Kalman matrix}
 $[B\ AB\ \cdots\ A^{n-1}B]$ is of rank $n$." 
@@ -246,17 +257,24 @@ Formalize the main contents in control theory in an interactive theorem prover.
 \end{goal}
 
 
-
+\newpage
 \section{Computational Engine}
 
+The main benefit of using a logical approach to express and formalize control theory is that it is backed by the use of computational engines. The methodology becomes that we can express a problem formally, and then the problem is solved using decision procedures for the logic theory. In this way, decision procedures for the logic formulas become generic algorithms for the control problems. 
 
-The third task focuses on the algorithmic value of the framework. With a descriptive approach towards control theory, decision procedures for the logic formulas become generic algorithms for the control problems. Existing methods in control theory can be used as partial algorithms for subclasses of these formulas. Moreover, these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof.
+It is important to make sure that existing methods in control theory can be used as partial algorithms for subclasses of these formulas. A challenge is to ensure that algorithms based on matrix operations and convex optimization, for instance, can all be suitably called by the logic solver. To make sure of this in a solver, this requires detailed analysis of the numerical algorithms so that delta-completeness can be ensured. The additional benefit, besides automation, is that these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof. For sat answers, one can simply plug in the solutions and check the correctness (up to delta-bounded errors). For unsat answers, one has to produce a proof of refutations that have been found by the solver. This requires detailed analysis of numerical algorithms, which we have done partially in~\cite{}, but much more needs to be done. 
 
-\subsection{$\Sigma_1$ and $\Sigma_2$ Sentences in $\lrf^1$} 
+What I will propose now is the next step on the solver. A main target is $\Sigma_2$-sentences in $\lrf^1$. The next step is to handle important classes in $\lrf^2$, at least up to the point that the existing algorithms in control design can be used. This involves the use of methods from calculus of variations, dynamic programming, etc. 
 
-We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. For handling general control problems, the next step is to solve sentences with alternations of quantifiers. This first-order version corresponds to the standard practice in practical control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms. 
+An interesting point to note is that the problems here all become generalizations of optimization problems. Scalar optimization problems corresponds to $\exists\forall$ formulas with one single existentially quantified variable. 
 
-There are two ways we can go to solve these formulas. 
+Again, all the implementations will be done on top of our solver dReal. 
+
+\subsection{From $\Sigma_1$ to $\Sigma_2$} 
+
+We have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}. 
+
+For handling general control problems, the next step is to solve sentences with alternations of quantifiers, and the core is $\exists\forall$-sentences. Solving such formulas correspond to a wide variety of practical problems in control design: fix a control template and find parameters for the template. Decision procedures for such sentences can be developed through recursive calls to the algorithms for the existential sentences, and also exploit existing optimization algorithms:
 \begin{itemize}
 \item The first one is to use optimization solvers as oracles, and solve problems in the DPLL(T) way. This direction should extend all benefits of existing optimization algorithms. Ideally, this provides a framework that strictly generalizes existing practice in control theory. The key is to formalize the numerical procedures such that delta-completeness is achieved. 
 \item The second one is the generic procedure of calling the solver itself recursively. One would need to solve 
@@ -266,10 +284,17 @@ This is vector optimization.
 
 \subsection{Towards $\lrf^2$} 
 
+A main part of the research in optimization is devoted to infinite dimensional optimization, i.e., optimization of functionals. Typically one needs to solve partial differential equations for solving such problems. 
+
 The goal is to incorportate dynamical programming, calculus of variations, etc. 
 
 
 Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+
+\begin{example}
+
+\end{example}
+
 
 
 \subsection{Summary of Goals}
@@ -283,21 +308,29 @@ Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences
 
 
 
+\newpage
+\section{Summary and Timeline}
 
-\section{Timeline}
+I have singled out six goals in the previous paragraphs. We can divide them into theoretical goals and computational goals. They are:
 
-A table of timelines and evaluation of the easiness. 
+\begin{enumerate}
+\item Theoretical Goals
+\begin{enumerate}
+\item A complete description of main first-order problems in control theory in $\lrf^1$, and characterize the complexity accordingly. In this way standard control problems will be extended to nonlinear and hybrid cases. 
+\item Develop a suitable second-order language $\lrf^2$ and prove decidability for control design problems that can be expressed accordingly. 
+\item Develop reverse mathematics for control theory problems.
+\end{enumerate}
+\item Computational Goals
+\begin{enumerate}
+\item A package for formal proofs of basic theorems in state-space control theory. 
+\item A practical solver for $\Sigma_2$ problems in control theory. 
+\item A preliminary attempt of developing a framework and initial test cases of second-order problems. 
+\end{enumerate}
+\end{enumerate}
 
+The deliverable goal is to have one paper for each of the goals in the duration of the project. The theoretical goals and computational goals will proceed in parallel. By the end of the first year (i.e., September 2015) the first task in the theoretical goal and the first and second goal in the list should have paper drafts. By the end of the second year, the first two bullets in each part should be finished with paper drafts, and the last goal in the 
 
-
-
-
-
-
-
-
-
-
+As an output of the 
 
 \bibliographystyle{abbrv}
 \bibliography{ref}
