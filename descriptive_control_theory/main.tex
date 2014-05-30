@@ -104,12 +104,16 @@ It follows immediately that the bounded reachability problem above resides in ${
 
 Control theory is the study of ways of regulating dynamical systems and properties of these dynamical systems under regulation. 
 
-We will study two types of problems in control theory. One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
-
+We will study two types of problems in control theory. 
+\begin{itemize}
+\item One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. 
+\item The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
+\end{itemize}
 The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability is as follows. 
 \begin{example}
 
 \end{example}
+
 There are two scenarios where existing control theory has difficulty with. One is nonlinear problems, the other is the combination of digital and analog systems, which are so called hybrid systems. Most of the work for nonlinear systems, or systems with uncertainty, is based on the approach of Lyapunov. Basically, to prove the stability of a system, one has to come up with an energy function that monotonically decreases. The search for such functions, however, is hard. The computational issues underlying this search is usually unclear.~\cite{}
 
 In terms of control design, the scenario is similar. We have clear methodology for dealing with purely linear systems, but have great difficulty in handling systems with nonlinear behavior and discrete components. Optimal control, for instance, is the field studying the design of controllers that can achieve a certain goal while keeping some cost at a minimal level. 
@@ -124,7 +128,7 @@ We have developed a solver dReal that solves nonlinear formulas over the reals, 
 
 We will also touch on the problem of deriving formal proofs for control theory. Here there are two types of formal proofs. One is the kind that we need to manually understand the proofs and encode them into Coq. The other is the theorems that encode the correctness of a real system design. Ideally, those should be the theorems that are derived from the basic theorems of the first type. A major way of deriving the second category of theorems can be automatic generation from decision procedures. In our solver dReal, we provide such capacity of generating formal proofs of theorems. Such proofs are output in a format that can be directly used in a proof assistant. 
 
-Nonlinear solver dReal (\url{http://github.com/dreal}) since late 2012. It has grown into a team of almost 10 collaborators, and applied to many problems such as theorem proving~\cite{}, control system design~\cite{}, biology~\cite{}, etc. Progress on the solver is made on a daily basis. 
+Nonlinear solver dReal (\url{http://dreal.cs.cmu.edu}) since late 2012, which has grown into a team of around 10 collaborators (\url{http://github.com/dreal}). dReal has been successfully applied to many problems such as theorem proving~\cite{}, control system design~\cite{}, biology~\cite{}, etc. The tool base will provide a solid basis for implementing the computational goals in the project. 
 
 \newpage
 \section{Descriptive Complexity}
@@ -135,7 +139,7 @@ For control design problems, the goal is usually to find a function that satisfi
 
 In what follows I will explain the approach taken by the delta-decision, and then the perspectives on extending to second-order formalism. 
 
-\paragraph{Related Work.} Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. 
+\paragraph{Related Work.} Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. The computational nature of stability properties has been a topic of much recent investigation~\cite{DBLP:journals/corr/AhmadiP13,DBLP:journals/automatica/BlondelT99,DBLP:journals/automatica/BlondelT00,AAAthesis,DBLP:conf/hybrid/PrabhakarV13,DBLP:journals/corr/abs-1210-7420}. A focus of existing work is to establish various hardness results, i.e., lower bounds on complexity. It is shown that stability of simple systems is hard or impossible to solve algorithmically. Such results are proved by reducing combinatorial problems over graphs or matrices to stability problems, which can be analyzed with techniques of standard complexity theory. A limitation is that reduction techniques are usually not suitable for establishing upper bounds on complexity, and indeed most questions about upper bounds are open~\cite{AAAthesis}. 
 
 \subsection{Descriptive Complexity in $\lrf^1$} 
 
@@ -147,7 +151,7 @@ We need to justify the focus on the $\delta$-perturbed version of the problems. 
 \item For problems that are concerned with finding a witness such that some property holds, such as an optimal controller, it is more important to solve the perturbation on the positive side. The interpretation would be that the synthesized plan 
 \end{itemize}
 
-The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. Here is an example of how this approach can be applied, with more details in~\cite{}. 
+The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. Here is an example of how this approach can be applied, with more details in~\cite{DBLP:journals/corr/GaoKC14}. 
 \begin{example}
 Following standard definition, a system is stable i.s.L. if given any $\varepsilon$, there exists $\delta$ such that for any initial value $x_0$ that is within $\delta$ from the origin, the system stays in $\varepsilon$-distance from the origin. Naturally, the $\lrf$-representation of stability in the sense of Lyapunov is encoded in the following way:
 \begin{quote}
@@ -217,11 +221,10 @@ The next task is to develop a logical foundation for main results in control the
 
 The mathematical part, the goal is to work out the basis of control theory in suitable subsystems of second-order arithmetic, following the program of reverse mathematics. The benefit of focusing on weak theories, compared to ZFC or higher, is that we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded -- the elementary functions are limits of their Taylor expansions, etc. 
 
-
-
-\paragraph{Related Work. } There are various approaches in providing logic-based approaches to dynamical systems and control theory, but they are not what is intended here. Andre's work. Various formalisms for real systems. Discrete dynamical systems. 
-
 The goal is, on the one hand, to find the core minimal mathematical commitment, and on the other hand, to provide a framework for deriving theorems from existing control theory. 
+
+
+\paragraph{Related Work. } There are various approaches in providing logic-based approaches to dynamical systems and control theory. Most of the existing work focuses on new expressive languages that can express various behaviors of dynamical systems~\cite{}. A lot of work is devoted to the study of hybrid systems to provide a formal foundation based on automata theory. Most of core of control theory only requires a classical first-order to second-order language. Once the study of the core problems is clear, more language constructs, such as temporal modalities, can be further introduced. 
 
 \subsection{Reverse Mathematics for Control Theory} 
 
@@ -330,8 +333,10 @@ I have singled out six goals in the previous paragraphs. We can divide them into
 
 The deliverable goal is to have one paper for each of the goals in the duration of the project. The theoretical goals and computational goals will proceed in parallel. By the end of the first year (i.e., September 2015) the first task in the theoretical goal and the first and second goal in the list should have paper drafts. By the end of the second year, the first two bullets in each part should be finished with paper drafts, and the last goal in the 
 
-As an output of the 
+An important focus of the project is on developing a tool that will be important for solving practical engineering problems. Preliminary applications of dReal has already exemplifies the importance of the solver. The work accomplished in the project has the potential of providing a new ground for the development of a new generation of control theory that is solidly based on formal theories, relying on its power of automation and certification. The core technology can start a chain of new tools (languages, development environment, etc.) that will redefine the engineering methodology of the field. An even broader impact is possible on other fields including physical sciences, economics, biomedicine, etc. The investigated problems will lay a foundation for logic and computation to play a major part for new advances in technology and sciences. 
 
+
+\newpage
 \bibliographystyle{abbrv}
 \bibliography{ref}
 
