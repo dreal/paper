@@ -1,6 +1,8 @@
 \documentclass[10pt]{article}
-\usepackage{amssymb,amsthm,hyperref}
-\usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
+\usepackage{amssymb,amsmath,amsthm,hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
 \hypersetup{
     colorlinks,%
     citecolor=blue,%
@@ -17,7 +19,14 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}{Proposition}[section]
 \newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{lemma}{Lemma}[section]
 \newtheorem{goal}{Goal}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\R}{\mathbb{R}}
+
 
 \renewcommand\qedsymbol{$\blacksquare$}
 
@@ -32,131 +41,130 @@
 \begin{document}
 \maketitle
 \thispagestyle{empty}
-
 \begin{abstract}
-Digital computing units are part of almost every piece of complex machinery around us, from airplanes to cardiac pacemakers to nuclear plants. These applications of computing act as controllers of dynamical systems, and physically engage humans in safety-critical ways. Ensuring correctness-by-construction of these systems requires a rigorous foundation for the design methods of these systems, which are studied in the realm of control theory. I propose the systematic study of the logical and computational foundation for control theory. I use the name ``descriptive control theoryÓ to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory.
+Digital computing units are part of almost every piece of complex machinery around us, from airplanes to cardiac pacemakers to nuclear plants. These applications of computing act as controllers of dynamical systems, and physically engage humans in safety-critical ways. Ensuring correctness-by-construction of these systems requires a rigorous foundation for the design methods of these systems. I propose the systematic study of the logical and computational foundation for control theory, which lies at the core of engineering methods. The name ``descriptive control theory" emphasizes the overarching theme of using logic to express, analyze, and solve problems in control theory. The goal is to develop logical methods that provide a formal foundation and algorithmic approaches to the design of real-world control systems, which can bring design automation and reliability to an unprecedented level in the broad field of engineering. 
 \end{abstract}
 
-\vspace{1cm}
+\vspace{.6cm}
 
 \section{Introduction}
 
-To engineer a system is, ideally, to prove a theorem. While for software systems such a claim can be made almost exact in the sense of Curry-Howard, it may seem semantically vacuous when we consider the engineering of ``real world" systems. Admittedly, the study of formal methods for real-time, hybrid, and cyber-physical systems has made logic an increasingly important part of real-world system engineering, mostly in the form of posterior verification. However, the core methodology of designing real-world systems, which has control theory at its core, has remained largely unchanged. The result of this division is that the merging of information processing 
+To engineer a system is, ideally, to prove a theorem. While such a statement can often be made exact for software systems in the sense of Curry-Howard, it seems hardly applicable to the broad field of engineering of {\em real-world systems}. Admittedly, the study of formal methods for real-time, hybrid, and cyber-physical systems has granted logic an increasingly important part in real-world system engineering, but mostly in the form of posterior verification or very high-level analysis. The core methodology in the design of these systems, consisting mainly of control theory and numerical analysis, has remained almost free of logic and formal approaches. An obvious consequence of the lack of formal methodology is that the reliability of these systems is extremely hard to guarantee, especially when physical systems are integrated with digital components. An equally fundamental problem, which appears less often recognized, is that engineers are missing out the great advancement in the computational power of logic-based methods harnessed in the past decades. Indeed, I propose to illustrate that logic and formal approaches, backed by their underlying computational engines, have the power of bringing design automation and reliability to an unprecedented level. Ultimately, the process of engineering should automatically produce logical derivations of correctness of the constructed systems, and in this process, logical decision procedures should play a part as indispensable as calculus, linear algebra, and optimization. When such a unification of methodologies happens, the systems that we are able to build will be orders of magnitude more complex and reliable, and the physical world and the computational world will quickly converge. 
 
- the core of engineering practice  much attention is 
-
-
-The fact that this statement is far from being accepted in general is that there is something wrong with engineering methods. Indeed, engineering is an activity that comes way before logic and computation, in much the same way as mathematics itself. The reflection, using state of the art logic and computation tools, on engineering will bring an even more significant change in science and technology. The goal of this proposal is change that situation, and to set the foundations for applying this slogan to the broadly considered notion of engineering in the ``real" world: to successfully build a reliable real-world system, be it an airplane, a surgery robot, a nuclear plant, is, ultimately, to establish the truth of logic sentences over the real numbers, which is a process that may be automated and made reliable by computational logic. 
-
-Unlike in the digital world, where logic lies at the core of everything, engineering is around way before we can reflect about theorem proving. The fundamental challenge is thus to carry the material in engineering, whose rigorous part is based on control theory, under the lens of logic. Yet this is not just going backward to fit things into a new language. The benefit of doing this brings the computational power and formal rigor of logic-based methods to this domain, which will be able to handle combinations of digital and analogue systems, nonlinear systems, etc. 
-
-Logic lies at the indisputable core of how we process symbolic systems, and the information revolution. Logic lies the basic rules of creation and the mechanism, in many sense industrialization, of how we process this world. People use, implicitly or explicitly, logic to construct the symbolic world. This creation of the digital world is making its inevitable turn back to the physical world. As the start in this century, robots, smart cars, surgical robots, cardiac pacemakers, all are making computation, and thus logic, into part of our environment, and ourselves. The continuous world, however, is not part of what logic has been dealing with. As a result, new objects become non-smooth, mixed analog and digital. One would imagine that if there is a way of making things into logic, this separation would be unnecessary and a unified methodology of making things. This is gaining more importance if we consider the fact that logic brings automation of creation of these processes, with the usual reliability guarantee. The methodology is thus important ...
-
-A methodology analyzes the future of a process and find ways of regulating it to satisfy a certain need. The continuous world has seemed alien to the realm of logic and symbolic methods. Difficulty starts its reflection in dealing with the first-order theory of real arithmetic with trigonometric functions. Consider the simplest question of whether a continuous process, usually governed by some differential equation $\dot{x} = f(x,t)$, can exhibit a certain behavior. A direct expression of such a question would be a formula such as follows
+Towards such a goal, I propose to develop a logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The approach will be to study logical and computational properties of control-theoretic problems through their logical encodings, and use such encodings as a portal for bringing in suitable computational engines to solve the problems. Besides providing a formal foundation for existing methods in control theory, an important theme is to show the strength of logical decision procedures for generalizing these methods from dealing with polynomial-time solvable problems to NP-hard problems, and as a result, from handling linear dynamical systems to nonlinear and hybrid dynamical systems. 
+ 
+It is well-known that the use of logical methods for dealing with problems in Euclidean spaces dates back to Tarski's surprising result on the decidability of real arithmetic. Through quantifier elimination, the difficult tasks of geometric theorem proving become mechanizable, which significantly influenced the theory of practical fields such as robotic manipulation. The high computational complexity of the logical problems is still a bottleneck for delivering practical solutions. A fundamental problem of applying Taski's results to general control problems is the limitation of expressiveness of real arithmetic. Difficulty becomes apparent when we use first-order logic to reason about nontrivial dynamical systems: the first-order theory of real arithmetic with trigonometric functions is already highly undecidable. Thus, it seems unreasonable to use logic to approach simple problems in dynamical systems and control. Consider the question of whether a one-dimensional continuous process, governed by some differential equation $\dot{x} = f(x,t)$, can start from $x=0$ and reach $x=1$ in finite time. A direct first-order encoding would require a formula such as the following
 \begin{eqnarray}
 \exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).
 \end{eqnarray}
-Answering such questions in general would require a method for deciding $\Sigma_1$-sentences in this logic, which would require us to contain all functions that are needed for expressing continuous processes. Going further from here, recall the attempt of incorporating digital switches in this process. This is apparently very hard~\cite{}. However, a simple reflection of the practice in reality gives as the following idea. Instead of deciding the formula precisely, all we really need to know is whether 
+Given that solutions of differential equations are rarely polynomials, and most likely not analytically solvable, the limitation of logical reasoning through such formulas is clear. 
+
+We have developed a framework for bypassing this difficulty. Noting that the reasoning of continuous systems naturally involve numerical errors, we realize that
 \begin{eqnarray}
 \exists x_0 \exists t \exists x_t\; \bigg(|x_0| \leq \delta_1 \;\wedge\; |x_t - (x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s)| \leq \delta_2\; \wedge\; |x_t - 1|\leq \delta_3\bigg).
 \end{eqnarray}
-for some $\delta$ that is agreed for the context. It would then appear that if we have a way of reasoning about the relaxation of such formulas, or even compute answers for them, we would have a natural way of dealing with the continuous problems, which does not violate any practical concerns. In this way, we realize that solving the problem is almost the same as deciding sigma-1 sentences in this logic, if that can be defined precisely. 
+is what we are really interested to know in practice, for some choices of tolerable error bounds $\delta_1, \delta_2, \delta_3\in\mathbb{Q}^+$. It follows that if reasoning about the relaxation of such formulas provides a way of dealing with the problems that are encoded. Formalizing this observation, we have developed the theory of {\em delta-decisions} over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}. In this new theory we relax the standard decision problem to ask whether a sentence is true or its ``delta-strengthening" is false. With this change, the decision problem for logic formulas with arbitrary numerically computable functions, in the exact sense as developed in computable analysis, becomes decidable in bounded domains. The complexity of the delta-decision problems are also comparable to their discrete counterparts. These results stand in sharp contrast to the negative results for the standard decision problems and provide the basis for developing a logical approach of control theory. We give a brief technical review of the theory of delta-decisions as background material in Section~\ref{delta-decide}. 
 
-This is indeed the direction that we are setting in this domain and we have prepared a theoretical basis and practical start for it. This is the theory of $\delta$-decisions over real numbers~\cite{}. We change the standard decision problem, which asks whether a sentence is true or false, to the version that asks whether a sentence is true or its ``delta-strengthening" is false. With this change, the decision problem for logic formulas with arbitrary numerically computable functions becomes decidable in bounded domains. The complexity... 
-
-These results naturally bridge the gap and give us tools for dealing with the real questions about continuous or hybrid processes. The goal of this proposal is to set the direction to take off. 
-Control theory, just like other theories from a logical perspective, is just a set of sentences that are true under sme interpretation. The significance is that a theorem would correspond to system that is working, which means that a process satisfies some specification. To engineer a system is to find a true theorem, although one may not have a proof of it. Thus once we have the logic working, we naturally have three types of questions to ask, which will be the three main themes of the proposal. They are: how difficult is it to do a certain task? How difficulty is it to prove the correct understanding of a fact? In light of, or using, the complexity classes, are there natural ways of automating them?
-
-I take these to be the core themes of descriptive control theory. I propose to systematically study the logical and computational foundation for control theory. I use the name ``descriptive control theory" to emphasize the overarching theme of using logic to express, analyze, and solve problems in control theory. The study consists of three main components:
+Equipped with an expressive logic and decidability results, we can encode a wide range of control problems and study from logical and computational perspectives. In particular, the following three directions form the main themes of descriptive control theory: 
 \begin{itemize}
-\item {\bf Descriptive Complexity.} The first component is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined based on our recent work on {\em $\delta$-decisions} of logic formulas over the reals~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, which we will give more details below. 
-\item {\bf Logical Foundation.} The second component is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics, i.e., to characterize control theory in suitable subsystems of second-order arithmetic. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
-\item {\bf Computational Engine.} The third component is to develop practical decision procedures for the logic formulas involved, which can serve as general algorithms for solving the control problems. As logical decision procedures usually target at hard problems (NP-hard and beyond), they may significantly extend existing methods in control theory, which mostly rely on polynomial-time matrix operations. Moreover, the decision procedures should always produce proofs that can certify correctness of the answers, through interactive theorem provers. 
+\item {\bf Descriptive Complexity.} The goal is to understand the inherent complexity of problems in control theory. I propose the descriptive complexity approach: define a suitable logical language to express the control problems, such that their ``practical" computational complexity can be easily derived through the descriptions. Here, the measure of ``practical" complexity is defined through $\delta$-decisions of the logic formulas, which we will give more details below. 
+\item {\bf Logical Foundation.} The goal is to seek a logical foundation for existing theorems and methods in control theory. A natural approach is to follow the program of reverse mathematics to characterize control theory in suitable subsystems of second-order arithmetic, and for decidable theorems, decide their proof complexity. Such a foundation would also reveal computational content in these theorems. Moreover, the proofs should be formalized in an interactive theorem prover and can become the basis for formal verification of practical instances of controller design. 
+\item {\bf Computational Engine.} The goal is to develop practical decision procedures for the logic formulas involved, which can serve as general algorithms for solving the control problems. As logical decision procedures usually target at hard problems (NP-hard and beyond), they may significantly extend existing methods in control theory, which mostly rely on polynomial-time matrix operations. Moreover, the decision procedures should always produce proofs that can certify correctness of the answers, through interactive theorem provers. 
 \end{itemize}
-In what follows I will first cover the background, and then explain the three goals in turn. 
+In what follows, I will first cover the background in Section~\ref{back}, and then discuss these three components of the main theme in detail, in Section~\ref{dc}, \ref{lf}, \ref{ce}. For each topic, I will outline two specific goals that I aim to achieve. The goals will combine theoretical investigations and practical implementations, and consequently the deliverables will combine papers and practical tools, which we will summarize in Section~\ref{summary}. 
 
-\newpage
+\section{Background}\label{back}
 
-\section{Background}
+\subsection{Delta-Decidability over the Reals}\label{delta-decide}
 
-\subsection{Delta-Decidability over the Reals} 
+In this section, we review our theory of delta-decisions over the reals~\cite{DBLP:conf/lics/GaoAC12}. The theory allows us to consider first-order formulas over the reals with arbitrary {\em Type 2 computable functions}, a notion that has been well-developed in computable analysis. We will review Type 2 computability first, and then give the main results regarding delta-decisions. 
 
-Logical approaches are rare for control theory. An obvious obstacle is that solving control problems requires reasoning over the real numbers and functions. The theory of real arithmetic plus trigonometric functions is already highly undecidable, and thus most topics in control theory appear beyond the reach of logical methods. Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
-\begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
-Here the integral is a Type 2 computable term. 
-
-Our approach bypasses this difficulty by studying {\em $\delta$-decisions over the reals}~\cite{DBLP:conf/lics/GaoAC12}. We studied the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. For instance, consider a dynamical system defined by the differential equation $\dot{x}(t) = f(x(t),t)$ with $x(0)= 0$, where $f$ is Lipschitz-continuous. The reachability question of whether ``the system can reach $x(t)=1$ at some time point $t$" is equivalent to asking whether the following $\mathcal{L}^1_{\mathbb{R}_{\mathcal{F}}}$-formula is true:
-\begin{eqnarray*}\exists x_0 \exists t \exists x_t\; \bigg(x_0 = 0 \;\wedge\; x_t = x_0 + \int_{0}^t f(x(s),s)\mathrm{d}s\; \wedge\; x_t = 1\bigg).\end{eqnarray*}
-Here the integral is a Type 2 computable term. We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
-\begin{definition}[$\delta$-Decisions~\cite{DBLP:conf/lics/GaoAC12}] Let $\varphi$ be an $\lrf^1$-sentence and $\delta$ a positive rational number. The $\delta$-decision problem asks for one of the following answers: ``$\varphi$ is false" or ``$\varphi^{\delta}$ is true." Here $\varphi^{\delta}$ is a syntactic variant of $\varphi$, defined by relaxing some constant terms in $\varphi$ by numerical errors bounded by $\delta$. 
+Following computable analysis, we can encode any real number as an infinite sequence of rational numbers. For each real number $x$, a {\em name} of $x$ is any function $\phi: \N\rightarrow \mathbb{D}$ that {binary-converges} to $x$, namely: $$\forall n\in \N, |\phi(n) - x|\leq 2^{-n}.$$
+We can then compute a real function $f:\mathbb{R}\rightarrow\mathbb{R}$ if there is an oracle Turing machine $M$ that, given the name of any argument $x\in\mathbb{R}$ of the function, computes the name of its value $f(x)$ up to an arbitrary digit in the following way:
+\begin{definition}[Type 2 Computable Functions]
+A real function $f: \R\rightarrow \R$
+is {\em Type 2 computable}, if there is a function-oracle Turing machine $M$ such that for every $x\in \mathbb{R}$ and every name $\phi$ of $x$, given any $i\in\mathbb{N}$, the machine uses $\phi$ as an oracle, and $n$ as the input, and computes a rational number $M^{\phi}(i)\in\mathbb{Q}$, such that $|M^{\phi}(i)-f(x)|\leq 2^{-i}$. In other words, $M$ computes a function $\psi$ that binary-converges to $f(x)$ as its representation. 
 \end{definition}
-\begin{theorem}[$\delta$-Decidability and Complexity~\cite{DBLP:conf/lics/GaoAC12}] The $\delta$-decision problem for arbitrary bounded sentences in $\lrf^1$ is decidable. Moreover, for classes of bounded sentences whose terms are in Type 2 complexity class $\mathsf{C}$, the complexity of $\Sigma_k$-sentences in $\lrf^1$ resides in ${\sf (\Sigma^P_k)^C}$. 
-\end{theorem}
-It follows immediately that the bounded reachability problem above resides in ${\sf NP^C}$ when $\int_{0}^t f(x(s),s)\mathrm{d}s$ is in ${\sf C}$, and the unbounded version is in ${\sf \Sigma^0_1}$. We have also developed algorithms for solving such formulas~\cite{DBLP:conf/fmcad/GaoKC13}. These results are the basis of using logical methods to analyze control problems and design algorithms at the same time. 
+A most important property of computable functions is that they must have a computable modulus of continuity. Most common continuous real functions are Type 2 computable, including: polynomials with computable coefficients, exponential, trigonometric, square root, and logarithm functions, absolute value, and solution functions of Lipschitz-continuous ordinary differential equations. The complexity of Type 2 computable functions is also well studied. Intuitively, a real function $f:[0,1]\rightarrow\mathbb{R}$ is (uniformly) $\mathsf{P}$-computable ($\mathsf{PSPACE}$-computable), if it is computable by an oracle Turing machine $M_{f}$ that halts in polynomial-time (polynomial-space) for every $i\in \mathbb{N}$ and every $\vec x\in \dom(f)$. We denote this class of functions as $\mathsf{P_{C[0,1]}}$. The definitions of other classes such as $\mathsf{NP_{C[0,1]}}, \mathsf{PSPACE_{C[0,1]}}$ are similar. Omitting the formal details, we point out that most common real functions reside in $\mathsf{P_{C[0,1]}}$: absolute value, polynomials, binary $\max$ and $\min$, $\exp$, and $\sin$ are all in $\mathsf{P_{C[0,1]}}$. Moreover, it has been shown that solutions of Lipschitz-continuous differential equations are $\mathsf{PSPACE_{C[0,1]}}$-complete~\cite{DBLP:journals/cc/Kawamura10,Kobook}.
 
-We showed how to concentrate on the ``practical" complexity of such undecidable formulas, in the sense that the decisions can allow certain types of numerical errors:
-
+We can now consider the first-order language $\lrf^1$ over the real numbers, which allows the use of arbitrary Type 2 computable functions. This language is rich enough for expressing a wide range of continuous and hybrid systems and their properties. 
+We write $\mathcal{F}$ to denote an arbitrary collection of symbols representing Type 2 computable functions over $\mathbb{R}^n$ for various $n$. We always assume that $\mathcal{F}$ contains at least the constant $0$, unary negation, addition, and the absolute value. (Constants are seen as constant functions.) Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle \mathcal{F}, >\rangle$. $\mathcal{L}_{\mathcal{F}}$-formulas are always evaluated in the standard way over the corresponding structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.  It is not hard to see that we only need to use atomic formulas of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0,$ where $t(x_1,...,x_n)$ are built up from functions in $\mathcal{F}$. We can give an explicit definition of $\mathcal{L}_{\mathcal{F}}$-formulas as follows.
+\begin{definition}[$\mathcal{L}_{\mathcal{F}}$-Formulas]
+Let $\mathcal{F}$ be a collection of Type 2 functions, which contains at least $0$, unary negation -, addition $+$, and absolute value $|\cdot|$. We define:
+\begin{eqnarray*}
+&&t := x \; | \; f(t(x_1, ..., x_n)), \mbox{ where }f\in \mathcal{F}\mbox{, possibly constant};\\
+&&\varphi := t> 0 \; | \; t\geq 0 \; | \; \varphi\wedge\varphi \; | \; \varphi\vee\varphi \; | \; \exists x\varphi \; |\; \forall x\varphi.
+\end{eqnarray*}
+We use the notation of {\em bounded quantifiers}, defined as $\exists^{[u,v]}x.\varphi =_{df}\exists x. ( u \leq x \land x \leq v \wedge \varphi)$ and $\forall^{[u,v]}x.\varphi =_{df} \forall x. ( (u \leq x \land x \leq v) \rightarrow \varphi)$. We say a sentence is bounded if it only involves bounded quantifiers. 
+\end{definition}
+On this normal form of $\lrf$-formulas, we can then define the $\delta$-variant of them as follows. 
 \begin{definition}[$\delta$-Variants]
 Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ a bounded $\mathcal{L}_{\mathcal{F}}$-sentence of the form
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>0; t_j\geq 0],$$
+$$\varphi:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i(\vec x, \vec y)>0; t_j(\vec x, \vec y)\geq 0],$$
 where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$. The {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > \delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$, that is,
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>\delta; t_j\geq \delta],$$
+$$\varphi^{+\delta}:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i(\vec x, \vec y)>\delta; t_j(\vec x, \vec y)\geq \delta],$$
 where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
 Similarly, the {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > -\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$, that is,
-$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>-\delta; t_j\geq -\delta].$$
+$$\varphi^{-\delta}:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i(\vec x, \vec y)>-\delta; t_j(\vec x, \vec y)\geq -\delta].$$
 \end{definition}
-Note that in the definition, the bounds on the quantifiers are not changed. 
-\begin{definition}[$\delta$-Decisions~\cite{DBLP:conf/lics/GaoAC12}] Let $\varphi$ be an $\lrf^1$-sentence and $\delta$ a positive rational number. The $\delta$-decision problem asks for one of the following answers: ``$\varphi$ is false" or ``$\varphi^{\delta}$ is true." Here $\varphi^{\delta}$ is a syntactic variant of $\varphi$, defined by relaxing some constant terms in $\varphi$ by numerical errors bounded by $\delta$. 
-\end{definition}
-\begin{theorem}[$\delta$-Decidability and Complexity~\cite{DBLP:conf/lics/GaoAC12}] The $\delta$-decision problem for arbitrary bounded sentences in $\lrf^1$ is decidable. Moreover, for classes of bounded sentences whose terms are in Type 2 complexity class $\mathsf{C}$, the complexity of $\Sigma_k$-sentences in $\lrf^1$ resides in ${\sf (\Sigma^P_k)^C}$. 
+Note that in the definition, the bounds on the quantifiers are not changed. Our main theorem is the following. 
+\begin{theorem}[$\delta$-Decidability]\label{main}
+There is an algorithm which, given any bounded $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ and $\delta\in \mathbb{Q}^+$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\mathsf{True}$'': $\varphi$ is true. 
+\item ``$\delta$-$\mathsf{False}$": $\varphi^{+\delta}$ is false. 
+\end{itemize}
+Equivalently, there is an algorithm which, given any bounded $\varphi$ and $\delta\in \mathbb{Q}^+$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\delta$-$\mathsf{True}$'': $\varphi^{-\delta}$ is true. 
+\item ``$\mathsf{False}$'': $\varphi$ is false. 
+\end{itemize}
 \end{theorem}
-It follows immediately that the bounded reachability problem above resides in ${\sf NP^C}$ when $\int_{0}^t f(x(s),s)\mathrm{d}s$ is in ${\sf C}$, and the unbounded version is in ${\sf \Sigma^0_1}$. We have also developed algorithms for solving such formulas~\cite{DBLP:conf/fmcad/GaoKC13}. These results are the basis of using logical methods to analyze control problems and design algorithms at the same time. 
+Note that the two cases can overlap. If $\varphi$ is true and $\varphi^{+\delta}$ is false, then the algorithm is allowed to return either one. The proof idea is that for any formula $\varphi$, the strictification of $\varphi$ is equivalent to the formula $\alpha(\varphi) > 0$. Whether this holds cannot, in general, be determined algorithmically, But given a small $\delta$, we {\em can} make a choice between the overlapping alternatives $\alpha(\varphi) > 0$ and $\alpha(\varphi) < \delta$, and this is enough to solve the relaxed decision problem. The dual versions of the theorem are useful in different contexts. The weakening is used for confirming that a certain property holds. The strengthening is used for synthesizing parameters. The differences will be discussed in later sections. 
 
-\newpage
+The complexity statement is as follows. 
+\begin{theorem}\label{compmain}
+Let $\mathcal{F}$ be a class of computable functions. Let $S$ be a class of $\mathcal{L}_{\mathcal{F}}$-sentences, such that for any $\varphi$ in $S$, the terms in $\varphi_{[0,1]}$ are computable in complexity class $\mathsf{C}$ where $\mathsf{P_{C[0,1]}\subseteq \mathsf{C}\subseteq \mathsf{PSPACE_{C[0,1]}}}$. Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
+\end{theorem}
+As corollaries, we have the following completeness results for signatures of interest. 
+\begin{corollary}
+Let $\mathcal{F}$ be a set of $\mathsf{P}$-computable functions (which, for instance, includes $\exp$ and $\sin$). The $\delta$-decision problem bounded $\Sigma_n$-sentences in $\mathcal{L}_{\mathcal{F}}$ is $\mathsf{\Sigma_n^P}$-complete. 
+\end{corollary}
+\begin{corollary}
+Suppose $\mathcal{F}$ consists of Lipschitz-continuous ODEs over compact domains. The $\delta$-decision problem for bounded $\mathcal{L}_{\mathcal{F}}$-sentences is $\mathsf{PSPACE}$-complete. 
+\end{corollary}
+Note that these complexity results stand in high contrast to the standard undecidability of the problems. In fact, they bring the hope of solving these formulas with practical decision procedures, as they are not beyond the complexity capacity of SAT and SMT solvers. Based on the theory, we have implemented a practical solver dReal that solves a wide range of nonlinear formulas, which will be discussed in Section~\ref{dreal}. 
+
 \subsection{Control Theory} 
 
-Control theory is the study of ways of regulating dynamical systems and properties of these dynamical systems under regulation. 
-
-We will study two types of problems in control theory. 
+Control theory studies methods of regulating dynamical systems to achieve desired goals. Some detailed examples and results of control theory will accompany the discussion when needed.
+In general, there are two types of topics in control theory. 
 \begin{itemize}
-\item One is for solving properties of a system, mostly properties regarding reachability, stability, controllability, and observability. 
-\item The other one is to come up with controllers that satisfy specifications. Note that stabilization lies at the core of control theory, as many problems can be reduced to stabilizing an error to zero. 
+\item Analyze the properties of a dynamical system under external controls, such as their stability, controllability, and observability. 
+\item Design controllers that can regulate a dynamical system to satisfy certain specifications, such as stabilization of a system. 
 \end{itemize}
-The main body of control theory is on linear constant dynamics, which is the result of the methodology of using analytic solutions to reason about systems. Modern control theory has worked out a beautiful theory that reduces control problems to matrix operations. As an example, the behavior of a linear system is completely determined by the eigenvalues of its matrix. Well established conditions are available for determining the controllability, observability for linear systems as well. For instance, the well-known Karman criteria for controllability is as follows. 
-\begin{example}
 
-\end{example}
+A complete theory for linear dynamical systems has been well developed. The behavior of a linear system, such as stability and controllability, can be completely understood through properties of the matrix that determines its dynamics. However, beyond linear systems, existing methods have significant difficulty in dealing with nonlinear and hybrid systems. A main approach towards nonlinear systems is the methods developed in Lyapunov theory. Basically, to prove the stability of a system, one has to come up with an energy function that monotonically decreases. The search for such functions, however, is hard. The computational issues underlying this search is usually unclear. In terms of control design, the scenario is similar: there exists mature methods for designing controllers for linear dynamical systems, but most problems regarding nonlinear and hybrid systems remain open. 
 
-There are two scenarios where existing control theory has difficulty with. One is nonlinear problems, the other is the combination of digital and analog systems, which are so called hybrid systems. Most of the work for nonlinear systems, or systems with uncertainty, is based on the approach of Lyapunov. Basically, to prove the stability of a system, one has to come up with an energy function that monotonically decreases. The search for such functions, however, is hard. The computational issues underlying this search is usually unclear.~\cite{}
+The goal of developing a logical-based methodology is to tackle the difficulty of existing methods. The logical approaches naturally bring in the power of computational engines that can extend existing methods from linear to nonlinear and hybrid systems. An important goal is to develop a strict extension: existing methods in control theory should be considered as algorithms for specific subclasses of the problems. The ultimate goal is to develop a new methodology that combines automation and certification: when the solving process is mechanized, checking the correctness of the mechanism becomes a simpler way of ensuring the correctness of the results. 
 
-In terms of control design, the scenario is similar. We have clear methodology for dealing with purely linear systems, but have great difficulty in handling systems with nonlinear behavior and discrete components. Optimal control, for instance, is the field studying the design of controllers that can achieve a certain goal while keeping some cost at a minimal level. 
+\subsection{Computational Framework}\label{dreal}
 
-The methodology that will be developed in this project will cover nonlinear and hybrid systems. While existing research can be regarded as algorithms for specific subclasses of the problems, the general idea is to give a definite categorization and generic methods for solving the problems. The ultimate goal combines automation and certification: when the solving process is mechanized, checking the correctness of the mechanism becomes a simpler way of ensuring the correctness of the results. 
+The theory of delta-decidability not only provides a new perspective to look at decision problems over the reals, but also guides the development of concrete algorithms for solving the delta-decision problems. We say an algorithm is {\em delta-complete}, if they always terminate and provide the correct delta-decisions. We have formally analyzed constraint solving algorithms and formulated formal conditions under which they are delta-complete. By combining such algorithms with logical decision procedures, we obtain decision procedures of the logic formulas that can exploit the most out of both symbolic and numerical algorithms. In the Appendix, we give an example of the formal analysis performed for interval constraint propagation algorithms. 
 
-\newpage
+Based on the theory, we have developed a practical solver dReal~\cite{DBLP:conf/cade/GaoKC13,DBLP:conf/fmcad/GaoKC13} (\url{http://dreal.cs.cmu.edu}) that solves nonlinear formulas over the reals, under the theory of delta-complete decision procedures. Since 2012, dReal has become a very active project that combines the effort many collaborators (\url{http://github.com/dreal}). dReal has been successfully applied to many problems in geometric theorem proving~\cite{DBLP:conf/cade/GaoKC13}, control system design~\cite{DBLP:conf/fmcad/GaoKC13,DBLP:conf/hybrid/KapinskiDSA14} (used at Toyota labs), biology~\cite{DBLP:conf/fmcad/GaoKC13}, etc. Many of the problems involve hundreds of transcendental functions or nonlinear differential equations. Some examples are given in the Appendix. The tool provides a good starting point for delivering the computational goals in this project.
 
-\subsection{Computational Framework}
+An important feature of the dReal tool is that it produces logical proofs to certify its answers. Such proofs can be used to develop formal proofs of theorems in control theory, or produce certification of the correctness of concrete control design. The proofs will be produced into a format that can easily be certified by an interactive theorem prover. 
 
-The theory of delta-decidability now only defines a new perspective to look at decision problems over the reals, but also a way of obtaining concrete algorithms for solving the delta-decision problems, which we say are delta-complete if they provide the correctness guarantee. We have formally analyzed constraint solving algorithms, interval constraint propagation, and show that they provide delta-complete decision procedures when used in the DPLL(T) way. 
+\section{Descriptive Complexity}\label{dc}
 
-We have developed a solver dReal that solves nonlinear formulas over the reals, under the theory of delta-complete decision procedures. We have solved the Kepler conjecture benchmarks, hybrid system benchmarks with hundreds of ODEs, and solved realistic benchmarks by control engineers in Toyota labs~\cite{}. 
-
-We will also touch on the problem of deriving formal proofs for control theory. Here there are two types of formal proofs. One is the kind that we need to manually understand the proofs and encode them into Coq. The other is the theorems that encode the correctness of a real system design. Ideally, those should be the theorems that are derived from the basic theorems of the first type. A major way of deriving the second category of theorems can be automatic generation from decision procedures. In our solver dReal, we provide such capacity of generating formal proofs of theorems. Such proofs are output in a format that can be directly used in a proof assistant. 
-
-Nonlinear solver dReal (\url{http://dreal.cs.cmu.edu}) since late 2012, which has grown into a team of around 10 collaborators (\url{http://github.com/dreal}). dReal has been successfully applied to many problems such as theorem proving~\cite{}, control system design~\cite{}, biology~\cite{}, etc. The tool base will provide a solid basis for implementing the computational goals in the project. 
-
-
-
-\newpage
-\section{Descriptive Complexity}
-
-The first goal is to encode standard problems in control theory in a first-order theory and have a logical description of control theory. This step is the basis for both a logical foundation and a computational treatment of the problems. An immediate utility of doing this, following the theory of delta-decisions over the reals, is that upper bounds on the complexity of these problems become immediately clear. For instance, we ask what is the complexity of deciding stability of a system, what is the complexity of coming up with an optimal design to achieve a goal. Such questions have not been answered for most of the problems in general. 
+The first goal is to develop a logical description of problems in control theory. This step is the basis for both a logical foundation and a computational treatment of the problems. An immediate benefit of the encoding follows from the theory of delta-decisions over the reals: upper bounds on the complexity of these problems can be easily derived. 
 
 For control design problems, the goal is usually to find a function that satisfies certain goals. These problems are most naturally expressed with second-order quantification, which is the motivation for investigating second-order theories written in $\lrf^2$. 
 
-In what follows I will explain the approach taken by the delta-decision, and then the perspectives on extending to second-order formalism. 
+I will first explain the approach of using first-order delta-decisions to encode control problems and deriving their complexity bounds, and then discuss the possibility of extending to a second-order formalism. 
 
-\paragraph{Related Work.} Existing work on complexity of control problems have been focusing on giving lower bounds to problems with simple systems. NP-hardness is usually the end of a line of investigation, as it is regarded as giving a definite answer for the non algorithmic solution of a problem. Driven by advances in decision procedures, we do not take this view, and focus on giving a precise characetration of the upper bounds on the problems. The computational nature of stability properties has been a topic of much recent investigation~\cite{DBLP:journals/corr/AhmadiP13,DBLP:journals/automatica/BlondelT99,DBLP:journals/automatica/BlondelT00,AAAthesis,DBLP:conf/hybrid/PrabhakarV13,DBLP:journals/corr/abs-1210-7420}. A focus of existing work is to establish various hardness results, i.e., lower bounds on complexity. It is shown that stability of simple systems is hard or impossible to solve algorithmically. Such results are proved by reducing combinatorial problems over graphs or matrices to stability problems, which can be analyzed with techniques of standard complexity theory. A limitation is that reduction techniques are usually not suitable for establishing upper bounds on complexity, and indeed most questions about upper bounds are open~\cite{AAAthesis}. 
+\paragraph{Related Work.} Computational properties of most control problems are not clearly understood. The computational complexity of stability properties has been a topic of much recent investigation~\cite{DBLP:journals/corr/AhmadiP13,DBLP:journals/automatica/BlondelT99,DBLP:journals/automatica/BlondelT00,AAAthesis,DBLP:conf/hybrid/PrabhakarV13,DBLP:journals/corr/abs-1210-7420}. A focus of existing work is to establish various hardness results, i.e., lower bounds on complexity. It is shown that stability of simple systems is hard or impossible to solve algorithmically. Such results are proved by reducing combinatorial problems over graphs or matrices to stability problems, which can be analyzed with techniques of standard complexity theory. A limitation is that reduction techniques are usually not suitable for establishing upper bounds on complexity, and indeed most questions about upper bounds are open~\cite{AAAthesis}. 
 
 \subsection{Descriptive Complexity in $\lrf^1$} 
 
@@ -168,7 +176,7 @@ We need to justify the focus on the $\delta$-perturbed version of the problems. 
 \item For problems that are concerned with finding a witness such that some property holds, such as an optimal controller, it is more important to solve the perturbation on the positive side. The interpretation would be that the synthesized plan 
 \end{itemize}
 
-The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. Here is an example of how this approach can be applied, with more details in~\cite{DBLP:journals/corr/GaoKC14}. 
+The study of stability properties of dynamical systems, for instance, can be fully described in $\lrf^1$. Here is an example of how this approach can be applied (more details in~\cite{DBLP:journals/corr/GaoKC14}). 
 \begin{example}
 Following standard definition, a system is stable i.s.L. if given any $\varepsilon$, there exists $\delta$ such that for any initial value $x_0$ that is within $\delta$ from the origin, the system stays in $\varepsilon$-distance from the origin. Naturally, the $\lrf$-representation of stability in the sense of Lyapunov is encoded in the following way:
 \begin{quote}
@@ -204,44 +212,38 @@ Suppose all terms in the $\lrf$-representation of a system are in Type 2 complex
 \end{quote}
 This completes the example of obtaining complexity.\qed
 \end{example}
-Note that in the example, the new problems are defined through delta-perturbations of their logical encoding. Thus the new definitions are dependent on the descriptive approach. 
+Note that in the example, the new problems are defined through delta-perturbations of their logical encoding. Thus the new definitions are dependent on the descriptive approach. The same methodology can be extended to a wide range of topics in control theory. The fields of optimal, robust, adaptive control design, which are themselves fields in control theory, provides plenty of opportunity for logical formalization.
 
-The same methodology can be extended to a wide range of topics in control theory. 
+\subsection{Descriptions in $\lrf^2$}\label{second-order}
 
-Major fields in control design can all be characterized in this way. Optimal, robust, adaptive control design, which are themselves fields in control theory, provides plenty of opportunity for descriptive formalization. By abstracting away the specific techniques, it helps to characterize the different problems and their different algorithms as specific methods for solving the logic formulas. 
-
-\subsection{Descriptions in $\lrf^2$} 
-
-Expressing such problems in full requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
+For many control design problems, their direct encoding requires a second-order language that naturally extends $\lrf^1$ with second-order quantifiers, which we call $\lrf^2$. For instance, consider the problem of finding an optimal controller for a system $\dot x = f({x}, u)$, with a cost function $g(x(t),u(t))$. Such a controller exists if the following $\lrf^2$-formula is true:
 \begin{eqnarray*}
-& &\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'}\\
-& &\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
+& &\hspace{-.7cm}\exists U \forall U' \forall {x_0}\forall {x_t} \forall {x_t'}\\
+& &\hspace{-.7cm}\Bigg( \Big({x_t} = {x_0} + \int_{0}^t f({x}(s),U(s))\mathrm{d}s \wedge\;  x_t' = x_0 + \int_{0}^t f(x(s),U(s))\mathrm{d}s
 \;\wedge\; \phi(x_0, x_t) \;\wedge\; \phi(x_0, x_t')\Big)\\
-& &\hspace{6.5cm}\rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
+& &\hspace{5.7cm}\rightarrow \Big(\int_0^t g(x(s),U(s))\mathrm{d}s \leq  \int_0^t g(x(s),U'(s))\mathrm{d}s)\Big) \Bigg).
 \end{eqnarray*}
 $U$ and $U'$ denote control functions, and $\phi$ encodes some constraints on the initial and end states. The formula states that there exists a control function $U$ such that any other control function $U'$ that achieves the same goals would cost more than $U$, with respect to the cost function $g$. 
 
-We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. In all, the two main goals are:
+We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order language is still delta-decidable under suitable interpretations, since techniques for proving $\delta$-decidability in the first-order case should apply to arbitrary compact metric spaces. We need to develop complexity analysis for $\lrf^2$, which should systematically extend existing complexity results in computable analysis from real functions to functionals. 
 
-\subsection{Main Goals} 
-
-This part consists of the following two goals. 
+\subsection{Main Goals in Descriptive Complexity} 
+In sum, the two main goals under the theme of descriptive complexity are the following:
 \begin{itemize}
 \item Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
-\item Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions, and categorize control problems into complexity classes or computability hierarchies.
+\item Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions and prove decidability results, possibility with preliminary complexity results. 
 \end{itemize}
+The goals are important for the investigations in the other two components of the main theme. With the logical encodings, we can investigate the strength of theorems in control theory regarding these properties. At the same time, the encodings fit the problems into different computational hierarchies that we will develop practical computational engines to solve. 
 
-\newpage
-\section{Logical Foundation}
+\section{Logical Foundation}\label{lf}
 
-The next task is to develop a logical foundation for main results in control theory. Doing so is important in at least two aspects. Mathematically, a formal foundation of control methods is is a basis for the development in the field. Computationally, formal proofs of the main theorems can be used to construct proofs of correctness of concrete practical system designs. 
+The next task is to develop a logical foundation for main results in control theory.
 
-The mathematical part, the goal is to work out the basis of control theory in suitable subsystems of second-order arithmetic, following the program of reverse mathematics. The benefit of focusing on weak theories, compared to ZFC or higher, is that we can analyze the proofs such that their computational content becomes clear. Note that the Type 2 computable functions in  $\lrf^2$ are continuous functions that can be easily encoded -- the elementary functions are limits of their Taylor expansions, etc. 
+Mathematically, a formal foundation of control methods is is a basis for a rigorous development of the field. From a mathematical perspective, the goal is to develop a formal basis of control theory in suitable subsystems of second-order arithmetic, following the program of reverse mathematics. The benefit of focusing on weak theories, compared to ZFC or higher, is that we can analyze the proofs such that their computational content becomes clear. 
 
-The goal is, on the one hand, to find the core minimal mathematical commitment, and on the other hand, to provide a framework for deriving theorems from existing control theory. 
+Computationally, developing formal proofs in interactive theorem provers gives a solid formal foundation for the main results in control theory, as well as for constructing proof of correctness in concrete system designs. 
 
-
-\paragraph{Related Work. } There are various approaches in providing logic-based approaches to dynamical systems and control theory. Most of the existing work focuses on new expressive languages that can express various behaviors of dynamical systems~\cite{}. A lot of work is devoted to the study of hybrid systems to provide a formal foundation based on automata theory. Most of core of control theory only requires a classical first-order to second-order language. Once the study of the core problems is clear, more language constructs, such as temporal modalities, can be further introduced. 
+\paragraph{Related Work. } There are various approaches in providing logic-based approaches to dynamical systems and control theory. Most of the existing work focuses on expressive nonclassical languages that can encode complex behaviors of dynamical systems~\cite{DBLP:conf/lics/Platzer12}. Our focus is to develop a formal foundation for the proofs of the main theorems, which has not been done before. Most of core of control theory only requires a classical first-order to second-order language. Once the study of the core problems is clear, more language constructs, such as temporal modalities, can be further introduced. 
 
 \subsection{Proof Complexity and Reverse Mathematics} 
 
@@ -249,7 +251,7 @@ It is an interesting question to know the mathematical commitment that we have w
 
 There are two sides to control theory. One is the analysis side, and the other is the algebraic side. The proof complexity is reduced in the algebraic side, which imposes stronger assumptions on the structure of the systems, for instance, linear systems represented as matrices. The analysis side requires more mathematical commitment. 
 
-One presumably easy but still interesting first task to tackle is to study the reverse mathematics of the state-space methods in control theory regarding linear dynamical systems. It is almost clear that $\mathsf{RCA}_0$ is enough to develop much of linear algebra~\cite{}. Indeed, as results from proof complexity, restricted forms of many facts from linear algebra, such as the Cayley-Hamilton theorem, have polynomial-time proofs~\cite{}. Still, one interesting task is to develop auxiliary techniques for dealing with matrices explicitly. Most of the control theory for linear dynamical systems are stated in the language of matrices. 
+One presumably easy but still interesting first task to tackle is to study the reverse mathematics of the state-space methods in control theory regarding linear dynamical systems. It is mostly clear that $\mathsf{RCA}_0$ is enough to develop much of linear algebra~\cite{Simpson}. Indeed, as results from proof complexity, restricted forms of many facts from linear algebra, such as the Cayley-Hamilton theorem, have polynomial-time proofs~\cite{cookbook}. Still, one interesting task is to develop auxiliary techniques for dealing with matrices explicitly. Most of the control theory for linear dynamical systems are stated in the language of matrices. 
 For instance, consider the {\em Kalman test for controllability} as follows. 
 \begin{example} The Kalman test for controllability states that 
 \begin{quote}
@@ -268,11 +270,10 @@ $$[C^T A^TC^T \cdots (A^T)^{n-1}C^T]$$
 is of rank $n$. 
 \end{theorem}
 \end{quote}
-This is a quite straightforward consequence from the Cayley-Hamilton theorem, and consequently the proof complexity should not be high. \qed
+These theorems quite straightforward consequences of the Cayley-Hamilton theorem. Their proof complexity should not be high. \qed
 \end{example}
-The standard way of encoding such formulas is of course through recursive encoding using pairs. This will most likely destroy structures. How this can be avoided requires some construction. 
 
-The analysis side is usually reasoning about the systems from general solutions and derivatives of them. For instance, consider the Lyapunov method for nonlinear stability as follows. 
+The analysis aspect of control theory studies dynamical systems through properties of their general solutions and derivatives. For instance, consider the Lyapunov method for nonlinear stability as follows. 
 \begin{example}
 Recall that the definition of stability in the sense of Lyapunov is given by the following $\lrf^1$-formula:
 \begin{eqnarray*}
@@ -280,18 +281,9 @@ Recall that the definition of stability in the sense of Lyapunov is given by the
 \end{eqnarray*}
 A simple case of the Lyapunov method is as follows. Let $V(p,x)$ be a function, parameterized by $p\in \mathbb{R}$, whose partial derivative ${\partial V}/{\partial x}$ is a Type 2 computable function. Let $D$ be the parameter space for $p$ and $X$ be the state space of $x$. We then have the following $\lrf$-formula is a sufficient condition for stability in the sense of Lyapunov
 $$\varphi_L:\ \varphi_L:\ \exists p\forall x\; \bigg(V(p,x)\geq 0 \wedge V(p,0) = 0\wedge \frac{\partial V(p,x)}{\partial x}f(x)\leq 0\bigg)$$
-That is, the Lyapunov methods is based on the a theorem over the reals
-$$\varphi_L\rightarrow \varphi_S$$
-The proofs of theorems of this sort usually requires considering a ascending chain... \qed
+That is, the Lyapunov methods is based on that $\varphi_L\rightarrow \varphi_S$ holds as a theorem over the reals, which I propose to analyze. \qed
 \end{example}
-The analysis side is the main part of most of the established subfields of control theory. 
-
-The classical aspects of control theory is worth investigating as well, which involves more complex analysis, and functional analysis. Many valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, Yokoyama showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. 
-
-In this perspective, an interesting thing to understand is whether classical control theory has more mathematical commitment than modern control theory. If that is the case, this would be a clear sign of improvement in the development of control theory. 
-
-
-
+The analysis side is the main content of nonlinear control. The classical aspects of control theory is worth investigating as well, which involves more complex analysis, and functional analysis. Many valuable results in this direction have been obtained in the work of Yokoyama~\cite{yoko}. For instance, Yokoyama showed that uniformly convergence of Fourier series for $C^1$-functions and $L^2$-convergence of Fourier series for continuous functions are equivalent to $\mathsf{WKL}_0$ over $\mathsf{RCA}_0$. In this perspective, it is interesting to understand whether classical control theory has more mathematical commitment than modern control theory. If that is the case, this would be a clear sign of improvement in the development of control theory. 
 
 \subsection{Formal Proofs}
 
@@ -311,37 +303,33 @@ Theorem Cayley_Hamilton (R : comRingType) n' (A : 'M[R]_n'.+1) :
 \end{verbatim}
 It is the basis of deriving other parts of the theory of linear systems. \qed
 \end{example}
-Different consideration seems to favor different systems for developing the formalization. HOL has concise formulation, while Coq seems to be attractive to a wider community and would be a good choice for the future steps of the integration into proofs of correctness of control software. An alternative option is the new promising theorem prover named Lean~\cite{}, a new project led by Leonardo de Moura. The design principle is to have a framework that can use automatic solvers at the backend as engines in the proofs at the ground level. Much of mathematics is being developed right now in the framework. The benefit of using Lean is that I can take an active role in developing the theorem prover itself and simplify the process of having the control theory library. Right now, most of the work is accomplished by the team of Leonardo de Moura, Jeremy Avigad, and Soonho Kong, all are close collaborators of mine. Kong is also a key developer in dReal and we have concrete plans of the merging of dReal and Lean. 
+Different consideration seems to favor different systems for developing the formalization. HOL has concise formulation, while Coq seems to be attractive to a wider community and would be a good choice for the future steps of the integration into proofs of correctness of control software. An alternative option is the new promising theorem prover ``Lean" (\url{http://leanprover.net}), a new project led by Leonardo de Moura. The design principle is to have a framework that can use automatic solvers at the backend as engines in the proofs at the ground level. Much of mathematics is being developed right now in the framework. The benefit of using Lean is that I can take an active role in developing the theorem prover itself and simplify the process of having the control theory library. 
 
-Regardless of the choice of the proof environment, the goal is to have a control theory library. An ideal plan is to have a document that develops the core part of control theory in the form of a textbooks, with all theorems and proofs formalized in the proof assistant of choice. This can follow the format of the software foundations book~\cite{}. Theorems in control theory that would be interesting to see a formalization include stability, observability, controllability for linear systems as previously mentioned, Lyapunov theory for nonlinear systems, and various results in optimal, robust, and adaptive control. 
+With a suitable choice of the proof environment, the goal is to have a control theory library. An ideal plan is to have a document that develops the core part of control theory in the form of a textbooks, with all theorems and proofs formalized in the proof assistant of choice. Theorems in control theory that requires formalization includes stability, observability, controllability for linear systems as previously mentioned, Lyapunov theory for nonlinear systems, and various results in optimal, robust, and adaptive control. 
 
 Besides the mathematical value of such formalization, An important use of the formal proofs is computational: these proofs can serve as a basis for formal verification of practical control designs. An interesting question is how to connect proofs of the main theorems to automated proofs of the concrete designs. 
 
-\subsection{Summary of Goals}
+\subsection{Main Goals in Logical Foundation}
 
+The main goals that I propose to accomplish are the following:
 \begin{goal}
-Categorize theorems in control theory in suitable subsystems of second-order arithmetic. 
+Categorize theorems in control theory in suitable subsystems of second-order arithmetic, or find proof complexity for decidable theorems concerning linear systems. 
 \end{goal}
 \begin{goal}
 Formalize the main contents in control theory in an interactive theorem prover.  
 \end{goal}
 
-\section{Computational Engine}
+\section{Computational Engine}\label{ce}
 
 The main benefit of using a logical approach to express and formalize control theory is that it is backed by the use of computational engines. The methodology becomes that we can express a problem formally, and then the problem is solved using decision procedures for the logic theory. In this way, decision procedures for the logic formulas become generic algorithms for the control problems. 
 
-It is important to make sure that existing methods in control theory can be used as partial algorithms for subclasses of these formulas. A challenge is to ensure that algorithms based on matrix operations and convex optimization, for instance, can all be suitably called by the logic solver. To make sure of this in a solver, this requires detailed analysis of the numerical algorithms so that delta-completeness can be ensured. The additional benefit, besides automation, is that these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof. For sat answers, one can simply plug in the solutions and check the correctness (up to delta-bounded errors). For unsat answers, one has to produce a proof of refutations that have been found by the solver. This requires detailed analysis of numerical algorithms, which we have done partially in~\cite{}, but much more needs to be done. 
+It is important to make sure that existing methods in control theory can be used as partial algorithms for subclasses of these formulas. A challenge is to ensure that algorithms based on matrix operations and convex optimization, for instance, can all be suitably called by the logic solver. To make sure of this in a solver, this requires detailed analysis of the numerical algorithms so that delta-completeness can be ensured. The additional benefit, besides automation, is that these decision procedures should automatically produce witnesses or proofs for their answers, such that the correctness of the full control design can be certified with a formal proof. For sat answers, one can simply plug in the solutions and check the correctness (up to delta-bounded errors). For unsat answers, one has to produce a proof of refutations that have been found by the solver. This requires detailed analysis of numerical algorithms.
 
-What I will propose now is the next step on the solver. A main target is $\Sigma_2$-sentences in $\lrf^1$. The next step is to handle important classes in $\lrf^2$, at least up to the point that the existing algorithms in control design can be used. This involves the use of methods from calculus of variations, dynamic programming, etc. 
+What I will propose now is the next step on the solver. A main target is $\Sigma_2$-sentences in $\lrf^1$. The next step is to handle important classes in $\lrf^2$, at least up to the point that the existing algorithms in control design can be used. This involves the use of methods from calculus of variations, dynamic programming, etc. An interesting point to note is that the problems here all become generalizations of optimization problems. Scalar optimization problems corresponds to $\exists\forall$ formulas with one single existentially quantified variable. 
 
-An interesting point to note is that the problems here all become generalizations of optimization problems. Scalar optimization problems corresponds to $\exists\forall$ formulas with one single existentially quantified variable. 
-
-Again, all the implementations will be done on top of our solver dReal. 
-
-\newpage
 \subsection{From $\Sigma_1$ to $\Sigma_2$ Problems} 
 
-As mentioned in the background section, we have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}, and implemented a practical solver dReal based on the theory. The tool has solved many challenging problems related to control and verification of hybrid systems (see Appendix~\ref{}). Many standard control-theoretic problems, such as the validation of Lyapunov functions for nonlinear systems can be straightforwardly encoded as $\Sigma_1$-sentences, for which dReal has already been used in practical problems~\cite{}. An immediate goal is to have a dedicated environment for solving control problems, which can be easily built as a front end to dReal. 
+As mentioned in the background section, we have developed the framework of {\em $\delta$-decision procedures} for solving $\Sigma_1$-sentences in $\lrf^1$~\cite{DBLP:conf/cade/GaoAC12}, and implemented a practical solver dReal based on the theory. The tool has solved many challenging problems related to control and verification of hybrid systems (examples in Appendix). Many standard control-theoretic problems, such as the validation of Lyapunov functions for nonlinear systems can be straightforwardly encoded as $\Sigma_1$-sentences, for which dReal has already been used in practical problems~\cite{DBLP:conf/hybrid/KapinskiDSA14}. An immediate goal is to have a dedicated environment for solving control problems, which can be easily built as a front end to dReal. 
 
 The important next step of research is to solve $\Sigma_2$-sentences, which will be able to encode a wide range of general control problems. Such descriptions will be the results from the descriptive complexity part of the project. We consider Lyapunov analysis of systems as an example. 
 \begin{example}
@@ -355,95 +343,94 @@ General $\Sigma_2$ problems can be seen as a generalization of vector optimizati
 \item The first one is to use optimization solvers as oracles, and solve problems in the DPLL(T) way. This direction should extend all benefits of existing optimization algorithms. Ideally, this provides a framework that strictly generalizes existing practice in control theory. The key is to formalize the numerical procedures such that delta-completeness is achieved. 
 \item The second one is the generic procedure of calling the solver itself recursively. One would need to first leave the existentially quantified variables as free, and solve the universally quantified constraints first. The results are then used for pruning the constraints on the existentially quantified variables. 
 \end{itemize}
-A challenge in the problem is that when we solve for the innermost universally quantified constraints, we need over-approximation on the values of the negation of the formulas. This requires algorithms for computing under approximations for the real variables. Theoretically, this is not harder than solving based on over approximation, but practical algorithms are yet to be developed. On the other hand, we can formulate a notion of mixing delta strengthening and weakening for applications.
-\newpage
+A challenge is that when we solve for the innermost universally quantified constraints, we need over-approximation on the values of the negation of the formulas. This requires algorithms for computing under approximations for the real variables. Theoretically, this is not harder than solving based on over approximation, but practical algorithms are yet to be developed. On the other hand, we can formulate a notion of mixing delta strengthening and weakening for applications.
+
 \subsection{Towards $\lrf^2$} 
 
-A main part of the research in optimization is devoted to infinite dimensional optimization, i.e., optimization of functionals. Typically one needs to solve partial differential equations for solving such problems. 
+The next step is to develop algorithms for solving second-order formulas in $\lrf^2$. As discussed in Section~\ref{second-order}, control design problems can usually be encoded as the search for functions that satisfy certain constraints. For instance, optimal control problems search for functions that minimize a functional that represents cost. Obviously, it is computationally difficult to have a generic algorithm. There is no existing work on computing second-order formulas over the reals. Still, there are three directions to approach the problem. 
 
-The goal is to incorportate dynamical programming, calculus of variations, etc. 
+One straightforward approach is to restrict the search with templates, which amounts to restricting the interpretation of the second-order variables, and reduce the problems to a series of first-order $\Sigma_2$ problems. This is in fact the commonly used strategy in control design. For instance, when designing a PID (Proportional-Integral-Derivative) controller, we would use the template 
+$$\mathrm{u}(t)= K_p{e(t)} + K_{i}\int_{0}^{t}{e(\tau)}\,{d\tau} + K_{d}\frac{d}{dt}e(t)$$
+and search for the parameters $K_p, K_i, K_d\in \mathbb{R}$. Another example is in Lyapunov analysis, in which one typically search through polynomials of increasingly higher degree. 
 
+The second approach is to work with parametric equations of a function, which can be considered as a curve, and numerically compute the values of the parameters to traverse on the curve. This is indeed what we have done for formulas with ODEs, when dealing with reachability problems for hybrid dynamical systems~\cite{DBLP:conf/fmcad/GaoKC13}. In this case, we compute the solution of the ODE is parameterized by the time variable, and produce a complete trace. The piecewise linear trace is a delta-approximation of the exact function. We need to formalize this approach and further investigate its usability and limits. 
 
-Handling second-order problems would be a significant challenge. We need to start with formalizing existing methods in control theory based on calculus of variations and dynamic programming. Thus, the main goals in this part are:
+The third direction is to incorporate methods from infinite-dimensional optimization, such as calculus of variations and dynamic programming. The algorithms typically involve solving partial differential equations for solving such problems. Formalization of the existing algorithms would require a significant amount of work, which will be an important step towards the merging of symbolic and numerical algorithms. 
 
-\begin{example}
+\subsection{Main Goals in Computational Engine}
 
-\end{example}
-
-
-\newpage
-\subsection{Summary of Goals}
-
+The main goals in this section that I propose to accomplish are the following:
 \begin{goal}
 Develop practical algorithms for the $\delta$-decision problem of $\exists\forall$-sentences in $\lrf^1$.
 \end{goal}
 \begin{goal}
 Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
 \end{goal}
+The outcome will be papers as well as practical tools implemented in the dReal solver. 
 
+\section{Summary and Timeline}\label{summary}
 
-\section{Summary and Timeline}
-
-I have singled out six goals in the previous paragraphs. We can divide them into theoretical goals and computational goals. They are:
-
+I have speficied six goals in the previous sections. They can be divided into theoretical and computational goals in the following way:
 \begin{enumerate}
 \item Theoretical Goals
 \begin{enumerate}
-\item A complete description of main first-order problems in control theory in $\lrf^1$, and characterize the complexity accordingly. In this way standard control problems will be extended to nonlinear and hybrid cases. 
+\item Completely formalize first-order problems in control theory in $\lrf^1$, and characterize the complexity accordingly. 
 \item Develop a suitable second-order language $\lrf^2$ and prove decidability for control design problems that can be expressed accordingly. 
 \item Develop reverse mathematics for control theory problems.
 \end{enumerate}
 \item Computational Goals
 \begin{enumerate}
-\item A package for formal proofs of basic theorems in state-space control theory. 
+\item A package for formal proofs of basic theorems in control theory. 
 \item A practical solver for $\Sigma_2$ problems in control theory. 
 \item A preliminary attempt of developing a framework and initial test cases of second-order problems. 
 \end{enumerate}
 \end{enumerate}
 
-The deliverable goal is to have one paper for each of the goals in the duration of the project. The theoretical goals and computational goals will proceed in parallel. By the end of the first year (i.e., September 2015) the first task in the theoretical goal and the first and second goal in the list should have paper drafts. By the end of the second year, the first two bullets in each part should be finished with paper drafts, and the last goal in the 
-
-An important focus of the project is on developing a tool that will be important for solving practical engineering problems. Preliminary applications of dReal has already exemplifies the importance of the solver. The work accomplished in the project has the potential of providing a new ground for the development of a new generation of control theory that is solidly based on formal theories, relying on its power of automation and certification. The core technology can start a chain of new tools (languages, development environment, etc.) that will redefine the engineering methodology of the field. An even broader impact is possible on other fields including physical sciences, economics, biomedicine, etc. The investigated problems will lay a foundation for logic and computation to play a major part for new advances in technology and sciences. 
+The deliverable goal is to have one paper for each of the goals in the duration of the project. The theoretical goals and computational goals will proceed in parallel. By the end of the first year, the first task in the theoretical goal should be finished, and the first and second computational goals should be almost implemented. By the end of the second year, the rest of the goals will be finished with paper drafts and released tools. 
 
 
-\newpage
 \bibliographystyle{abbrv}
 \bibliography{ref}
 
-\newpage
+\section*{Appendix}
 
+We sketch an example of formal analysis of numerical algorithms in the context of delta-complete decision procedures, and then give examples of the practical nonlinear problems that the dReal solver has successfully solved. 
 
-\section*{Appendix A}
+\subsection*{Formal Analysis of DPLL(ICP)}
+Here we give an example of the analysis of numerical procedure for solving constraints over the reals~\cite{DBLP:conf/cade/GaoAC12}. Similar analysis can be performed to a wide range of numerical solving algorithms for real constraints. 
 
-\begin{algorithm}\label{algo1}
-\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
-\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
-\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-\Input{Constraints $f_1(x_1,...,x_n)=0,...,f_m(x_1,...,x_n)=0$, initial box $B^0 = I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision $\varepsilon\in \mathbb{Q}^+$.}
-\Output{{\sf sat} or {\sf unsat}.}
-\BlankLine
-$S.\mathrm{push}(B_0)$\;
-\While{$S\neq \emptyset$}{\label{while}
-$B\leftarrow S.\mathrm{pop}()$ \;
-\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,f_i)$}{ 
-%\For{$j\leftarrow 1$ \KwTo $m$}{
-	$B\leftarrow\mathrm{Prune}(B, f_i)$ \;
-%	\If{$B=\emptyset$}{break\;}
-}
-\If{$B\neq \emptyset$}
-{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow \mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf sat}\;}}
-}
-return {\sf unsat}\;
-\caption{High-Level ICP$_{\varepsilon}$ (decision version of Branch-and-Prune)}
+The method of Interval Constraint Propagation (ICP)~\cite{handbookICP} finds solutions of real constraints using a ``branch-and-prune'' method that performs constraint propagation of interval assignments on real variables. The intervals are represented by floating-point end-points. Only over-approximations of the function values are used, which are defined by interval extensions of real functions.
+\begin{algorithm}
+\caption{ICP($f_1,...,f_m, B_0 = I_1^0\times\cdots\times I_n^0, \delta$)}\label{icpalgo}
+\begin{algorithmic}[1]
+\Statex
+    \State $S \gets B_0$
+    \While{$S \neq \emptyset$}
+        \State $B \gets S.\mathrm{pop}()$
+        \While{$\exists 1 \leq i \leq m, B \neq_{\delta} \mathrm{Prune}(B,f_i)$}
+        \State $B \gets \mathrm{Prune}(B, f_i)$
+        \EndWhile
+        \If{$B\neq \emptyset$}
+            \If{$\exists 1\leq i\leq n, |\sharp f_i(B)|\geq \delta$}
+                \State $\{B_1,B_2\} \gets \mathrm{Branch}(B, i)$
+                \State $S.\mathrm{push}(\{B_1,B_2\})$
+            \Else
+                \State \Return {\sf sat}
+            \EndIf
+        \EndIf
+    \EndWhile
+    \State \Return {\sf unsat}
+\end{algorithmic}\label{algo1}
 \end{algorithm}
-%\vspace{-.5cm}
-In Algorithm 1, Branch$(B,i)$ is an operator that returns two smaller boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times \cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup I_i''$. To ensure termination it is assumed that there exists some constant $0<c<1$ such that $c\cdot |I_i|\leq |I_i'|$ and $c\cdot |I_i|\leq |I_i''|$ for all $i$.
 
- %The pruning operation $\mathrm{Prune}(B,f_i)$ will be explained in detail below. 
+\begin{definition}[Interval Extension]
+Suppose $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is a real function. An interval extension operator $\sharp(\cdot)$ maps $f$ to a function $\sharp f:\subseteq \mathbb{BF}\rightarrow \mathbb{IF}$, such that
+%\vspace{-.1cm}
+for any $B\in \dom(\sharp f)$, it is always true that $\{f(\vec x):\vec x\in B\}\subseteq \sharp f(B).$
+\end{definition}
+The idea of interval constraint propagation is to use interval extensions of functions to ``prune'' out sets of points that are not in the solution set, and ``branch'' on intervals when such pruning can not be done. A high-level description of the decision version of ICP is given in Algorithm 1. In the Algorithm 1, Branch$(B,i)$ is an operator that returns two smaller boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times \cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup I_i''$. To ensure termination, it is required that there exists some constant $c\in (0,1)$ such that $|I_i'|\geq c\cdot|I_i|$ and $|I_i''|\geq c\cdot |I_i|$. The key component of the ICP algorithm is the $\mathrm{Prune}(B, f)$ operation in Algorithm 1. 
 
-The key component of the algorithm is the $\mathrm{Prune}(B, f)$ operation. A simple example of a pruning operation is as follows.
-
-In principle, any operation that contracts the intervals on variables can be seen as pruning. However, for correctness we need several formal requirements on the pruning operator in ICP$_{\varepsilon}$. 
+We formulate the conditions under with the DPLL$\langle$ICP$\rangle$ algorithm is $\delta$-complete. The key component of the ICP algorithm is the $\mathrm{Prune}(B, f)$ operation. In principle, any operation that contracts the intervals on variables can be seen as pruning. However, for correctness we need several formal requirements on the pruning operator in ICP. 
 \begin{definition}[Well-defined Pruning Operators]\label{well}
 Let $\mathcal{F}$ be a collection of real functions, and $\sharp$ be an interval extension operator on $\mathcal{F}$. A {\em well-defined (equality) pruning operator} with respect to $\sharp$ is a partial function $\mathrm{Prune}_{\sharp} : \subseteq \mathbb{BF}\times \mathcal{F}\rightarrow \mathbb{BF}$, such that $\forall f\in \mathcal{F}$, $B,B'\in \mathbb{BF}$, 
 \begin{itemize}
@@ -452,43 +439,126 @@ Let $\mathcal{F}$ be a collection of real functions, and $\sharp$ be an interval
 \item (W3) $B \cap Z_f \subseteq \mathrm{Prune}_{\sharp}(B, f)$;
 \end{itemize}
 \end{definition}
-\begin{theorem}[$\delta$-Completeness of ICP$_{\varepsilon}$]\label{main-theorem}
-Let $\delta\in \mathbb{Q}^+$ be arbitrary. We can find an $\varepsilon\in \mathbb{Q}^+$ such that the $\mathrm{ICP}_{\varepsilon}$ algorithm is $\delta$-complete for conjunctive $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$ (where $\mathsf{sat}$ is interpreted as $\delta$-$\mathsf{sat}$) if and only if the pruning operator in ICP$_{\varepsilon}$ is well-defined. 
+Intuitively, (W1) requires contraction, so that the algorithm always makes progress: branching always decreases the size of boxes, and pruning never increases them. (W2) requires that the result of a pruning is always a reasonable box that may contain a zero. Otherwise $B$ should have been pruned out. (W3) ensures that the real solutions are never discarded in pruning. We prove the following theorem in \cite{DBLP:conf/cade/GaoAC12}. 
+\begin{theorem}[$\delta$-Completeness of ICP]\label{main-theorem}
+Let $\delta\in \mathbb{Q}^+$ be arbitrary. The $\mathrm{ICP}_{\varepsilon}$ algorithm is $\delta$-complete for conjunctive $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$ (where $\mathsf{sat}$ is interpreted as $\delta$-$\mathsf{sat}$) if and only if the pruning operator in ICP is well-defined. 
 \end{theorem}
 
-We have also studied solving formulas of ODEs. A wide range of problems can be encoded in this logic, for instance
-\begin{example}
+\subsection*{Performance of dReal}
 
-\end{example}
-Let $t_0, T\in \mathbb{R}$ and $g:\mathbb{R}^n\rightarrow \mathbb{R}$ be a Lipschitz-continuous function, i.e., for all $\vec x_1, \vec x_2\in\mathbb{R}^n$, $|g(\vec x_1)-g(\vec x_2)|\leq c||\vec x_1-\vec x_2||$ for some constant $c$. Let $t_0, T\in \mathbb{R}$ satisfy $t_0\leq T$ and $\vec y_0\in \mathbb{R}^n$. An IVP problem is given by 
-%{\begin{eqnarray}\label{ivp}
-$$\frac{d\vec y}{dt} = g(\vec y(t))\mbox{ and } \ \vec y(t_0) = \vec y_0, \mbox{ where }t\in [t_0, T].$$
-%\end{eqnarray}}
-where $\vec y: [t_0, T]\rightarrow \mathbb{R}^n$ is called the {\em solution} of the IVP. Consider $\vec y(t)$ as $(y_1(t),...,y_n(t))$, then each component $y_i: [t, T]\rightarrow \mathbb{R}$ is a Type 2 computable function, and can appear in some signature $\mathcal{F}$. In fact, we can also regard $\vec y_0$ as an argument of $y_i$ and write $y_i(t_0, \vec y_0)$. This does not change computability properties of $y_i$, since following the Picard-Lindel\"of representation $\vec y(t) = \int_{t_0}^t g(\vec y(s))ds + \vec y_0$, $y_i(t)$ is only linearly dependent on $\vec y_0$. 
+We give two examples of problems that are solved by dReal, more can be found in~\cite{DBLP:conf/fmcad/GaoKC13,DBLP:conf/hybrid/KapinskiDSA14,DBLP:conf/cade/GaoKC13}.  All experiments were conducted on a machine with a 3.4GHz
+octa-core Intel Core i7-2600 processor and 16GB RAM, running 64-bit Ubuntu 12.04LTS. 
 
-In practice, with an ICP framework, we can exploit interval solvers for IVP problems~\cite{DBLP:journals/amc/NedialkovJC99}, for pruning intervals on variables that appear in constraints involving ODEs. This direction has received much recent attention~\cite{DBLP:conf/sefm/EggersRNF11,DBLP:conf/atva/EggersFH08,DBLP:conf/cp/GoldsztejnMEH10,DBLP:journals/sttt/IshiiUH11}. 
-%We aim to extend our formal analysis for showing $\delta$-completeness of solvers in this domain.
+\begin{table}[!th]
+  \centering
+  \small
+  \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+    \hline
+    Benchmark    & \#Mode& \#Depth & \#ODEs & \#Vars  & Delta  & Result       & Time(s) & Trace \\
+    \hline
+    \hline
+    QUAD-K1  & 2   & 1          & 34     & 89      & 0.01      & SAT & 2.386 &  10M \\
+    QUAD-K2  & 2   & 2          & 34     & 125     & 0.01      & SAT & 4.971 &  13M \\
+    QUAD-K3  & 4   & 3          & 68     & 161     & 0.01      & SAT & 13.755 & 42M \\
+    QUAD-K3U & 4   & 3          & 68     & 161     & 0.01      & UNSAT & 2.846 & --- \\
+    \hline
+    \hline
+  \end{tabular}
+  \caption{\small
+    \#Mode = Number of modes in the hybrid system,
+    \#Depth = Unrolling depth,
+    \#ODEs = Number of ODEs in the unrolled formula,
+    \#Vars = Number of variables in the unrolled formula,
+    Result = Bounded Model Checking Result (delta-SAT/UNSAT)}\label{tbl:exp}
+\end{table}
+\paragraph{Quadcopter Control. } We used dReal to successfully verified stability of a quadcopter model containing full nonlinear dynamics. We use the model to solve control problems by answering reachability questions. Complete information of the model is given on the dReal web side. Some statistics are given in Table 1. A typical set of the differential equations are the following:
+\begin{eqnarray*}
+\frac{\mathrm{d}\omega_x}{\mathrm{d}t} &=& L\cdot k\cdot (\omega_1^2 - \omega_3^2)(1/I_{xx})-(I_{yy} - I_{zz})\omega_y\omega_z/I_{xx}\\
+\frac{\mathrm{d}\omega_y}{\mathrm{d}t} &=& L\cdot k\cdot(\omega_2^2 - \omega_4^2)(1/I_{yy})-(I_{zz} - I_{xx})\omega_x\omega_z/I_{yy}\\
+\frac{\mathrm{d}\omega_z}{\mathrm{d}t} &=& b\cdot(\omega_1^2 - \omega_2^2 + \omega_3^2 - \omega_4^2)(1/I_{zz})-(I_{xx} - I_{yy})\omega_x\omega_y/I_{zz}\\
+\frac{\mathrm{d}\phi}{\mathrm{d}t} &=& \omega_x + \displaystyle{\frac{\sin\left(\phi\right) \sin\left(\theta\right)}{{\left(\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)} + \cos\left(\phi\right) \cos\left(\theta\right)\right)} \cos\left(\phi\right)}}\omega_y + \displaystyle\frac{\sin\left(\theta\right)}{\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)} + \cos\left(\phi\right) \cos\left(\theta\right)}\omega_z\\
+\frac{\mathrm{d}\theta}{\mathrm{d}t} &=& -(\displaystyle\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{{\left(\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)}\omega_y + \cos\left(\phi\right) \cos\left(\theta\right)\right)} \cos\left(\phi\right)^{2}} + \frac{1}{\cos\left(\phi\right)})\omega_y\\
+& &\hspace{5cm}-\displaystyle\frac{\sin\left(\phi\right) \cos\left(\theta\right)}{{\left(\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)} + \cos\left(\phi\right) \cos\left(\theta\right)\right)} \cos\left(\phi\right)}\omega_z \\
+\frac{\mathrm{d}\psi}{\mathrm{d}t} &=& \displaystyle\frac{\sin\left(\phi\right)}{{\left(\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)} + \cos\left(\phi\right) \cos\left(\theta\right)\right)} \cos\left(\phi\right)}\omega_y + \displaystyle\frac{1}{\frac{\sin\left(\phi\right)^{2} \cos\left(\theta\right)}{\cos\left(\phi\right)} + \cos\left(\phi\right) \cos\left(\theta\right)}\omega_z\\
+\frac{\mathrm{d}{xp}}{\mathrm{d}t} &=& (1/m)(\sin(\theta)\sin(\psi)k(\omega_1^2 + \omega_2^2 +\omega_3^2+\omega_4^2) - k\cdot d\cdot{xp})\\
+\frac{\mathrm{d}{yp}}{\mathrm{d}t} &=& (1/m)(-\cos(\psi)\sin(\theta)k(\omega_1^2 + \omega_2^2 +\omega_3^2+\omega_4^2) - k\cdot d\cdot{yp})\\
+\frac{\mathrm{d}{zp}}{\mathrm{d}t} &=& (1/m)(-g-\cos(\theta)k(\omega_1^2 + \omega_2^2 +\omega_3^2+\omega_4^2) - k\cdot d\cdot{zp}\\
+\frac{\mathrm{d}x}{\mathrm{d}t} &=& {xp}, \frac{\mathrm{d}y}{\mathrm{d}t} = {yp}, \frac{\mathrm{d}z}{\mathrm{d}t} = {zp}
+\end{eqnarray*}
 
-%\begin{definition}%[Interval-Based ODE Solving]\label{ode-solve}
-Consider the IVP problem defined above, with $\vec y_0$ contained in a box $B_{t_0}\subseteq \mathbb{R}^n$. Let $t_0\leq t_1\leq ...\leq t_m = T$ be a set of points in $[t_0, T]$. An interval-based ODE solver returns a set of boxes $B_{t_1},...,B_{t_m}$ such that 
-%\begin{eqnarray*}
-$$\forall i\in \{1,...,m\},\; [\vec y(t_i; B_{t_0})] = \{\vec y(t): t_0\leq t\leq t_i, \vec y_0\in B_{\vec y_0}\}\subseteq B_{t_i}.$$
-%\end{eqnarray*}
-%\end{definition}
-%This is the guaranteed behavior of practical interval-based solvers such as~\cite{DBLP:journals/amc/NedialkovJC99}. 
-%It is clear that this gives an interval extension of the solutions of the ODEs.
-%\begin{proposition}
-Now let $y_i: [t_0, T]\times B_0 \rightarrow \mathbb{R}$ be the $i$-th component of the solution $\vec y$ of an IVP problem. Then interval-based ODE solvers compute interval extensions of $y_i$. 
-%\end{proposition}
-Thus, pruning operators that respect the interval extension computed by interval ODE solvers can be defined. It can be concluded from Theorem~\ref{main-theorem} that ICP$_{\varepsilon}$ is $\delta$-complete for equalities involving ODEs, as long as the pruning operator is well-defined. A simplest strategy is just to prune out any set of points outside the interval extension:
-\begin{proposition}[Simple ODE-Pruning]
-Let $y_i(t,\vec y_0)$ be the $i$-th component function of an IVP problem. Suppose $\sharp y_i$ is computed by an interval ODE solver. Then the pruning operator $\mathrm{Prune}(I, y_i) = I\cap \sharp y_i(I_t, B_{\vec y_0})$ is well-defined. 
-\end{proposition}
-%\vspace{-.5cm}
 
-
-
-
+\paragraph{Kepler Conjecture.} A main set of benchmarks that we studied is from the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:conf/nfm/SolovyevH13}, which aims at a 
+fully formalized proof of the Kepler conjecture. As lemmas for the
+proof, hundreds of nonlinear real inequalities need to be verified.
+Although the formulas usually contain only around ten variables, they
+contain a huge number of nonlinear arithmetic operations and
+trigonometric functions, and are mathematically challenging. Our goal is to automatically generate formal proofs as a byproduct of the solving process in dReal. Out of 916 nonlinear formulas in the Flyspeck
+project repository, the solver returns {\sf unsat} for 107 of them with a timeout of 5 minute each, and a precision $\delta=10^{-3}$. Out of these formulas, we automatically generated and validated formal proofs for 72 instances. The proof traces of these formulas can be very
+large; for instance, we proved one with more than 2 million lines in the
+proof (54MB file). Many of these formulas are highly nonlinear, for instance the formula encoded in 760.smt2 is following one 
+\begin{multline*}
+\forall\vec{x} \in [4.0, 6.3504]^5\; \Big(2\mathrm{arctan} (\frac{\Delta_2(\vec x)}{\sqrt{\Delta_1(\vec x) + \Delta_2(\vec x)^2} + \sqrt{\Delta_1(\vec x)}})\\
+- 0.458(\sqrt{x_2} + \sqrt{x_3} +\sqrt{x_4} + \sqrt{x_5}) + 0.342\sqrt{x_1} + 3.319204\Big) < 0.0
+\end{multline*}
+where
+\begin{eqnarray*}
+%give this definition
+  \Delta_1(\vec{x}) &=& 4x_1 (8x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8) + x_2 x_5 (x_1 - x_2 + x_3 + x_4 - x_5+8\\%sure there's a plus 8 here?
+& &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
+\Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2 - x_1x_3 - x_1x_4 -x_1 x_5
+\end{eqnarray*}
+\begin{table}[h!]
+  \begin{center}
+\small
+\begin{tabular}{|l||r|r|r||r|r|r|r|r|}
+\hline
+ID & \#Var & \#Arith & Nonlinear & Time$_{\text{S}}$ & Proof Size & \#Sub & \#Axiom & Time$_{\text{PC}}$ \\
+\hline
+\hline
+789 & 6 & 86 & atan2,sqrt & 1.640 & 350329 & 2 & 2464 & 128.077 \\
+\hline
+792 & 6 & 828 & atan2,sqrt & 0.400 & 19837 & 2 & 118 & 113.004 \\
+\hline
+745 & 6 & 36 & poly & 0.750 & 677580 & 2 & 5222 & 59.865 \\
+\hline
+785 & 6 & 80 & atan2,sqrt & 0.470 & 63388 & 2 & 526 & 26.450 \\
+\hline
+760 & 6 & 2767 & atan2,sqrt & 0.140 & 711 & 2 & 5 & 21.089 \\
+\hline
+815 & 6 & 95 & atan2,sqrt & 0.330 & 41954 & 2 & 279 & 14.703 \\
+\hline
+814 & 6 & 95 & atan2,sqrt & 0.350 & 42102 & 2 & 278 & 14.703 \\
+\hline
+816 & 6 & 96 & atan2,sqrt & 0.110 & 12195 & 2 & 92 & 4.994 \\
+\hline
+817 & 6 & 96 & atan2,sqrt & 0.090 & 11792 & 2 & 93 & 4.993 \\
+\hline
+784 & 6 & 80 & atan2,sqrt & 0.060 & 7203 & 2 & 56 & 3.595 \\
+\hline
+781 & 6 & 86 & atan2,sqrt & 0.060 & 7481 & 2 & 45 & 2.657 \\
+\hline
+783 & 6 & 825 &atan2,sqrt & 0.020 & 93 & 1 & 1 & 1.549 \\
+\hline
+742 & 6 & 55 & acos,atan2,sqrt & 0.001 & 7 & 1 & 1 & 0.299 \\
+\hline
+744 & 6 & 24 & asin,cos,sin & 0.001 & 8 & 1 & 1 & 0.275\\
+\hline
+\end{tabular}
+  \end{center}
+  \caption{
+    Experimental results (Proved instances):
+    ID = Problem ID,
+    \#Var = Number of variables,
+    \#Arith = Number of arithmetic operators,
+    Nonlinear = Nonlinear operators occurred in problem,
+    Proof Size = Number of lines of the proof,
+    $\mathrm{TIME_S}$ = Solving time in seconds,
+    \#Sub = Number of subproblems generated by proof checking,
+    \#Axiom = Number of proved axioms,
+    $\mathrm{TIME_{PC}}$ = Proof-checking time in seconds.
+  }\label{tbl:exp}
+  \vspace{-1cm}
+\end{table}
 
 
 \end{document}
@@ -532,4 +602,6 @@ We have developed the framework of {\em $\delta$-decision procedures} for solvin
 
 
 
+
+We will also touch on the problem of deriving formal proofs for control theory. Here there are two types of formal proofs. One is the kind that we need to manually understand the proofs and encode them into Coq. The other is the theorems that encode the correctness of a real system design. Ideally, those should be the theorems that are derived from the basic theorems of the first type. A major way of deriving the second category of theorems can be automatic generation from decision procedures. In our solver dReal, we provide such capacity of generating formal proofs of theorems. Such proofs are output in a format that can be directly used in a proof assistant. 
 
