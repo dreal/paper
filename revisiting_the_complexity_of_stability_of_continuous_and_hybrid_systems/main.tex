@@ -396,10 +396,10 @@ We show that Lyapunov methods reduce the complexity of stability problems. We on
 \begin{proposition} Consider the dynamical system (\ref{ds}). Let $V(p,x)$ be a function, parameterized by $p$, whose partial derivative ${\partial V}/{\partial x}$ is a Type 2 computable function. Let $D$ be the parameter space for $p$ and $X$ be the state space of $x$. We then have
 \begin{itemize}
 \item The following $\lrf$-formula is a sufficient condition for stability in the sense of Lyapunov
-$$\exists p^D\forall^X x\; \bigg(\frac{\partial V(p,x)}{\partial x}f(x)\leq 0\bigg)$$
+$$\exists p^D\forall^X x\; \bigg(V(p,0)=0\wedge (x\neq 0\rightarrow V(p,x)>0)\wedge\frac{\partial V(p,x)}{\partial x}f(x)\leq 0\bigg)$$
 \item The following is a sufficient condition for asymptotic stability:
 \begin{eqnarray*}
-\exists p^D\forall^X x\;\bigg(\Big(x=0\rightarrow\frac{\partial V(p,x)}{\partial x}f(x)= 0\bigg)
+\exists p^D\forall^X x\;\bigg(V(p,0)=0\wedge (x\neq 0\rightarrow V(p,x)>0)\wedge\Big(x=0\rightarrow\frac{\partial V(p,x)}{\partial x}f(x)= 0\bigg)
 \wedge \bigg(x\neq 0 \rightarrow \frac{\partial V(p,x)}{\partial x}f(x)< 0\Big)\bigg)
 \end{eqnarray*}
 \end{itemize}
