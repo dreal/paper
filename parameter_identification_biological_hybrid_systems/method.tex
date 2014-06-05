@@ -1,0 +1,271 @@
+\section{Methods}
+\subsection{$\lrf$-formulas and $\delta$-decisions over the reals}
+%\section{$\delta$-decisions}
+
+We first briefly review our framework of $\delta$-decision problems for first-order sentences over the reals with computable real functions.
+%
+The notion of computable functions over the real numbers are developed in Computable Analysis~\citep{CAbook}. In our recent work~\citep{gao12a,gao12b}, we developed a theory of decision problems over the reals with computable functions. %We do not go into the details of the definitions of computable functions here, which is covered in the references.
+It suffices to note that most common continuous real functions are computable, such as addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations. Compositions of computable functions are computable. In fact, the notion of computability of real functions directly corresponds to whether they can be numerically simulated. We write $\mathcal{F}$ to denote an arbitrary collection of
+symbols representing computable functions over $\mathbb{R}^n$ for various $n$. We consider the first-order formulas with a signature $\lrf = \langle 0,1,\mathcal{F},>\rangle$. Note that constants are seen as 0-ary functions in $\mathcal{F}$. $\lrf$-formulas are evaluated in the standard way over the corresponding structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.
+%It is not hard to see that we only need to use atomic formulas of the form
+We use atomic formulas of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, where $t(x_1,...,x_n)$ are built
+up from functions in $\mathcal{F}$. To avoid extra preprocessing of formulas, we give an explicit definition of $\lrf$-formulas as follows.
+%\begin{definition}[$\lrf$-Formulas]
+
+\paragraph{$\lrf$-Formulas}
+Let $\mathcal{F}$ be a collection of Type 2 functions, which contains at least
+$0$, unary negation -, addition $+$, and absolute value $|\cdot|$. We define:
+\begin{align*}
+t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F}\mbox{, possibly
+constant};\\
+\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi
+\; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
+\end{align*}
+In this setting $\neg\varphi$ is regarded as an inductively defined operation
+which replaces atomic formulas $t>0$ with $-t\geq 0$, atomic formulas $t\geq 0$
+with $-t>0$, switches $\wedge$ and $\vee$, and switches $\forall$ and $\exists$.
+Implication $\varphi_1\rightarrow\varphi_2$ is defined as
+$\neg\varphi_1\vee\varphi_2$.
+%\end{definition}
+
+%\begin{definition}[Bounded Quantifiers]
+We define
+\begin{align*}
+\exists^{[u,v]}x.\varphi &=_{df}\exists x. ( u \leq x \land x \leq v \wedge
+\varphi),\\
+\forall^{[u,v]}x.\varphi &=_{df} \forall x. ( (u \leq x \land x \leq v)
+\rightarrow \varphi),
+\end{align*}
+where $u$ and $v$ denote $\lrf$ terms whose variables only
+contain free variables in $\varphi$, excluding $x$. It is easy to check that
+$\exists^{[u,v]}x. \varphi \leftrightarrow \neg \forall^{[u,v]}x. \neg\varphi$.
+%\end{definition}
+We say a sentence is bounded if it only involves bounded quantifiers.
+%\begin{definition}[Bounded $\lrf$-Sentences]
+A {\em bounded $\lrf$-sentence} is
+$$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n\;\psi(x_1,...,x_n).$$
+$Q_i^{[u_i,v_i]}$s are bounded quantifiers, and $\psi(x_1,...,x_n)$ is a
+quantifier-free $\lrf$-formula.
+%\end{definition}
+We write $\psi(x_1,...,x_n)$ as $\psi[t_1(\vec
+x)>0,...,t_k(\vec x)>0; t_{k+1}(\vec x)\geq 0,...,t_m(\vec
+x)\geq 0]$ to emphasize that $\psi(\vec x)$ is a Boolean
+combination of the atomic formulas shown.
+%\begin{definition}[$\delta$-Variants]\label{variants}
+\paragraph{$\delta$-Variants}
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ an
+$\lrf$-formula of the form
+$$\varphi: \ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>0;
+t_j(\vec x, \vec
+y)\geq 0],$$ where $i\in\{1,...k\}$ and $j\in\{k+1,...,m\}$. The {\em
+$\delta$-weakening} $\varphi^{\delta}$ of $\varphi$ is
+defined as the result of replacing each atom $t_i > 0$ by $t_i >
+-\delta$ and $t_j \geq 0$ by $t_j \geq -\delta$. That is,
+$$\varphi^{\delta}:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec
+y)>-\delta; t_j(\vec x,
+\vec y)\geq -\delta].$$
+%\end{definition}
+
+We then have the following main decidability result.
+%\begin{theorem}[$\delta$-Decidability]
+\paragraph{$\delta$-Decidability}
+Let $\delta\in\mathbb{Q}^+$ be arbitrary. There is an algorithm which, given any bounded $\varphi$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\delta$-$\mathsf{True}$'': $\varphi^{\delta}$ is true.
+\item ``$\mathsf{False}$'': $\varphi$ is false.
+\end{itemize}
+Note when the two cases overlap, either answer is correct.
+%\end{theorem}
+
+We call this new decision problem the $\delta$-decision problem for
+$\lrf$-sentences.
+%\begin{definition}[$\delta$-Complete Decision Procedures]
+If an algorithm solves the $\delta$-decision problem correctly for a set $S$ of $\lrf$-sentences, we say it is $\delta$-complete for $S$.
+%\end{definition}
+From $\delta$-decidability, $\delta$-complete decision procedures always exists for bounded $\lrf$-formulas. In practice, we have shown that the combination of the DPLL(T) framework and Interval Constraint Propagation (ICP) indeed gives us a $\delta$-complete decision procedure. We implemented such procedures in our tool dReal~\citep{dreal}, which solves formulas containing transcendental functions and ordinary differential equations. In what follows we will see how $\delta$-complete decision procedures provide the engine for parameter synthesis of biological hybrid systems.
+
+
+
+
+
+\subsection{Parameterized $\lrf$-representations of hybrid automata}
+
+We now describe hybrid automata using $\lrf$-formulas, and define parameterization and perturbations on them.
+%
+A hybrid system~\citep{henzinger96} is a tuple $H = \langle X$, $Q$, $\flow$, $\guard$, $\reset$, $\inv$, $\init\rangle$
+where $X\subseteq \mathbb{R}^n$ specifies the range of the {\em continuous variables}  $\vec x$ of the system. $Q=\{q_0,...,q_m\}$ is a finite set of discrete {\em control modes}. $\flow \subseteq Q\times X\times \R \times X$ specifies the {\em continuous dynamics} for each mode. The $\flow$ predicate is usually defined either as explicit mappings from $\vec a_0$ and $t$ to $\vec a_t$,  or as solutions of systems of differential equations/inclusions that specify the derivative of $\vec x$ over time. $\jump\subseteq Q\times X\times Q\times X$ specifies the {\em jump conditions} between modes. $\inv \subseteq Q\times X$ defines the {\em invariant conditions} for the system to stay in a control mode. $\init \subseteq Q\times X$ defines the set of {\em initial configurations} of the system. Without loss of generality we always assume that $q_0$ is the only intial mode, and $\init_{q_0}\subseteq X$ denotes the initial values for the continuous variables.
+%We now $\lrf$-representations of hybrid automata.
+%\begin{definition}[$\lrf$-Representations]\label{lrf-definition}
+%\index{$\lrf$-Representation}
+\paragraph{$\lrf$-representations of hybrid automata}
+Let $H = \langle X$, $Q$, $\flow$, $\jump$, $\inv$, $\init\rangle$ be an $n$-dimensional hybrid automaton.  Let $\mathcal{F}$
+be a set of real functions, and $\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}$ the corresponding first-order language. We say that $H$ has an $\lrf$-representation, if for every $q,q'\in Q$, there exists  quantifier-free
+$\lrf$-formulas $$\phi^q_{\flow}(\vec x, \vec x_0, t), \phi^{q\rightarrow
+q'}_{\jump}(\vec x,
+\vec x'), \phi^{q}_{\inv}(\vec x), \phi^q_{\init}(\vec x)$$
+such that for all
+$\vec a ,\vec a'\in \mathbb{R}^n$,
+$t\in\mathbb{R}$:
+\begin{itemize}
+\item $\mathbb{R}\models \phi^q_{\flow}(\vec a, \vec a', t)$ iff $(q, \vec
+a,
+\vec a', t)\in \flow$.
+\item $\mathbb{R}\models \phi^{q\rightarrow q'}_{\jump}(\vec a, \vec a')$ iff
+$(q, q', \vec a, \vec a')\in \jump$.
+\item $\mathbb{R}\models \phi^q_{\inv}(\vec a)$ iff $(q, \vec a)\in \inv.$
+\item $\mathbb{R}\models \phi^q_{\init}(\vec a)$ iff $q = q_0$ and $\vec a\in
+\init_{q_0}$.
+\end{itemize}
+%\end{definition}
+We can write $H = \langle X, Q, \phi_{\flow}, \phi_{\jump}, \phi_{\inv},\phi_{\init}\rangle$ to emphasize that $H$ is $\lrf$-represented. But from now on we simply write $\flow, \jump, \inv, \init$ to denote these logic formulas, so that we can use $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ directly to denote the $\lrf$-representation of $H$.
+%\begin{definition}[Invariant-Free Automata]\index{Invariant-free Hybrid Automata}
+%A hybrid automaton is {\em invariant-free} its invariant formula $\inv$ is $\top$, and we say its invariant is {\em
+%trivial} in this case.
+%\end{definition}
+
+%\begin{definition}[Computable Representation]
+We say a hybrid automaton $H$ has a {\em computable representation}, if $H$ has
+an $\lrf$-representation, where $\mathcal{F}$ is an arbitrary set of computable
+functions.
+%\end{definition}
+Combining continuous and discrete behaviors, the trajectories of hybrid systems are {\em piecewise continuous}. This motivates a two-dimensional structure of time~\citep{?}, with which we can keep track of both the discrete changes and the duration of each continuous flow.
+%\begin{definition}[Hybrid time domain]
+A {\em hybrid time domain} $T$ is a subset of $\mathbb{N}\times \mathbb{R}$ of the form
+$T_m=\{(i, t): i<m \mbox{ and } t\in [t_i, t_i']\mbox{ or }[t_i, +\infty)\},$
+where $m\in \mathbb{N}\cup\{+\infty\}$, $\{t_i\}_{i=0}^m$ is an increasing sequence in $\mathbb{R}^+$, $t_0= 0$, and $t_i'=t_{i+1}$.
+%\end{definition}
+We write the set of all hybrid time domains as $\mathbb{H}$.
+%\begin{definition}[Hybrid Trajectories]
+Suppose $X\subseteq\mathbb{R}^n$ and $T_m$ is a hybrid time domain. A {\em hybrid trajectory} is any continuous function $\xi: T_m\rightarrow X.$
+%\end{definition}
+We write $\Xi_X$ to denote the set of all possible hybrid trajectories from $\mathbb{H}$ to $X$.
+We can now define trajectories of a given hybrid automaton. The intuition behind the following definition is straightforward. The labeling function $\sigma_{\xi}^H(i)$ is used to map a step $i$ to the corresponding discrete mode in $H$. In each mode, the system flows continuously following the dynamics defined by $\flow(q, \vec x_0, t)$. Note that $(t-t_k)$ is the actual duration in the $k$-th mode. When a switch between two modes is performed, it is required
+that $\xi(k+1, t_{k+1})$ is updated from the exit value $\xi(k, t_k')$ in the previous mode, following the jump conditions.
+
+%\begin{definition}[Trajectories of a Hybrid Automaton]\label{trajec}
+%Let $H$ be a hybrid automaton, and $\xi: T_m\rightarrow X$ a hybrid trajectory.
+We say that $\xi: T_m\rightarrow X$ is {\em a trajectory of $H$ of discrete depth $m$}, if there
+exists a {\em labeling function} $\sigma^H_{\xi}: \mathbb{N}\rightarrow Q$ such
+that:
+\begin{itemize}
+\item $\sigma^H_{\xi}(0) = q_0$ and
+$\mathbb{R}_{\mathcal{F}}\models \init_{q_0}(\xi(0,0))$.
+\item For any $(i, t)\in T_m$,
+$\mathbb{R}_{\mathcal{F}}\models \inv_{\sigma^H_{\xi}(i)} (\xi(i,t))$.
+\item When $i=0$, $\mathbb{R}_{\mathcal{F}}\models\flow_{q_0}(\xi(0,0), \xi(0,t), t)$.
+\item When $i = k+1$, where $0< k+1 <m$,
+\begin{eqnarray*}
+\mathbb{R}_{\mathcal{F}}&\models&\flow_{\sigma^H_{\xi}(k+1)}(\xi(k+1, t_{k+1}),
+\xi(k+1, t), (t - t_{k+1}))\mbox{ and }\\
+\mathbb{R}_{\mathcal{F}}&\models& \jump_{(\sigma^H(k)\rightarrow
+\sigma^H(k+1))}(\xi(k, t_k'), \xi(k+1,t_{k+1})).
+\end{eqnarray*}
+\end{itemize}
+%\end{definition}
+We write $\llbracket H\rrbracket$ to denote the set of all possible trajectories
+of $H$.
+
+%\begin{definition}[Reachability Properties]
+\paragraph{Reachability Properties}
+%Let $H$ be a hybrid automaton and $U\subseteq X\times Q$ be a subset of its state space.
+Let $U\subseteq X\times Q$ be a subset of the state space of $H$. $H$ reaches $U$ if there exists $\xi\in \llbracket H\rrbracket$ such that there exists $t\in \mathbb{R}$ and $n\in\mathbb{N}$ satisfying
+$$(\xi(t,n), \sigma_{\xi}^{H}(n))\in U.$$
+%\end{definition}
+%Let $H$ be a hybrid system.
+%Parameter synthesis for reachability properties asks for a set of parameters such that some mode can be reached.
+%
+%\begin{definition}[Parameterized Hybrid Automaton]
+%We say a hybrid automaton $H$ is parameterized by $\vec p$, if
+We say $H$ is parameterized by $\vec p = (p_1,...,p_m)$, if
+$$H(\vec p) = \langle X, Q, \flow(\vec p), \jump(\vec p), \inv(\vec p), \init(\vec p)\rangle,$$
+where $\vec p$ are among the free variables in the $\lrf$-representation of $H$.
+%\end{definition}
+%\begin{definition}[Parameter Synthesis for Reachability Properties]
+%Let $H(\vec p)$ be a hybrid automaton parameterized by variables $\vec p = (p_1,...,p_m)$, and $U\subseteq X\times Q$ a subset of its state space.
+Thus, the parameter synthesis problem for reachability asks for an assignment for $\vec a\in \mathbb{R}^m$ such that $H(\vec a)$ reaches $U$.
+%\end{definition}
+
+%\begin{example}
+%
+%\end{example}
+
+
+
+
+\subsection{Synthesizing parameters with $\delta$-decisions}
+
+We now show how to encode parameter synthesis problems for $\lrf$-represented hybrid systems using $\lrf$-formulas. %The encoding is mostly standard bounded model checking, as pointed out in~\cite{}.
+%However, when the invariant of a mode is nontrivial, we need to make sure that a trajectory satisfy the invariant throughout the continuous flow in the mode. This requires nested quantifiers, which do not occur in other verification domains, and has not been observed previously. We will consider systems with trivial invariant conditions first, and then handle the general case.
+Throughout the following two definitions, let $H = \langle X$, $Q$, $\flow$, $\jump$, $\init\rangle$ be an $n$-dimensional $\lrf$-represented hybrid system with $|Q|=m$, and $\unsafe$ an $\lrf$-formula that encodes a subset $U\subseteq X\times Q$. Let $k\in \mathbb{N}$ and $M\in \mathbb{R}$ be the bounds on steps and time respectively. Recall that $q_0\in Q$ always denotes the starting mode.
+
+%The encoding is straightforward.
+$\reach_{H,q'}^k(\vec x_k^t)$ defines the states that $H$ can reach, if after $k$ steps of discrete changes it is in mode $q'$. From there, if $H$ makes a $\jump$ from mode $q'$ to $q$, then the states have
+the make a discrete change following $\jump_{q'\rightarrow q}(\vec x_k^t, \vec
+x_{k+1})$. As last, in mode $q'$, any state $\vec x_{k+1}^t$ that $H$ can reach
+should satisfy the $\flow$ conditions $\flow_q(\vec x_{k+1}^t, \vec x_{k+1}, t)$
+in mode $q$. Note that after each discrete jump, a new time variable $t_k$ is
+introduced and independent from the previous ones.
+%
+%
+%\begin{definition}[Invariant-Free Case]
+%Let $H$ be invariant-free. Then $(k,M)$-reachability encoding of $H$ and $U$, written as
+%$\reach^{k,M}(H,U)$, is defined as:
+%\begin{eqnarray*}
+%& & \exists \vec a \exists^X \vec x_0 \exists^X\vec x_0^t\cdots \exists^X\vec
+%x_k\exists^X \vec x_k^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k\\
+%& &\Big(\ \init_{q_0}(\vec a, \vec x_0)\wedge \flow_{q_0}(\vec a, \vec x_0, \vec x_0^t, t_0)\\
+%& &\wedge
+%\bigvee_{i=0}^{k-1}\Big( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec a, \vec x_i^t, \vec x_{i+1})\wedge \flow_{q'}(\vec a, \vec x_{i+1}, \vec
+%x_{i+1}^t, t_{i+1})\Big)\Big)\\
+%& &\wedge\ \goal(\vec x_{k}^t)\Big).
+%\end{eqnarray*}
+%\end{definition}
+%
+%Next, we define the encoding for general hybrid systems with nontrivial
+%invariants.
+%\begin{definition}[General case]
+%Let $H$ be invariant-free.
+The $(k,M)$-reachability encoding of $H$ and $U$, $\reach^{k,M}(H,U)$, is defined as:
+\begin{flalign*}
+&\exists \vec a \exists^X \vec x_0 \exists^X\vec x_0^t\cdots \exists^X\vec
+x_k\exists^X \vec x_k^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k&\\
+&\Big(\ \init_{q_0}(\vec x_0)\wedge \flow_{q_0}(\vec a, \vec x_0, \vec x_0^t,
+t_0)&\\
+&\wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q_0}(\vec a, \vec x_0, \vec x,
+t)\rightarrow \inv_{q_0}(\vec a, \vec x))&\\
+&\wedge
+\bigvee_{i=0}^{k-1}\Big( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec a, \vec
+x_i^t, \vec x_{i+1})\wedge \flow_{q'}(\vec a, \vec x_{i+1}, \vec
+x_{i+1}^t, t_{i+1})&\\
+&\wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q'}(\vec a, \vec x_{i+1}, \vec x,
+t)\rightarrow \inv_{q_0}(\vec a, \vec x)) )\Big)\Big)&\\
+&\wedge\ \unsafe(\vec a, \vec x_{k}^t)\Big).&
+\end{flalign*}
+%\end{definition}
+%
+%\begin{remark}[{\bf TODO}]
+%The restriction on invariant can be relaxed. usually there is only a big
+%invariant.
+%\end{remark}
+%We have explained the intuition behind the encoding of $\reach^{k,M}(H,U)$. A
+%formal proof of the correctness, as stated in the following proposition, is
+%contained in the Appendix.
+%\begin{proposition}
+$H$ reaches $U$ in $k$ steps of discrete jumps with time duration less than $M$ for each state, if and only if, $\reach^{k,M}(H,U)$ is true.
+%\end{proposition}
+
+%\begin{remark}
+%Note that the solutions have errors.
+%\end{remark}
+
+
+
+
+
+
+
+
+
+
+
+

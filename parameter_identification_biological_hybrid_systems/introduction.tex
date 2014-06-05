@@ -1,0 +1,38 @@
+\section{Introduction}
+
+The functioning of a biological system depends on its dynamics, i.e., the evolution of its constituent elements in space and time, as well as the interactions among these elements. Computational modeling and analysis methods are playing a crucial role in understanding the complex dynamics of biological systems. In recent years, a variety of computational models have been developed, ranging from qualitative models that focus on the generic properties of biological systems \citep{helikar08,gong11} to quantitative models that can simulate the time course of biological systems under various conditions \citep{wholecell,liu11plos}. The choice of a modeling formalism depends on the goals of the modeling effort as well as the biological context.
+
+One of the key aspects of biological systems is the differing behavior of the cell in various states. For example, different stages of the cell cycle are driven by the activation of different signaling pathways \citep{thecell}. Hence in many settings, biological systems can possess multiple operational modes with specific nonlinear dynamics in each mode. Multiple variants of the formalism called hybrid automata \citep{henzinger96} is often used in this context \citep{tomlin04,ye08,aihara10,antoniotti03,lincoln04,baldazzi11}.
+
+Hybrid automata are well-studied formalisms that are used to model the behavior of hybrid systems, which consist of discrete control computations in a continuous environment. The state space of a hybrid automaton is defined by a finite set of continuous variables and modes. A system of differentials equations over the variables is associated with each mode. At any given time the automaton will reside in one of its modes and each variable will evolve according its differential equation in the mode. When the automaton satisfies a jump condition, it will switch to a new mode. As a result the system will start evolving according the differential equations associated with the new mode. It is worth to note that ODE models are special cases of hybrid automata and the techniques we develop here can be adapted to ODE models as well.
+
+A hybrid automaton model of a biological system often involves many parameters such as the rate constants of the biochemical reactions, the initial conditions, and the threshold values in the jump conditions. Almost always, only a few rate constants will be available or can be measured experimentally. One needs to identify unknown rate constants by fitting the model to the experimental observations. Furthermore, when studying hybrid systems in synthetic biology and clinical therapy \citep{tanaka10}, it is also important to figure out what initial conditions or jump conditions may lead to a disorder or safety of the system. All these questions can be answered by the \textit{parameter synthesis} procedure, which aims to identify sets of parameters for which the system reach a given set of states.
+
+In this paper, we propose a framework to tackle the parameter identification problem for nonlinear hybrid biological models using $\delta$-complete decision procedures. We describe the set of states of interested as a first-order logic formula and perform bounded model checking to determine reachability of these states. We then adapt an interval constrains propagation (ICP) based algorithm to explore the parameter spaces and identify the sets of resulting parameters. Note that determining the truth value of first-order sentences over the reals with nonlinear real functions is a well-known undefinable problem \citep{?}. Here we employ our recently developed $\delta$-\textit{decision} based framework to ask for answers that may have one-sided $\delta$-bounded errors. That is, given a first-order sentence $\phi$, we ask whether $\phi$ is false, or some $\delta$-relaxation of $\phi$ is true, which is defined as a slight syntactic variation of $\phi$. We have proved that the $\delta$-complete decision procedures can solve SMT problems over the reals with arbitrary computable real functions \citep{gao12a} including solutions of Lipschitz-continuous ODEs \citep{gao12b}.
+
+We show the details of method by carrying out two case studies. The first one involves a hybrid system built by \cite{ideta08}, which aims to study the hormone therapy for prostate cancer. We show how to perform model selection via $\delta$-decisions by ruling out model candidates which hopelessly fit the experimental observation. We also demonstrate how to design a personalized treatment scheme for each individual patient to achieve maximum therapeutic efficacy.
+%synthesized the thresholds for controlling the intermittent treatment in order to prolong the time to relapse.
+The second case study deals with a hybrid system studied by \cite{grosu11} to investigate the cardiac disorders. We validated the results reported by \cite{grosu11}. Further, we show that our method is able to identified parameter ranges for which a cardiac cell may lose excitability without using any linear approximation.
+%Third case study demonstrates how we use our techniques to solve the parameter estimation problem, which is currently one of the most important challenges in systems biology. By fitting the real experimental data, we identified the ranges for unknown rate constants in an ODE model of the EGF-NGF pathway proposed by \cite{brown}.
+The results show that our method scales and can obtain biological insights that are consistent with experimental observations.
+
+
+
+% [TODO] Related Work.
+% hybrid modeling of biological system
+% model checking, SMT
+% parameter synthesis, reachbility analysis, interval analysis
+
+Turning to related work, a survey of modeling and analysis of biological systems using hybrid models can be found in \cite{bud}. Formal verification of hybrid systems is a well-established domain \citep{alur}. Analyzing the properties of biochemical networks using model checking techniques \citep{clarkebook} is being actively pursued by a number of groups \citep{clarke08,chabrier04,kwiatkowska08,miyano11}. Of particular interest in our context are parameter synthesis methods which identify range of parameters for which some qualitative behavior is exhibited. The method presented in \cite{rovergene} can deal with parameter synthesis problem for piecewise affine linear systems. For nonlinear ODE systems, \cite{donze} described a more efficient way to explore the parameter space based on adaptive sampling and numerical simulation.
+%TODO: limitation of the above methods.
+%\cite{dang} developed a algorithm for computing reachable states for nonlinear biological models.
+%TODO: SMT solving
+
+
+%Additional background information on these topics can be found in the Supplementary Materials.  
+
+
+
+
+
+The rest of the paper is organized as follows. The next section introduces our $\delta$-complete decision procedures over the reals. We formulated the parameter synthesis problem for hybrid automata in Section 2.2. In Section 2.3, we present techniques for synthesizing parameters using $\delta$-complete decision procedures. In the subsequent section we present two case studies. In the final section, we summarize the paper and discuss future work.
