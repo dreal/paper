@@ -1,21 +1,10 @@
-\documentclass{bioinfo}
-\copyrightyear{2013}
-\pubyear{2013}
+\documentclass[envcountsect]{llncs}
 
-\usepackage{xspace}
-\usepackage{latexsym}
-\usepackage{pstricks}
-\usepackage{gastex}
-\usepackage{rotating}
-\usepackage{times}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{enumerate}
-\usepackage{color}
-\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,caption,verbatim}
+\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,verbatim}
 \usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
+\usepackage{setspace}
 
-
-%\newtheorem{notation}[theorem]{Notation}
+\newtheorem{notation}[theorem]{Notation}
 
 \newcommand{\dom}{\mathrm{dom}}
 \newcommand{\len}{\mathit{len}}
@@ -29,35 +18,28 @@
 \newcommand{\reach}{\mathsf{Reach}}
 \newcommand{\unsafe}{\mathsf{unsafe}}
 \newcommand{\safe}{\mathsf{safe}}
-\newcommand{\goal}{\mathsf{goal}}
 \newcommand{\p}{\mathsf{P}}
 \newcommand{\np}{\mathsf{NP}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
+\newcommand{\citep}{\cite}
 
+
+\title{Parameter Identification Using $\delta$-Decisions for Hybrid Systems in Biology}
+
+\titlerunning{Parameter identification for biological hybrid systems}
+
+\authorrunning{Liu et al.}
+\author{Bing Liu
+\and Soonho Kong
+\and Sicun Gao
+\and Edmund M. Clarke}
+\institute{Computer Science Department, Carnegie Mellon University, PA 15213, USA}
 
 \begin{document}
-\firstpage{1}
 
-
-
-\title[Parameter identification for biological hybrid systems]{Parameter identification using delta-decisions for hybrid systems in biology}
-%Other options:
-%\title[]{Parameter synthesis using $\delta$-decisions for hybrid systems in biology}
-%\title{Analysis of hybrid systems in biology using $\delta$-decision procedures}
-\author[Liu \textit{et~al}]{Bing Liu, Soonho Kong, Sicun Gao and Edmund M. Clarke} %\footnote{to whom correspondence should be addressed}
-\address{Computer Science Department, Carnegie Mellon University, PA 15213, USA}
-
-%\history{}
-%\editor{}
-
-\history{Received on XXXXX; revised on XXXXX; accepted on XXXXX}
-
-\editor{Associate Editor: XXXXXXX}
 
 \maketitle
-
-%% page limit = 7
 
 \input{abstract}
 \input{introduction}
@@ -65,8 +47,7 @@
 \input{results}
 \input{conclusion}
 
-
-\bibliographystyle{natbib}
+\bibliographystyle{splncs}
 \bibliography{bibliography}
 
 \end{document}
