@@ -1,5 +1,7 @@
 PAPER_DIRS = extract_proofs/ \
-	verifying_nonlinear_elementary_functions/
+	verifying_nonlinear_elementary_functions/ \
+	parameter_identification_biological_hybrid_systems/
+	
 
 clean_LIBS=$(addprefix clean_,$(PAPER_DIRS))
 

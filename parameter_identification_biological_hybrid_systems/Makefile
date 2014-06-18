@@ -1,4 +1,6 @@
 all:
-	latexmk -pdf main.tex
+	latexmk -pdf main
+
 clean:
-	rm -rf auto *.aux *.fdb_latexmk *.fls *.log *.synctex.gz main.pdf *.bbl *.blg
+	-rm -rf *.aux *.bbl *.blg *.fdb_latexmk *.fls *.log *.out *.idx *.ilg *.ind *.synctex.gz _region_.tex auto/
+	-rm -f main.pdf
