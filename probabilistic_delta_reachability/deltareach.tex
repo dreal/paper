@@ -1,0 +1,134 @@
+
+We now formally define hybrid systems, which we use for modelling cyber-physical systems. The following
+definition is standard.
+
+\begin{definition}
+A hybrid system consists of the following components:
+\begin{itemize}
+\item $Q = \{q_0, ..., q_m\}$ a set of modes (discrete components of the system),
+\item $X = [u_1, v_1] \times ... \times [u_n, v_n] \times [0, T] \subset \mathbb{R}^{n+1}$ a domain 
+	of continuous variables,
+\item $S = Q \times X$ is the hybrid state space of the system,
+\item $U \subseteq S$ an {\em unsafe} region of the state space,
+\end{itemize}
+and predicates (or relations)
+\begin{itemize}
+	\item $\text{flow}_{q}(\textbf{x}^{0}, \textbf{x}^{t})$ mapping the continuous state 
+	$\textbf{x}^{0}$ at time 0 to state $\textbf{x}^{t}$ at time point $t \in [0, T]$ in mode $q$
+	\item $\text{init}_q(\textbf{x})$ indicating that $s = (q, \textbf{x})$ belongs to the set 
+	of initial states,
+	\item $\text{jump}_{q \rightarrow q'}(\textbf{x}^{t}, \textbf{x}^{0})$ indicating that the 
+	system can make a transition from mode $q$, upon reaching the jump condition in continuous 
+	state $\textbf{x}^{t}$ at time point $t \in [0, T]$, to mode $q^\prime$ and setting the
+	continuous state to $\textbf{x}^{0}$,
+	\item $\text{unsafe}_{q}(\textbf{x})$ indicating that $s = (q, \textbf{x}) \in U$
+\end{itemize}
+\end{definition}
+\begin{remark}
+The continuous dynamics of the system is defined in each flow, and it can either be presented 
+as a system of ODEs or explicitly.
+\end{remark}
+
+In this paper we are interested in {\em deterministic} hybrid systems, where in each mode only
+one jump is allowed. Informally, the semantics of a hybrid system can be thought as piece-wise
+continuous: in each mode the system dynamics follows a continuous flow, while a mode change
+(as result of a jump) might also involve a discontinuous change in the variables $\textbf{x}$.
+The evolution of a hybrid system is then obtained by iteratively composing the relations flow and
+jump, starting with init --- see Definition \ref{def:reachability} below for an example. More details 
+can be found in \cite{DBLP:conf/hybrid/AlurCHH92}.
+
+In order to overcome the undecidability of reasoning about hybrid systems, Gao {\em et al.} recently
+defined the concept of $\delta$-satisfiability over the reals \cite{DBLP:conf/lics/GaoAC12}, 
+and presented a corresponding $\delta$-complete decision procedure \cite{DBLP:conf/cade/GaoAC12}. 
+The main idea is to decide correctly whether slightly {\em relaxed} sentences over the reals 
+are satisfiable or not. The following definitions are from \cite{DBLP:conf/lics/GaoAC12}.
+\begin{definition}
+A bounded quantifier is one of the following:
+\[ \begin{array}{ll}
+	\exists^{[a, b]} x  = \exists x : (a \le x \wedge x \le b) \\[1ex]
+	\forall^{[a, b]} x  = \forall x : (a \le x \wedge x \le b)
+\end{array} \]
+\end{definition}
+
+\begin{definition}
+A bounded $\Sigma_1$ sentence is an expression of the form:
+\begin{equation*} 
+	\exists^{I_{1}} x_{1}, ..., \exists^{I_{1}} x_{n}: \psi(x_{1}, ..., x_{n})
+\end{equation*}
+where $I_{i} = [a_{i}, b_{i}]$ are intervals, $\psi(x_{1}, ..., x_{n})$ is a Boolean combination 
+of atomic formulas of the form $g(x_{1}, ..., x_{n})\, \texttt{op} \, 0$, where $g$ is a composition 
+of Type 2-computable functions and $\texttt{op} \in \{<, \le, >, \ge, =, \ne\}$. 
+\end{definition}
+\begin{remark}
+Any bounded $\Sigma_1$ sentence is equivalent to a $\Sigma_1$ sentence in which all the atoms are
+of the form $f(x_{1}, ..., x_{n}) = 0$ (\ie, the only \texttt{op} needed is `=') 
+\cite{DBLP:conf/cade/GaoAC12}.
+\end{remark}
+Essentially, Type 2-computable functions can be approximated arbitrarily well by finite
+computations of a special kind of Turing machines (Type 2 machines); most `useful' functions over 
+the reals (\eg, continuous functions) are Type 2-computable \cite{kobook}.
+
+The notion of $\delta$-weakening \cite{DBLP:conf/lics/GaoAC12} of a bounded sentence is central
+to $\delta$-satisfiability.
+\begin{definition}
+Let $\delta \in \mathbb{Q^+} \cup \{0\}$ be a constant and $\phi$ a bounded $\Sigma_1$-sentence 
+in the standard form 
+\begin{equation} \label{def:sigma1}
+\phi = \exists^{I_{1}} x_{1}, ..., \exists^{I_{n}} x_{n}: \bigwedge^{m}_{i = 1}(\bigvee^{k_i}_{j = 1} f_{ij}(x_{1}, ..., x_{n}) = 0)
+\end{equation}
+where $f_{ij}(x_{1}, ..., x_{n}) = 0$ are atomic formulas. The $\delta$-{\em weakening} of $\phi$ 
+is the formula:
+\begin{equation}
+\phi^\delta = \exists^{I_{1}} x_{1}, ..., \exists^{I_{n}} x_{n}: \bigwedge^{m}_{i = 1}(\bigvee^{k_i}_{j = 1} |f_{ij}(x_1, ..., x_n)| \le \delta)
+\end{equation}
+\end{definition}
+Note that $\phi$ implies $\phi^\delta$, while the converse is obviously not true.
+The bounded $\delta$-satisfiability problem asks for the following: given a sentence of 
+the form (\ref{def:sigma1}) and $\delta \in \mathbb{Q^+}$, correctly decide whether
+\begin{itemize}
+	\item \textbf{unsat}: $\phi$ is false,
+	\item \textbf{$\delta$-true}: $\phi^\delta$ is true.
+\end{itemize}
+If the two cases overlap either decision can be returned: such a scenario reveals that the 
+formula is {\em fragile} --- a small perturbation (\ie, a small $\delta$) can change the formula's
+truth value. The dReal tool \cite{DBLP:conf/cade/GaoKC13} implements an algorithm for solving 
+the $\delta$-satisfiability problem. Basically, the algorithm combines a DPLL procedure \cite{DPLL} 
+(for handling the Boolean parts of the formula) with interval constraint propagation \cite{handbookICP}
+(for handling the real arithmetic atoms). More details on the implementation can be found 
+in \cite{DBLP:conf/cade/GaoKC13}.
+
+A qualitative property of hybrid systems that can be checked is bounded $\delta$-reachability. 
+It asks whether the system reaches the unsafe region after $k \in \mathbb{N}$ discrete transitions.
+
+
+\begin{definition} \cite{DBLP:journals/corr/GaoKCC14}\label{def:reachability}
+Bounded $k$ step $\delta$-reachability in hybrid systems can be encoded as a bounded $\Sigma_1$-sentence
+\begin{equation} \label{eq:reachability}
+\begin{split}
+\exists \textbf{x}^{0}_{0,q_0}, \exists \textbf{x}^{t}_{0,q_0}, ... , \exists \textbf{x}^{0}_{0,q_m}, \exists \textbf{x}^{t}_{0,q_m} , ... , \exists \textbf{x}^{0}_{k,q_m}, \exists \textbf{x}^{t}_{k,q_m}:\\
+(\bigvee_{q \in Q} (\text{init}_{q}(\textbf{x}^{0}_{0,q}) \wedge \text{flow}_{q}(\textbf{x}^{0}_{0,q},\textbf{x}^{t}_{0,q}))) \\
+\wedge (\bigwedge_{i=0}^{k-1} (\bigvee_{q,q' \in Q}(\text{jump}_{q \rightarrow q'}(\textbf{x}^{t}_{i,q}, \textbf{x}^{0}_{i+1,q'}) \\
+\wedge (\text{flow}_{q'}(\textbf{x}^{0}_{i+1,q'}, \textbf{x}^{t}_{i+1,q'}))) \wedge (\bigvee_{q \in Q} \text{unsafe}_{q}(\textbf{x}^{t}_{k,q}))))
+\end{split}
+\end{equation}
+where $\textbf{x}^{0}_{i,q}$ and $\textbf{x}_{i,q}$ represent the continuous state in the mode $q$ at the depth $i$, and $q'$ is a successor mode.
+\end{definition}
+
+Intuitively, the formula above can be understood as follows: the first conjunction is asking for 
+a set of continuous variables which satisfy the initial condition in one of the modes and the 
+flow in that mode; the second conjunction is looking for a set of vectors which satisfy any $k$ 
+discrete jumps and flows in each successor mode defined by the jumps; the third conjunction is 
+verifying whether the state of the system (the mode and the set of continuous variables in the 
+mode after $k$ jumps) belongs to the unsafe region. Note that the previous definition asks for
+reachability in {\em exactly} $k$ steps. One can build a disjunction of formula (\ref{eq:reachability})
+for all values from 1 to $k$, thereby obtaining reachability {\em within} $k$ steps.
+
+The $\delta$-reachability problem can be solved using the described $\delta$-complete decision 
+procedure, which will correctly return one of the following answers: 
+\begin{itemize}
+	\item \textbf{unsat}: the system never reaches the bad region $U$,
+	\item \textbf{$\delta$-true}: the $\delta$-perturbation of (\ref{eq:reachability}) is true,
+	and a witness, \ie, an assignment for all the variables, is returned.
+\end{itemize}
+
+

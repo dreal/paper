@@ -1,0 +1,34 @@
+In the previous section we argued that solving probabilistic reachability 
+questions amounts to solving $\Sigma_1$ sentences of the following type:
+\begin{equation} \label{eq:integration-problem}
+\exists x \in [a, b] : \int_{a}^{x} f(t)\, dt \ge C
+\end{equation}
+for some constant $C\in [0,1]$.
+
+\begin{proposition} \label{prop:ivp}
+Let $f\mathord{:}[a,b] \rightarrow \mathbb{R}$ be a Lipschitz-continuous function. Then there 
+exists one and only one continuous and differentiable function $F$ on $[a, b]$ 
+such that $F(a) = 0$ and $\forall x \in [a, b]: \int_a^x f(t)\, dt = F(x)$
+\end{proposition}
+
+\begin{IEEEproof}
+Let us formulate an initial value problem:
+\begin{equation} \label{eq:IVP}
+(F'(x) = f(x)) \wedge (F(a) = 0)
+\end{equation}
+where $f(x)$ is Lipschitz-continuous in $F(x)$ and continuous on $[a,b]$. 
+By the Picard-Lindel\"{o}f theorem and the assumption $F(a)=0$, the formulated IVP 
+has a unique solution on $[a, b]$ derived as following:
+\begin{equation*} 
+\forall x \in [a,b]: \int_a^x f(t)\, dt = F(x) - F(a) = F(x)
+\end{equation*}
+\end{IEEEproof}
+
+Proposition \ref{prop:ivp} allows assessing the value of the integral by the value of the 
+function which is obtained from the initial value problem (\ref{eq:IVP}). Therefore, 
+the integration problem (\ref{eq:integration-problem}) is equivalent to the sentence
+\begin{equation*} %\label{eq:encoding}
+\exists x \in [a, b] : (F'(x) = f(x)) \wedge (F(x) \ge C) \wedge (F(a) = 0)
+\end{equation*}
+which can be directly solved by dReal as a $\delta$-satisfiability problem.
+

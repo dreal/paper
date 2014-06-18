@@ -1,0 +1,68 @@
+In the scope of this paper we consider hybrid systems with one random initial parameter, and 
+we propose an algorithm solving the probabilistic $\delta$-reachability problem for such 
+hybrid systems. In a hybrid system with random parameters, the random variable $r$ is defined 
+over a bounded interval. However, we will demonstrate that we can correctly evaluate the 
+probabilistic reachability problems also for certain types of unbounded random variables.
+
+\begin{proposition} \label{prop:inf}
+The probabilistic reachability problem for hybrid systems with a single random parameter 
+can be correctly solved by a $\delta$-complete decision procedure if:
+\begin{itemize}
+	\item the domain of the random parameter is bounded from one side,
+	\item the domain of the random parameter is unbounded and its probability density 
+		function is symmetric.
+\end{itemize}
+\end{proposition}
+\begin{IEEEproof}
+Let's consider the first case when the domain $\Omega$ of the continuous random variable is bounded from one side. The problem when set $B \subseteq \Omega$ is bounded is trivial and probabilistic reachability problem can be solved correctly by the $\delta$-complete procedure.
+
+If $B$ is unbounded then its complement $\Omega/B$ is bounded (because $\Omega$ is bounded from one side and $B \subseteq \Omega$). Set $\Omega/B$ can be constructed by inverting the relation $\text{unsafe}_{q}(\textbf{r},\textbf{x})$. Taking into account that
+\begin{equation} \label{eq:total-probability}
+\int_{B} \,dP(r) + \int_{\Omega/B} \,dP(r) = \int_{\Omega} \,dP(r) = 1
+\end{equation}
+probabilistic reachability problem (\ref{eq:probabilistic-reachability}) is equivalent to
+\begin{equation} \label{eq:probabilistic-reachability-one-side}
+\exists B_1 \subseteq  \Omega/B: 1 - \int_{B_1} \,dP(r) < C
+\end{equation}
+
+Therefore, solving two problems (\ref{eq:probabilistic-reachability}) and (\ref{eq:probabilistic-reachability-one-side}) at the same time by the $\delta$-complete decision procedure guaranties that one of them will terminate with the correct result. Knowing one, we can derive another from the equation (\ref{eq:total-probability}).
+
+Let's consider the second case when $\Omega$ is unbounded and the probability density function is symmetric. We can find two disjoint bounded from one side sets $\Omega^{-}, \Omega^{+} \subset \Omega$ such that $\Omega^{-} \cup \Omega^{+} = \Omega$ and $\int_{\Omega^{-}} \,dP(r) = \int_{\Omega^{+}} \,dP(r) = \frac{\int_{\Omega} \,dP(r)}{2} = 0.5$.
+
+Let $B \subseteq \Omega$. We can find two disjoint sets $B^{-}, B^{+} \subset B$ such that $B^{-} \cup B^{+} = B$, $B^{-} \subseteq \Omega^{-}$ and $B^{+} \subseteq \Omega^{+}$. Then problem (\ref{eq:probabilistic-reachability}) is equivalent to:
+\begin{equation} \label{eq:probabilistic-reachability-symmetric}
+\exists B_{1}^{-} \subseteq  B^{-}, \exists B_{1}^{+} \subseteq  B^{+} : \int_{B_{1}^{-}} \,dP(r) + \int_{B_{1}^{+}} \,dP(r) \ge C
+\end{equation}
+where for each of the subsets $B^{-}$ and $B^{+}$:
+\begin{equation}
+\begin{split}
+\int_{B^{+}} \,dP(r) + \int_{\Omega^{+}/B^{+}} \,dP(r)  = 0.5 \\
+\int_{B^{-}} \,dP(r) + \int_{\Omega^{-}/B^{-}} \,dP(r)  = 0.5
+\end{split}
+\end{equation}
+If either of subsets $B^{-}$ and $B^{+}$ is unbounded then the technique described above should 
+be applied.
+\end{IEEEproof}
+
+In general, the set $B$ obtained in (\ref{def:Borel-set}) will be of the form:
+\begin{equation*} %\label{set-B-one-parameter}
+B = \bigcup_{i=1}^{w} B_{i}
+\end{equation*}
+where $B_{i} = [\underline{r}_{i}, \overline{r}_{i}]$ and 
+$\forall i \ne j \in [1, w]:B_{i} \cap B_{j} = \emptyset$. However, if the functions representing the
+dynamics of the system are invertible with respect to the random parameter, then set $B$ is formed 
+by a single interval. This allows us to write the computation of integral 
+(\ref{eq:probabilistic-reachability}) as a $\Sigma_1$ sentence 
+\begin{equation*} %\label{eq:probability-one-variable}
+\exists r \in [a, b]: \int_{a}^{r} f_R(x)\, dx \ge C
+\end{equation*}
+where $f_R$ is the probability density function of the random parameter and $C \in [0,1]$ is a
+constant.
+
+The probabilistic bounded reachability problem in hybrid systems with one random initial parameter 
+and with invertible dynamics with respect to the random variable can be solved using a validated 
+ODE solver that allows encoding integrals as IVP (initial value problem). We aim for this 
+formalisation as that is the way in which dReal handle ODE dynamics.
+
+
+

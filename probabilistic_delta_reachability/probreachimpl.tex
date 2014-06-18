@@ -1,0 +1,223 @@
+\section{Probabilistic Reachability}
+%\begin{equation}
+%\int_{\Omega} I_{B}(r)dP(r)
+%\end{equation}
+%where $dP(r)$ is a probability measure of the random variable and $Id_{B}$ is the indicator function defined as:
+%\begin{equation}
+%	I_{B}(r) = 
+%	\begin{cases}
+%		1, \text{if the system reaches $U$ on $k$-th step} \\
+% 		0, \text{otherwise}
+%	\end{cases}
+%\end{equation}
+We now present a more general procedure for calculating the probability of reaching 
+the unsafe region in $k$ steps. The procedure works for general hybrid systems
+whose dynamics is given implicitly, \eg, as a solution of ODEs. In particular, we do not
+require the dynamics to be invertible with respect to the random parameter. The main idea 
+is to compute the probability by integrating an indicator function over the probability measure 
+of the random variable as:
+\begin{equation*}
+\int_{\Omega} I_{U}(r)dP(r)
+\end{equation*}
+where $P(r)$ is a probability measure of the random variable, $\Omega$ is the range of the 
+random variable, and $I_{U}$ is the indicator function defined as:
+\begin{equation*}
+        I_{U}(r) = 
+        \begin{cases}
+                1, \text{system with parameter $r$ reaches $U$ in $k$-steps} \\
+                0, \text{otherwise}
+        \end{cases}
+\end{equation*}
+The procedure for solving probabilistic reachability thus consists of a validated integration 
+procedure and a $\delta$-complete decision procedure used for verifying the indicator function
+(and thus building the set $B$).
+
+\noindent{\em Notation.}
+For an interval $[r]=[\underline{r}, \overline{r}] \subset \mathbb{R}$ we denote the size of
+the interval by $width([r]) = \overline{r} - \underline{r}$ and by                         
+$mid([r]) = \frac{\overline{r} + \underline{r}}{2}$ the central point of the interval.
+
+\subsection{Validated Integration Procedure}
+In the implementation of a validated integration procedure we employ the (1/3) Simpson rule:
+\begin{equation}\label{eq:Simpson}
+\begin{split}
+K= \int_{a}^{b} \, f(x)\, dx\, = \frac{width([I])}{6}(f(a) + \\
+4 f(mid([I])) + f(b)) - \frac{width([I])^5}{2880}f^{(4)}(\xi)
+\end{split}
+\end{equation}
+where $I=[a,b]$, $\xi \in [I]$ and $f^{(4)}$ is the fourth derivative of $f$.
+Applying interval arithmetics an interval extension of function $f$ and its fourth derivative 
+can be obtained.
+\begin{definition}
+An interval extension of a function $f:X \rightarrow Y$ is an operator $[\cdot]$ such that:
+\begin{equation*}
+	\forall x \in [r] \subseteq X: f(x) \in [f]([r]) \subseteq Y
+\end{equation*}
+\end{definition} 
+
+The interval version of Simpson's rule can be obtained simply by replacing in (\ref{eq:Simpson})
+occurences of $f$ and $f^{(4)}$ with their interval extension $[f]$, and by replacing $\xi$ with
+the entire $[a,b]$ interval \cite{ValidatedIntegration}:
+\[
+\begin{split}
+K \in [K]([a, b]) = \frac{width([I])}{6}([f](a) + 4 [f](mid([I])) + \\
+[f](b)) - \frac{width([I])^5}{2880}[f]^{(4)}([I]).
+\end{split}
+\]
+Furthermore, by definition of integral:
+\[
+\begin{split}
+K \in \Sigma_{i = 1}^{n} [K]([x]_{i})
+\end{split}
+\]
+where $n$ is a number of disjoint intervals $[x]_{i}$ in $[a, b]$. Interval extensions can
+be readily computed using interval arithmetics libraries such as FILIB++ \cite{filib}.
+
+In order to guarantee $\delta$-completeness of the integration it is sufficient to divide 
+$[a, b]$ into $n$ disjoint intervals $[x]_{i}$ such that for each $[x]_{i}$ we have
+$width([I]([x]_{i})) < \delta \frac{width([x]_{i})}{b - a}$. Then the exact value of the 
+integral will be within an interval of width smaller than $\delta$. Pseudo-code for the 
+procedure computing the integral up to an arbitrary $\delta \in \mathbb{Q}^{+}$ is given 
+in Algorithm \ref{alg:integration}.
+
+\begin{algorithm}
+\label{alg:integration}
+input: $f(x)$, $[a, b]$, $\delta$\;
+output: $[I]$\;
+$B$.push($[a, b]$)\;
+$[I] = [0.0, 0.0]$\;
+\While{$size(B) > 0$}{
+	$[x]$ = $B$.pop()\;
+	$[S]([x]) = \frac{width([x])}{6}([f](\underline{x}) + 4 [f](mid([x])) + [f](\overline{x})) - \frac{(width([x]))^5}{2880}[f^{(4)}]([x])$\;
+	\If{$width([S]([x])) > \delta \frac{width([x])}{b - a}$}{
+		$B$.push($[\underline{x}, mid([x])]$)\;
+		$B$.push($[mid([x]), \overline{x}]$)\;
+	}\Else{
+		$[I] = [I] + [S]([x])$\;
+	}
+}
+\Return $[I]$\;
+\caption{Validated Integration Procedure}
+\end{algorithm}
+
+\subsection{Borel set}
+Now we need to correctly identify the Borel set, or equivalently, verifying the indicator function
+above. Let $\phi$ be a formula of the form:
+\begin{equation} \label{eq:phi}
+\begin{split}
+\phi([r]) = \exists \rho \in [r], \exists \textbf{x}^{0}_{0,q_0}, \exists \textbf{x}^{t}_{0,q_0}, \exists t_{0, q_0}, ... , \exists \textbf{x}^{0}_{0,q_m}, \\ \exists \textbf{x}^{t}_{0,q_m}, \exists t_{0, q_m}, ... , \exists \textbf{x}^{0}_{k,q_m}, \exists \textbf{x}^t_{k,q_m}, \exists t_{k, q_m}:\\
+(\bigvee_{q \in Q} (\text{init}_{q}(r, \textbf{x}^{0}_{0,q}) \wedge \text{flow}_{q}(r, \textbf{x}^{0}_{0,q}, \textbf{x}^{t}_{0,q}))) \wedge \\
+(\bigwedge_{i=0}^{k-1} (\bigvee_{q,q' \in Q}(\text{jump}_{q \rightarrow q'}(r, \textbf{x}^{t}_{i,q}, \textbf{x}^{0}_{i+1,q'}) \wedge \\
+(\text{flow}_{q'}(r, \textbf{x}^{0}_{i+1,q'}, \textbf{x}^{t}_{i+1,q'}))) \wedge (\bigvee_{q \in Q} \text{unsafe}_{q}(r, \textbf{x}^{t}_{k,q}))))
+\end{split}
+\end{equation}
+If the formula is true then $[r]$ contains a value such that the system initial random parameter 
+reaches the unsafe region.
+
+Taking a complement of the unsafe region $U^{C} = S / U$ (where $S$ is the state space of the 
+system) and defining a predicate $\text{unsafe}^{C}_{q}(r,\textbf{x}^{t})$ evaluating to true iff
+$s = (q, r, \textbf{x}^{t}_{q}) \in U^{C}$ we want to ensure that the system never reaches the 
+unsafe region {\em within} the $k$-th step with an initial random parameter from $[r]$. 
+In order to conclude that it is sufficient to evaluate the formula:
+\begin{equation} \label{eq:phi_C}
+\begin{split}
+\phi^{C}([r]) = 
+	\exists \rho \in [r], \exists \textbf{x}^{0}_{0,q_0}, \exists \textbf{x}^{t}_{0,q_0}, \exists t_{0, q_0} , ... , \exists \textbf{x}^{0}_{0,q_m}, \\
+\exists \textbf{x}^{t}_{0,q_m}, \exists t_{0, q_m}, ... , \exists \textbf{x}^{0}_{k,q_m}, \exists \textbf{x}^t_{k,q_m}, \exists t_{k, q_m}, \forall t'_{k, q_m} \in [0, t_{k, q_m}]:\\
+(\bigvee_{q \in Q} (\text{init}_{q}(r, \textbf{x}^{0}_{0,q}) \wedge \text{flow}_{q}(r, \textbf{x}^{0}_{0,q}, \textbf{x}^{t}_{0,q}))) \wedge \\
+(\bigwedge_{i=0}^{k-1} (\bigvee_{q,q' \in Q}(\text{jump}_{q \rightarrow q'}(r, \textbf{x}^{t}_{i,q}, \textbf{x}^{0}_{i+1,q'}) 
+\wedge \\
+(\text{flow}_{q'}(r, \textbf{x}^{0}_{i+1,q'}, \textbf{x}^{t}_{i+1,q'}))) \wedge \\
+(\bigvee_{q \in Q} (\text{unsafe}^{C}_{q}(r, \textbf{x}^{t}_{k,q}) \wedge (\text{jump}_{q \rightarrow q'}(r, \textbf{x}^{t}_{k,q}, \textbf{x}^{0}_{k+1,q'})))))
+\end{split}
+\end{equation}
+If the formula evaluates to true then the system does not reach the unsafe region on the $k$-th step.
+Then set $B$ can be defined as the collection
+$\{[r]_{i} : \phi([r]_{i}) \wedge (\neg \phi^{C}([r]_{i})\}$.
+
+\subsection{Probabilistic reachability}
+Integrating a probability density function of a random variable we obtain intervals 
+such that size of the enclosure containing the exact value of a partial sum for each 
+of them is smaller than a local error.
+
+Then a decision about the relation between each of the obtained intervals and the (unknown) 
+Borel set $B$ should be taken. In order to achieve this we use a $\delta$-complete decision 
+procedure, \ie, dReal, to verify formulas (\ref{eq:phi}) and (\ref{eq:phi_C}). The following 
+three outcomes are considered:
+\begin{itemize}
+	\item{$\phi([r])$ is $\delta$-\textbf{sat} and $\phi^C([r])$ is \textbf{unsat}}
+	\item{$\phi([r])$ is \textbf{unsat}}
+	\item{$\phi([r])$ is $\delta$-\textbf{sat} and $\phi^C([r])$ is $\delta$-\textbf{sat}}
+\end{itemize}
+
+In the first case, we can conclude that $[r] \cap B = [r]$. Therefore, $[r] \subseteq B$ and 
+the value of the partial sum on this interval should be added to the resulting value of the 
+integral. The second case allows concluding that $[r] \cap B = \emptyset$. Hence, this interval 
+can be completely removed from the integration domain. Finally, in the last case, 
+$[r] \cap B \ne \emptyset$ and $[r] \cap B \ne [r]$. In other words, the interval $[r]$ is not 
+fully contained in the set $B$. Hence, this interval should be split into two subintervals and 
+each of them should be checked in the same way.
+
+After each run through the set of intervals $[r]_{i}$, the over-approximated $[I_{over}]$ and 
+under-approximated $[I_{under}]$ interval values of the integral are calculated. The 
+under-approximated value is calculated only over the intervals fully contained in set $B$ 
+while the over-approximation of the integral involves values of partial sum on the intervals 
+which are either fully or partially contained in set $B$. The exact value of the integral will 
+always be within the interval $[\underline{I_{under}}, \overline{I_{over}}]$. The algorithm 
+terminates when the length of the interval $[\underline{I_{under}}, \overline{I_{over}}]$ is 
+smaller than $\delta$. Pseudo-code for the procedure is presented in Algorithm \ref{alg:prob-reach}.
+\begin{algorithm}
+\label{alg:prob-reach}
+input: $f(x)$, $[a, b]$, $\delta_{1}$, $\delta_{2}$, $\phi$, $\phi^C$\;
+output: $[I]$\;
+\tcp{stack for all the intervals}
+$B$.push($[a, b]$)\;
+\tcp{stack only for the intervals and partial sum satisfying a local error}
+$T = \emptyset$\;
+\While{$size(B) > 0$}
+{
+	$[x]$ = $B$.pop()\;
+	$[S]([x]) = \frac{width([x])}{6}([f](\underline{x}) + 4 [f](mid([x])) + [f](\overline{x})) - \frac{(width([x]))^5}{2880}[f^{(4)}]([x])$\;
+	\If{$width([S]([x])) > \delta_{1} \frac{width([x])}{b - a}$}
+	{
+		$B$.push($[\underline{x}, mid([x])]$)\;
+		$B$.push($[mid([x]), \overline{x}]$)\;
+	}\Else
+	{
+		$T$.push($\{[x], [S]([x])\}$)\;
+	}
+}
+
+$[I_{under}] = [0.0, 0.0]$\;
+$[I_{over}] = [0.0, 0.0]$\;
+$[I] = [0.0, 1.0]$\;
+\tcp{stack containing extra divisions of the intervals}
+$D = \emptyset$\;
+\While{$width([I]) > \delta_{2}$}
+{
+	\While{$size(T) > 0$}
+	{
+	$\{[x], [S]([x])\} = T$.pop()\;
+	\If{$\phi([x])$}
+	{
+		$[I_{over}] = [I_{over}] + [S]([x])$\;
+		\If{$\phi^{C}([x])$}
+		{
+			$D$.push($\{[\underline{x}, mid([x])], [S([\underline{x}, mid([x])])]\}$)\;
+			$D$.push($\{[mid([x])], \overline{x}, [S([mid([x])], \overline{x})]\}$)\;
+		}\Else
+		{
+			$[I_{under}] = [I_{under}] + [S]([x])$\;
+		}
+	}
+	$[I] = [\underline{I_{under}}, \overline{I_{over}}]$\;
+	$[I_{over}] = [I_{under}]$\;
+	$T = D$\;
+	$D = \emptyset$\;	
+	}
+}
+
+\Return $[I]$\;
+
+\caption{Probabilistic $\delta$-reachability}
+\end{algorithm}

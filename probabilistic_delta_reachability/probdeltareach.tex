@@ -1,0 +1,89 @@
+We now introduce $\delta$-reachability in a probabilistic context.
+
+\begin{definition}\label{def:pHS}
+A hybrid system with {\em random initial parameters} consists of the following components:
+\begin{itemize}
+\item $Q = \{q_0, ..., q_m\}$ a set of modes (discrete components of the system),
+\item $X = [u_1, v_1] \times ... \times [u_n, v_n] \times [0, T] \subset \mathbb{R}^{n+1}$ a domain 
+	of continuous variables,
+\item $R = [a_1, b_1] \times ... \times [a_l, b_l] \subset \mathbb{R}^{l}$ a domain of {\em random}
+	parameters,
+\item $S = Q \times R \times X$ is the state space of the system,
+\item $U \subseteq S$ an {\em unsafe} region of the state space,
+\end{itemize}
+predicates (relations)
+\begin{itemize}
+	\item $\text{flow}_{q}(\textbf{r}, \textbf{x}^{0}, \textbf{x}^{t})$ mapping the continuous state 
+	$\textbf{x}^{0}$ at time 0 to state $\textbf{x}^{t}$ at time point $t \in [0, T]$ in mode $q$
+	\item $\text{init}_q(\textbf{r}, \textbf{x})$ indicating that $ (q, \textbf{r}, \textbf{x})$ 
+	belongs to the set of initial states,
+	\item $\text{jump}_{q \rightarrow q'}(\textbf{r}, \textbf{x}^{t}, \textbf{x}^{0})$ indicating that the 
+	system can make a transition from mode $q$, upon reaching the jump condition in continuous 
+	state $\textbf{x}^{t}$ at time point $t \in [0, T]$, to mode $q^\prime$ and setting the
+	continuous state to $\textbf{x}^{0}$,
+	\item $\text{unsafe}_{q}(\textbf{r}, \textbf{x})$ indicating that 
+	$(q, \textbf{r}, \textbf{x}) \in U$,
+\end{itemize}
+and we require that for all $q\in Q$ the sets defined by $\text{flow}_q, \text{init}_q, \text{jump}_q$,
+and $\text{unsafe}_q$ are Borel.
+\end{definition}
+\begin{remark}
+The newly introduced random parameters are assigned in the initial mode and remain unchanged throughout
+the system's evolution: note that flow and jump do not specify any change on $\textbf{r}$. Also, the
+Borel assumption for the sets defined by the predicates is a theoretical requirement for well-definedness
+of probabilities, and in practice it is easily satisfied. (We recall that Borel sets are obtained
+through countable union and complement of open sets.)
+\end{remark}
+
+Then bounded $k$ step reachability problem for the defined system will be modified.
+\begin{definition}
+The bounded $k$ step $\delta$-reachability for hybrid systems with random initial parameters 
+is the $\Sigma_1$ sentence:
+\begin{equation*} %\label{eq:reachability-2}
+\begin{split}
+\exists \textbf{r}, \exists \textbf{x}^{0}_{0,q_0}, \exists \textbf{x}^t_{0,q_0}, ... , \exists \textbf{x}^{0}_{0,q_m}, \exists \textbf{x}^t_{0,q_m} , ... , \exists \textbf{x}^{0}_{k,q_m}, \exists \textbf{x}^t_{k,q_m}:\\
+(\bigvee_{q \in Q} (\text{init}_{q}(\textbf{r}, \textbf{x}^{0}_{0,q}) \wedge \text{flow}_{q}(\textbf{r}, \textbf{x}^{0}_{0,q},\textbf{x}^t_{0,q}))) \\
+\wedge (\bigwedge_{i=0}^{k-1} (\bigvee_{q,q' \in Q}(\text{jump}_{q \rightarrow q'}(\textbf{r}, \textbf{x}^t_{i,q}, \textbf{x}^{0}_{i+1,q'}) \\
+\wedge (\text{flow}_{q'}(\textbf{r}, \textbf{x}^{0}_{i+1,q'}, \textbf{x}^t_{i+1,q'}))) \wedge (\bigvee_{q \in Q} \text{unsafe}_{q}(\textbf{r}, \textbf{x}^t_{k,q}))))
+\end{split}
+\end{equation*}
+\end{definition}
+
+If we associate a probability measure to the random parameters, then we can assess {\em quantitative} 
+system properties (such as the probability that the system reaches the unsafe region).
+In particular, we consider the following problem: 
+\textit{what is the probability that a hybrid system with random initial parameters reaches the 
+unsafe region in $k$ steps?}
+
+To calculate the probability of reaching the unsafe region, we first need to find the set 
+which contains all the values of the random variables satisfying the reachability property 
+of a hybrid system. Such a set is constructed as follows:
+\begin{equation} \label{def:Borel-set}
+\begin{split}
+B = \{\textbf{r} : \exists \textbf{x}^{0}_{0,q_0}, \exists \textbf{x}^t_{0,q_0}, ... , \exists \textbf{x}^{0}_{0,q_m}, \exists \textbf{x}^t_{0,q_m} , ... , \exists \textbf{x}^{0}_{k,q_m}, \exists \textbf{x}^t_{k,q_m}\mathord{:}\\
+(\bigvee_{q \in Q} (\text{init}_{q}(\textbf{r}, \textbf{x}^{0}_{0,q}) \wedge \text{flow}_{q}(\textbf{r}, \textbf{x}^{0}_{0,q},\textbf{x}^t_{0,q}))) \\
+\wedge (\bigwedge_{i=0}^{k-1} (\bigvee_{q,q' \in Q}(\text{jump}_{q \rightarrow q'}(\textbf{r}, \textbf{x}^t_{i,q}, \textbf{x}^{0}_{i+1,q'}) \\
+\wedge (\text{flow}_{q'}(\textbf{r}, \textbf{x}^{0}_{i+1,q'}, \textbf{x}^t_{i+1,q'}))) \wedge (\bigvee_{q \in Q} \text{unsafe}_{q}(\textbf{r}, \textbf{x}^t_{k,q}))))\}.
+\end{split}
+\end{equation}
+\begin{proposition}
+The set $B$ defined by (\ref{def:Borel-set}) is Borel.
+\end{proposition}
+\begin{IEEEproof}
+Immediate from the fact that (Definition \ref{def:pHS}) the sets defined 
+by $\text{flow}_q, \text{init}_q, \text{jump}_q$, and $\text{unsafe}_q$ are Borel, and conjunction and 
+disjunctions correspond to set intersection and union, respectively.
+\end{IEEEproof}
+
+The proposition entails that the probability that the system reaches the unsafe region is well-defined. 
+Such a probability is computed by integrating the probability measure of  the random variables over the 
+set (\ref{def:Borel-set}). In particular, we need to compute the following integral
+\begin{equation} \label{eq:probabilistic-reachability}
+\int_{B} \,dP(\textbf{r})
+\end{equation}
+where $B$ is the set (\ref{def:Borel-set}) and $P(\textbf{r})$ is a probability measure over 
+the random parameters $\textbf{r}$. In case that the random parameters are independent then 
+$P(\textbf{r}) = \Pi_{i=1}^{l} P_i(r_{i})$, where $P_i$ is the probability measure of 
+parameter $r_i$. For most practical applications, the infinitesimal probability measure 
+$dP(\textbf{r})$ is simply given by a (probability) density function.
+

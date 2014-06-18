@@ -1,0 +1,73 @@
+
+Cyber-physical systems are characterised by the tight integration of digital computing
+(the {\em cyber} part) with a {\em physical} environment or device. Such systems exploit the
+flexibility of digital computing and communication to enhance or enable new capabilities 
+of physical systems. Hybrid systems are mathematical models that combine continuous dynamics 
+and discrete control, and enjoy widespread use for modelling cyber-physical systems.
+For example, Stateflow/Simulink\footnote{\url{www.mathworks.com/simulink}} is the {\em de facto} 
+standard tool for model-based design of embedded systems; the semantics of Stateflow/Simulink 
+models can be given in terms of hybrid systems \cite{Tiwari02,SimulinkSemantics}. The use of 
+cyber-physical systems 
+permeates our society, including many safety-critical applications where a malfunctioning can 
+result in threats to, or even loss of, human life. For example, modern aircraft are efficiently
+flown most of the time by a computer program, while anti-lock brakes, stability control, and 
+traction control contribute to safer cars. Again, electronic biomedical devices (\eg, digital 
+infusion pumps that deliver drugs or nutrients to patients) offer superior flexibility and 
+accuracy than traditional devices. It is therefore extremely important to verify formally that 
+such cyber-physical systems are safe.
+
+The state space of a hybrid system consists of a discrete component and of a continuous component. 
+The fundamental {\em reachability} problem is to decide whether a hybrid system reaches an {\em unsafe} 
+region of its state space (a subset of states indicating incorrect behaviour of the system).
+Unfortunately, the reachability problem is undecidable even for simple hybrid systems with constant 
+differential dynamics \cite{DBLP:conf/hybrid/AlurCHH92}. 
+With further restrictions, \eg, same constant differential dynamics across all the variables --- 
+timed automata --- the reachability problem becomes PSPACE-complete \cite{DBLP:conf/icalp/AlurD90}.
+However, hybrid systems arising from practical applications feature much richer dynamics, including
+non-linear functions over the reals, \eg, exponentials and trigonometric functions,
+for which reachability questions are in general undecidable \cite{Richardson68}.
+This means that the reachability problem must be modified, if we want to solve it algorithmically.
+It has been recently noted that the reachability problem for general hybrid systems can be relaxed 
+in a sound manner and encoded as a first-order satisfiability modulo theory (SMT) 
+formula \cite{DBLP:conf/lics/GaoAC12} which can be correctly solved by a $\delta$-complete decision 
+procedure \cite{DBLP:conf/cade/GaoAC12}. 
+Such procedures allow a `tuneable' precision in the answer provided. Basically, SMT solvers and 
+rigorous numerical methods (\eg, interval constraint propagation) are used 
+to verify a conservative approximation of the system behaviour, so that bugs will always be detected. 
+Although the over approximation can be tight (tuneable by an arbitrarily small rational parameter, 
+$\delta$), the decision procedure may produce false alarms. It may report a bug when in reality 
+the system is safe. However, such a scenario indicates that the system is safe but fragile, thereby 
+providing valuable information to the system designer. The dReal tool \cite{DBLP:conf/cade/GaoKC13}
+implements $\delta$-complete procedures for nonlinear arithmetic first-order formulae.
+
+For many practical applications it is necessary to augment the definition of hybrid system with 
+stochastic behaviour. Stochastic systems arise naturally when modelling phenomena which are 
+intrinsically probabilistic, \eg, soft errors in computing hardware. Also, stochastic systems 
+can arise due to uncertainty in (deterministic) system components, its behaviours, and its 
+environment. The reachability problem for stochastic hybrid systems is no longer a decision
+problem. Rather, it generalises that by asking what is the {\em probability} that the system
+reaches the unsafe region. Note that for hybrid systems with both stochastic and non-deterministic
+behaviour, the problem results in general in a range of probabilities, thereby becoming an
+optimisation problem. In this paper we give a formal definition of the {\em probabilistic} bounded 
+$\delta$-reachability problem for hybrid systems with random continuous initial parameters. 
+We then show how $\delta$-complete decision procedures can be employed for solving this problem.
+One of the constraints imposed by the $\delta$-complete procedure on the formula is that all 
+the variables should be bounded. Nevertheless, we show how to solve a special case of the
+reachability problem that include random variables with unbounded support.
+Currently, dReal allows solving the reachability problems only for the systems with one random 
+initial parameter and with dynamics given explicitly. However, many hybrid systems have 
+multiple random parameters and dynamics defined by a system of ordinary differential equations 
+(ODEs). This motivated us for implementing a validated procedure for integration.
+
+Summarising, in this paper we make the following contributions:
+\begin{itemize}
+	\item we give a SMT formulation of the probabilistic $\delta$-reachability problem for 
+		hybrid systems with random initial parameters;
+	\item we show how to use $\delta$-complete procedures to solve probabilistic 
+		$\delta$-reachability, also with random variables with unbounded support;
+	\item we give a validated integration procedure that enables solving probabilistic 
+		$\delta$-reachability of general hybrid systems with random initial parameters 
+		and ODEs dynamics.
+\end{itemize}
+At the time of writing we are not aware of any other technique that addresses probabilistic bounded 
+reachability from a rigorous point of view, \ie, guaranteed to be accurate numerically. 
