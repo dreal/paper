@@ -8,7 +8,7 @@ behavioral constraints, such as time series or reachability properties. We focus
 continuous/discrete models, since one of the key aspects of many biological systems is their differing 
 behavior in various `discrete' modes. For example, the five stages of the cell cycle are driven 
 by the activation of different signaling pathways \citep{thecell}. Hence, hybrid system models are often 
-used in systems biology (see, \eg, \citep{tomlin04,ye08,aihara10,antoniotti03,lincoln04,baldazzi11}).
+used in systems biology (see, \eg, \citep{tomlin04,Hu04,ye08,aihara10,antoniotti03,lincoln04,baldazzi11}).
 
 Hybrid systems combine discrete control computation with continuous-time evolution. The state space 
 of a hybrid system is defined by a finite set of continuous variables and modes. In each mode, the
@@ -44,7 +44,7 @@ sets of resulting parameters.
 %In this paper, we propose a novel framework to tackle the parameter synthesis problem for nonlinear hybrid models in biology using $\delta$-complete decision procedures. We describe the set of states of interested as a first-order logic formula and perform bounded model checking to determine reachability of these states. We then adapt an interval constrains propagation (ICP) based algorithm to explore the parameter spaces and identify the sets of resulting parameters. Note that determining the truth value of first-order sentences over the reals with nonlinear real functions is a well-known undefinable problem. Here we employ our recently developed $\delta$-\textit{decision} based framework to ask for answers that may have one-sided $\delta$-bounded errors. That is, given a first-order sentence $\phi$, we ask whether $\phi$ is false, or some $\delta$-relaxation of $\phi$ is true, which is defined as a slight syntactic variation of $\phi$. We have proved that the $\delta$-complete decision procedures can solve SMT problems over the reals with arbitrary computable real functions \citep{gao12a} including solutions of Lipschitz-continuous ODEs \citep{gao12b}.
 We show the applicability of our method by carrying out a thorough case study characterized by 
 a highly nonlinear hybrid model. In particular, we analyzed a cardiac cell action potential
-model \cite{orovio08}. We identified parameter ranges for which a cardiac cell may lose excitability.
+model \cite{orovio08} and we identified parameter ranges for which a cardiac cell may lose excitability.
 The results show that our method scales to relatively large and complex systems, and can obtain 
 biological insights that are consistent with experimental observations.
 
