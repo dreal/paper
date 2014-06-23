@@ -1,0 +1,59 @@
+\newpage
+\section*{Appendix: $\lrf$-Formulas and $\delta$-Decidability}
+
+We will use a logical language over the real numbers that allows arbitrary {\em computable real functions}~\cite{CAbook}. We write $\lrf$ to represent this language. Intuitively, a real function is computable if it can be numerically simulated up to an arbitrary precision. For the purpose of this paper, it suffices to know that almost all the functions that are needed in describing hybrid systems are Type 2 computable, such as polynomials, exponentiation, logarithm, trigonometric functions, and solution functions of Lipschitz-continuous ordinary differential equations.
+
+More formally, $\lrf = \langle \mathcal{F}, > \rangle$ represents the first-order signature over the reals with the set $\mathcal{F}$ of computable real functions, which contains all the functions mentioned above. Note that constants are included as 0-ary functions. $\lrf$-formulas are evaluated in the standard way over the structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}^{\mathbb{R}}, >^{\mathbb{R}}\rangle$. It is not hard to see that  we can put any $\lrf$-formula in a normal form, such that its atomic formulas are of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, with $t(x_1,...,x_n)$ composed of functions in $\mathcal{F}$. To avoid extra preprocessing of formulas, we can explicitly define $\mathcal{L}_{\mathcal{F}}$-formulas as follows.
+\begin{definition}[$\lrf$-Formulas]
+Let $\mathcal{F}$ be a collection of computable real functions. We define:
+\begin{align*}
+t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants are 0-ary functions)};\\
+\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi
+\; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
+\end{align*}
+In this setting $\neg\varphi$ is regarded as an inductively defined operation
+which replaces atomic formulas $t>0$ with $-t\geq 0$, atomic formulas $t\geq 0$
+with $-t>0$, switches $\wedge$ and $\vee$, and switches $\forall$ and $\exists$.
+\end{definition}
+\begin{definition}[Bounded $\lrf$-Sentences]
+We define the bounded quantifiers $\exists^{[u,v]}$ and $\forall^{[u,v]}$ as
+$\exists^{[u,v]}x.\varphi =_{df}\exists x. ( u \leq x \land x \leq v \wedge
+\varphi)$ and $
+\forall^{[u,v]}x.\varphi =_{df} \forall x. ( (u \leq x \land x \leq v)
+\rightarrow \varphi)$
+where $u$ and $v$ denote $\lrf$ terms, whose variables only
+contain free variables in $\varphi$ excluding $x$. A {\em bounded $\lrf$-sentence} is
+$$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n\;\psi(x_1,...,x_n),$$
+where $Q_i^{[u_i,v_i]}$ are bounded quantifiers, and $\psi(x_1,...,x_n)$ is
+quantifier-free.
+\end{definition}
+\begin{definition}[$\delta$-Variants]\label{variants}
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ an
+$\lrf$-formula
+$$\varphi: \ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec y)>0;
+t_j(\vec x, \vec
+y)\geq 0],$$ where $i\in\{1,...k\}$ and $j\in\{k+1,...,m\}$. The {\em
+$\delta$-weakening} $\varphi^{\delta}$ of $\varphi$ is
+defined as the result of replacing each atom $t_i > 0$ by $t_i >
+-\delta$ and $t_j \geq 0$ by $t_j \geq -\delta$:
+$$\varphi^{\delta}:\ Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n\;\psi[t_i(\vec x, \vec
+y)>-\delta; t_j(\vec x,
+\vec y)\geq -\delta].$$
+It is clear that $\varphi\rightarrow\varphi^{\delta}$~(see \cite{DBLP:conf/lics/GaoAC12}).
+\end{definition}
+In~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12}, we have proved that the following $\delta$-decision problem is decidable, which is the basis of our framework.
+\begin{theorem}[$\delta$-Decidability]\label{delta-decide} Let $\delta\in\mathbb{Q}^+$ be
+arbitrary. There is an algorithm which, given any bounded $\lrf$-sentence $\varphi$,
+correctly returns one of the following two answers:
+\begin{itemize}
+\item $\delta$-$\mathsf{True}$: $\varphi^{\delta}$ is true.
+\item $\mathsf{False}$: $\varphi$ is false.
+\end{itemize}
+When the two cases overlap, either answer is correct.
+\end{theorem}
+\begin{theorem}[Complexity]\label{compmain}
+Let $S$ be a class of $\lrf$-sentences, such that for any $\varphi$ in $S$, the terms in $\varphi$ are in Type 2 complexity class $\mathsf{C}$. Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
+\end{theorem}
+
+
+
