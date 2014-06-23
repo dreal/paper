@@ -65,11 +65,13 @@ survey \cite{BrimSFM13}.
 Of particular interest in our context are parameter synthesis methods for qualitative behavior 
 specifications (\eg, temporal logic formulas). The method introduced in \cite{rovergene} can deal 
 with parameter synthesis for piecewise affine linear systems. For systems of ODEs, 
-Donz\'{e} {\em et al.}~\cite{donze}
-described a more efficient way to explore the parameter space based on adaptive sampling and simulation,
-while Palaniappan {\em et al.} \cite{liu13} use a statistical model checking approach. Other techniques
-perform a simple sweep of the entire (bounded) parameter space, after it has been 
-discretized \cite{Calzone06,Donaldson08}. We remark that the techniques above can handle nonlinear
+Donz\'{e} {\em et al.}~\cite{donze} described a more efficient way to explore the parameter space 
+based on adaptive sampling and simulation, while Palaniappan {\em et al.} \cite{liu13} use a statistical 
+model checking approach. Other techniques perform a simple sweep of the entire (bounded) parameter space, 
+after it has been discretized \cite{Calzone06,Donaldson08}. Randomized optimization techniques were used
+for parameter estimation in stochastic hybrid systems \cite{Koutroumpas08}, while identification
+techniques for affine systems were used in \cite{Cinquemani08}.
+We remark that the techniques above can handle nonlinear
 hybrid systems only through sampling and simulation, and so they are necessarily incomplete. 
 We use instead verified numerical algorithms that offer guaranteed answers, so that
 if a model is found to be unfeasible, then this is guaranteed to be correct.
