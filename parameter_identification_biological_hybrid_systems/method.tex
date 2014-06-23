@@ -1,7 +1,16 @@
 \section{Methods}
 
-We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals. We then use delta-complete decision procedures to solve these formulas. We have studied the logic and delta-decision problems in previous work~\cite{}, and a brief review is given in the Appendix. 
+We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, which allows the use of a wide range of nonlinear real functions including nonlinear ODEs. We then use delta-complete decision procedures to find solutions to these formulas to synthesize the parameters. We have studied the logic $\lrf$ and delta-decision problems extensively in previous work~\cite{gao12a,gao12b,gao13}. We only define the syntax of $\lrf$-formulas here and more details are given in the Appendix. 
 \subsection{Hybrid Automata and {\large$\lrf$}-Encoding of Reachability}\label{language}
+We use $\lrf$-formulas to represent hybrid automata and encode reachability problems as follows. 
+\begin{definition}[$\lrf$-Formulas]
+Let $\mathcal{F}$ be a collection of computable real functions. We define:
+\begin{align*}
+t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants are 0-ary functions)};\\
+\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi
+\; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
+\end{align*}
+\end{definition}
 \begin{definition}[$\lrf$-Representations of Hybrid Automata]\label{lrf-definition}
 A hybrid automaton in $\lrf$-representation is a tuple
 \begin{multline*}
@@ -31,34 +40,31 @@ $\beta$ is a constant. Again, note that the integration terms define Type 2 comp
 \item $\inv_{q_d}$ is $(x>=0 \wedge v>=0)$ and $\inv_{q_u}$ is $(x>=0 \wedge v<=0)$.
 \end{itemize}
 \end{example}
-We now define the $\lrf$-encoding of bounded reachability. The encodings are standard bounded model checking, and have been studied in existing work but without the generality of a full $\lrf$-language. As a result, some issues have not been discovered. For example, the full encoding of non-deterministic flows with invariant conditions require second-order quantification, and the first-order encoding requires additional assumptions. We will give the full $\lrf$-encodings and discuss such details.
-\begin{notation}
-Let $H$ be a hybrid automaton. We use $\unsafe = \{\unsafe_q:q\in Q\}$ as the $\lrf$-representation of an unsafe region in the state space of $H$. We can write $\llbracket \unsafe\rrbracket = \bigcup_{q\in Q} \llbracket \unsafe_q \rrbracket\times \{q\}$.
-\end{notation}
-First, we need to define a set of auxiliary formulas that will be important for ensuring that a particular mode is picked at a certain step.
+
+We now show the $\lrf$-encoding of bounded reachability. First, we need to define a set of auxiliary formulas that will be important for ensuring that a particular mode is picked at a certain step.
 \begin{definition}
 Let $Q = \{q_1,...,q_m\}$ be a set of modes. For any $q\in Q$, and $i\in\mathbb{N}$, use  $b_{q}^i$ to represent a Boolean variable. We now define
 $$\enforce_Q(q,i) = b^i_{q} \wedge \bigwedge_{p\in Q\setminus\{q\}}\neg b^{i}_{p}$$
 $$\enforce_Q(q, q',i) = b^{i}_{q}\wedge \neg b^{i+1}_{q'} \wedge \bigwedge_{p\in Q\setminus\{q\}} \neg b^i_{p} \wedge \bigwedge_{p'\in Q\setminus\{q'\}} \neg b^{i+1}_{p'}$$
 We omit the subscript $Q$ when the context is clear.\end{definition}
 
-We define the following formula that checks whether an unsafe region is reachable after exactly $k$ steps of discrete transition in a hybrid system.
+We can now define the following formula that checks whether an goal region is reachable after exactly $k$ steps of discrete transition in a hybrid system.
 \begin{definition}[$k$-Step Reachability, Invariant-Free Case]
-Suppose $H$ is invariant-free, and $U$ a subset of its state space represented by $\unsafe$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
+Suppose $H$ is invariant-free, and $U$ a subset of its state space represented by $\goal$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
 \begin{eqnarray*}
 %\reach^{k,M}(H,U) &:=&
 & &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t\exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
 & &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\Big)\\%\wedge (b_{q_i}\wedge \bigwedge_{q\neq q_i} \neg b_{q})
 \wedge & & \bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec x_{i}^t, \vec x_{i+1})\wedge \enforce(q,q',i)\\
-& & \hspace{4.7cm}\wedge\flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q',i+1)\Big)\bigg)\\
-\wedge & & \bigvee_{q\in Q} \unsafe_q(\vec x_{k}^t).
+& & \hspace{4.5cm}\wedge\flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q',i+1)\Big)\bigg)\\
+\wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k)).
 \end{eqnarray*}
 \end{definition}
 Intuitively, the trajectories start with some initial state satisfying $\init_q(\vec x_{0})$ for some $q$. In each step, it follows $\flow_q(\vec x_{i}, \vec x_{i}^t, t)$ and makes a continuous flow from $\vec x_i$ to $\vec x_i^t$ after time $t$. When $H$ makes a $\jump$ from mode $q'$ to $q$, it resets variables following $\jump_{q'\rightarrow q}(\vec x_{k}^t, \vec x_{k+1})$. The auxiliary $\enforce$ formulas ensure that picking $\jump_{q\rightarrow q'}$ in the $i$-the step enforces picking $\flow_q'$ in the $(i+1)$-th step.
-When the invariants are not trivial, we need to ensure that for all the time points along a continuous flow, the invariant condition holds. Thus, we need to universally quantify over time. This is a fact that has been previously discussed, for instance, in~\cite{DBLP:conf/fmcad/CimattiMT12}. However, if we allow nondeterministic flows, the situation is more complicated, which has not been discovered in existing work. We give the encoding for systems with only deterministic flows first, as follows:
+When the invariants are not trivial, we need to ensure that for all the time points along a continuous flow, the invariant condition holds. We need to universally quantify over time. Here we only deal with deterministic flows, and the encoding is as follows:
 \begin{definition}[$k$-Step Reachability, Nontrivial Invariant and Deterministic Flow]\label{br2}
 Suppose $H$ contains invariants and only deterministic flow
-, and $U$ a subset of its state space represented by $\unsafe$. In this case, the $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
+, and $U$ a subset of its state space represented by $\goal$. In this case, the $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
 \begin{eqnarray*}
 & &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
 & &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\\
@@ -67,7 +73,7 @@ Suppose $H$ contains invariants and only deterministic flow
 x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q,q',i)\\
 & & \hspace{1.5cm}\wedge\enforce(q',i+1)\wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
 t)\rightarrow \inv_{q'}(\vec x)) )\Big)\bigg)\\
-\wedge & &\bigvee_{q\in Q} (\unsafe_q(\vec x_{k}^t)\wedge \enforce(q,k)).
+\wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k)).
 \end{eqnarray*}
 \end{definition}
 The extra universal quantifier for each continuous flow expresses the requirement that for all the time points between the initial and ending time point ($t\in[0,t_i+1]$) in a flow, the continuous variables $\vec x$ must take values that satisfy the invariant conditions $\inv_q(\vec x)$.
