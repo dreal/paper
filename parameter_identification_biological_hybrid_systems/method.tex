@@ -1,6 +1,10 @@
 \section{Methods}
 
-We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, which allows the use of a wide range of nonlinear real functions including nonlinear ODEs. We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize the parameters. We have studied the logic $\lrf$ and $\delta$-decision problems extensively in previous work~\cite{gao12a,gao12b,gao13}. We only define the syntax of $\lrf$-formulas here and more details are given in the Appendix. 
+We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, 
+which allows the use of a wide range of nonlinear real functions including nonlinear ODEs. 
+We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize 
+the parameters. 
+
 \subsection{Hybrid Automata and Encoding of Reachability}\label{language}
 We use $\lrf$-formulas to represent hybrid automata and encode reachability problems as follows. 
 \begin{definition}[$\lrf$-Formulas]
@@ -11,8 +15,21 @@ t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants a
 \; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
 \end{align*}
 \end{definition}
-By computable we mean Type 2 computable, which informally requires that a (real) function may
-be evaluated with arbitrary accuracy --- for more details see the Appendix.
+By computable we mean Type 2 computable, which informally requires that a (real) function can
+be evaluated with arbitrary accuracy. Since in general 
+$\lrf$ formulas are undecidable, the decision problem needs to be relaxed. In particular, for 
+any $\lrf$ formula $\phi$ and any rational $\delta >0$ one can obtain a $\delta$-weakening 
+formula $\phi^\delta$ from $\phi$ by substituting the atoms $t > 0$ with $t > -\delta$ (and
+similarly for $t \geq 0$). Obviously, $\phi^\delta$ implies $\phi$, but not the {\em vice versa}.
+Now, the $\delta$-decision problem is deciding correctly whether:
+\begin{itemize}
+	\item $\phi$ is false ($\mathsf{unsat}$);
+	\item $\phi^\delta$ is true ($\delta$-$\mathsf{sat}$).
+\end{itemize}
+If both cases are true, then either decision is correct. In previous work~\cite{gao12a,gao12b,gao13}
+we presented algorithms ($\delta$-{\em complete} decision procedures) for solving $\delta$-decision 
+problems for $\lrf$ and for ODEs. These algorithms have been implemented in the dReal 
+toolset \cite{dreal}. More details on $\delta$-decision problems are in the Appendix. 
 
 Now we state the encoding for hybrid models. Recall that hybrid automata generalize finite-state
 automata by permitting continuous-time evolution (or {\em flow}) in each discrete state (or {\em mode}). 
