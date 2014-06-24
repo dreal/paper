@@ -25,8 +25,7 @@ In this model, the change of cells transmembrane potential $u$, in response to a
 Figure \ref{model}(a) shows the four modes associated with the BCF model. In Mode $1$, gates $v$ and $w$ are open and gate $s$ is closed. The transmembrane potassium current causes the decay of $u$. The cell is resting and waiting for stimulation. We assume an external stimulus $\epsilon$ equals to $1$ which lasts for $1$ millisecond. The stimulation causes $u$ to increase, which may trigger $\jump_{1 \rightarrow 2}: u \geq \theta_o$. When this jump takes place, the system switches to Mode 2 and $v$ starts closing, and the decay rate of $u$ changes. The system will jump to Mode 3 if $u \geq \theta_w$. In Mode 3, $w$ is also closing; $u$ is governed by the potassium current and the calcium current. When $u \geq \theta_v$, Mode 4 can be reached, which signals a successful action potential (AP) initiation. In Mode 4, $u$ reaches its peak due to the fast opening of the sodium channel. The cardiac muscle contracts and $u$ starts decreasing. 
 
 \paragraph{FK Model.} 
-As shown in Figure \ref{model}(b), this model comprises the same four modes and equations of the BCF model, except that the current change induced by gate $s$ is reduced to an explicit term which is integrated
-in the right-hand side of $du/dt$. Similarly to the BCF model, an AP can be successfully initiated when Mode 4 is reached. 
+As shown in Figure \ref{model}(b), this model comprises the same four modes and equations of the BCF model, except that the current change induced by gate $s$ is reduced to an explicit term which is integrated in the right-hand side of $du/dt$. Similarly to the BCF model, an AP can be successfully initiated when Mode 4 is reached. 
 
 We specified both the BCF and the FK model using dReach's modeling language. Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$) in Mode 1, we checked whether Mode 4 is reachable using the parameter values presented in \cite{orovio08}. This was true (\ie, dReach returned $\delta$-$\mathsf{sat}$) for both models. 
 The simulation of a few witness trajectories are shown in Figure \ref{trace} (the stimulus $\epsilon$ was reset every $500$ milliseconds).
@@ -75,7 +74,32 @@ approaches cannot handle the complexity of the flows in the model.
 \subsection{Parameter identification for cardiac disorders}
 
 When the system cannot reach Mode 4, the cardiac cell loses excitability, which might lead to tachycardia or fibrillation. Starting with Mode 1, our next goal was to identify parameter ranges for which the system will never go into Mode 4. In what follows, we focused our study on the BCF model. 
-Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we aimed at identifying disease-related ranges of the original BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $[0.0001,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} \in (0, \theta_{o1})$ while Mode 4 is reachable if $\tau_{o1} =  \theta_{to1}$. Specifically, for each candidate value $\theta^i_{o1}$, we checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). We set the next candidate to be $(\theta^i_{o1} -\theta_{l})/2$ if $\mathsf{sat}$ was returned, or $(\theta_{r} - \theta^i_{o1})/2$ if $\mathsf{unsat}$ was returned, where $\theta_{l}$ is the largest $\mathsf{unsat}$ candidate and $\theta_{r}$ is the smallest $\mathsf{sat}$ candidate. 
+Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we aimed at identifying disease-related ranges of the original BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $[0.0001,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} \in (0, \theta_{o1})$ while Mode 4 is reachable if $\tau_{o1} =  \theta_{to1}$. The search procedure is illustrated in Algorithm \ref{bs}. Specifically, we set candidate $\theta^i_{o1}$ to be the midpoint of the search domain. We then checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). If $\delta$-$\mathsf{sat}$ was returned, we would recursively check the left half ofthe search domain; otherwise, we would check the right half. 
+
+\begin{algorithm}
+\SetAlgoLined
+\SetKwFunction{BinarySearch}{BinarySearch}
+\SetKwFunction{dReach}{dReach}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\BinarySearch{$M$, $v_{min}$, $v_{max}$, $\delta$}\\
+\Input{A dReach model $M$; lower and upper bounds of parameter $v$: $v_{min}$, $v_{max}$; precision $\delta$}
+\Output{A threshold value $\theta_{v}$}
+\textbf{initialization}: $\theta_{v} \leftarrow (v_{min}+v_{max})/2$\;
+\eIf{$|v_{min} - v_{max}| \le \delta$}{
+  \Return $\theta_{v}$ \;
+}{
+  $Res \leftarrow $ \dReach{$M$, $\theta_{v}$, $\delta$} \;
+  \eIf{$Res = \delta$-$\mathsf{sat}$}{
+    \Return \BinarySearch{$M$, $v_{min}$, $\theta_{v}$, $\delta$}
+  }{
+    \Return \BinarySearch{$M$, $\theta_{v}$, $v_{max}$, $\delta$}
+  }
+}
+\caption{Identify parameter threshold value using binary search. \label{bs}}
+\end{algorithm}
+
+
+
 
 In this manner, we identified $\theta_{o1}$ to be $0.006$, which suggest that when $\tau_{o1} \in (0, 0.006)$, the system will always stay in Mode 1. Similarly, we also obtained a threshold value of $0.13$ for $\tau_{o2}$, such that Mode 3 cannot be reached when $\tau_{o2} \in (0, 0.13)$. Furthermore, whether the system can jump from Mode 3 to Mode 4 depends on the interplay between $\tau_{so1}$ and $\tau_{so2}$.  For each value $\tau_{so2}^i$ of $\tau_{so2}$ sampled from domain $(0, 100]$, we performed the binary search in $(0, 5]$ to find the threshold value $\theta_{so1}$ such that Mode 4 is unreachable when $\tau_{so1} \in [0,\theta_{so1}]$ and $\tau_{so2} = {\tau_{so2}^i}$. By linear regression of the obtained values of $\theta_{so1}$, we identified one more condition that Mode 4 is unreachable:  $6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$. Taken together, we identified the following disease-related parameter ranges:  
 $$\tau_{o1} \in (0,0.006)\vee \tau_{o2} \in (0,0.13)\vee 6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$$
@@ -84,7 +108,7 @@ Figure \ref{cresults} visualizes these results by showing the simulated trajecto
 I THINK WE NEED:
 \begin{itemize}
 	\item A TABLE WITH ALL THE RESULTS AND RUNTIMES
-	\item PSEUDO-CODE FOR THE BINARY SEARCH ALGO
+	%\item PSEUDO-CODE FOR THE BINARY SEARCH ALGO
 	\item SOME (SIMPLE) EXAMPLE OF A FORMULA CHECKED - PERHAPS IN THE APPENDIX?
 \end{itemize}
 
