@@ -79,7 +79,7 @@ approaches cannot handle the complexity of the flows in the model.
 \subsection{Parameter identification for cardiac disorders}
 
 When the system cannot reach Mode 4, the cardiac cell loses excitability, which might lead to tachycardia or fibrillation. Starting with Mode 1, our task was to identify parameter ranges for which the system will never go into Mode 4. In what follows, we focused our study on the BCF model.
-Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we aimed at identifying disease-related ranges of the {\em original} BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $[0.0001,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} \in (0, \theta_{o1})$ while Mode 4 is reachable if $\tau_{o1} =  \theta_{to1}$. The search procedure is illustrated in Algorithm \ref{bs}. Specifically, we set candidate $\theta^i_{o1}$ to be the midpoint of the search domain. We then checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). If $\delta$-$\mathsf{sat}$ was returned, we would recursively check the left-hand half of the search domain; otherwise, we would check the right-hand half.
+Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we identify disease-related ranges of the {\em original} BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $[0.0001,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} \in (0, \theta_{o1})$ while Mode 4 is reachable if $\tau_{o1} =  \theta_{to1}$. The search procedure is illustrated in Algorithm \ref{bs}. Specifically, we set candidate $\theta^i_{o1}$ to be the midpoint of the search domain. We then checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). If $\delta$-$\mathsf{sat}$ was returned, we would recursively check the left-hand half of the search domain; otherwise, we would check the other half.
 
 \begin{algorithm}
 \SetAlgoLined
@@ -112,12 +112,7 @@ Figure \ref{cresults} visualizes these results by showing the simulated trajecto
 
 \input{exptable}
 
-I THINK WE NEED:
-\begin{itemize}
-        %\item A TABLE WITH ALL THE RESULTS AND RUNTIMES
-        %\item PSEUDO-CODE FOR THE BINARY SEARCH ALGO
-        \item SOME (SIMPLE) EXAMPLE OF A FORMULA CHECKED - PERHAPS IN THE APPENDIX?
-\end{itemize}
+I THINK WE NEED: SOME (SIMPLE) EXAMPLE OF A FORMULA CHECKED - PERHAPS IN THE APPENDIX?
 
 
 \begin{figure}[h]
