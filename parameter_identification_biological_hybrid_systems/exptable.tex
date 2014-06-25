@@ -1,39 +1,77 @@
+%{\small
+%\begin{table}[!th]
+%  \centering
+%  \small
+%  \begin{tabular}{l|r|r|r|r|r|r|r|r}
+%    \hline
+%    \hline
+%    Benchmark    & \#Mode& \#Depth & \#ODE & \#Var  & Delta  & Result       & Time(s) & Trace \\
+%    \hline
+%    \hline
+%    bcf-4m-bad & 4 & 3 & 20 & 53 & 0.0001 & UNSAT & 0.89 & ---\\
+%    bcf-4m-good & 4 & 3 & 20 & 53 & 0.0001 & SAT & 1.33 & 788K\\
+%    bcf-4m-stim-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.06 & ---\\
+%    bcf-4m-stim-good & 4 & 3 & 24 & 62 & 0.0001 & SAT & 303.08 & 248K\\
+%    bcf-7m-good & 7 & 6 & 35 & 89 & 0.0001 & SAT & 7903.61 & 1552K\\
+%    bcf-7m-stim-tsi-us-good & 7 & 6 & 56 & 134 & 0.0001 & Running & --- & ---\\
+%    bcf-to1-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.76 & ---\\
+%    bcf-to2-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.32 & ---\\
+%    bcf-tso1-tso2-bad & 4 & 3 & 28 & 71 & 0.0001 & UNSAT & 0.11 & ---\\
+%    fk-4m-stim-bad & 4 & 3 & 20 & 53 & 0.0001 & UNSAT & 0.78 & ---\\
+%    fk-4m-stim-good & 4 & 3 & 20 & 53 & 0.0001 & SAT & 215.91 & 200K\\
+%    fk-7m-stim-tsi-us-bad & 7 & 6 & 49 & 119 & 0.0001 & UNSAT & 0.06 & ---\\
+%    \hline
+%    \hline
+%  \end{tabular}
+%  \caption{\small
+%    \#Mode = Number of modes in the hybrid system,
+%    \#Depth = Unrolling depth,
+%    \#ODE = Number of ODEs in the unrolled formula,
+%    \#Var = Number of variables in the unrolled formula,
+%    Result = Bounded Model Checking Result (delta-SAT/UNSAT)
+%    Time = CPU time (s),
+%    Trace = Size of the ODE trajectory
+%}\label{tbl:exp}
+%\end{table}
+%}
+
+
 {\small
 \begin{table}[!th]
   \centering
   \small
-  \begin{tabular}{l|r|r|r|r|r|r|r|r}
+  \begin{tabular}{c|c|c|c|c|c}
     \hline
     \hline
-    Benchmark    & \#Mode& \#Depth & \#ODE & \#Var  & Delta  & Result       & Time(s) & Trace \\
+    Run\# & Model   & Initial State  & \#Var  & Result   & Time(s)   \\
     \hline
     \hline
-    bcf-4m-bad & 4 & 3 & 20 & 53 & 0.0001 & UNSAT & 0.89 & ---\\
-    bcf-4m-good & 4 & 3 & 20 & 53 & 0.0001 & SAT & 1.33 & 788K\\
-    bcf-4m-stim-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.06 & ---\\
-    bcf-4m-stim-good & 4 & 3 & 24 & 62 & 0.0001 & SAT & 303.08 & 248K\\
-    bcf-7m-good & 7 & 6 & 35 & 89 & 0.0001 & SAT & 7903.61 & 1552K\\
-    bcf-7m-stim-tsi-us-good & 7 & 6 & 56 & 134 & 0.0001 & Running & --- & ---\\
-    bcf-to1-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.76 & ---\\
-    bcf-to2-bad & 4 & 3 & 24 & 62 & 0.0001 & UNSAT & 0.32 & ---\\
-    bcf-tso1-tso2-bad & 4 & 3 & 28 & 71 & 0.0001 & UNSAT & 0.11 & ---\\
-    fk-4m-stim-bad & 4 & 3 & 20 & 53 & 0.0001 & UNSAT & 0.78 & ---\\
-    fk-4m-stim-good & 4 & 3 & 20 & 53 & 0.0001 & SAT & 215.91 & 200K\\
-    fk-7m-stim-tsi-us-bad & 7 & 6 & 49 & 119 & 0.0001 & UNSAT & 0.06 & ---\\
+    1 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$) & 53  & $\mathsf{sat}$  & 303.08 \\
+    2 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$)  & 53 & $\mathsf{sat}$ & 215.91 \\
+    3 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0,0.25]$) & 53  & $\mathsf{unsat}$  & 0.06 \\
+    4 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.0,0.25]$)  & 53 & $\mathsf{unsat}$ & 0.78 \\
+    5 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$)  & 89  & $\mathsf{sat}$  & 7903.61 \\
+    6 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_{s} \in [0.5,2]$)  & 119 & $\mathsf{unsat}$ & 0.06 \\   
+    7 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} = 30.02$) & 53  & $\mathsf{sat}$  & 0.89 \\        
+    8 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} = 0.0055$) & 53  & $\mathsf{unsat}$  & 1.33 \\        
+    9 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} \in (0.0, 0.006)$) & 62  & $\mathsf{unsat}$  & 0.76 \\        
+    10 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o2} \in (0.0, 0.13)$)  & 62  & $\mathsf{unsat}$  & 0.32 \\     
+    11 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{so1} \in [10, 40]$, $\tau_{so1}\in [0.5, 2]$) & 71  & $\mathsf{unsat}$  & 0.11 \\   
     \hline
     \hline
   \end{tabular}
-  \caption{\small
-    \#Mode = Number of modes in the hybrid system,
-    \#Depth = Unrolling depth,
-    \#ODE = Number of ODEs in the unrolled formula,
-    \#Var = Number of variables in the unrolled formula,
-    Result = Bounded Model Checking Result (delta-SAT/UNSAT)
+  \caption{\small Experimental results.
+    %\#Mode = Number of modes in the hybrid system,
+    %\#Depth = Unrolling depth,
+    %\#ODE = Number of ODEs in the unrolled formula,
+    \#Var = number of variables in the unrolled formula,
+    Result = bounded model checking result ($\delta$-$\mathsf{sat}$/$\mathsf{unsat}$)
     Time = CPU time (s),
-    Trace = Size of the ODE trajectory
+    %Trace = Size of the ODE trajectory
 }\label{tbl:exp}
 \end{table}
 }
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
