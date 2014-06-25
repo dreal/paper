@@ -43,20 +43,23 @@
   \begin{tabular}{c|c|c|c|c|c}
     \hline
     \hline
-    Run\# & Model   & Initial State  & \#Var  & Result   & Time(s)   \\
+    Run & Model   & Initial State  & Var  & Result   & Time   \\
     \hline
     \hline
-    1 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$) & 53  & $\mathsf{sat}$  & 303.08 \\
-    2 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$)  & 53 & $\mathsf{sat}$ & 215.91 \\
+    %1 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$) & 53  & $\mathsf{sat}$  & 303.08 \\
+    1 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$) & 53  & $\delta$-$\mathsf{sat}$  & 303 \\
+    %2 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$)  & 53 & $\mathsf{sat}$ & 215.91 \\
+    2 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$)  & 53 & $\delta$-$\mathsf{sat}$ & 216 \\
     3 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0,0.25]$) & 53  & $\mathsf{unsat}$  & 0.06 \\
     4 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.0,0.25]$)  & 53 & $\mathsf{unsat}$ & 0.78 \\
-    5 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$)  & 89  & $\mathsf{sat}$  & 7903.61 \\
-    6 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_{s} \in [0.5,2]$)  & 119 & $\mathsf{unsat}$ & 0.06 \\   
-    7 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} = 30.02$) & 53  & $\mathsf{sat}$  & 0.89 \\        
+    5 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$)  & 89  & $\delta$-$\mathsf{sat}$  & 7,904 \\
+    %5 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$)  & 89  & $\mathsf{sat}$  & 7903.61 \\
+    6 & FK & ($u = 0$, $v = 1$, $w = 1$, $\epsilon \mathord{\in} [0.9,1.1]$, $\tau_{si} \mathord{\in} [1,2]$, $u_{s} \mathord{\in} [0.5,2]$)  & 119 & $\mathsf{unsat}$ & 0.06 \\   
+    7 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} = 30.02$) & 53  & $\delta$-$\mathsf{sat}$  & 0.89 \\        
     8 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} = 0.0055$) & 53  & $\mathsf{unsat}$  & 1.33 \\        
     9 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o1} \in (0.0, 0.006)$) & 62  & $\mathsf{unsat}$  & 0.76 \\        
     10 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{o2} \in (0.0, 0.13)$)  & 62  & $\mathsf{unsat}$  & 0.32 \\     
-    11 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{so1} \in [10, 40]$, $\tau_{so1}\in [0.5, 2]$) & 71  & $\mathsf{unsat}$  & 0.11 \\   
+    11 & BCF & ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\tau_{so1} \mathord{\in} [10, 40]$, $\tau_{so1}\mathord{\in} [0.5, 2]$) & 71  & $\mathsf{unsat}$  & 0.11 \\   
     \hline
     \hline
   \end{tabular}
@@ -64,9 +67,10 @@
     %\#Mode = Number of modes in the hybrid system,
     %\#Depth = Unrolling depth,
     %\#ODE = Number of ODEs in the unrolled formula,
-    \#Var = number of variables in the unrolled formula,
-    Result = bounded model checking result ($\delta$-$\mathsf{sat}$/$\mathsf{unsat}$)
+    Var = number of variables in the unrolled formula,
+    Result = bounded model checking result,
     Time = CPU time (s),
+    $\delta=0.0001$.
     %Trace = Size of the ODE trajectory
 }\label{tbl:exp}
 \end{table}
