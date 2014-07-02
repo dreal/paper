@@ -1,4 +1,4 @@
-\section{Methods}
+\section{Background}
 
 We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, 
 which allows the use of a wide range of nonlinear real functions including nonlinear ODEs. 
@@ -15,8 +15,8 @@ t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants a
 \; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
 \end{align*}
 \end{definition}
-By computable we mean Type 2 computable, which informally requires that a (real) function can
-be evaluated with arbitrary accuracy. Since in general 
+By computable real function we mean Type 2 computable, which informally requires that a (real) 
+function can be algorithmically evaluated with arbitrary accuracy. Since in general 
 $\lrf$ formulas are undecidable, the decision problem needs to be relaxed. In particular, for 
 any $\lrf$ formula $\phi$ and any rational $\delta >0$ one can obtain a $\delta$-weakening 
 formula $\phi^\delta$ from $\phi$ by substituting the atoms $t > 0$ with $t > -\delta$ (and
@@ -66,7 +66,8 @@ $\beta$ is a constant. Again, note that the integration terms define Type 2 comp
 \end{itemize}
 \end{example}
 
-We now show the encoding of bounded reachability. Basically, we want to decide whether a given 
+We now show the encoding of bounded reachability, which is used for encoding the parameter synthesis
+problem. Basically, we want to decide whether a given 
 hybrid system reaches a particular region of its state space after following a (bounded) number
 of discrete transitions, \ie, jumps. First, we need to define a set of auxiliary formulas that 
 will be important for ensuring that a particular mode is picked at a certain step.
@@ -76,9 +77,9 @@ $$\enforce_Q(q,i) = b^i_{q} \wedge \bigwedge_{p\in Q\setminus\{q\}}\neg b^{i}_{p
 $$\enforce_Q(q, q',i) = b^{i}_{q}\wedge \neg b^{i+1}_{q'} \wedge \bigwedge_{p\in Q\setminus\{q\}} \neg b^i_{p} \wedge \bigwedge_{p'\in Q\setminus\{q'\}} \neg b^{i+1}_{p'}$$
 We omit the subscript $Q$ when the context is clear.\end{definition}
 
-We can now define the following formula that checks whether a {\em goal} region is reachable after 
-exactly $k$ discrete transitions in a hybrid system. We first state the simpler case of a hybrid
-system without invariants.
+We can now define the following formula that checks whether a {\em goal} region of the automaton
+state space is reachable after exactly $k$ discrete transitions. We first state 
+the simpler case of a hybrid system without invariants.
 \begin{definition}[$k$-Step Reachability, Invariant-Free Case]
 Suppose $H$ is an invariant-free hybrid automaton, $U$ a subset of its state space represented by $\goal$,
 and $M>0$. The formula $\reach_{H,U}(k,M)$ is defined as:
@@ -112,6 +113,6 @@ t)\rightarrow \inv_{q'}(\vec x)) )\Big)\bigg)\\
 \end{definition}
 The extra universal quantifier for each continuous flow expresses the requirement that for all the time points between the initial and ending time point ($t\in[0,t_i+1]$) in a flow, the continuous variables $\vec x$ must take values that satisfy the invariant conditions $\inv_q(\vec x)$.
 
-
 % PZ: I think the two sentences below should in 'Methods' section.
-We have developed an open-source tool dReach using OCaml to perform $\delta$-complete reachability analysis for hybrid systems (\url{http://dreal.cs.cmu.edu/dreach.html}). dReach is built upon our SMT solver dReal \citep{dreal} that implements a $\delta$-complete decision procedure.
+We have developed the dReach tool to perform $\delta$-complete reachability analysis for 
+hybrid systems (\url{http://dreal.cs.cmu.edu/dreach.html}). dReach is built upon our solver dReal \citep{dreal} that implements a $\delta$-complete decision procedure.
