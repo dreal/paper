@@ -36,15 +36,15 @@ it algorithmically --- this is the approach we shall follow.
 In this paper, we tackle the parameter synthesis problem using $\delta$-complete procedures \cite{gao12a} 
 for deciding first-order formula with arbitrary computable real functions, including solutions 
 of Lipschitz-continuous ODEs \citep{gao12b}. Such procedures may return answers with
-one-sided $\delta$-bounded errors, thereby overcoming undecidability issues. (Note that the maximum 
-allowable error $\delta$ is an arbitrarily small positive rational.) In our approach we describe 
+one-sided $\delta$-bounded errors, thereby overcoming undecidability issues (note that the maximum 
+allowable error $\delta$ is an arbitrarily small positive rational). In our approach we describe 
 the set of states of interest as a first-order logic formula and perform bounded model checking \cite{BMC}
 to determine reachability of these states. %We then adapt an interval constrains propagation based algorithm
 %to explore the parameter space and identify the sets of resulting parameters. 
 %In this paper, we propose a novel framework to tackle the parameter synthesis problem for nonlinear hybrid models in biology using $\delta$-complete decision procedures. We describe the set of states of interested as a first-order logic formula and perform bounded model checking to determine reachability of these states. We then adapt an interval constrains propagation (ICP) based algorithm to explore the parameter spaces and identify the sets of resulting parameters. Note that determining the truth value of first-order sentences over the reals with nonlinear real functions is a well-known undefinable problem. Here we employ our recently developed $\delta$-\textit{decision} based framework to ask for answers that may have one-sided $\delta$-bounded errors. That is, given a first-order sentence $\phi$, we ask whether $\phi$ is false, or some $\delta$-relaxation of $\phi$ is true, which is defined as a slight syntactic variation of $\phi$. We have proved that the $\delta$-complete decision procedures can solve SMT problems over the reals with arbitrary computable real functions \citep{gao12a} including solutions of Lipschitz-continuous ODEs \citep{gao12b}.
 We show the applicability of our method by carrying out a thorough case study characterized by 
-a highly nonlinear hybrid model. We analyze a cardiac cell action potential 
-model \cite{orovio08} and we identify parameter ranges for which a cardiac cell may lose excitability.
+highly nonlinear hybrid models. We discriminate two cardiac cell action potential 
+models \cite{fenton98,orovio08} in terms of cell-type specificity and identify parameter ranges for which a cardiac cell may lose excitability.
 The results show that our method can obtain biological insights that are consistent with experimental 
 observations, scales to complex systems. In particular, the cardiac model studied is out of the scope of 
 state-of-the-art tools.
@@ -59,7 +59,7 @@ and we make the following contributions:
 	      formula;
 	\item we present a novel parameter synthesis technique based on $\delta$-complete procedures and
 	      bounded model checking;
-	\item we showcase the performance of our method by analyzing a hybrid model featuring 
+	\item we showcase the performance of our method by analyzing two hybrid models featuring 
 	      highly nonlinear behavior which is out of the scope of state-of-the-art tools.
 \end{itemize}
 }
