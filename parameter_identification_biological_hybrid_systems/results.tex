@@ -1,9 +1,9 @@
 \section{Case Study}
 
 To exemplify different aspects of our parameter synthesis framework, we carried out a case study on
-a model of the cardiac cell electrical dynamics. All the experiments reported below were done
+models of cardiac cell electrical dynamics. All experiments reported below were done
 using a machine with an Intel Core i5 3.4GHz processor and 8GB RAM. The precision $\delta$
-was set to $0.0001$. The model files are available at \verb#http://www.cs.cmu.edu/~liubing/cmsb14/#.
+was set to $10^{-4}$. The model files are available at \verb#http://www.cs.cmu.edu/~liubing/cmsb14/#.
 
 
 \subsection{Hybrid models of cardiac cells}
@@ -36,7 +36,7 @@ The simulation of a few witness trajectories are shown in Figure \ref{trace} (th
 \subfigure[]{
 \includegraphics[width=8cm]{fig-fk}
 }
-\caption{The simulated time profile of BCF and FK.}
+\caption{The simulated witness trajectories of the BCF and the FK models.}
 \label{trace}
  %\vspace{-0.7cm}
 \end{figure}
@@ -46,19 +46,19 @@ The simulation of a few witness trajectories are shown in Figure \ref{trace} (th
 Both the BCF and the FK models were able to reproduce essential characteristics (\eg, steady-state action potential duration) observed in human ventricular cells \cite{fenton98,orovio08}. However, ventricular cells comprise three cell types, which possess different dynamical characteristics. For instance, Figure \ref{ap} shows that time courses of APs for epicardial and endocardial human ventricular cells have different morphologies \cite{nabauer96}. The important \textit{spike-and-dome} AP morphology can only be observed in epicardial cells but not endocardial cells. Hence, in a model-based study, one needs to identify cell-type-specific parameters to take account into cellular heterogeneity. The feasibility of this task will depend on the model of choice, as for certain models it would be impossible to reproduce a dynamical behavior no matter which parameter values are used. Here we illustrate that such models can be ruled out efficiently using our $\delta$-decision based parameter synthesis framework.
 
 \paragraph{Robustness.}
-To ensure proper functioning of cardiac cells in noisy environments, an important property of the system is to filter out insignificant stimulation. Thus, we expected to see that AP could not be initiated for small $\epsilon$. Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.0,0.25]$) in Mode 1, we checked the reachability of Mode 4. The $\mathsf{unsat}$ answer was returned by dReach for both the BCF and FK
+We first consider the robustness property of the models. To ensure proper functioning of cardiac cells in noisy environments, an important property of the system is to filter out insignificant stimulation. Thus, we expected to see that AP could not be initiated for small $\epsilon$. Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.0,0.25]$) in Mode 1, we checked the reachability of Mode 4. The $\mathsf{unsat}$ answer was returned by dReach for both the BCF and FK
 model (Table \ref{tbl:exp}, Run\#3 and Run\#4), showing that the models are robust to stimulation amplitude.
 
 \begin{figure}[th]
 \centering
 \includegraphics[scale=0.8]{fig-ap}
-\caption{Experimental AP morphology \cite{nabauer96}.}
+\caption{Different AP morphologies observed in epicardial and endocardial cells \cite{nabauer96}.}
 \label{ap}
- %\vspace{-0.7cm}
+\vspace{-0.7cm}
 \end{figure}
 
 \paragraph{AP morphology.}
-Next we tested whether the models can reproduce the spike-and-dome AP morphology of epicardial cells. We introduced two auxiliary modes (Mode 5 and 6). The system will jump from Mode 4 to Mode 5 if $\text{\em time} \le 10$, and will jump from Mode 5 to Mode 6 if $\text{\em time} \le 30$. In Modes 5 and 6, we enforced invariants $1.0 \le u \le 1.15$ and $1.18 \le u \le 2.0$, respectively, to depict the spike-and-dome morphology observed experimentally \cite{nabauer96}. We then checked reachability of Mode 6, starting from Mode 1 in state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_s \in [0.5,2]$),
+Next we tested whether the models can reproduce the spike-and-dome AP morphology of epicardial cells. We introduced three auxiliary modes (Mode 5, 6 and 7). The system will jump from Mode 4 to Mode 5, where $\epsilon$ is reset to $0$, if $\text{\em time} \ge 1$. The system will jump from Mode 5 to Mode 6 if $\text{\em time} \ge 10$, and will jump from Mode 6 to Mode 7 if $\text{\em time} \ge 30$. In Modes 6 and 7, we enforced invariants $1.0 \le u \le 1.15$ and $1.18 \le u \le 2.0$, respectively, to depict the spike-and-dome morphology observed experimentally \cite{nabauer96}. We then checked reachability of Mode 7, starting from Mode 1 in state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_s \in [0.5,2]$),
 where $\tau_{si}$ and $u_s$ are two model parameters that govern the dynamics of $u$ and $s$ in
 Mode 3 and 4 (see Figure \ref{model}).
 The $\delta$-$\mathsf{sat}$ answer
@@ -74,7 +74,7 @@ approaches cannot handle the complexity of the flows in the model.
 \subsection{Parameter identification for cardiac disorders}
 
 When the system cannot reach Mode 4, the cardiac cell loses excitability, which might lead to tachycardia or fibrillation. Starting with Mode 1, our task was to identify parameter ranges for which the system will never go into Mode 4. In what follows, we focused our study on the BCF model.
-Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we identify disease-related ranges of the {\em original} BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $[0.0001,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} \in (0, \theta_{o1})$ while Mode 4 is reachable if $\tau_{o1} =  \theta_{to1}$. The search procedure is illustrated in Algorithm \ref{bs}. Specifically, we set candidate $\theta^i_{o1}$ to be the midpoint of the search domain. We then checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). If $\delta$-$\mathsf{sat}$ was returned (\eg, Table \ref{tbl:exp}, Run\#7), we would recursively check the left-hand half of the search domain; otherwise (\eg, Table \ref{tbl:exp}, Run\#8), we would check the other half.
+Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification problem by linearizing the BCF model into a piecewise-multiaffine system (referred as MHA). With this simplification, parameter ranges could be identified using the Rovergene tool \cite{rovergene}. However, the BCF and MHA models have different sets of parameters. Here we identify disease-related ranges of the {\em original} BCF parameters. It can be derived from the model equations that $\tau_{o1}$ and $\tau_{o2}$ govern the dynamics of $u$ in Mode 1 and Mode 2 respectively, and hence determine whether $\jump_{1\rightarrow 2}$ and  $\jump_{2\rightarrow 3}$ can be triggered. For $\tau_{o1}$, we performed a binary search in value domain $(0,0.01]$ to obtain a threshold value $\theta_{o1}$ such that Mode 4 is unreachable if $\tau_{o1} < \theta_{o1}$ while Mode 4 is reachable if $\tau_{o1} \ge \theta_{to1}$. The search procedure is illustrated in Algorithm \ref{bs}. Specifically, we set candidate $\theta^i_{o1}$ to be the midpoint of the search domain. We then checked the reachability of Mode 4 with the initial state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\theta_{o1} = \theta^i_{o1}$). If $\delta$-$\mathsf{sat}$ was returned (\eg, Table \ref{tbl:exp}, Run\#7), we would recursively check the left-hand half of the search domain; otherwise (\eg, Table \ref{tbl:exp}, Run\#8), we would check the other half.
 
 \begin{algorithm}
 \SetAlgoLined
@@ -100,18 +100,18 @@ Grosu {\em et al.}~\cite{grosu11} have tackled this parameter identification pro
 
 
 
-In this manner, we identified $\theta_{o1}$ to be $0.006$, which suggest that when $\tau_{o1} \in (0, 0.006)$, the system will always stay in Mode 1 (Table \ref{tbl:exp}, Run\#9). Similarly, we also obtained a threshold value of $0.13$ for $\tau_{o2}$, such that Mode 3 cannot be reached when $\tau_{o2} \in (0, 0.13)$ (Table \ref{tbl:exp}, Run\#10). Furthermore, whether the system can jump from Mode 3 to Mode 4 depends on the interplay between $\tau_{so1}$ and $\tau_{so2}$.  For each value $\tau_{so2}^i$ of $\tau_{so2}$ sampled from domain $(0, 100]$, we performed the binary search in $(0, 5]$ to find the threshold value $\theta_{so1}$ such that Mode 4 is unreachable when $\tau_{so1} \in [0,\theta_{so1}]$ and $\tau_{so2} = {\tau_{so2}^i}$. By linear regression of the obtained values of $\theta_{so1}$, we identified one more condition that Mode 4 is unreachable:  $6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$ (\eg,  $\tau_{so1} \in [10, 40] \wedge \tau_{so1}\in [0.5, 2]$, see Table \ref{tbl:exp}, Run\#11). Taken together, we identified the following disease-related parameter ranges:
+In this manner, we identified $\theta_{o1}$ to be $0.006$, which suggest that when $\tau_{o1} \in (0, 0.006)$, the system will always stay in Mode 1 (Table \ref{tbl:exp}, Run\#9). Similarly, we also obtained a threshold value of $0.13$ for $\tau_{o2}$, such that Mode 3 cannot be reached when $\tau_{o2} \in (0, 0.13)$ (Table \ref{tbl:exp}, Run\#10). Furthermore, whether the system can jump from Mode 3 to Mode 4 depends on the interplay between $\tau_{so1}$ and $\tau_{so2}$.  For each value $\tau_{so2}^i$ of $\tau_{so2}$ sampled from domain $[0, 100]$, we performed the binary search in $[0, 5]$ to find the threshold value $\theta_{so1}$ such that Mode 4 is unreachable when $\tau_{so1} \in [0,\theta_{so1}]$ and $\tau_{so2} = {\tau_{so2}^i}$. By linear regression of the obtained values of $\theta_{so1}$, we identified one more condition that Mode 4 is unreachable:  $6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$ (\eg,  $\tau_{so1} \in [10, 40] \wedge \tau_{so1}\in [0.5, 2]$, see Table \ref{tbl:exp}, Run\#11). Taken together, we identified the following disease-related parameter ranges:
 $$\tau_{o1} \in (0,0.006)\vee \tau_{o2} \in (0,0.13)\vee 6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$$
-Figure \ref{cresults} visualizes these results by showing the simulated trajectories using corresponding  parameter values.
+Figure \ref{cresults} visualizes these results by showing the simulated trajectories using corresponding parameter values.
 
 
 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.6]{fig-cardiactraj2}
-\caption{Simulation results using disease related parameter values. (a) Original parameters (b) $\tau_{o1}=0.0055$ (c) $\tau_{o2} = 0.125$ (d) $\tau_{so1} =1.2$, $\tau_{so2} =1.0$ }
+\caption{Simulation results using disease related parameter values. (a) Normal condition (original parameters) (b) $\tau_{o1}=0.0055$ (c) $\tau_{o2} = 0.125$ (d) $\tau_{so1} =1.2$, $\tau_{so2} =1.0$ }
 \label{cresults}
- %\vspace{-0.7cm}
+ \vspace{-0.7cm}
 \end{figure}
 
 \input{exptable}
