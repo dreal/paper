@@ -39,42 +39,55 @@ of Lipschitz-continuous ODEs \citep{gao12b}. Such procedures may return answers 
 one-sided $\delta$-bounded errors, thereby overcoming undecidability issues. (Note that the maximum 
 allowable error $\delta$ is an arbitrarily small positive rational.) In our approach we describe 
 the set of states of interest as a first-order logic formula and perform bounded model checking \cite{BMC}
-to determine reachability of these states. We then adapt an interval constrains propagation based algorithm
-to explore the parameter space and identify the sets of resulting parameters. 
+to determine reachability of these states. %We then adapt an interval constrains propagation based algorithm
+%to explore the parameter space and identify the sets of resulting parameters. 
 %In this paper, we propose a novel framework to tackle the parameter synthesis problem for nonlinear hybrid models in biology using $\delta$-complete decision procedures. We describe the set of states of interested as a first-order logic formula and perform bounded model checking to determine reachability of these states. We then adapt an interval constrains propagation (ICP) based algorithm to explore the parameter spaces and identify the sets of resulting parameters. Note that determining the truth value of first-order sentences over the reals with nonlinear real functions is a well-known undefinable problem. Here we employ our recently developed $\delta$-\textit{decision} based framework to ask for answers that may have one-sided $\delta$-bounded errors. That is, given a first-order sentence $\phi$, we ask whether $\phi$ is false, or some $\delta$-relaxation of $\phi$ is true, which is defined as a slight syntactic variation of $\phi$. We have proved that the $\delta$-complete decision procedures can solve SMT problems over the reals with arbitrary computable real functions \citep{gao12a} including solutions of Lipschitz-continuous ODEs \citep{gao12b}.
 We show the applicability of our method by carrying out a thorough case study characterized by 
-a highly nonlinear hybrid model. In particular, we analyzed a cardiac cell action potential
-model \cite{orovio08} and we identified parameter ranges for which a cardiac cell may lose excitability.
+a highly nonlinear hybrid model which is out of the scope of state-of-the-art tools. In particular, 
+we analyzed a cardiac cell action potential model \cite{orovio08} and we identified parameter ranges 
+for which a cardiac cell may lose excitability.
 The results show that our method scales to relatively large and complex systems, and can obtain 
 biological insights that are consistent with experimental observations.
-
+\hide{
+\vspace{-2ex}
+\paragraph{{\bf Our Contribution.}}
+To summarize, in this paper we tackle parameter synthesis for hybrid biological models 
+and we make the following contributions:
+\vspace{-1ex}
+\begin{itemize}
+	\item we show how to encode the parameter synthesis problem as a bounded $\delta$-satisfiable
+	      formula;
+	\item we present a novel parameter synthesis technique based on $\delta$-complete procedures and
+	      bounded model checking;
+	\item we showcase the performance of our method by analyzing a hybrid model featuring 
+	      highly nonlinear behavior which is out of the scope of state-of-the-art tools.
+\end{itemize}
+}
 %We show the applicability of our method by carrying out two case studies. The first one involves a hybrid system built by \cite{ideta08}, which aims to study the hormone therapy for prostate cancer. We show that our method is able to perform model selection by ruling out model candidates which hopelessly fit the experimental observation. We also used our method to optimize personalized treatment schemes for individual patients to achieve maximum therapeutic efficacy.
 %In the second case study we analyzed a cardiac cell model developed by \cite{orovio08} in order to investigate the cardiac disorders. We identified parameter ranges for which a cardiac cell may lose excitability. The results show that our method scales and can obtain biological insights that are consistent with experimental observations.
-
 % \cite{grosu11}
 % [TODO] Related Work.
 % hybrid modeling of biological system
 % model checking, SMT
 % parameter synthesis, reachbility analysis, interval analysis
-
-\paragraph{Related Work.}
+\vspace{-2ex}
+\paragraph{{\bf Related Work.}}
 A survey of modeling and analysis of biological systems using hybrid models can be found in \cite{luca08}.
 Analyzing the properties of biochemical networks using formal verification techniques is being actively
 pursued by a number of researchers, for which we refer to Brim's {\em et al.} recent 
 survey \cite{BrimSFM13}.
 Of particular interest in our context are parameter synthesis methods for qualitative behavior 
 specifications (\eg, temporal logic formulas). The method introduced in \cite{rovergene} can deal 
-with parameter synthesis for piecewise affine linear systems. For systems of ODEs, 
-Donz\'{e} {\em et al.}~\cite{donze} described a more efficient way to explore the parameter space 
-based on adaptive sampling and simulation, while Palaniappan {\em et al.} \cite{liu13} use a statistical 
+with parameter synthesis for piecewise affine linear systems. For ODEs, 
+Donz\'{e} {\em et al.}~\cite{donze} explore the parameter space using adaptive sampling and simulation, 
+while Palaniappan {\em et al.} \cite{liu13} use a statistical 
 model checking approach. Other techniques perform a sweep of the entire (bounded) parameter space, 
 after it has been discretized \cite{Calzone06,Donaldson08}. Randomized optimization techniques were used
 for parameter estimation in stochastic hybrid systems \cite{Koutroumpas08}, while identification
 techniques for affine systems were used in \cite{Cinquemani08}.
-We remark that the techniques above can handle nonlinear
-hybrid systems only through sampling and simulation, and so they are necessarily incomplete. 
-We use instead verified numerical algorithms that offer guaranteed answers, so that
-if a model is found to be unfeasible, then this is guaranteed to be correct.
+The techniques above can handle nonlinear hybrid systems only through sampling and 
+simulation, and so are incomplete. Our approach is instead $\delta$-complete, so that if a model 
+is found to be unfeasible, then this is correct (see below for more information).
 
 %A survey of modeling and analysis of biological systems using hybrid models can be found in \cite{luca08}. Formal verification of hybrid systems is a well-established domain \citep{alur}. Analyzing the properties of biochemical networks using model checking techniques \citep{clarkebook} is being actively pursued by a number of groups \citep{clarke08,chabrier04,kwiatkowska08,miyano11,liu12bioinfo}. Of particular interest in our context are parameter synthesis methods which identify range of parameters for which some qualitative behavior is exhibited. The method presented in \cite{rovergene} can deal with parameter synthesis problem for piecewise affine linear systems. For nonlinear ODE systems, \cite{donze} described a more efficient way to explore the parameter space based on adaptive sampling and numerical simulation. 
 %L: please add more related work if any. it would be great if brief discussion about the limitations of above methods can be provided.
@@ -85,18 +98,6 @@ if a model is found to be unfeasible, then this is guaranteed to be correct.
 
 
 %Additional background information on these topics can be found in the Supplementary Materials.
-
-\paragraph{Our Contribution.}
-To summarize, in this paper we address the parameter synthesis problem for hybrid biological models 
-and we make the following contributions:
-\begin{itemize}
-	\item we show how to encode the parameter synthesis problem as a bounded $\delta$-satisfiable
-	      formula;
-	\item we present a novel parameter synthesis technique based on $\delta$-complete procedures and
-	      bounded model checking;
-	\item we showcase the performance of our method by analyzing a hybrid model featuring 
-	      highly nonlinear behavior which is out of the scope of state-of-the-art tools.
-\end{itemize}
 
 
 \hide{

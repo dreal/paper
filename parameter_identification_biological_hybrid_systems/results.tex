@@ -1,13 +1,14 @@
 \section{Case Study}
-% PZ: I think the two sentences below should in 'Methods' section.
-%We have developed an open-source tool dReach using OCaml to perform $\delta$-complete reachability
-%analysis for hybrid systems \cite{dreach}. dReach is built upon our SMT solver dReal \citep{dreal}
-%that implements a $\delta$-complete decision procedure.
 
 To exemplify different aspects of our parameter synthesis framework, we carried out a case study on
 a model of the cardiac cell electrical dynamics. All the experiments reported below were done
 using a machine with an Intel Core i5 3.4GHz processor and 8GB RAM. The precision $\delta$
-was set to $0.0001$.
+was set to $0.0001$. The model files are available at \verb#http://www.cs.cmu.edu/~liubing/cmsb14/#.
+
+
+\subsection{Hybrid models of cardiac cells}
+The heart rhythm is enabled by the electrical activity of cardiac muscle cells, which make up the atria and ventricles. The electrical dynamics of cardiac cells is governed by the organized opening and closing of ion channel gates on the cell membrane. Improper functioning of the cardiac cell ionic channels can cause the cells to lose excitability, which disorders electric wave propagation and leads to cardiac abnormalities such as ventricular \textit{tachycardia} or \textit{fibrillation}. In order to understand the mechanisms of cardiac disorders,
+hybrid automata models have been recently developed, including the Fenton-Karma (FK) model \cite{fenton98} and the Bueno-Cherry-Fenton (BCF) model \cite{orovio08}.
 
 \begin{figure}[t]
 \centering
@@ -16,10 +17,6 @@ was set to $0.0001$.
 \label{model}
  %\vspace{-0.7cm}
 \end{figure}
-
-\subsection{Hybrid models of cardiac cells}
-The heart rhythm is enabled by the electrical activity of cardiac muscle cells, which make up the atria and ventricles. The electrical dynamics of cardiac cells is governed by the organized opening and closing of ion channel gates on the cell membrane. Improper functioning of the cardiac cell ionic channels can cause the cells to lose excitability, which disorders electric wave propagation and leads to cardiac abnormalities such as ventricular \textit{tachycardia} or \textit{fibrillation}. In order to understand the mechanisms of cardiac disorders,
-hybrid automata models have been recently developed, including the Fenton-Karma (FK) model \cite{fenton98} and the Bueno-Cherry-Fenton (BCF) model \cite{orovio08}.
 
 \paragraph{BCF Model.}
 In this model, the change of cells transmembrane potential $u$, in response to an external stimulus $\epsilon$ from neighboring cells, is regulated by a fast ion channel gate $v$ and two slow gates $w$ and $s$.

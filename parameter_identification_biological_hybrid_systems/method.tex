@@ -1,12 +1,11 @@
 \section{Background}
-
 We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, 
-which allows the use of a wide range of nonlinear real functions including nonlinear ODEs. 
+which allows the use of a wide range of real functions including nonlinear ODEs. 
 We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize 
 the parameters. 
 
-\subsection{Hybrid Automata and Encoding of Reachability}\label{language}
-We use $\lrf$-formulas to represent hybrid automata and encode reachability problems as follows. 
+%\subsection{Hybrid Automata and Encoding of Reachability}\label{language}
+%We use $\lrf$-formulas to represent hybrid automata and encode reachability problems as follows. 
 \begin{definition}[$\lrf$-Formulas]
 Let $\mathcal{F}$ be a collection of computable real functions. We define:
 \begin{align*}
@@ -35,7 +34,6 @@ Now we state the encoding for hybrid models. Recall that hybrid automata general
 automata by permitting continuous-time evolution (or {\em flow}) in each discrete state (or {\em mode}). 
 Also, in each mode an {\em invariant} must be satisfied by the flow, and mode switches are controlled
 by {\em jump} conditions.
-
 \begin{definition}[$\lrf$-Representations of Hybrid Automata]\label{lrf-definition}
 A hybrid automaton in $\lrf$-representation is a tuple
 \begin{multline*}
@@ -115,4 +113,5 @@ The extra universal quantifier for each continuous flow expresses the requiremen
 
 % PZ: I think the two sentences below should in 'Methods' section.
 We have developed the dReach tool to perform $\delta$-complete reachability analysis for 
-hybrid systems (\url{http://dreal.cs.cmu.edu/dreach.html}). dReach is built upon our solver dReal \citep{dreal} that implements a $\delta$-complete decision procedure.
+hybrid systems (\verb#http://dreal.cs.cmu.edu/dreach.html#). dReach is built upon our $\delta$-complete 
+solver dReal \citep{dreal}.
