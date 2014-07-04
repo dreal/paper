@@ -116,8 +116,8 @@ The parameter identification problem we tackle is basically a $k$-step reachabil
 combination for which the model reaches the goal region in $k$ steps? If none exists, then the model is 
 {\em unfeasible}. Otherwise, a witness (\ie, a value for each parameter) is returned. Note that because we ask for
 $\delta$-decisions, the returned witness might correspond to a {\em spurious} behavior of the system. The occurrence
-of such behaviors can be controlled via the precision $\delta$, but in general cannot be eliminated. However,
-any witnesses can be easily verified whether it corresponds to a spurious or a genuine behavior of the system.
+of such behaviors can be controlled via the precision $\delta$, but in general cannot be eliminated. 
+%However, any witnesses can be easily verified whether it corresponds to a spurious or a genuine behavior of the system.
 We have developed the dReach tool (\verb#http://dreal.cs.cmu.edu/dreach.html#) 
 that automatically builds reachability formulas from a hybrid model and a goal 
 description. Such formulas are then verified by our $\delta$-complete solver dReal \citep{dreal}.
