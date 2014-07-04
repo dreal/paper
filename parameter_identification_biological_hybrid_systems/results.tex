@@ -9,15 +9,13 @@ was set to $0.0001$. The model files are available at \verb#http://www.cs.cmu.ed
 \subsection{Hybrid models of cardiac cells}
 The heart rhythm is enabled by the electrical activity of cardiac muscle cells, which make up the atria and ventricles. The electrical dynamics of cardiac cells is governed by the organized opening and closing of ion channel gates on the cell membrane. Improper functioning of the cardiac cell ionic channels can cause the cells to lose excitability, which disorders electric wave propagation and leads to cardiac abnormalities such as ventricular \textit{tachycardia} or \textit{fibrillation}. In order to understand the mechanisms of cardiac disorders,
 hybrid automata models have been recently developed, including the Fenton-Karma (FK) model \cite{fenton98} and the Bueno-Cherry-Fenton (BCF) model \cite{orovio08}.
-
 \begin{figure}[t]
 \centering
 \includegraphics[scale=0.5]{fig-cardiac-new}
 \caption{Hybrid models of cardiac cells. (a) BCF model. (b) FK model.}
 \label{model}
- %\vspace{-0.7cm}
+\vspace{-1ex}
 \end{figure}
-
 \paragraph{BCF Model.}
 In this model, the change of cells transmembrane potential $u$, in response to an external stimulus $\epsilon$ from neighboring cells, is regulated by a fast ion channel gate $v$ and two slow gates $w$ and $s$.
 Figure \ref{model}(a) shows the four modes associated with the BCF model. In Mode $1$, gates $v$ and $w$ are open and gate $s$ is closed. The transmembrane potassium current causes the decay of $u$. The cell is resting and waiting for stimulation. We assume an external stimulus $\epsilon$ equal to $1$ that lasts for $1$ millisecond. The stimulation causes $u$ to increase, which may trigger $\jump_{1 \rightarrow 2}: u \geq \theta_o$. When this jump takes place, the system switches to Mode 2 and $v$ starts closing, and the decay rate of $u$ changes. The system will jump to Mode 3 if $u \geq \theta_w$. In Mode 3, $w$ is also closing; $u$ is governed by the potassium current and the calcium current. When $u \geq \theta_v$, Mode 4 can be reached, which signals a successful action potential (AP) initiation. In Mode 4, $u$ reaches its peak due to the fast opening of the sodium channel. The cardiac muscle contracts and $u$ starts decreasing.
@@ -106,8 +104,6 @@ In this manner, we identified $\theta_{o1}$ to be $0.006$, which suggest that wh
 $$\tau_{o1} \in (0,0.006)\vee \tau_{o2} \in (0,0.13)\vee 6.2 \cdot \tau_{so1} + \tau_{so2} \ge 9.9$$
 Figure \ref{cresults} visualizes these results by showing the simulated trajectories using corresponding  parameter values.
 
-\input{exptable}
-
 
 
 \begin{figure}[h]
@@ -117,6 +113,8 @@ Figure \ref{cresults} visualizes these results by showing the simulated trajecto
 \label{cresults}
  %\vspace{-0.7cm}
 \end{figure}
+
+\input{exptable}
 
 %%% Local Variables:
 %%% TeX-master: "main"

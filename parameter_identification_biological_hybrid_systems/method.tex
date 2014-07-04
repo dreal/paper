@@ -96,8 +96,7 @@ Then, in each step the trajectory follows $\flow_q(\vec x_{i}, \vec x_{i}^t, t)$
 
 When the invariants are not trivial, we need to ensure that for all the time points along a continuous flow, the invariant condition holds. We need to universally quantify over time, and the encoding is as follows:
 \begin{definition}[$k$-Step Reachability, Nontrivial Invariant]\label{br2}
-Suppose $H$ contains invariants and only deterministic flow
-, and $U$ a subset of its state space represented by $\goal$. In this case, the $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
+Suppose $H$ contains invariants, and $U$ is a subset of the state space represented by $\goal$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as.
 \begin{eqnarray*}
 & &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
 & &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\\
