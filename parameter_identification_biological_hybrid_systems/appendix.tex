@@ -41,8 +41,8 @@ y)>-\delta; t_j(\vec x,
 \vec y)\geq -\delta].$$
 It is clear that $\varphi\rightarrow\varphi^{\delta}$~(see \cite{gao12b}).
 \end{definition}
-In~\cite{dreal}, we have proved that the following $\delta$-decision problem is decidable, which is the basis of our framework.
-\begin{theorem}[$\delta$-Decidability]\label{delta-decide} Let $\delta\in\mathbb{Q}^+$ be
+In~\cite{gao12a}, we have proved that the following $\delta$-decision problem is decidable, which is the basis of our framework.
+\begin{theorem}[$\delta$-Decidability \cite{gao12a}]\label{delta-decide} Let $\delta\in\mathbb{Q}^+$ be
 arbitrary. There is an algorithm which, given any bounded $\lrf$-sentence $\varphi$,
 correctly returns one of the following two answers:
 \begin{itemize}
@@ -51,12 +51,23 @@ correctly returns one of the following two answers:
 \end{itemize}
 When the two cases overlap, either answer is correct.
 \end{theorem}
-\begin{theorem}[Complexity]\label{compmain}
+The following theorem states the (relative) complexity of the $\delta$-decision problem.
+A bounded $\Sigma_n$ sentence is a bounded $\lrf$-sentence with $n$ alternating quantifier blocks 
+starting with $\exists$. 
+\begin{theorem}[Complexity \cite{gao12b}]\label{compmain}
 Let $S$ be a class of $\lrf$-sentences, such that for any $\varphi$ in $S$, the terms in $\varphi$ are in Type 2 complexity class $\mathsf{C}$. Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
 \end{theorem}
+Basically, the theorem says that the number of quantifier alternations will in general increase 
+the complexity of the problem, unless $\mathsf{P}=\mathsf{NP}$ (recall that $\mathsf{\Sigma_0^P}=\mathsf{P}$ 
+and $\mathsf{\Sigma_1^P}=\mathsf{NP}$).
+This result can specialized for specific families of functions. For example, with polynomially-computable 
+functions, the $\delta$-decision problem for bounded $\Sigma_n$-sentences is $\mathsf{(\Sigma_n^P)}$-complete.
+For more details and results we again point the interested reader to \cite{gao12b}.
 
-
+\newpage
 \section*{Appendix: BCF Model in dReach}
+As an example of dReach's modeling language, we report below the actual dReach file for one of 
+the BCF models analyzed in the paper.
 
 \begin{verbatim}
 //Translated to drh by Sicun Gao on Apr-18-2013
@@ -75,7 +86,7 @@ Let $S$ be a class of $\lrf$-sentences, such that for any $\varphi$ in $S$, the 
 // The following are the parameters that you can find in the paper
 // A. Bueno-Orovio, M. Cherry, and F. Fenton, `Minimal model for
 // human ventricular action potentials in tissue', Journal of
-// Theoretical Biology, no. 253, pp. 544?560, 2008.
+// Theoretical Biology, no. 253, pp. 544-560, 2008.
 // ===============================================================
 
 #define  EPI_TVP         1.4506
