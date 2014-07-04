@@ -1,5 +1,9 @@
 \section{Introduction}
 
+Bad values are not isolated. Good values are not isolated. Complete verification would aim to have a complete segmentation of the input domain such that the bad and good parts of it become clear. 
+
+
+
 A major obstacle in ensuing the correctness of critical embedded applications comes from floating-point computations. It is well-known that it is erroneous to compute with floating-point numbers and operations as though they were real numbers~\cite{pitfalls}. A lot of effort has been devoted to ensuring the correctness of basic arithmetic operations of floating point numbers, such as Goppa~\cite{}. Testing and verification methods for embedded software can rely on an abstraction of the basic arithmetic functions, and treat them as over-approximations of the corresponding real operations. Steady progress is made in this direction~\cite{}. 
 
 If we solve the basic arithmetic operations correctly, the next natural step is to ensure properties for basic elementrary real functions, such as exponentiation and trignometric functions. The importance of the functions is clear. Although there are approaches for verifying the correctness of theoretical algorithms~\cite{harrison}, but practical implementations are rarely handled, because of the abundant use of table look up and bit-level operations. The scale of the functions also makes it hard to have complete verification on the full interval, since the computation is usually very expensive. However, multiple problems are involved that render the problem harder than what can be solved in the existing approaches:

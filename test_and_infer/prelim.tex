@@ -10,7 +10,9 @@ It is well-known that floating point computation introduces errors. For basic ar
 
 We use this formula to overapproximate the result of floating point arithmetic with real arithmetic. 
 
-\subsection{Structure of the Implementation}
+\subsection{Structure of Continuous Programs}
+
+main issue: bounded or unbounded loops. 
 
 The basic idea of evaluating the sine function is, naturally, to combine the periodic nature of the function and estimate the value with Taylor series. For each input number, the routine checks its position with respect to multiples of $\pi/4$, and then evaluate the value with appropriate Taylor expansion. 
 
