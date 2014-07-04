@@ -29,9 +29,12 @@ representative benchmarks to show scalability. Many of these formulas are highly
 where
 \begin{eqnarray*}
 %give this definition
-  \Delta_1(\vec{x}) &=& 4x_1 (8x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8) + x_2 x_5 (x_1 - x_2 + x_3 + x_4 - x_5+8\\%sure there's a plus 8 here?
-& &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 - x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
-\Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2 - x_1x_3 - x_1x_4 -x_1 x_5
+  \Delta_1(\vec{x}) &=& 4x_1 (8x_1 (-x_1 + x_2 + x_3 + x_4 + x_5 - 8)\\
+   & &+ x_2 x_5 (x_1 - x_2 + x_3 + x_4 - x_5+8\\%sure there's a plus 8 here?
+& &+ x_3x_4(x_1 + x_2 - x_3 - x_4 + x_5 + 8)+ 8 x_2 x_3 \\
+& &- x_1 x_3 x_5 - x_1  x_2  x_4 - 8 x_4 x_5))\\
+\Delta_2(\vec{x}) &=& x_2 x_5 -x_2 x_3 + x_3x_4 - x_4 x_5 +x_1^2 -x_1x_2\\
+& & - x_1x_3 - x_1x_4 -x_1 x_5
 \end{eqnarray*}
 
 On the other hand, as mentioned above, we fail to establish about the proofs of unsatisfiability of about 30 instances. Table 2 shows some of these instances. They typically generate proofs that are large in size, or that the branch-and-prove loop has to generate too many sub-instances such that the proof checking can not terminate. 

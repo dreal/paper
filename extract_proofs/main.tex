@@ -1,28 +1,26 @@
-\documentclass{llncs}
+\documentclass{IEEEtran}
 \usepackage{mathpartir,amsmath,mathtools}
 \input{preamble}
 
 \title{Proof Generation from Delta-Decisions}
-\author{Sicun Gao \and Soonho Kong \and Edmund Clarke}
-\institute{Computer Science Department, Carnegie Mellon University, Pittsburgh, PA, USA}
+\author{Sicun Gao, Soonho Kong, and Edmund M. Clarke\\
+{\em Carnegie Mellon University, Pittsburgh, PA, USA 15213}}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-We show how to generate and validate logical proofs of unsatisfiability from $\delta$-complete decision procedures that rely on error-prone numerical algorithms. Solving this problem is important for ensuring correctness of the decision procedures. At the same time, it is a new approach for automated theorem proving over real numbers. We design a first-order calculus, and transform the computational steps of constraint solving into logic proofs, which are then validated using proof-checking algorithms. As an application, we demonstrate how proofs generated from our solver can establish many nonlinear lemmas in the the formal proof of the Kepler Conjecture.
+We show how to generate and validate logical proofs of unsatisfiability from delta-complete decision procedures that rely on error-prone numerical algorithms. Solving this problem is important for ensuring correctness of the decision procedures. At the same time, it is a new approach for automated theorem proving over real numbers. We design a first-order calculus, and transform the computational steps of constraint solving into logic proofs, which are then validated using proof-checking algorithms. As an application, we demonstrate how proofs generated from our solver can establish many nonlinear lemmas in the the formal proof of the Kepler Conjecture.
 \end{abstract}
 
 \section{Introduction}
 
 Decision solvers for logic formulas over the real numbers play a crucial role in the formal verification of safety-critical embedded systems. For full reliability, decision solvers should provide, besides ``{\sf sat}/{\sf unsat}" answers, certificates of correctness for such answers. For {\sf sat} answers, we can certify by just plugging in a solution of the formula (value assignments for all variables). For {\sf unsat} answers, there is no such witness, and we need mathematical {\em proofs of unsatisfiability} to guarantee correctness. Such proofs are especially important in the framework of $\delta$-complete decision procedures~\cite{DBLP:conf/cade/GaoAC12}, which rely on numerical procedures that are potentially error-prone. For instance, the following is an actual bug we experienced in building our SMT solver dReal~\cite{bug}:
 \begin{quote}
-With the standard C library implementation {\sf eglibc-2.15}, included in the latest {\sf Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. For instance, in upward rounding mode, $\exp(0.693200) = 2.000106$. Clearly, this leads to bugs in all constraint solvers using this standard C library. Indeed, with standard interval arithmetic, {\sf exp([0.0, 0.6932])} would evaluate to the empty interval (rounding upward on the upper bound), which can lead to incorrect {\sf unsat} answers in {\sf dReal}.
+With the standard C library implementation {\em eglibc-2.15}, included in the latest {\em Ubuntu 12.10}, the exponential and trigonometric functions contain serious errors. For instance, in upward rounding mode, $\sin(-2.437592) > 10^{53}$. Clearly, this leads to bugs in all constraint solvers using this standard C library.
 \end{quote}
 Note that when we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them.
 
-Besides certifying correctness of solvers, obtaining such proofs is also important from the perspective of automated theorem proving. Decision solvers can estalbish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absense of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. The following is a typical one:
-$$\frac{4\arctan\frac{\sqrt 2}{5}-\pi}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}$$
-where $\vec x\in [2, 2.51]^6$,  $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. We will demonstrate that we can automatically generate proofs for many of such formulas. 
+Besides certifying correctness of solvers, obtaining such proofs is also important from the perspective of automated theorem proving. Decision solvers can estalbish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absense of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. We will demonstrate that we can automatically generate proofs for many of such formulas. 
 
 It is worth pointing out that after proof generation, proof checking is still a nontrivial problem because of the use of numerical procedures in the computation. Indeed, not all of the {\sf unsat} answers that we have obtained can be proof checked. For instance, for the Kepler conjecture benchmarks, roughly 70\% of the {\sf unsat} answers obtained by the solver can be validated by formal proofs. Our current proof checker has difficulty with the rest 30\% of these answers. The challenge lies in validating basic axioms about nonlinear functions over the reals, which can be easily established by numerical algorithms (such as Newton iteration), but not symbolically. Ideally, we need to formalize most of the numerical algorithm in a $\delta$-complete decision procedure to achieve full validation. We regard this as an interesting direction towards bridging the gap between numerical and symbolic methods in  solving formulas over the real numbers. 
 
@@ -57,7 +55,7 @@ interval arithmetic and constraint propagation. The idea is to use interval
 extensions of functions to ``prune'' out sets of points that are not in the
 solution set and ``branch'' on intervals when
 such pruning can not be done, recursively until a small enough box
-that may contain a solution is found or inconsistency is observed. ICP uses interval extensions of functions to ``prune'' out sets of points that are not in the solution set, and ``branch'' on intervals when such pruning can not be done, until a small enough box that may contain a solution is found. A high-level description of the decision version of ICP is given in Algorithm~\ref{icpalgo}~\cite{handbookICP,DBLP:conf/cade/GaoAC12}.
+that may contain a solution is found or inconsistency is observed. A high-level description of the decision version of ICP is given in Algorithm~\ref{icpalgo}~\cite{handbookICP,DBLP:conf/cade/GaoAC12}.
 \begin{algorithm}\label{algo1}
 \caption{ICP($f_1,...,f_m, B_0 = I_1^0\times\cdots\times I_n^0, \delta$)}\label{icpalgo}
 \begin{algorithmic}[1]
@@ -69,7 +67,7 @@ that may contain a solution is found or inconsistency is observed. ICP uses inte
         \State $B \gets \mathrm{Prune}(B, f_i)$
         \EndWhile
         \If{$B\neq \emptyset$}
-            \If{$\exists 1\leq i\leq n, |\sharp f_i(B)|\geq \delta$}
+            \If{$\exists 1\leq i\leq m, |\sharp f_i(B)|\geq \delta$}
                 \State $\{B_1,B_2\} \gets \mathrm{Branch}(B, i)$
                 \State $S.\mathrm{push}(\{B_1,B_2\})$
             \Else
@@ -90,10 +88,12 @@ as follows:
 \begin{definition}[Interval Assignment Sequence]
 Let $x_1,...,x_n$ be real variables. An {\em interval assignment sequence} over
 $\vec x$ is a sequence $(s_1,...,s_m)$, where
-$$s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
-\mathbb{IR}\}\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
+\begin{multline*}
+s_i\in \{(x_i\in I_j): 1\leq i\leq n, I_j\in
+\mathbb{IR}\}\\
+\cup\{(x_i\in I_j)^d: 1\leq i\leq n, I_j\in
 \mathbb{IR}\}.
-$$
+\end{multline*}
 We write $(S_1, S_2)$ to denote the concatenation of two sequences $S_1$ and
 $S_2$. The parentheses can be omitted when appropriate.
 \end{definition}
@@ -110,15 +110,15 @@ assume that only connected subsets of values are used here.
 Let $S$ be an interval assignment sequence over variables $x_1,...,x_n$. The
 {\em box
 domain} associated with $S$ is defined by
-$$\beta(S) = I_1\times\cdots \times I_n, \mbox{ where }I_i = \bigcap\{ I:
+$$\beta(S) = I_1\times\cdots \times I_n,$$ 
+where $I_i = \bigcap\{ I:
 (x_i\in
-I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$$
+I)\mbox{ or } (x_i\in I)^d \mbox{ occurs in } S\}.$
 Also, we write $\beta(S)_i$ to denote $I_i$.
 \end{definition}
 
 \begin{definition}[ICP Transitions]~\label{transitions} Let $\vec x =
-(x_1,...,x_n)$ be a vector real variables. We write $c(\vec x)$ to denote an
-arbitrary constraint over $\mathbb{R}^n$, and
+(x_1,...,x_n)$ be a vector of real variables. We write $c(\vec x)$ to denote a constraint over $\mathbb{R}^n$, and
 $S$ an interval assignment sequence over $\vec x$. Let $S\parallel c$ be the
 current state. We will always write $\beta(S_i) = I_i$ to denote the current
 interval assignment on variable $x_i$. We now define the following transition
@@ -181,19 +181,20 @@ provide proofs that can always be validated.
 Consider a constraint $c(x,y) : y=x \wedge y = x^2$, and $x\in [1.5,2]$ and
 $y\in [1,2]$ are the initial interval assignment. A possible ICP run is:
 \begin{eqnarray*}
-x\in [1.5,2], y\in [1,2]\parallel c &\stackrel{br}{\Longrightarrow}& x\in [1,2],
+& &x\in [1.5,2], y\in [1,2]\parallel c \\
+&\stackrel{br}{\Longrightarrow}& x\in [1.5,2],
 y\in [1,2], (x\in [1.7, 2])^d\parallel c\\
-&\stackrel{bt}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7]\parallel c\\
+&\stackrel{bt}{\Longrightarrow}& x\in [1.5,2], y\in [1,2], x\in [1.5, 1.7]\parallel c\\
 & & \mbox{  (backtracking, since $\forall\vec a\in [1.7,2]\times [1,2]$,
 $c(\vec a)$ is false,}\\
 & & \ \ \mbox{and $[1.5,2]\subseteq[1.5,1.7]\cup [1.5, 2]$ for
 $x$)}\\
-&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7], x\in
+&\stackrel{p}{\Longrightarrow}& x\in [1.5,2], y\in [1,2], x\in [1.5, 1.7], x\in
 [1.5, 1.6]\parallel c\\
 & & \mbox{  (pruning, since $\forall \vec a\in[1.6,1.7]\times [1, 2]$, $c(\vec
 a)$ is false)}\\
-&\stackrel{p}{\Longrightarrow}& x\in [1,2], y\in [1,2], x\in [1.5, 1.7],
-x\in [1.5, 1.6], x\in \emptyset\parallel c\\
+&\stackrel{p}{\Longrightarrow}& x\in [1.5,2], y\in [1,2], x\in [1.5, 1.7],\\
+& & \hspace{4cm}x\in [1.5, 1.6], x\in \emptyset\parallel c\\
 & & \mbox{  (pruning, since $\forall \vec a\in[1.5,1.6]\times [1, 2]$, $c(\vec
 a)$
 is false)}\\
@@ -249,12 +250,12 @@ following two rules:
   \forall \vec x ( \psi\vee \psi' \rightarrow \varphi)
   }{\ \ \vee I}\and
   \inferrule{
-  \forall x (\psi \rightarrow \varphi)
+  \forall {\vec x} (\psi \rightarrow \varphi)
     \and
-  \forall x (\psi' \rightarrow \psi)
+  \forall {\vec x} (\psi' \rightarrow \psi)
   }
   {
-  \forall x (\psi' \rightarrow \varphi)
+  \forall {\vec x} (\psi' \rightarrow \varphi)
   }{\ \ \forall\mbox{MP}}
   \end{mathpar}
 and a set $A$ of axioms of the following two types:
@@ -288,9 +289,9 @@ these axioms, which we discuss in Section~\ref{validate}.
 We now describe the construction of proof trees from ICP runs, which will be
 represented as labeled binary trees. A labeled binary tree is defined as a
 tuple $T =
-\langle V, V_L,  \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$, is a finite set of nodes, where $v_0\in V$ always denotes the
+\langle V, V_L, \Sigma, \delta, \sigma\rangle$. Here, $V = \{v_0, ..., v_k\}$, is a finite set of nodes, where $v_0\in V$ always denotes the
 root
-node. $\Sigma$ is a set of labels, which in our case is the set of
+node. $V_L$ is the set of leaf nodes in $V$. $\Sigma$ is a set of labels, which in our case is the set of
 $\mathcal{L}_\mathcal{F}$-formulas. $\delta:\subseteq V\times \{l,r\}
 \rightarrow V$ is a
 partial mapping from a node to its descendant nodes, where $\delta(v, l)$ and
@@ -335,7 +336,10 @@ where $I_i\subseteq I_i^1\cup I_i^2$ and $\forall \vec
 a\in \beta(S_k,x_i\in I_i^1)$, $c(\vec a)$ is false. If we write
 $$\vec I_1 = \beta(S_k, (x_i\in I_i^1)), \vec I_2 = \beta(S_k, (x_i\in
 I_i^2)), \mbox{ and } \vec I= \beta(S_k),$$ then this step corresponds to
-the following sub-tree of the proof
+the sub-tree as shown in Fig. 1, Case A.  
+
+\begin{figure*}[h!]
+A. Pruning Case:
 {\small
 \begin{mathpar}
 \inferrule{\inferrule{
@@ -357,8 +361,71 @@ I_i^1 \vee x\in I_i^2))}\mbox{IA}
   }
 {
 \forall \vec x (\vec x\in\vec I \rightarrow \neg c)
-}\mbox{$\forall$M}
-\end{mathpar}}Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an
+}\mbox{$\forall$MP}
+\end{mathpar}}
+B. Branching Case:
+{\small
+\begin{mathpar}
+\inferrule{\inferrule{
+  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
+    \and
+    \inferrule{\vdots }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+      }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$I}
+  \and
+  {
+  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
+I_i^1 \vee x\in I_i^2))}\mbox{IA}
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$MP}
+   \end{mathpar}
+}
+C. Backtracking Case:
+{\small
+\begin{mathpar}
+\inferrule{
+  \inferrule{
+    \inferrule*{
+      \inferrule*[vdots=1.5em, Right=\mbox{CA}]{ }{
+        \forall \vec x
+        (\vec x\in \beta(S_{k'},(x\in I_i^1)^d,S')\rightarrow \neg c)
+      }
+    }
+    {\forall \vec x (\vec x\in \vec I_1
+      \rightarrow \neg c)}
+    \and
+    \inferrule{
+      \vdots
+      }
+    {
+      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
+    }
+   }
+  {
+  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
+  }\mbox{$\vee$I}
+  \and
+  {
+\vdots\ \ \
+  }
+  }
+{
+\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
+}\mbox{$\forall$MP}
+   \end{mathpar}
+}
+\caption{Proof Trees}\label{trees}
+\end{figure*}
+
+Formally, the sub-tree is added as follows. Let $v\in V_L^k$ be an
 existing
 leaf node that is labeled by the formula corresponding to $S_k\parallel c$;
 namely,
@@ -385,31 +452,7 @@ c,
 under the condition that $I_i^1\subseteq I_i$. If we write
 $$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
 I_i^2)), \mbox{ and } \vec I= \beta(S),$$ where $I\subseteq I_i^1\cup I_2$, then
-this step corresponds to the following sub-tree:
-{\small
-\begin{mathpar}
-\inferrule{\inferrule{
-  \inferrule{\vdots}{\forall \vec x (\vec x\in \vec I_1 \rightarrow \neg c)}
-    \and
-    \inferrule{\vdots }
-    {
-      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
-      }
-   }
-  {
-  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
-  }\mbox{$\vee$I}
-  \and
-  {
-  \inferrule{\ }{\forall x ( x\in I_i\rightarrow(x \in
-I_i^1 \vee x\in I_i^2))}\mbox{IA}
-  }
-  }
-{
-\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
-}\mbox{$\forall$M}
-   \end{mathpar}
-}Formally it is defined as follows. Again, let $v\in V_L^k$
+this step corresponds to the sub-tree as shown in Fig. 1, Case B. Formally it is defined as follows. Again, let $v\in V_L^k$
 be a leaf node such that $\sigma(v) = \forall \vec x (\vec x\in\vec I
 \rightarrow \neg c).$ We then define
 \begin{eqnarray*}
@@ -428,49 +471,15 @@ and set $V_L^{k+1} = (V_L^k\setminus \{v\}) \cup \{v_{k+1}^3, v_{k+1}^4 \}$.
 \paragraph{(Backtracking Case)}Suppose $s_k\Longrightarrow s_{k+1}$ is
 a branching step. That is,
 \begin{eqnarray*}
-S_{k'} , (x_i\in I_i)^d, S'\parallel c &\stackrel{bt}{\Longrightarrow}& S_{k'},
+S_{k'} , (x_i\in I_i^1)^d, S'\parallel c &\stackrel{bt}{\Longrightarrow}& S_{k'},
 (x_i\in I_i^2 ) \parallel c,
 \end{eqnarray*}
-when $\forall a\in \beta(S, (x_i\in I_i)^d, S')$, $c(\vec
+when $\forall a\in \beta(S, (x_i\in I_i^1)^d, S')$, $c(\vec
 a)$ is false, and $I_i\subseteq I_i^2\cup I_i^1$, where $I_i =
 \beta(S_{k'})_i$. $S_{k'}$ is a previous interval assignment
 sequence, with $k'<k$. If we write
 $$\vec I_1 = \beta(S, (x_i\in I_i^1)), \vec I_2 = \beta(S, (x_i\in
-I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then this step corresponds to the
-following sub-tree of the proof.
-{\small
-\begin{mathpar}
-\inferrule{
-  \inferrule{
-    \inferrule*{
-      \inferrule*[vdots=1.5em, Right=\mbox{CA}]{ }{
-        \forall \vec x
-        (\vec x\in \beta(S_{k'},(x\in I_i^1)^d,S')\rightarrow \neg c)
-      }
-    }
-    {\forall \vec x (\vec x\in \vec I_1
-      \rightarrow \neg c)}
-    \and
-    \inferrule{
-      \vdots
-      }
-    {
-      \forall \vec x (\vec x \in \vec I_2 \rightarrow\neg c)
-    }
-   }
-  {
-  \forall x (\vec x\in \vec I_1\vee \vec x \in \vec I_2 \rightarrow \neg c)
-  }\mbox{$\vee$-I}
-  \and
-  {
-\vdots\ \ \
-  }
-  }
-{
-\forall \vec x (\vec x\in\vec I \rightarrow \neg c)
-}\mbox{$\forall$-MP}
-   \end{mathpar}
-}Formally, we simply set $V_L^{k+1} = V_L^{k}$, and do not update the labeling.
+I_i^2), \mbox{ and } \vec I= \beta(S_{k'}),$$ then this step corresponds to the sub-tree as shown in Fig. 1, Case C. Formally, we simply set $V_L^{k+1} = V_L^{k}$, and do not update the labeling.
 
 \paragraph{(Fail Case)} Suppose it is a failure step. That is,
 \begin{eqnarray*}
@@ -485,7 +494,7 @@ c}\mbox{FA}
 \end{mathpar}}We set $V_L^{k+1}=V_L^k\setminus\{v\}$ and do not update $\sigma$.
 
 \paragraph{Complete tree.} In all, after all the steps in the ICP run are
-followed, the tree that we construct is $ T = \langle V, V_L^m, \delta, \sigma
+followed, the tree that we construct is $ T = \langle V, V_L^m, \Sigma, \delta, \sigma
 \rangle$. The axiom set is given by $$A = \{\sigma(v): v\in V_L^m\}.$$
 
 
@@ -550,7 +559,7 @@ $(y-x^2)$, which is $[1,2]-[1.7,2]^2 = [-3, -0.89]$ and does not contain $0$.
 Suppose we want to verify the inequality $f(x_1,...,x_n) > 0$ on a domain $\vec x\in D = I_1\times \cdots \times I_n.$ Using the multivariate mean value theorem, we have that for any $\vec a, \vec b\in D$
 $$f(\vec b) - f(\vec a) = \nabla f(\xi)\cdot (\vec b - \vec a) = \sum_i \frac{\partial f}{\partial x_i}(\xi)\cdot (b_i-a_i)$$
 for some $\xi\in D$. Thus, we can bound $f(x)$ on $D$ by computing the interval bound on the function
-$$\sum_i \sharp\bigg(\frac{\partial f}{\partial x_i}\bigg)(\xi)\cdot (b_i-a_i) + f(\vec a)$$
+$$f(\vec a)+\sum_i \bigg(\sharp\bigg(\frac{\partial f}{\partial x_i}\bigg)(D)\bigg)\cdot D|_{x_i}$$
 where $\sharp(\cdot)$ denotes interval extension, and $f(\vec a)$ is on the boundary of $D$.
 
 \begin{example}
@@ -636,7 +645,7 @@ the experiments.
 We presented our approach for extracting formal proofs from a numerically-driven
 decision procedure in the DPLL$\langle$ICP$\rangle$ framework. We formalized the ICP algorithm, and showed how to validate proof trees from the unsat answers.  A main focus for our tool is to prove
 nonlinear lemmas in the Flyspeck project, and we have observed promising
-experimental results. We believe the approach can be combined with exiting
+experimental results. We believe the approach can be combined with existing
 symbolic methods, and is a first step towards a framework that bridges the gap between symbolic and numerical approaches. Further work
 would involve formalization of numerical algorithms, proof abstractions, local heuristics, and an implementation of our proof checker in standard proof assistants.
 
