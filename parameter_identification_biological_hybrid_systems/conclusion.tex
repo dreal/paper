@@ -1,8 +1,17 @@
 \section{Conclusion}
-Hybrid automata are well-studied formalisms for modeling the behavior of biological systems. In this article, we have presented a framework using $\delta$-complete decision procedures for the parameter identification of hybrid biological systems. We have used $\delta$-satisfiable formulas to describe parameterized hybrid automata and to encode parameter synthesis problems. We have employed the $\delta$-decision procedures to perform bounded model checking, and developed an interval constrains propagation based algorithm to obtain the resulting parameters.
-We have demonstrated the applicability of our method on a highly nonlinear hybrid model of a cardiac cell. Our method successfully ruled out model candidates which did not fit experimental observations, and we have identified critical parameters that can induce cardiac disorders.
-
-Our $\delta$-decisions based parameter synthesis method has the potential to be applied to model classes such as hybrid functional Petri nets models \citep{hfpn}. We plan to explore this in our future work. Another interesting direction will be applying our method to tackling the parameter estimation problem, which is currently one of the most important challenges in systems biology. By properly encoding the noisy web-lab experimental data using logic formulas, bounded model checking can be utilized to estimate the unknown parameter values. In this connection, a model checking based parameter estimation framework presented in \cite{liu13} promises to offer helpful pointers.
+%Hybrid automata are well-studied formalisms for modeling the behavior of biological systems. In this article, we have presented a framework using $\delta$-complete decision procedures for the parameter identification of hybrid biological systems. We have used $\delta$-satisfiable formulas to describe parameterized hybrid automata and to encode parameter synthesis problems. We have employed the $\delta$-decision procedures to perform bounded model checking, and developed an interval constrains propagation based algorithm to obtain the resulting parameters.
+We have presented a framework using $\delta$-complete decision procedures for the parameter identification 
+of hybrid biological systems. We have used $\delta$-satisfiable formulas to describe parameterized hybrid automata 
+and to encode parameter synthesis problems. We have employed $\delta$-decision procedures to perform bounded model 
+checking, and developed an algorithm to obtain the resulting parameters.
+We have demonstrated the applicability of our method on a highly nonlinear hybrid model of a cardiac cell that cannot
+be handled by other verification tools. We have successfully ruled out model candidates which did not fit 
+experimental observations, and we have identified critical parameter ranges that can induce cardiac disorders.
+Our method has the potential to be applied to model classes such as hybrid functional Petri nets models \citep{hfpn}. 
+We plan to explore this in future work. Another interesting direction is applying our method for parameter estimation 
+from experimental data. By properly encoding the noisy wet-lab experimental data using logic formulas, bounded model 
+checking can be utilized to find the unknown parameter values. In this respect, the parameter 
+estimation framework presented in \cite{liu13} promises to offer helpful pointers.
 
 %Finally, we will develop a GPU-based implementation of our method to exploit the inherent massive parallelism in generating trajectories through numerical integration.
 
