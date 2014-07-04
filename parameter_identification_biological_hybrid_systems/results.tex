@@ -46,7 +46,7 @@ The simulation of a few witness trajectories are shown in Figure \ref{trace} (th
 Both the BCF and the FK models were able to reproduce essential characteristics (\eg, steady-state action potential duration) observed in human ventricular cells \cite{fenton98,orovio08}. However, ventricular cells comprise three cell types, which possess different dynamical characteristics. For instance, Figure \ref{ap} shows that time courses of APs for epicardial and endocardial human ventricular cells have different morphologies \cite{nabauer96}. The important \textit{spike-and-dome} AP morphology can only be observed in epicardial cells but not endocardial cells. Hence, in a model-based study, one needs to identify cell-type-specific parameters to take account into cellular heterogeneity. The feasibility of this task will depend on the model of choice, as for certain models it would be impossible to reproduce a dynamical behavior no matter which parameter values are used. Here we illustrate that such models can be ruled out efficiently using our $\delta$-decision based parameter synthesis framework.
 
 \paragraph{Robustness.}
-We first consider the robustness property of the models. To ensure proper functioning of cardiac cells in noisy environments, an important property of the system is to filter out insignificant stimulation. Thus, we expected to see that AP could not be initiated for small $\epsilon$. Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.0,0.25]$) in Mode 1, we checked the reachability of Mode 4. The $\mathsf{unsat}$ answer was returned by dReach for both the BCF and FK
+We first considered the robustness property of the models. To ensure proper functioning of cardiac cells in noisy environments, an important property of the system is to filter out insignificant stimulation. Thus, we expected to see that AP could not be initiated for small $\epsilon$. Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.0,0.25]$) in Mode 1, we checked the reachability of Mode 4. The $\mathsf{unsat}$ answer was returned by dReach for both the BCF and FK
 model (Table \ref{tbl:exp}, Run\#3 and Run\#4), showing that the models are robust to stimulation amplitude.
 
 \begin{figure}[th]
@@ -58,14 +58,14 @@ model (Table \ref{tbl:exp}, Run\#3 and Run\#4), showing that the models are robu
 \end{figure}
 
 \paragraph{AP morphology.}
-Next we tested whether the models can reproduce the spike-and-dome AP morphology of epicardial cells. We introduced three auxiliary modes (Mode 5, 6 and 7). The system will jump from Mode 4 to Mode 5, where $\epsilon$ is reset to $0$, if $\text{\em time} \ge 1$. The system will jump from Mode 5 to Mode 6 if $\text{\em time} \ge 10$, and will jump from Mode 6 to Mode 7 if $\text{\em time} \ge 30$. In Modes 6 and 7, we enforced invariants $1.0 \le u \le 1.15$ and $1.18 \le u \le 2.0$, respectively, to depict the spike-and-dome morphology observed experimentally \cite{nabauer96}. We then checked reachability of Mode 7, starting from Mode 1 in state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_s \in [0.5,2]$),
+Next we tested whether the models could reproduce the spike-and-dome AP morphology of epicardial cells. We introduced three auxiliary modes (Mode 5, 6 and 7). If $\text{\em time} \ge 1$, the system will jump from Mode 4 to Mode 5, in which $\epsilon$ will be reset to $0$. The system will jump from Mode 5 to Mode 6 if $\text{\em time} \ge 10$, and will jump from Mode 6 to Mode 7 if $\text{\em time} \ge 30$. In Modes 6 and 7, we enforced invariants $1.0 \le u \le 1.15$ and $1.18 \le u \le 2.0$, respectively, to depict the spike-and-dome morphology observed experimentally \cite{nabauer96}. We then checked reachability of Mode 7, starting from Mode 1 in state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$, $u_s \in [0.5,2]$),
 where $\tau_{si}$ and $u_s$ are two model parameters that govern the dynamics of $u$ and $s$ in
 Mode 3 and 4 (see Figure \ref{model}).
 The $\delta$-$\mathsf{sat}$ answer
 was returned for BCF  (Table \ref{tbl:exp}, Run\#5), while $\mathsf{unsat}$ was returned for FK (Table \ref{tbl:exp}, Run\#6), indicating that the FK model cannot reproduce spike-and-dome shapes using reasonable parameter values. Hence, FK is not suitable to study the dynamics of epicardial cells.
 
 We remark that any $\mathsf{unsat}$ answer is guaranteed to be correct. This effectively
-means that we proved that the FK model cannot reach Mode 6 for {\em any} starting state in the
+means that we proved that the FK model cannot reach Mode 7 for {\em any} starting state in the
 rectangle ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9,1.1]$, $\tau_{si} \in [1,2]$,
 $u_s \in [0.5,2]$). Sampling-based approaches cannot have the same level of certainty, while other
 approaches cannot handle the complexity of the flows in the model.
