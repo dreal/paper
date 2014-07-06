@@ -1,0 +1,42 @@
+\section{The Fault Isolation Problem}
+
+The fault isolation problem for a program implementing a continuous function can be formally defined as follows. 
+\begin{definition}[Fault Isolation]
+Let $f\subseteq: \mathbb{R}^n\rightarrow \mathbb{R}$ be a piecewise-continuous function, and 
+\begin{itemize} 
+\item $D\subseteq \mathrm{dom}(f)$ is compact set. 
+\item $P$ be a continuous program (intended as implementation of $f$) using functions from $F'$. 
+\item Let $\varepsilon_1,\varepsilon_2\in \mathbb{Q}^+$ be two rational numbers such that $\varepsilon_1>\varepsilon_2$. 
+\end{itemize}
+The fault isolation problem asks for a covering
+$D_0, ..., D_k$
+of $D$ (satisfying $D\subseteq \bigcup_{i=0}^k D_i$) 
+such that for each $D_i$, one of the following condition holds
+\begin{itemize}
+\item $\forall \vec x\in D_i\;  |P(\vec x)-f(\vec x)|<\varepsilon_1$
+\item $\forall \vec x\in D_i\;  |P(\vec x)-f(\vec x)|>\varepsilon_2$
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+We consider the following program with bounded loop. Every operation is assumed to be over real number semantics. 
+\end{definition}
+
+\begin{theorem}
+Let $F$ and $F'$ be computable functions, then the fault isolation problem is decidable. 
+\end{theorem}
+\begin{proof}
+Divide the compact space into small pieces with a delta net. In each piece, make sure that the distance between the two functions are as asserted. 
+\end{proof}
+
+\begin{proposition}
+The problem is not decidable if $\varepsilon_1 = \varepsilon_2$. 
+\end{proposition}
+
+It is straightforward to extend the decidability results to piecewise continuous programs. 
+
+In practice, we do not check if a program is continuous or not. We use the test and infer framework, as described in the next section, to focus on pieces of the program that are likely continuous. We then use SMT solver to check if the condition is true. 
+
+
+
+
