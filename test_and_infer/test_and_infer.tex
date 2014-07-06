@@ -1,5 +1,10 @@
 \section{The Test-and-Infer Framework}
 
+The goal of test and infer is to run tests that localize the behavior of a large program into continuous pieces, and use SMT solver to infer the behavior of the program at these continuous fragments. 
+
+
+
+
 Testing is an incomplete method of checking specifications of a
 function. It samples points from the domain of a function and checks
 whether properties hold at those points or not. Sampling larger number
@@ -7,10 +12,7 @@ of points may give higher confidence on the correctness of a function.
 However, it is practically infeasible to sample all the points in the
 domain even if the domain is bounded and this remains testing
 incomplete. For example, there are more than $10^{18}$ double-precision
-floating-point numbers between $0.0$ and $1.0$. In a modern computer,
-it takes more than a second to test an implementation of sine function
-on $10^9$ points. It means that it takes more than 30 years to give a
-complete coverage on the implementation for the interval $[0.0, 1.0]$.
+floating-point numbers between $0.0$ and $1.0$. Namely, it takes more than 30 years to obtain complete coverage on the interval $[0.0, 1.0]$ on modern computers.
 
 Test-and-infer is an approach to enhance this weakness of testing.
 Whenever it samples a point $c$ from the domain and test a property,

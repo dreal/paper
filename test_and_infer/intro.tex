@@ -2,7 +2,7 @@
 
 Bad values are not isolated. Good values are not isolated. Complete verification would aim to have a complete segmentation of the input domain such that the bad and good parts of it become clear. 
 
-
+Fault isolation is a typical task in control system engineering. 
 
 A major obstacle in ensuing the correctness of critical embedded applications comes from floating-point computations. It is well-known that it is erroneous to compute with floating-point numbers and operations as though they were real numbers~\cite{pitfalls}. A lot of effort has been devoted to ensuring the correctness of basic arithmetic operations of floating point numbers, such as Goppa~\cite{}. Testing and verification methods for embedded software can rely on an abstraction of the basic arithmetic functions, and treat them as over-approximations of the corresponding real operations. Steady progress is made in this direction~\cite{}. 
 
@@ -43,16 +43,6 @@ which shares the same test result at point $c$. Using the technique,
 we can efficiently cover a region of a domain by testing a point and
 it accelerates the overall verification process.
 
-As concrete results, we obtain a detailed segmentation of the real line that divided input values into different regions. Note that this is doable for user defined error bounds. We give a visualization of the result in Section~\ref{}. 
-
-We believe the our result is important in several aspects. 
-\begin{itemize}
-\item It is the first method for verifying properties of transcendetal functions. 
-\item We report concrete bugs in the implementation and verified intervals. 
-\end{itemize}
-We remark that the approach is not just applicable to the basic functions but also many control software implementations. The verification results can be used as a building block that can be bootstrapped to more complex functions. 
-
-The paper is organized as follows. 
 
 \paragraph{Related Work} Existing work on validating floating-point computations. The work by Harrison and ... focuses on the theorem proving techniques. The computation is expensive and it is hard to scale to practical implementations. As is mentioned above, our methodology is very similar to concolic testing~\cite{}, although the emphasis is different. 
 
