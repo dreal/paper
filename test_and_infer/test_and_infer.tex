@@ -1,5 +1,9 @@
 \section{The Test-and-Infer Framework}
 
+Use a test to pick a branch. Then infer in that branch. Then pick another point that is outside the inferred domain, but not necessarily a new branch, because the goal is to cover every point in the domain, not branches. 
+
+
+
 The goal of test and infer is to run tests that localize the behavior of a large program into continuous pieces, and use SMT solver to infer the behavior of the program at these continuous fragments. 
 
 
@@ -30,6 +34,16 @@ It is important to note that the final results do not contain false positives or
 Mathematical expression of a function. Reference values. 
 
 Programs (bounded loop). 
+
+\subsection{Control Points}
+
+\begin{definition}
+Control points are points in the control flow graph that makes a program discontinuous. 
+\end{definition}
+
+
+
+
 
 \subsection{The Main Algorithm}
 The overall goal is the following. We want to partition a given subset $S \subseteq \mathbb{R}$ of the
