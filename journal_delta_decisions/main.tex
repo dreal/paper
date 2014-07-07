@@ -1,0 +1,1075 @@
+
+\documentclass[prodmode]{acmsmall} % Aptara syntax
+
+% Package to generate and customize Algorithm as per ACM style
+\usepackage[ruled]{algorithm2e}
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,%
+    citecolor=blue,%
+    filecolor=blue,%
+    linkcolor=blue,%
+    urlcolor=blue
+}
+
+%\documentclass[conference]{IEEEtran}
+%\IEEEoverridecommandlockouts
+%\usepackage{fullpage}
+\usepackage{stmaryrd,ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{newlfont,setspace}
+\usepackage{fix2col}
+\usepackage{multicol}
+\usepackage{graphicx,epsfig}
+\usepackage{caption}
+%\newtheorem{theorem}{Theorem}[section]
+\newtheorem{question}[theorem]{Question}
+\newtheorem{notation}[theorem]{Notation}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\df}{=_{df}}
+%\doublespacing
+
+\title{Delta-Decisions over the Reals}
+\author{Sicun Gao\affil{Carnegie Mellon University} Jeremy Avigad\affil{Carnegie Mellon University}  Soonho Kong\affil{Carnegie Mellon University} Edmund M. Clarke\affil{Carnegie Mellon University}}
+
+\begin{document}
+
+\begin{abstract}
+Given any collection F of computable functions over the reals, we show that there exists an algorithm that, given any sentence A containing only bounded quantifiers and functions in F, and any positive rational number delta, decides either ``A is true'', or ``a delta-strengthening of A is false'''. Moreover, if F can be computed in complexity class C, then under mild assumptions, this ``delta-decision problem'' for bounded $\Sigma_k$-sentences resides in $\mathsf{\Sigma_k(C)}$. The results stand in sharp contrast to the well-known undecidability of the general first-order theories with these functions, and serve as a theoretical basis for the use of numerical methods in decision procedures for formulas over the reals. 
+%Given any collection $\mathcal{F}$ of computable functions over the reals, we show that there exists an algorithm that, given any $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ containing only bounded quantifiers, and any positive rational number $\delta$, decides either ``$\varphi$ is true'', or ``a $\delta$-strengthening of $\varphi$ is false'''. Under mild assumptions, for a $\mathsf{C}$-computable signature $\mathcal{F}$, the $\delta$-decision problem for bounded $\Sigma_k$-sentences in $\mathcal{L}_{\mathcal{F}}$ resides in $\mathsf{{(\Sigma_k^P)}^C}$. The results stand in sharp contrast to the well-known undecidability results, and serve as a theoretical basis for the use of numerical methods in decision procedures for nonlinear first-order theories over the reals. 
+\end{abstract}
+
+
+\category{}{Logic in Computer Science}{}
+\terms{SMT}
+\keywords{SMT}
+\acmformat{}
+
+\begin{bottomstuff}
+This work is supported by ...
+Author's addresses: 
+\end{bottomstuff}
+
+\maketitle
+\section{Introduction}
+
+Tarski's celebrated result~\cite{tarski} that the first-order theory of real arithmetic is decidable has had a profound impact on automated theorem proving, and has generated much attention in application domains such as formal verification, control theory, and robotics~\cite{qeappl}. The hope is that practical problems can be encoded as first-order formulas and automatically solved by decision procedures for the theory. However, in spite of extensive research in optimizing the decision algorithms~\cite{collins}, there is still a wide gap between the state-of-the-art and the majority of problems in practice. One reason is the procedures' high computational complexity: general quantifier elimination, even restricted to a linear signature, has a doubly exponential lower-bound~\cite{BrownD07}. A more fundamental problem is the lack of expressiveness: many problems in the intended domains of application cannot even be expressed in the language of real-closed fields. For instance, Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10}, which is working on a formal verification of his proof of the Kepler conjecture, requires checking thousands of nonlinear inequalities. The following is typical:
+\begin{align*}
+\forall \vec x&\in [2, 2.51]^6.\ \Big( -\frac{\pi-4\arctan\frac{\sqrt 2}{5}}{12\sqrt2}\sqrt{\Delta(\vec x)}+\frac{2}{3}\sum_{i=0}^3\arctan\frac{\sqrt{\Delta(\vec x)}}{a_i(\vec x)}\leq -\frac{\pi}{3}+4\arctan\frac{\sqrt 2}{5}\Big)
+\end{align*}
+where $a_i(\vec x)$ are all quadratic functions and $\Delta(\vec x)$ is the determinant of a nonlinear matrix. Problems from formal verification and control design can appear all the more challenging because of the use of differential equations, alternating quantifiers, as well as their sheer scale. It is well known that even the set of $\Sigma_1$ sentences in a language extending real arithmetic with the sine function is already undecidable. This seems to indicate that developing general logic-based automated methods in these domains is fundamentally impossible. Our goal in this paper is to show that a slight change of perspective provides a completely different, and much more positive, outlook.
+
+It is important to note that the theoretical negative results only refer to the problem of deciding logic formulas {\em symbolically and precisely}. In this setting, the numerical computability of real functions remains mostly unexploited. This hardly reflects the wide range of solving techniques in practice. For instance, in the Flyspeck project, the nonlinear formulas are proved using various numerical optimization techniques, including linear programming, interval analysis, and Bernstein approximations. In the field of formal verification of real-time systems, a recent trend in developing decision solvers that incorporate numerical methods has also proved very promising~\cite{HySAT,AkbarpourP09,DBLP:conf/fmcad/Gao10,cordic}. It is natural to ask whether such practices can be theoretically justified in the context of decision problems for first-order theories. Namely, can we give a characterization of the first-order formulas that can be solved using numerically-driven procedures, and if so, bound the complexity of these procedures? Can we formulate a framework for understanding the guarantees that numerically-driven decision procedures can provide? Can we provide general conditions under which a practical verification problem has a satisfactory solution? We answer these questions affirmatively. The key is to shift to a $\delta$-relaxed notion of correctness, which is more closely aligned with the use of numerical procedures. 
+
+An informal description of what we can show is as follows. In a very general signature that contains all the aforementioned real functions, there exists an algorithm such that given an arbitrary sentence $\varphi$ involving only bounded quantifiers, and an arbitrary small numerical parameter $\delta$, one of the following decisions is returned:
+\begin{itemize}
+\item $\varphi$ is true;
+\item The ``$\delta$-strengthening'' of $\varphi$ is false. 
+\end{itemize}
+The $\delta$-strengthening of a formula, defined below, is a numerical perturbation which makes it slightly harder for the formula to be true. For example, the strengthening of $\exists x\in I. \; x>0$, where $I$ is the bound on the quantifier, is $\exists x\in I. \; x>\delta$. Thus the algorithm reports either that the given formula is true, or that some small perturbation makes it false. These two cases are not mutually exclusive, and in the ``grey area'' where both cases hold the algorithm is allowed to return either value. We refer to this problem (as well as the dual problem defined below using the $\delta$-weakening of formulas) as the ``$\delta$-relaxed decision problem,'' or simply the ``$\delta$-decision problem.'' The restriction to bounded quantifiers is reasonable, since in practical problems real-valued variables are typically considered within some range.  
+
+Here is another way of thinking about our main result. Given a small $\delta$, we can consider the set of first-order sentences with the property that their truth values remain invariant under $\delta$-strengthening (or $\delta$-weakening). Such sentences can be called ``$\delta$-robust,'' in that they do not fall into the ``grey area'' mentioned in the last paragraph. We believe that, in situations like the Flyspeck project where numerical methods are used, it is implicitly assumed that the relevant assertions have this property. Our algorithm, in particular, decides the truth of bounded $\delta$-robust sentences in a general signature. 
+
+Moreover, we show that the $\delta$-decision problems reside in reasonable complexity classes. For instance, if the signature is given by extending arithmetic with $\exp$ and $\sin$, the $\delta$-decision problem for bounded $\Sigma_1$-sentences is ``only'' $\mathsf{NP}$-complete. This should be compared with the undecidability of sentences in this class in the ordinary setting. As another example, the $\delta$-decision problem for arbitrarily-quantified bounded sentences with Lipschitz-continuous ordinary differential equations is $\mathsf{PSPACE}$-complete. The fact that this complexity is not higher than that of deciding quantified Boolean formulas is striking. 
+
+We find this relaxed decision problem particularly suitable for various practical problems. One example is formal verification of real-time systems. With bounded model checking techniques~\cite{DBLP:journals/fmsd/ClarkeBRZ01}, the safety property of a system can be expressed as a first-order sentence. When such a sentence is true, we conclude that the system is safe. Thus, by switching to answering the $\delta$-decision problem, we have the following guarantees. When our algorithm returns that the input sentence is true, we know that the system is indeed safe; otherwise, we know that a $\delta$-strengthening of the sentence is false, which means that under some numerical perturbations, controllable by $\delta$, the system would become unsafe. 
+%This is in fact even better than solving the exact decision problem, which may say the system is safe without indicating its possible unsafe behavior under numerical perturbations. 
+
+The ``general signature'' we mentioned above refer to arbitrary Type 2 computable functions~\cite{CAbook}. We now formally state our results. Let $\mathcal{F}$ be any collection of Type 2 computable real functions. First, there exists an algorithm such that given any $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ containing only bounded quantifiers, and any positive rational number $\delta$, decides the $\delta$-relaxed decision problem. Secondly, suppose all the functions in $\mathcal{F}$ are in a Type 2 complexity class $\mathsf{C}$ (closed under polynomial-time reduction), then the $\delta$-relaxed decision problem for $\Sigma_n$-sentences in $\mathcal{L}_{\mathcal{F}}$ resides in $\mathsf{(\Sigma_n^P)^C}$. Moreover, the relaxations are necessary. Without either boundedness or $\delta$-relaxation, the general problem would remain undecidable. 
+
+\paragraph*{Related Work} Our results are situated with respect to a sizable body of previous work. Ratschan's work \cite{DBLP:journals/jsc/Ratschan02} provided a first study of the effect of numerical perturbations on first-order sentences with continuous functions, where he focused on formulating conditions under which a formula is ``stable under perturbations''. We prove as a side note that robustness in our definition is undecidable in any undecidable theory (and decidable in a decidable theory). In Franek, Ratschan, and Zgliczynski's most recent joint work~\cite{DBLP:conf/mfcs/FranekRZ11}, it is proved that satisfiability of equations with real-analytic functions over compact domains is quasi-decidable (this notion allows the non-termination on non-robust formulas, which we do not). Despite differences in definitions, this in essence agrees with our result restricted to $\Sigma_1$-sentences of the corresponding signature, which is a strict subset of Type 2 computable real functions (Type 2 computable functions can be nowhere differentiable). The quantified cases and complexity were left open in \cite{DBLP:conf/mfcs/FranekRZ11}. There is a line of work studying the notion of robustness in automata theory \cite{DBLP:conf/icalp/AsarinC05,DBLP:conf/csl/Franzle99,DBLP:conf/lics/AsarinB01}, where positive effects on computability of allowing numerical errors are also observed. In computational complexity theory, extensive research has been devoted to how relaxations or approximations affect complexity. The notions are mainly studied with probabilistic setting. It would be interesting to understand its relation to the numerical perturbations we consider. All the mentioned works agree in the direction of formalizing conditions to explain effects of approximations and relaxations in practical approaches to hard problems. We believe our result is the first to prove the decidability and complexity results in the general setting of arbitrary first-order theories of computable real functions. 
+
+% mention intervals in PVS.
+
+The paper is organized as follows. We review the basic properties of computable functions in Section~\ref{pre}. We define the decision problem and state the main theorems in Section~\ref{logic}, \ref{vary}, and \ref{mainintro}, and prove the main theorem in Section~\ref{mainproof}. We then prove complexity results and show that the conditions are necessary for decidability in Section~\ref{complexity} and \ref{negative}. We discuss applications and practical issues in Section~\ref{discu}, and conclude in Section \ref{conclude}. 
+
+\section{Preliminaries}\label{pre}
+
+\subsection{Computable Analysis}
+
+Given a finite alphabet $\Sigma$, let $\Sigma^*$ denote the set of finite strings and $\Sigma^{\omega}$ the set of infinite strings generated by $\Sigma$. For any $s_1, s_2\in \Sigma^*$, $\langle s_1,s_2\rangle$ denotes their concatenation. An integer $i\in \mathbb{Z}$ used as a string over $\{0,1\}$ has its conventional binary representation. The set of {\em dyadic rational numbers} is $\mathbb{D} = \{m/2^n: m\in \mathbb{Z}, n\in \mathbb{N}\}$. 
+
+A {\em (set-) oracle Turing machine} $M$ extends an ordinary Turing machine with a special read/write tape called the {\em oracle tape}, and three special states $q_{\mathit{query}}$, $q_{\mathit{yes}}$, $q_{\mathit{no}}$. To execute $M$, we specify an oracle language $O\subseteq \{0,1\}^*$ in addition to the input $x$. Whenever $M$ enters the state $q_{\mathit{query}}$, it queries the oracle $O$ with the string $s$ on the oracle tape. If $s\in O$, then $M$ enters the state $q_{\mathit{yes}}$, otherwise it enters $q_{\mathit{no}}$. Regardless of the choice of $O$, a membership query to $O$ counts only as a single computation step. A {\em function-oracle Turing machine} is defined similarly except that when the machine enters the query state the oracle (given by a function $f:\{0,1\}^*\rightarrow\{0,1\}^*$) will erase the string $s$ on the query tape and write down $f(s)$. Note that such a machine must take $|f(s)|$ steps to read the output from the query tape. We write $M^O(x)$ (resp. $M^f(x)$) to denote the output of $M$ on input $x$ with oracle $O$ (resp. $f$). 
+
+\paragraph{Computations over Infinite Strings} Standard computability theory studies operations over finite strings and does not consider real-valued functions. Real numbers can be encoded as infinite strings, and a theory of computability of real functions can be developed with oracle machines that perform operations using function-oracles encoding real numbers. This is the approach developed in Computable Analysis, a.k.a., Type 2 Computability. We will briefly review definitions and results of importance to us. Details can be found in the standard references~\cite{CAbook,Kobook,vasco}.
+
+\begin{definition}[Names]
+A name of $a\in \mathbb{R}$ is defined as a function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{D}$ satisfying 
+$$\forall i\in \mathbb{N}, |\gamma_a(i) - a|<2^{-i}.$$
+For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.  
+\end{definition}
+Thus the name of a real number is a sequence of dyadic rational numbers converging to it. For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. Noting that names are discrete functions, we can define
+\begin{definition}[Computable Reals]
+A real number $a\in \mathbb{R}$ is computable if it has a name $\gamma_{a}$ that is a computable function. 
+\end{definition}
+
+A real function $f$ is computable if there is a function-oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+
+\begin{definition}[Computable Functions]
+We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists a function-oracle Turing machine $\mathcal{M}_f$, outputting dyadic rationals, such that: 
+$$\forall \vec x \in \dom(f)\ \forall \gamma_{\vec x}\in \Gamma(\vec x)\ \forall i \in \mathbb{N}.\ |M_f^{\gamma_{\vec x}}(i) - f(\vec x)|<2^{-i}.$$
+\end{definition}
+
+In the definition, $i$ specifies the desired error bound on the output of $M_f$ with respect to $f(\vec x)$. For any $\vec x\in \dom(f)$, $M_f$ has access to an oracle encoding the name $\gamma_{\vec x}$ of $\vec x$, and output a $2^{-i}$-approximation of $f(\vec x)$. In other words, the sequence 
+$$M_f^{\gamma_{\vec x}}(1), M_f^{\gamma_{\vec x}}(2), ... $$
+is a name of $f(\vec x)$. Intuitively, $f$ is computable if an arbitrarily good approximation of $f(\vec x)$ can be obtained using any good enough approximation to any $\vec x\in\dom(f)$.
+
+Most common continuous real functions are computable~\cite{CAbook}. Addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations are all computable functions. Compositions of computable functions are computable.  
+
+A key property of the above notion of computability is that computable functions over reals must be continuous.
+\begin{theorem}[\cite{CAbook}]
+Any computable function $f:\subseteq \mathbb{R}^n\rightarrow \mathbb{R}$ is (pointwise) continuous.
+\end{theorem}
+
+Moreover, over any compact set $D\subseteq \mathbb{R}^n$, computable functions are uniform continuous with a {\em computable modulus of continuity,} defined as follows. 
+
+\begin{definition}[Uniform Modulus of Continuity]
+Let $f:\subseteq \mathbb{R}^n\rightarrow \mathbb{R}$ be a function and $D\subseteq\dom(f)$ a compact set. The function $m_f: \mathbb{N}\rightarrow \mathbb{N}$ is called a uniform modulus of continuity of $f$ on $D$ if $\forall \vec x,\vec y\in D$, $\forall i\in \mathbb{N}$,
+$$||\vec x-\vec y||<2^{-m_f(i)}\mbox{ implies }|f(\vec x)-f(\vec y)|<2^{-i}.$$
+\end{definition}
+
+\begin{theorem}[\cite{CAbook}]
+Let $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ be a computable function and $D\subseteq\dom(f)$ a compact set. Then $f$ has a computable uniform modulus of continuity over $D$.
+\end{theorem}
+Intuitively, if a function has a computable uniform modulus of continuity, then fixing any desired error bound $2^{-i}$ on the output, we can compute a {\em global} precision $2^{-m_f(i)}$ on the inputs from $D$ such that using any $2^{-m_f(i)}$-approximation of any $\vec x\in D$, $f(\vec x)$ can be computed within the error bound. This suggests the following characterization theorem for computable functions over compact domains:
+\begin{theorem}[\cite{Kobook}]
+\label{ch}
+A real function $f: [0,1]^n\rightarrow \mathbb{R}$ is computable, iff there exists two computable functions $m_f:\mathbb{N}\rightarrow \mathbb{N}$ and $\theta_f: (\mathbb{D}\cap [0,1])^n\times \mathbb{N}\rightarrow \mathbb{D}$ such that
+\begin{itemize}
+\item $m_f$ is a uniform modulus function for $f$ over $[0,1]^n$, and
+\item for all $d\in (\mathbb{D}\cap [0,1])^n$ and all $i\in \mathbb{N}$, $|\theta(d, i)- f(d)|\leq 2^{-i}$. 
+\end{itemize}
+When the conditions hold, we say $f$ is {\em represented} by $(m_f,\theta_f)$. 
+\end{theorem}
+Note that it is important to know the modulus of continuity to compute $f(x)$ for any $x\not\in \mathbb{D}$, since $\theta_f$ only evaluates $f$ on dyadic points.
+
+\paragraph{Complexity of Real Functions} We now turn to complexity issues. The ordinary complexity classes such as $\mathsf{P, NP, \Sigma_k^P, PSPACE}$ for decision problems are defined in the standard way. 
+%The polynomial hierarchy relativized to a set $A$ is defined as $\mathsf{\Sigma_0^P(A)= \Pi_0^P(A)=P^A}$, $\mathsf{\Sigma_{k+1}^P(A)= NP^{\Sigma_k^P(A)}}$, and $\mathsf{\Pi_{k+1}^P(A)=coNP^{\Sigma_{k}^P(A)}}.$
+
+Complexity of real functions is usually defined over compact domains. Without loss of generality, we consider functions over $[0,1]$. Intuitively, a real function $f:[0,1]\rightarrow\mathbb{R}$ is (uniformly) $\mathsf{P}$-computable ($\mathsf{PSPACE}$-computable), if it is computable by an oracle Turing machine $M_{f}$ that halts in polynomial-time (polynomial-space) for every $i\in \mathbb{N}$ and every $\vec x\in \dom(f)$. Formally, we use the following definitions:
+\begin{definition}[\cite{Kobook}]
+A real function $f: [0,1]^n\rightarrow \mathbb{R}$ is in $\mathsf{P_{C[0,1]}}$ (resp. $\mathsf{PSPACE_{C[0,1]}}$) iff there exists a representation $(m_f, \theta_f)$ of $f$ such that
+\begin{itemize}
+\item $m_f$ is a polynomial function, and 
+\item for any $d\in (\mathbb{D}\cap [0,1])^n$, $e\in \mathbb{D}$, and $i\in \mathbb{N}$, $\theta_f(d,i)$ is computable in time (resp. space) $O((\mathit{len}(d)+i)^k)$ for some constant $k$.
+\end{itemize}
+\end{definition}
+More complexity classes will be defined in Section~\ref{complexity} in a similar way. Most common real functions reside in $\mathsf{P_{C[0,1]}}$: absolute value, polynomials, binary $\max$ and $\min$, $\exp$, and $\sin$ are all in $\mathsf{P_{C[0,1]}}$. It is shown that solutions of Lipschitz-continuous differential equations are computable in $\mathsf{PSPACE_{C[0,1]}}$. In fact, it is shown to be $\mathsf{PSPACE}$-complete in the following sense. 
+\begin{definition}[Hardness~\cite{Ko92}]
+A real function $f: D\rightarrow \mathbb{R}$ is {\em hard} for complexity class $\mathsf{C}$ if every (discrete) problem $A$ in $\mathsf{C}$ is polynomially reducible to $f$; that is, if there exist two polynomial-time computable functions $g:\{0,1\}^*\rightarrow \mathbb{D}$ and $h:\{0,1\}^*\times \mathbb{D}\rightarrow \{0,1\}$ and a polynomial function $p$, such that $\forall w\in \{0,1\}^*,\forall e\in \mathbb{D}$:
+$$\mbox{If }|e-f(g(w))|\leq 2^{-p(n)} \mbox{ then } w\in A\leftrightarrow h(w,e)=1.$$
+\end{definition}
+\begin{proposition}[\cite{Kawamura09}]
+Let $g:[0,1]\times \mathbb{R}\rightarrow \mathbb{R}$ be polynomial-time computable and consider the initial value problem 
+$$f(0) = 0, \frac{df(t)}{dt} = g(t, f(t)),\ t\in [0,1].$$
+Then computing the solution $f:[0,1]\rightarrow \mathbb{R}$ is in $\mathsf{PSPACE}$. Moreover, there exists $g$ such that computing f is $\mathsf{PSPACE}$-complete. 
+\end{proposition}
+
+\section{Bounded Sentences in First-Order Theories with Computable Functions}\label{logic}
+
+We consider first-order formulas with Type 2 computable functions interpreted over the reals. We write $\mathcal{F}$ to denote an arbitrary collection of symbols representing Type 2 computable functions over $\mathbb{R}^n$ for various $n$. We always assume that $\mathcal{F}$ contains at least the constant $0$, unary negation, addition, and the absolute value. (Constants are seen as constant functions.) Let $\mathcal{L_{\mathcal{F}}}$ be the signature $\langle \mathcal{F}, >\rangle$. $\mathcal{L}_{\mathcal{F}}$-formulas are always evaluated in the standard way over the corresponding structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}, >\rangle$.  
+
+It is not hard to see that we only need to use atomic formulas of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, where $t(x_1,...,x_n)$ are built up from functions in $\mathcal{F}$. This follows from the fact that $t(\vec x)=0$ can be written as $-|t(\vec x)|\geq 0$, $t(\vec x)<0$ as $-t(\vec x)>0$, and $t(\vec x)\leq 0$ as $-t(\vec x)\geq 0$. We can then take expressions $s <t $ and $s \leq t$ to abbreviate $t - s > 0$ and $t - s \geq 0$, respectively. Moreover, when a formula is in negation normal form, the negations in front of atomic formulas can be eliminated by replacing $\neg t(\vec x) > 0$ with $-t(\vec x)\geq 0$, and $\neg t(\vec x)\geq 0$ with $-t(\vec x)>0$. In summary, to avoid extra preprocessing of formulas, we give an explicit definition of $\mathcal{L}_{\mathcal{F}}$-formulas as follows.
+
+\begin{definition}[$\mathcal{L}_{\mathcal{F}}$-Formulas]
+Let $\mathcal{F}$ be a collection of Type 2 functions, which contains at least $0$, unary negation -, addition $+$, and absolute value $|\cdot|$. We define:
+\begin{align*}
+t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F}\mbox{, possibly constant};\\
+\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi \; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
+\end{align*}
+In this setting $\neg\varphi$ is regarded as an inductively defined operation which replaces atomic formulas $t>0$ with $-t\geq 0$, atomic formulas $t\geq 0$ with $-t>0$, switches $\wedge$ and $\vee$, and switches $\forall$ and $\exists$. Implication $\varphi_1\rightarrow\varphi_2$ is defined as $\neg\varphi_1\vee\varphi_2$.
+\end{definition}
+
+For notational convenience, from now on we assume that $\mathcal{F}$ always contains all rational constants. 
+
+\begin{definition}[Bounded Quantifiers]
+We use the notation of {\em bounded quantifiers}, defined as
+\begin{align*}
+\exists^{[u,v]}x.\varphi &=_{df}\exists x. ( u \leq x \land x \leq v \wedge \varphi),\\
+\forall^{[u,v]}x.\varphi &=_{df} \forall x. ( (u \leq x \land x \leq v) \rightarrow \varphi),
+\end{align*}
+where $u$ and $v$ denote $\mathcal{L}_{\mathcal{F}}$ terms whose variables only contain free variables in $\varphi$, excluding $x$. It is easy to check that $\exists^{[u,v]}x. \varphi \leftrightarrow \neg \forall^{[u,v]}x. \neg\varphi$. 
+\end{definition}
+
+We say a sentence is bounded if it only involves bounded quantifiers. 
+
+\begin{definition}[Bounded $\mathcal{L}_{\mathcal{F}}$-Sentences]
+A {\em bounded $\mathcal{L}_{\mathcal{F}}$-sentence} is of the form
+$$Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n. \psi(x_1,...,x_n)$$
+where $Q_i^{[u_i,v_i]}$s are bounded quantifiers, and $\psi(x_1,...,x_n)$ is a quantifier-free $\mathcal{L}_{\mathcal{F}}$-formula (the matrix). 
+\end{definition}
+
+\begin{remark} Note that by the definition of bounded quantifier, in the bound $[u_1,v_1]$ on the first quantifier, the terms $u_1$ and $v_1$ can only be built from constants in $\mathcal{F}$ since there is no other free variables in 
+$$Q_2^{[u_2,v_2]}x_2\cdots Q_n^{[u_n,v_n]}x_n.\psi(x_1,...,x_n),$$ excluding $x_1$. 
+\end{remark}
+We sometimes write a bounded sentence as $\vec Q^{[\vec u,\vec v]}\vec x.\psi(\vec x)$. 
+
+
+\begin{notation}
+We will often write a matrix $\psi(x_1,...,x_n)$ as 
+$$\psi[t_1(\vec x)>0,...,t_k(\vec x)>0; t_{k+1}(\vec x)\geq 0,...,t_m(\vec x)\geq 0]$$
+to emphasize the fact that $\psi(\vec x)$ is a positive Boolean combination of the atomic formulas shown. 
+\end{notation}
+
+We use the conventional notations for the alternation hierarchy. Namely, $\Sigma_n$ (resp. $\Pi_n$) denotes the set of all $\mathcal{L}_{\mathcal{F}}$-sentences in prenex form with $n$ alternating {\em quantifier blocks} starting with $\exists$ (resp. $\forall$). 
+
+Since trigonometric functions allow us to encode natural numbers and consequently Diophantine equations, it is well-known that
+\begin{proposition}
+If $\{+,\times,\sin\}\subseteq \mathcal{F}$, then it is undecidable whether an arbitrary $\Sigma_1$-sentence in $\mathcal{L}_{\mathcal{F}}$ is true.
+\end{proposition}
+In what follows, we show that in contrast to negative results like this (which is further discussed in Section~\ref{negative}), a $\delta$-relaxed version of the decision problem for general $\mathcal{L}_{\mathcal{F}}$-sentences has much better computational properties. 
+
+
+\section{$\delta$-Variants}\label{vary}
+
+In this section we define $\delta$-weakening and $\delta$-strengthening of bounded $\mathcal{L}_{\mathcal{F}}$-sentences, which explicitly introduce syntactic perturbations in a formula. They are used to formalize the notion of $\delta$-relaxed decision problems for $\mathcal{L}_{\mathcal{F}}$-sentences. 
+
+We will write a bound $[u,v]$ as $I$ for short. 
+
+\begin{definition}[$\delta$-Variants]
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$, and $\varphi$ a bounded $\mathcal{L}_{\mathcal{F}}$-sentence of the form
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>0; t_j\geq 0],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$. The {\em $\delta$-strengthening} $\varphi^{+\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > \delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq \delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>\delta; t_j\geq \delta],$$
+where $i\in\{1,...k\}$ and $j\in\{k+1,...,j\}$.
+Similarly, the {\em $\delta$-weakening} $\varphi^{-\delta}$ of $\varphi$ is defined to be the result of replacing each atomic formula $t_i > 0$ by $t_i > -\delta$ and each atomic formula $t_j \geq 0$ by $t_j \geq -\delta$, that is,
+$$Q_1^{I_1}x_1\cdots Q_n^{I_n}x_n.\psi[t_i>-\delta; t_j\geq -\delta].$$
+\end{definition}
+
+Note that in the definition, the bounds on the quantifiers are not changed. In fact, we can talk about $\delta$-variants of unbounded formulas as well, which will be mentioned in Section~\ref{negative}. Note also that $\varphi^{+0}$ and $\varphi^{-0}$ are both equivalent to $\varphi$, and that the notions of strengthening and weakening could have been given a uniform definition by allowing $\delta$ to range over positive and negative numbers. We find it a useful mnemonic, however, to have $\varphi^{+\delta}$ denote a slight strengthening of $\varphi$ (the modified atomic constraints make it slightly harder for $\varphi^{+\delta}$ to be true), and to have $\varphi^{-\delta}$ denote a slight weakening.
+
+\begin{proposition}\label{trivial}
+Suppose $\delta,\delta'\in \mathbb{Q}^+\cup\{0\}$ satisfy $\delta\geq\delta'$. Then we have: 
+\begin{enumerate}
+\item $\varphi^{+\delta}\rightarrow\varphi^{+\delta'} \rightarrow \varphi \rightarrow \varphi^{-\delta'}\rightarrow \varphi^{-\delta}.$
+\item (Duality) $\neg(\varphi^{+\delta})\leftrightarrow (\neg\varphi)^{-\delta}$.
+\end{enumerate}
+\end{proposition}
+
+This follows immediately from the definitions. 
+
+We say that a sentence is $\delta$-robust if its truth value remains invariant under $\delta$-weakening.
+
+\begin{definition}[$\delta$-Robustness]\label{rob} Let $\delta\in\mathbb{Q}^+\cup\{0\}$ and $\varphi$ be a bounded $\mathcal{L}_{\mathcal{F}}$-sentence. We say $\varphi$ is $\delta$-robust, if $\varphi^{-\delta}\rightarrow \varphi$. We say $\varphi$ is robust if it is $\delta$-robust for some $\delta\in \mathbb{Q}^+$.
+\end{definition} 
+
+More precisely, we can say that a formula $\varphi$ is {\it robust under $\delta$-weakening} if it has this property, and define the analogous notion of being {\it robust under $\delta$-strengthening}. The two notions have similar properties; for simplicity, we will restrict attention to the first notion below.
+
+By Proposition~\ref{trivial}, we always have $\varphi \rightarrow \varphi^{-\delta}$, so $\varphi$ is $\delta$-robust if and only if we have $\varphi \leftrightarrow \varphi^{-\delta}$. Since $\varphi^{-\delta}\rightarrow \varphi$ is equivalent to $\lnot \varphi^{-\delta} \vee \varphi$, saying that $\varphi$ is robust is equivalent to saying that either $\varphi$ is true or $\varphi^{-\delta}$ is false. Intuitively, this means that either $\varphi$ is true, or ``comfortably'' false in the sense that no small perturbation makes it true.
+
+\begin{proposition}\label{true} Let $\varphi$ be a bounded $\mathcal{L}_{\mathcal{F}}$-sentence, and $\delta,\delta'\in \mathbb{Q}^+\cup\{0\}$.
+
+1. If $\varphi$ is true, then it is $\delta$-robust for any $\delta$. 
+
+2. Suppose $\delta\geq\delta'$. If $\varphi$ is $\delta$-robust, then it is $\delta'$-robust. 
+\end{proposition}
+
+\begin{proof}
+By the observations above, the first is immediate, and the second follows from Proposition~\ref{trivial}. 
+\end{proof}
+
+\begin{remark}
+Note that the negation of a robust sentence may be non-robust. 
+\end{remark}
+
+Now we are ready to state our main results. 
+
+\section{The Main Theorem}\label{mainintro}
+
+\begin{theorem}\label{main}
+There is an algorithm which, given any bounded $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ and $\delta\in \mathbb{Q}^+$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\mathsf{True}$'': $\varphi$ is true. 
+\item ``$\delta$-$\mathsf{False}$": $\varphi^{+\delta}$ is false. 
+\end{itemize}
+\end{theorem}
+
+Note that the two cases can overlap. If $\varphi$ is true and $\varphi^{+\delta}$ is false, then the algorithm is allowed to return either one. 
+
+\begin{corollary}
+There is an algorithm which, given any bounded $\varphi$ and $\delta\in \mathbb{Q}^+$, correctly returns one of the following two answers:
+\begin{itemize}
+\item ``$\delta$-$\mathsf{True}$'': $\varphi^{-\delta}$ is true. 
+\item ``$\mathsf{False}$'': $\varphi$ is false. 
+\end{itemize} 
+\end{corollary}
+
+\begin{proof}
+Apply the previous algorithm to $\neg\varphi$. Proposition~\ref{trivial}, we have $\neg(\varphi)^{+\delta}\leftrightarrow (\neg\varphi)^{-\delta}$. So if $\neg\varphi$ is $\mathsf{True}$ we can report that $\varphi$ is $\mathsf{False}$, and if $\neg\varphi$ is $\delta$-$\mathsf{False}$ we can report that $\varphi$ is $\delta$-$\mathsf{True}$.
+\end{proof}
+
+\begin{corollary}[Robustness implies decidability]\label{point}
+There is an algorithm that, given $\delta\in \mathbb{Q}^+$ and a bounded $\delta$-robust $\varphi$, decides whether $\varphi$ is true or false. 
+\end{corollary}
+
+\begin{proof}
+Apply the previous algorithm to $\varphi$. By the definition of $\delta$-robustness, if $\varphi$ is $\delta$-$\mathsf{True}$, then it is $\mathsf{True}$.  
+\end{proof}
+
+\begin{corollary}
+Let $L$ be a class of bounded $\mathcal{L}_{\mathcal{F}}$-sentences. Suppose it is undecidable whether an arbitrary sentence in $L$ is true. Then it is undecidable, given any $\delta\in \mathbb{Q}^+$, whether an arbitrary bounded $\mathcal{L}$-sentence is $\delta$-robust. 
+\end{corollary}
+\begin{proof}
+Let $\varphi$ be an arbitrary $\mathcal{L}_{\mathcal{F}}$-sentence from $L$. Suppose there exists an algorithm that decides whether $\varphi$ is $\delta$-robust. Then, we can first decide whether $\varphi$ is $\delta$-robust. If it is not, then following Proposition~\ref{true}, $\varphi$ has to be false. On the other hand, if it is, then following Corollary~\ref{point} it is decidable whether $\varphi$ is true. Consequently combining the two algorithms we can decide whether $\varphi$ is true. This contradicts the undecidability of sentences in $L$.
+\end{proof}
+
+This can be contrasted with the simple fact that if $\mathbb{R}_{\mathcal{F}}$ has a decidable theory, then it is decidable whether any bounded $\mathcal{L}_{\mathcal{F}}$-sentence is robust, since the condition in Definition~\ref{rob} is just another bounded $\mathcal{L}_{\mathcal{F}}$-sentence. 
+
+In the next section we prove the main theorem, and determine the complexity of the algorithm in the following section. 
+
+\section{Proof of the Main Theorem}\label{mainproof}
+
+We now prove the decidability of the $\delta$-decision problems. First, any $\mathcal{F}$ can be extended it as follows. 
+\begin{definition}[$m$-Extension] Let $\mathcal{F}$ be a collection of computable functions over reals. We define the $m$-extension of $\mathcal{F}$, written as $\mathcal{F}_m$, to be the closure of $\mathcal{F}$ with the following functions:
+\begin{itemize}
+\item Binary min and max: $\min(\cdot,\cdot), \max(\cdot,\cdot)$; 
+\item Bounded min and max: 
+$$\min\{t(\vec x, \vec y): y_1\in [u_1,v_1],...,y_n\in [u_n, v_n]\},$$
+$$\max\{t(\vec x, \vec y): y_1\in [u_1,v_1],...,y_n\in [u_n, v_n]\},$$ 
+where $u_i$ and $v_i$ denote arbitrary $\mathcal{L}_{\mathcal{F}_m}$-terms that do not involve $y_i$. 
+\end{itemize}
+\end{definition}
+
+It is a standard result in computable analysis that applying minimization and maximization over a bounded interval preserves computability. 
+(This is studied in detail in Chapter 3 of \cite{Kobook}.) Thus all functions in $\mathcal{F}_{m}$ are computable. We can write the bounded min and max as $\min_{\vec x\in D}(t(\vec x, \vec y))$ and $\max_{\vec x\in D}(t(\vec x, \vec y))$ for short, where $D=[u_1,v_1]\times\cdots\times [u_n,v_n]$. For technical reasons that will become clear in Section~\ref{complexity}, we interpret $[u,v]$ as $[v,u]$ when $v < u$; one can rule out this interpretation by adding $u \leq v$ as an explicit constraint in the formula.
+
+% Note that if for some $i$, $u_i>v_i$ then $D$ is the empty set, for which we regard $\max_x$ and $\min_x$ as undefined, and trivially computable. 
+
+Now we define a notion that allows us to switch between strict and nonstrict inequalities in the $\delta$-decision problem. 
+
+\begin{definition}[Strictification]
+Suppose $\varphi$ is the formula
+$$\vec Q^{\vec I}\vec x. \psi[t_1>0,...,t_k>0; t_{k+1}\geq 0,...,t_m\geq 0].$$
+We say $\varphi$ is strict (resp. nonstrict), if $m=k$ (resp. $k=0$), i.e., all the inequalities occurring in $\varphi$ are strict (resp. nonstrict). The {\em strictification of $\varphi$} is defined to be 
+$$\mathit{st}(\varphi):\ \vec Q^{\vec I}\vec x. \psi[t_1>0,...,t_k>0, t_{k+1}> 0,...,t_m>0],$$
+that is, the result of replacing all the nonstrict inequalities by strict ones. The {\em destrictification of $\varphi$} is 
+$$\mathit{de}(\varphi):\ \vec Q^{\vec I}\vec x. \psi[t_1\geq0,...,t_k\geq0, t_{k+1}\geq 0,...,t_m\geq0],$$
+this is, the result of replacing all strict inequalities by nonstrict ones.
+\end{definition}
+
+Note that the bounds on the quantifiers are not changed in the definition. The following fact follows directly from the definition.  
+
+\begin{proposition}\label{tr2}
+We have 
+\begin{itemize}
+\item $\mathit{st}(\varphi)\rightarrow\varphi$ and $\varphi\rightarrow\mathit{de}(\varphi)$.
+\item (Duality) $\mathit{st}(\neg\varphi)$ is equivalent to $\neg\mathit{de}(\varphi)$. 
+\end{itemize}
+\end{proposition}
+
+Now we prove the key lemma. It establishes that any bounded $\mathcal{L}_{\mathcal{F}}$-sentence can be expressed as an atomic formula in the extended signature $\mathcal{L}_{\mathcal{F}_m}$. 
+
+\begin{lemma}\label{kk}
+Let $\varphi$ be a bounded $\mathcal{L}_{\mathcal{F}}$-sentence. There is an $\mathcal{L}_{\mathcal{F}_m}$-term $\alpha(\varphi)$ that satisfies:
+\begin{itemize}
+\item $\mathit{de}(\varphi)\leftrightarrow\alpha(\varphi)\geq 0$, and $\mathit{st}(\varphi)\leftrightarrow\alpha(\varphi)> 0$;
+\item $\mathit{de}(\varphi^{+\delta})\leftrightarrow\alpha(\varphi)\geq \delta$, and $\mathit{st}(\varphi^{+\delta})\leftrightarrow \alpha(\varphi)>\delta$.   
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+We define $\alpha$ inductively as:
+\begin{itemize}
+\item For an atom $t>0$ or $t\geq 0$, $\alpha(\varphi) = t$. 
+\item $\alpha(\varphi\wedge\psi) = \min(\alpha(\varphi), \alpha(\psi)).$
+\item $\alpha(\varphi\vee\psi) = \max(\alpha(\varphi), \alpha(\psi)).$
+\item $\alpha(\exists^{[u,v]}x.\varphi) = \max_{x\in [u,v]}(\alpha(\varphi)).$
+\item $\alpha(\forall^{[u,v]}x.\varphi) = \min_{x\in [u,v]}(\alpha(\varphi)). $ 
+\end{itemize} 
+The properties are then easily verified. As an example we show that $\mathit{de}(\varphi)\leftrightarrow \alpha(\varphi)\geq 0$ holds. Note that $\mathit{de(\varphi)}$ only contains nonstrict inequalities.  
+\begin{itemize}
+\item For atomic formulas, $t\geq 0 \leftrightarrow \alpha(t)\geq 0$.
+\item $\alpha(\varphi\wedge \psi)\geq 0$ is defined as $\min(\alpha(\varphi),\alpha(\psi))\geq 0$, which is equivalent to $\alpha(\varphi)\geq 0 \wedge \alpha(\psi)\geq 0$. By inductive hypothesis, this is equivalent to $\mathit{de}(\varphi)\wedge\mathit{de}(\psi)$, which is just $\mathit{de}(\varphi\wedge\psi)$. The binary $\max$ case is similar. 
+\item $\alpha(\exists^{[u,v]} x.\varphi)\geq 0$ is defined as $\max_{x\in [u,v]}(\alpha(\varphi))\geq 0$, which is equivalent to $\exists^{[u,v]}x. \alpha(\varphi)\geq 0$. (If the max of $\alpha(\varphi)$ is bigger or equal than zero, then there exists $a\in [u,v]$ such that $\alpha(\varphi(a))\geq 0$; and vice versa.) By inductive hypothesis, $\alpha(\varphi)\geq 0$ is equivalent to $\exists^{[u,v]}x. \varphi$. The bounded $\min$ case is similar. 
+\end{itemize}
+\end{proof}
+
+\begin{example}
+Suppose  
+$$\varphi:\ \forall^{[0,1]} x_1 \exists^{[0,x_1]} x_2. (e^{x_1}>0\wedge x_2\geq 0).$$ Then 
+$$\alpha(\varphi) = \min_{x_1\in[0,1]}(\max_{x_2\in[0,x_1]}(\min(e^{x_1}, x_2))).$$ 
+\end{example}
+
+Now we are ready to establish the main theorem. The idea is that for any formula $\varphi$, the strictification of $\varphi$ is equivalent to the formula $\alpha(\varphi) > 0$. Whether this holds cannot, in general, be determined algorithmically, But given a small $\delta$, we {\em can} make a choice between the overlapping alternatives $\alpha(\varphi) > 0$ and $\alpha(\varphi) < \delta$, and this is enough to solve the relaxed decision problem.\\
+
+\begin{proof}[Proof of Theorem~\ref{main}] Let $\varphi$ be an arbitrary $\mathcal{L}_{\mathcal{F}}$-sentence of the form
+$$\varphi:\ Q_1^{[u_1,v_1]}x_1\cdots Q_n^{[u_n,v_n]}x_n.\ \psi[t_1>0;t_j\geq 0],$$
+where $i$ ranges in from 1 to  $k$, and $j$ from $k+1$ to $m$. 
+
+Following Lemma \ref{kk}, we can find an $\mathcal{L}_{\mathcal{F}_m}$-term $\alpha(\varphi)$, which satisfies: 
+\begin{itemize}
+\item $\mathit{st}(\varphi)$ is equivalent to $\alpha(\varphi)>0$, and
+\item $(de(\varphi)^{+\delta})$ is equivalent to $\alpha(\varphi)\geq \delta$. 
+\end{itemize}
+Since $\varphi$ is a closed sentence with no free variables, $\alpha(\varphi)$ is a term whose variables are all bounded by the min and max operators. Thus, $\alpha(\varphi)$ is a computable constant. Let $M$ be the machine that computes $\alpha(\varphi)$. We have
+$$\forall i\in \mathbb{N},\ |M(i)-\alpha(\varphi)|<2^{-i},$$
+where $M(i)$ is a dyadic rational number, we write this number as $\lceil \alpha(\varphi)\rceil_i$. 
+
+Since $\delta$ is a given positive rational number, it is easy to find a dyadic rational number that approximates $\delta$ to an arbitrary precision. This is needed for the technical reason that we want $\delta$ to have a finite binary representation. We now pick $\delta'$ to be a dyadic number satisfying
+$$|\delta'-\delta|<\frac{\delta}{8}.$$
+
+Next, let $k\in \mathbb{N}$ satisfy $2^{-k}<\delta'/4$. This number is then used to query the machine $M$ as the precision requirement. Namely, we have
+$$|\lceil \alpha(\varphi)\rceil_k - \alpha(\varphi)|<2^{-k}<\frac{\delta'}{4}.$$
+
+We now compare $\lceil \alpha(\varphi)\rceil_k$ with $\delta'/2$. Note that both numbers are dyadic rationals with finite length, and this inequality can be effectively tested. To emphasize, we label this test:
+\begin{eqnarray}\label{varphi}
+\lceil \alpha(\varphi)\rceil_k \geq \frac{\delta'}{2}.
+\end{eqnarray}
+The result of this test generates two cases, as follows. 
+\begin{itemize}
+\item Suppose (\ref{varphi}) is true. Then we know that 
+\begin{align*}
+\alpha(\varphi)&>\lceil\alpha(\varphi)\rceil_k - \frac{\delta'}{4}  >\frac{\delta'}{2} -\frac{\delta'}{4} = \frac{\delta'}{4}\\
+& >\frac{1}{4}(\frac{7}{8}\delta) = \frac{7}{32}\delta. 
+\end{align*}
+Consequently, $\alpha(\varphi)>0$. Thus, in this case, we know $st(\varphi)$ is true. Following Proposition \ref{tr2}, we know $\varphi$ is true, and return $\mathsf{True}$.
+
+\item Suppose (\ref{varphi}) is false. Then we know that 
+\begin{align*}
+\alpha(\varphi)&<\lceil\alpha(\varphi)\rceil_k + \frac{\delta'}{4}< \frac{\delta'}{2} +\frac{\delta'}{4} = \frac{3}{4}\delta'\\
+&<\frac{3}{4}(\frac{9}{8}\delta) = \frac{27}{32}\delta.
+\end{align*}
+Consequently, $\alpha(\varphi)<\delta$. Thus, in this case, $\mathit{de}(\varphi^{+\delta})$ is false. Following Proposition \ref{tr2}, we know $\varphi^{+\delta}$ is false, and return $\delta$-$\mathsf{False}$.
+\end{itemize}
+In all, we have described an algorithm for deciding, given any bounded $\mathcal{L}_{\mathcal{F}}$-sentence $\varphi$ and $\delta\in \mathbb{Q}$, whether $\varphi$ is true, or the $\delta$-strengthening of $\varphi$ is false.
+\end{proof}
+
+%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%
+
+\section{Complexity and Lower Bounds}\label{complexity}
+
+In this section we consider the complexity of the $\delta$-decision problem for signatures of interest. In the proof of the main theorem, we have established a reduction from the $\delta$-decision problems of $\mathcal{L}_{\mathcal{F}}$ to computing the value of $\mathcal{L}_{\mathcal{F}_m}$-terms with alternations of min and max. The complexity of computing such terms can be exactly characterized by the min-max hierarchy over computable functions, as defined in~\cite{Kobook}. 
+
+First, we need the definition of $\mathsf{\Sigma_{k,C[0,1]}}$-functions. 
+\begin{definition}[\cite{Kobook}]
+For $k\geq 0$, we say a real function $f:[0,1]\rightarrow \mathbb{R}$ is in $\mathsf{\Sigma_{k,C[0,1]}}$ (resp. $\mathsf{\Pi_{k,C[0,1]}}$) if there exists a representation $(m_f, \theta_f)$ of $f$, such that
+\begin{enumerate}
+\item The modulus function $m_f: \mathbb{N}\rightarrow \mathbb{N}$ is a polynomial, and
+\item for all $d\in \mathbb{D}\cap [0,1]$ and all $i\in \mathbb{N}$, $|\theta_f(d, n)-f(d)|\leq 2^{-i}$, and the set $A_{\theta_f} = \{\langle d, e, 0^i\rangle: e\leq \theta_f(d, i)\}$ is in $\mathsf{\Sigma_k}$ (resp. $\mathsf{\Pi_k}$). ($0^i$ denotes the string of $i$ zeros.) 
+\end{enumerate}
+\end{definition}
+\begin{remark}
+Note that using membership queries to $A_{\psi}$, we can easily (in polynomial-time) determine the value of $\psi(d,i)$. Thus by replacing the third condition with $\mathsf{P}$ or $\mathsf{PSPACE}$, we obtain the definition of $\mathsf{P_{C[0,1]}}$ and $\mathsf{PSPACE_{C[0,1]}}$. It is also clear that $\mathsf{\Sigma_{0,C[0,1]}}=\mathsf{\Pi_{0,C[0,1]}}=\mathsf{P_{C[0,1]}}$.  
+\end{remark}
+The key result as shown by Ko~\cite{Kobook} is that, if $f(x,y)$ is in $\mathsf{P_{C[0,1]}}$, then $\max_{x\in [0,1]} f(x,y)$ is in $\mathsf{NP_{C[0,1]}}$. In general, Ko proved that: 
+\begin{proposition}[\cite{Kobook}]
+Let $f: [0,1]^n\rightarrow \mathbb{R}$ be a real function in $\mathsf{P_{C[0,1]}}$. Define $g: [0,1]^{m_0}\rightarrow \mathbb{R}$ as 
+$$g(\vec x_0) = \max_{\vec x_1\in [0,1]^{m_1}}\min_{\vec x_2\in [0,1]^{m_2}}\cdots \underset{\vec x_k\in [0,1]^{m_k}}{\mbox{opt}} f(\vec x_0, \vec x_1, ..., \vec x_k)$$
+where $opt$ is $\min$ if $k$ is even and $\max$ if $k$ is odd, and $\sum_{i=0}^k m_i = n$. We then have $g\in \mathsf{\Sigma_{k,C[0,1]}}$. 
+\end{proposition}
+Following the definition of $\mathsf{\Sigma_{k,C[0,1]}}$-classes, it is straightforward to obtain the decision version of this result, and also to relativize to complexity classes other than $\mathsf{P_{C[0,1]}}$. 
+\begin{lemma}\label{lem}
+Suppose $f: [0,1]^n\rightarrow\mathbb{R}$ is in complexity class $\mathsf{C}$ with a polynomial modulus function. Define $g: [0,1]^{m_0}\rightarrow \mathbb{R}$ as 
+$$g(\vec x_0) = \max_{\vec x_1\in [0,1]^{m_1}}\min_{\vec x_2\in [0,1]^{m_2}}\cdots\underset{\vec x_k\in [0,1]^{m_k}}{\mbox{opt}}f(\vec x_0, \vec x_1, ..., \vec x_k)$$
+where $opt$ is $\min$ if $k$ is even and $\min$ if $k$ is odd, and $\sum_{i=0}^k m_i = n$. Then there exists a representation of $g$, $(m_g, \theta_g)$, such that the following problem is in $\mathsf{(\Sigma_k^P)^C}$: given any $d,e\in \mathbb{D}$ and $i\in \mathbb{N}$, decide if $\theta_g(d, i)\geq e$. 
+\end{lemma}
+
+%In the proof, we need a uniform version of the previous lemma. This is not hard to do by using a universal machine that decodes each function. We need to be specific about the number of compositions, since the complexity of the function can be exponential in that. In fact, to use the complexity results above, we need to put formulas in the form with domains of $[0,1]$.
+
+\begin{definition}
+Let $\varphi$ be of the form 
+$$Q_1^{[u_1,v_1]}x_1 \cdots Q_n^{[u_n,v_n]}\psi(x_1,...,x_n).$$ 
+We define $\varphi_{[0,1]}$ to be 
+$$\varphi_{[0,1]} = Q_1^{[0,1]} x_1 \cdots Q_n^{[0,1]}x_n\psi\big[x_i\big/(u_i+(v_i-u_i)x_i)\big].$$
+\end{definition} 
+
+It is clear that $\varphi$ and $\varphi_{[0,1]}$ are equivalent and the transformation can be done in polynomial-time. Now we are ready to state the complexity results for the $\delta$-decision problems. 
+
+\begin{theorem}\label{compmain}
+Let $\mathcal{F}$ be a class of computable functions. Let $S$ be a class of $\mathcal{L}_{\mathcal{F}}$-sentences, such that for any $\varphi$ in $S$, the terms in $\varphi_{[0,1]}$ are computable in complexity class $\mathsf{C}$ where $\mathsf{P_{C[0,1]}\subseteq \mathsf{C}\subseteq \mathsf{PSPACE_{C[0,1]}}}$. Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
+\end{theorem}
+
+\begin{proof} Consider any $\Sigma_k$-sentence $\varphi\in S$. Write $\varphi_{[0,1]}$ as
+$$\exists^{[0,1]^{m_1}} \vec x_1\forall^{[0,1]^{m_2}}\vec x_2\cdots Q_k^{[0,1]^{m_k}}\vec x_k\ \psi(\vec x_1,...,\vec x_k),$$
+where $Q_k$ is $\exists$ if $k$ is odd and $\forall$ otherwise. 
+
+Note that since $\mathsf{P_{C[0,1]}}\subseteq \mathsf{C}\subseteq \mathsf{PSPACE_{C[0,1]}}$, $\mathsf{C}$ is closed under polynomial-time reduction, and every function in $\mathsf{C}$ has a polynomial modulus function over $[0,1]$. 
+
+Following the algorithm in the proof of Theorem~\ref{main}, we compute the $\mathcal{L}_{\mathcal{F}_m}$-term $\alpha(\varphi_{[0,1]})$, which is of the form
+$$\alpha(\varphi_{[0,1]}):\ \max_{\vec x_1\in [0,1]^{m_1}}\min_{\vec x_2\in [0,1]^{m_2}}\cdots\underset{\vec x_k\in [0,1]^{m_k}}{\mbox{opt}}\alpha(\psi)$$
+where $\mathit{opt}$ is $\max$ if $k$ is odd and $\min$ otherwise. This step uses linear time and $\alpha(\varphi_{[0,1]})$ is linear in the size of $\varphi$.
+
+Following the assumptions on $S$, all terms in $\psi$ are computable in $\mathsf{C}$. It follows that $\alpha(\psi)$ is computable in $\mathsf{C}$, which can be shown inductively as follows. For atomic formulas, $\alpha(\psi)$ is a term computable in $\mathsf{C}$. If $\psi = \phi_1\wedge \phi_2$ (resp. $\phi_1\vee \phi_2$) then by definition $\alpha(\psi) = \min(\alpha(\phi_1), \alpha(\phi_2))$ (resp. $\max(\alpha(\phi_1), \alpha(\phi_2))$), where $\alpha(\phi_1)$ and $\alpha(\phi_2)$ are $\mathsf{C}$-computable by inductive hypothesis. Since the binary $\min(\cdot,\cdot)$ and $\max(\cdot, \cdot)$ are both computable in polynomial-time and $\mathsf{C}$ is closed under polynomial-time reduction, we have that $\alpha(\psi)$ is $\mathsf{C}$-computable. 
+
+Let $\alpha(\varphi_{[0,1]})$ be represented by $(m_{\alpha(\varphi)},\theta_{\alpha(\varphi)})$. Now, since $\alpha(\psi)$ is $\mathsf{C}$-computable (and has a polynomial modulus function), following Lemma~\ref{lem}, we know that given any $e\in \mathbb{D}$ and $i\in \mathbb{N}$, deciding $\theta_{\alpha(\varphi)}(i)\geq e$ is in $\mathsf{{\Sigma_k^P}^C}$. (Note that $\alpha(\varphi_{[0,1]})$ is a 0-ary function). In the proof of Theorem~\ref{main}, we checked the condition $\alpha(\varphi)(k)\geq \delta'/2$ in (1). Here, both $\delta'$ and $k$ are computed in linear time. Thus, the condition can be checked in $\mathsf{(\Sigma_k^P)^C}$. 
+
+%Let $\mathsf{eval}(\cdot, \cdot)$ be a $\mathsf{C}$-computable evaluation function, such that for any term $t: [0,1]^n\rightarrow \mathbb{R}$ and $\vec x\in [0,1]^n$, $\mathsf{eval}(t,\vec x)$ computes $t(\vec x)$. Namely, the index of the machine that computes $t$ is given as an input to the function $\mathsf{eval}$, and $\mathsf{eval}$ simulates the computation of $t$ on $\vec x$. Since $\psi$ is a Boolean combination
+
+In all, we described a polynomial-time reduction from the $\delta$-decision problem of a $\Sigma_k$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}_m}$ to a $\mathsf{(\Sigma_k^P)^C}$ problem. Thus, the $\delta$-decision problem resides in $\mathsf{(\Sigma_n^P)^C}$. 
+\end{proof}
+
+\begin{remark}
+We used the assumption that all the terms uniformly reside in some complexity class $\mathsf{C}$. It is not enough to assume only that the signature $\mathcal{F}$ is in $\mathsf{C}$, since the formulas can contain an arbitrary number of function composition. The complexity of evaluating composition of functions can easily be exponential in the number of iterative composition operations (with linear functions). This would trivialize the problem. Under the current assumption, each $\mathcal{L}_{\mathcal{F}}$-term that occur in $S$ is encoded as a function in $\mathsf{C}$ and such composition is not allowed. Thus the complexity is measured in terms of the length of the Boolean combinations of the $\mathcal{L}_{\mathcal{F}}$-terms.
+\end{remark}
+
+As corollaries, we now prove completeness results for signatures of interest. 
+
+\begin{corollary}
+Let $\mathcal{F}$ be a set of $\mathsf{P}$-computable functions (which, for instance, includes $\exp$ and $\sin$). The $\delta$-decision problem bounded $\Sigma_n$-sentences in $\mathcal{L}_{\mathcal{F}}$ is $\mathsf{\Sigma_n^P}$-complete. 
+\end{corollary}
+
+\begin{proof} Following the above theorem deciding a bounded $\Sigma_n$-sentence is in $\mathsf{(\Sigma_n^P)}^{\mathsf{P}}$, which is just $\mathsf{\Sigma_n^P}$.
+
+Hardness can be shown by encoding quantified Boolean satisfiability. We need to be careful that positive atoms are used to express negations. Let $\theta$ be a Boolean formula in CNF, whose propositional variables are $p_1,...,p_m$. Substitute $p_i$ by $x>0$ and $\neg p_i$ by $-x_i>1$, and add the clause $(x_i>0\vee -x_i>1)$ to the original formula as a conjunction. Then substitute $Q p_i$ by $Q^{[-2,2]}x_i$ where $Q$ is either $\exists$ or $\forall$. It is easy to see that new the formula is robust for any $\delta<1/2$, and equivalent with the original Boolean formula.
+\end{proof}
+
+\begin{corollary}
+Suppose $\mathcal{F}$ consists of Lipschitz-continuous ODEs over compact domains. The $\delta$-decision problem for bounded $\mathcal{L}_{\mathcal{F}}$-sentences is $\mathsf{PSPACE}$-complete. 
+\end{corollary}
+
+\begin{proof}
+Following Proposition 11, the problem is in $\mathsf{PSPACE}$ since $\mathsf{NP}^{\mathsf{PSPACE}}=\mathsf{PSPACE}$~\cite{phold}. Thus all the $\Sigma_n$-classes are lifted to $\mathsf{PSPACE}$. It is $\mathsf{PSPACE}$-hard since it subsumes solving any single ODE, which is itself a $\mathsf{PSPACE}$-complete problem.
+\end{proof}
+
+\section{Comparison with Negative Results}\label{negative}
+
+We can contrast the above results with the following negative results, to show that both the boundedness and $\delta$-relaxation are necessary for decidability. We allow the signature $\mathcal{L}_{\mathcal{F}}$ to be arbitrary Type 2 computable functions, then without either boundedness or robustness, $\mathcal{L}_{\mathcal{F}}$-sentences are undecidable. 
+
+\begin{proposition}
+There exists $\mathcal{F}$ such that it is undecidable whether an arbitrary quantifier-free sentence (and thus trivially bounded) in $\mathcal{L}_{\mathcal{F}}$ is true. 
+\end{proposition}
+
+\begin{proof}
+Define $h_n: \mathbb{N}\rightarrow \mathbb{N}$ as $h_n(t)=1$ if the $n$-th Turing machine $M_n$ halts in $t$ steps, and 0 otherwise. Define
+$$\gamma_n: \mathbb{N}\rightarrow \mathbb{Q},\ \gamma_n(k) = \sum_{i=1}^k h_n(i)\cdot2^{-i}.$$ 
+Note that $\gamma_n$ is convergent and can be seen as a name of a real number $a_n$, and $a_n=0$ iff the machine $M_n$ halts. Thus, if $\{a_i:i\in \mathbb{N}\}\subseteq \mathcal{F}$, there does not exist an algorithm that can decide whether an arbitrary quantifier-free $\mathcal{L}_{\mathcal{F}}$-sentence of the form $a_i=0$ is true. 
+\end{proof}
+
+The proof of this proposition involves adding countably many constant symbols to the language, one for each $a_i$. Alternatively, it is not hard to define a single computable function $g : \mathbb Q \to \mathbb R$ such that for each $i \in \mathbb N$, $g(i) = a_i$, by interpolating outputs linearly for inputs between integer values.
+
+\begin{proposition}
+There exists $\mathcal{F}$ such that it is undecidable whether an arbitrary $\delta$-robust quantifier-free $\mathcal{L}_{\mathcal{F}}$-sentence is true. 
+\end{proposition}
+
+\begin{proof}
+Let the set $\{a_i: i\in \mathbb{N}\}$ be defined as in the previous proof. Then the function $f_n(x) = a_nx$, which is computable since $a_n$ is computable, has the property that $f_n(x) = 0$ iff the $n$-th Turing machine halts, and $\exists x. f_n(x) = r$ for any $r\in \mathbb{R}$. This existential sentence is consequently $\delta$-robust for any $\delta$. Thus, there does not exist an algorithm that can decide whether an arbitrary $\delta$-robust bounded $\Sigma_1$-sentence of the form $\exists x. f_n(x)=r$ ($r\neq 0$) is true. Note that if we bound the quantifier $\exists x$, this proof does not go through. Because fixing any bound $x\leq u$ and $\delta\in \mathbb{Q}^+$, there exists an $a_k$ such that $a_k\cdot u<\delta$, which makes the formula not $\delta$-robust. Such an $a_k$ corresponds to a machine $k$ which may halt after $i$ steps, as long as $2^{-i}u<\delta$. 
+\end{proof}
+
+Again it is not hard to replace $f_n(x)$ by a single function $h(y,x)$.
+
+Consequently, both boundedness and robustness are necessary for decidability of $\mathcal{L}_\mathcal{F}$-sentences, if we allow $\mathcal{F}$ to be arbitrary Type 2 computable functions. Moreover, we can ask the following questions. Given a restrict signature, say $\mathsf{P}$-computable functions including $\times$ and $\sin$, is it the case that without either boundedness or robustness, simple $\mathcal{L}_{\mathcal{F}}$-sentences are undecidable? Answering this should require explicit construction which is beyond the scope of this paper. We list them as questions here. 
+
+\begin{question}
+Suppose $\mathcal{F}$ contains $\{+,\times, \sin\}$ or a reasonable extension of it with natural $P$-computable functions. Is it undecidable whether an unbounded $\delta$-robust $\Sigma_1$-sentence in $\mathcal{L}_{\mathcal{F}}$ is true? Is it undecidable whether a bounded $\Sigma_1$-sentence is true?
+\end{question}
+
+% Our belief is that both questions should be answered affirmatively. This is based on various results including the followings. 
+It seems plausible that both questions can be answered affirmatively. For instance in \cite{Gra05robustsimulations}, it is proved that there exists a $\delta$-robust encoding of Turing machines using the signature only. In \cite{Laczkovich02theremoval}, a recent improvement on Richardson's theorem, it is proved that there exists a function $f$ obtainable from the signature such that it is undecidable whether it has a zero. 
+
+% The correctness is also hinted by results in the line of work~\cite{} about simulating Turing machines with dynamical systems in compact spaces. 
+
+\section{Introduction}
+
+Given a first-order signature $\mathcal{L}$ and a structure $\mathcal{M}$, the {\em Satisfiability Modulo Theories} (SMT) problem asks whether a quantifier-free $\mathcal{L}$-formula is satisfiable over $\mathcal{M}$, or equivalently, whether an existential $\mathcal{L}$-sentence is true in $\mathcal{M}$. Solvers for SMT problems have become the key enabling technology in formal verification and related areas. SMT problems over the real numbers are of particular interest, because of their importance in verification and design of hybrid systems, as well as in theorem proving. While efficient algorithms~\cite{linear06} exist for deciding SMT problems with only linear real arithmetic, practical problems normally contain nonlinear polynomials, transcendental functions, and differential equations. Solving formulas with these functions is inherently intractable. Decision algorithms~\cite{collins} for formulas with nonlinear polynomials have very high complexity~\cite{BrownD07}. When the sine function is involved, the SMT problem is undecidable, and only partial algorithms can be developed~\cite{DBLP:journals/lmcs/AvigadF06,DBLP:journals/jar/AkbarpourP10}.
+
+Recently much attention has been given to developing practical solvers that incorporate scalable numerical computations. Examples of numerical algorithms that have been exploited include optimization algorithms~\cite{BorrallerasLNRR09,DBLP:conf/fmcad/NuzzoPSS10}, interval-based algorithms~\cite{HySAT,DBLP:conf/atva/EggersFH08,DBLP:conf/sefm/EggersRNF11,DBLP:conf/fmcad/Gao10}, Bernstein polynomials~\cite{bern}, and linearization algorithms~\cite{cordic}. These solvers have shown promising results on various nonlinear benchmarks in terms of scalability. 
+
+However, for correctness-critical problems, there is always the concern that numerical errors can result in incorrect answers from numerically-driven solvers. For example, safety problems for hybrid systems can not be decided by numerical methods~\cite{andre07}. The problem is compounded by, for instance, the difficulty in understanding the effect of floating-point arithmetic in place of exact computation. There are two common ways of addressing these concerns. One is to use exact versions of the numerical algorithms, replacing floating-point operations by exact symbolic arithmetic~\cite{bern}; the other is to use post-processing (validation) procedures to ensure that only correct results are returned. Both options reduce the full power of numerical algorithms and are usually hard to implement as well. For instance, in the Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05} for the formal proof of the Kepler conjecture, validating the numerical procedures used in the original proof turns out to be the hardest computational part (and unfinished yet). In general, there has been no framework for understanding the actual performance guarantees of numerical algorithms in the context of decision problems. 
+
+In this paper we aim to fill this gap by formally establishing the applicability of numerical algorithms in decision procedures, and the correctness guarantees they can actually provide. We do this as follows.
+
+First, we introduce ``the $\delta$-SMT problem'' over real numbers, to capture what can in fact be {\em correctly} solved by numerically-driven procedures. Given an SMT formula $\varphi$, and any positive rational number $\delta$, the $\delta$-SMT problem asks for one of the following decisions:
+%\vspace{-.1cm}
+\begin{itemize}
+\item $\mathsf{unsat}$: $\varphi$ is unsatisfiable.
+\item $\delta$-$\mathsf{sat}$: The {\em $\delta$-weakening} of $\varphi$ is satisfiable. 
+\end{itemize}
+%\vspace{-.1cm}
+Here, the $\delta$-weakening of $\varphi$ is defined as a numerical relaxation of the original formula. For instance, the $\delta$-weakening of $x=0$ is $|x|\leq\delta$. Note that if a formula is satisfiable, its $\delta$-weakening is always satisfiable. Thus, when a formula is $\delta$-{\sf sat}, either it is indeed satisfiable, or it is unsatisfiable but a $\delta$-perturbation on its numerical terms would make it satisfiable. The effect of this slight relaxation is striking. In sharp contrast to the undecidability of SMT for any signature extending real arithmetic by sine, we show that the bounded $\delta$-SMT problem for a wide range of nonlinear functions is decidable. 
+%Here ``boundedness'' means that all the variables are considered within bounded intervals of reals. 
+In fact, we show that the bounded $\delta$-SMT problem for the theory with exponentiation and trigonometric functions is $\mathsf{NP}$-complete, and $\mathsf{PSPACE}$-complete for theories with Lipschitz-continuous ODEs. We obtain these results using techniques from computable analysis~\cite{CAbook,vasco}. These results serve as the theoretical basis for our investigation of numerically-driven procedures. 
+
+Next, if a decision algorithm can solve the $\delta$-SMT problem correctly, we say it is ``$\delta$-complete''. We propose to use $\delta$-completeness as the ideal correctness requirement on numerically-driven procedures, replacing the conventional notion of complete solvers (which can never be met in this context). This new notion makes it worthwhile to develop formally analyze numerical methods for decision problems and compare their strength, instead of viewing them as partial heuristics. As an example, we study DPLL$\langle$ICP$\rangle$, the integration of Interval Constraint Propagation (ICP)~\cite{newton} in DPLL(T)~\cite{DPbook}. It is a general solving framework for nonlinear formulas and has shown promising results~\cite{HySAT,DBLP:conf/fmcad/Gao10,DBLP:conf/sefm/EggersRNF11}. We obtain conditions that are sufficient and necessary for the $\delta$-completeness of DPLL$\langle$ICP$\rangle$. 
+
+%We also show that correctness certificates of $\delta$-complete solvers can be produced at run-time and be externally checked, when it is hard to verify the numerical procedures used. 
+
+Further, we show the applicability of $\delta$-complete procedures in correctness-critical practical problems. In bounded model checking~\cite{DBLP:journals/fmsd/ClarkeBRZ01,DBLP:books/daglib/0007403}, using a $\delta$-complete solver we return one of the following answers: either a system is absolutely safe up to some depth ($\mathsf{unsat}$ answers), or it would {\em become unsafe} under some $\delta$-bounded numerical perturbations ($\delta$-{\sf sat} answers). Since $\delta$ can be made very small, in the latter case the algorithm is essentially detecting robustness problems in the system: If a system would be unsafe under some small perturbations, it can hardly be regarded as safe in practice. Similar guarantees can be given for invariant validation and theorem proving. The conclusion is that, under suitable interpretations, the answers of numerically-driven decision procedures can indeed be relied on in correctness-critical applications, as long as they are $\delta$-complete. 
+%%\vspace{-.35cm}
+
+{\em Related Work.} Our goal is to provide a formal basis for the promising trend of numerically-driven decision procedures~\cite{BorrallerasLNRR09,DBLP:conf/fmcad/NuzzoPSS10,HySAT,DBLP:conf/atva/EggersFH08,DBLP:conf/sefm/EggersRNF11,DBLP:conf/fmcad/Gao10,bern,cordic}.
+% give formally study the use of numerical computations in the context of decision procedures. for their reliable use in correctness-critical problems, such that the power of numerical algorithms can be fully exploited. This aims to serve as a basis for the promising-trend of numerically-driven solvers
+Related attempt can be seen in Ratschan's work~\cite{DBLP:journals/jsc/Ratschan02}, in which he investigated the stability of first-order constraints under numerical perturbations. Our approach is, instead, to take numerical perturbations as a given and study its implications in practical applications. Results in this paper are related to our more theoretical results~\cite{gaoextended2} for arbitrarily-quantified sentences, where we do not analyze practical procedures. A preliminary notion of $\delta$-completeness was proposed by us earlier in~\cite{DBLP:conf/fmcad/Gao10} where only polynomials are considered.
+
+The paper is organized as follows. In Section~\ref{smt} and \ref{delta} we define the bounded $\delta$-SMT problem and establish its decidability and complexity. In Section~\ref{dpllicp} we formally analyze DPLL$\langle$ICP$\rangle$ and discuss applications in Section~\ref{app}. 
+
+\section{SMT with Type 2 Computable Functions}\label{smt}
+\subsection{Basics of Computable Analysis}
+
+Real numbers can be encoded as infinite strings, and a computability theory of real functions can be developed with oracle machines that perform operations using function-oracles encoding real numbers. This is the approach developed in Computable Analysis or Type 2 Computability~\cite{CAbook,Kobook,vasco}. We briefly review results of importance to us.
+
+
+Throughout the paper we use $||\cdot||$ to denote $||\cdot||_{\infty}$ over $\mathbb{R}^n$ for various $n$. 
+
+\begin{definition}[Names]
+A name of $a\in \mathbb{R}$ is any function $\mathcal{\gamma}_a: \mathbb{N}\rightarrow \mathbb{Q}$ satisfying that $\forall i\in \mathbb{N}, |\gamma_a(i) - a|<2^{-i}.$ For $\vec a\in \mathbb{R}^n$, $\gamma_{\vec a}(i) = \langle \gamma_{a_1}(i), ..., \gamma_{a_n}(i)\rangle$.  
+\end{definition}
+Thus the name of a real number is a sequence of rational numbers converging to it. For $\vec a\in \mathbb{R}^n$, we write $\Gamma(\vec a) = \{\gamma: \gamma\mbox{ is a name of }\vec a\}$. 
+
+A real function $f$ is computable if there is an oracle Turing machine that can take any argument $x$ of $f$ as a function oracle, and output the value of $f(x)$ up to an arbitrary precision. 
+\begin{definition}[Computable Functions]
+We say $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ is computable if there exists a function-oracle Turing machine $\mathcal{M}_f$, outputting rational numbers, such that $\forall \vec x \in \dom(f)\ \forall \gamma_{\vec x}\in \Gamma(\vec x)\ \forall i \in \mathbb{N}, |M_f^{\gamma_{\vec x}}(i) - f(\vec x)|<2^{-i}.$
+\end{definition}
+
+In the definition, $i$ specifies the desired error bound on the output of $M_f$ with respect to $f(\vec x)$. For any $\vec x\in \dom(f)$, $M_f$ has access to an oracle encoding the name $\gamma_{\vec x}$ of $\vec x$, and output a $2^{-i}$-approximation of $f(\vec x)$. In other words, the sequence $M_f^{\gamma_{\vec x}}(1), M_f^{\gamma_{\vec x}}(2), ...$ is a name of $f(\vec x)$. Intuitively, $f$ is computable if an arbitrarily good approximation of $f(\vec x)$ can be obtained using any good enough approximation to any $\vec x\in\dom(f)$. A key property of this notion of computability is that computable functions over reals are continuous~\cite{CAbook}. Moreover, over any compact set $D\subseteq \mathbb{R}^n$, computable functions are uniformly continuous with a {\em computable modulus of continuity} defined as follows. 
+\begin{definition}[Uniform Modulus of Continuity]
+Let $f:\subseteq \mathbb{R}^n\rightarrow \mathbb{R}$ be a function and $D\subseteq\dom(f)$ a compact set. The function $m_f: \mathbb{N}\rightarrow \mathbb{N}$ is called a uniform modulus of continuity of $f$ on $D$ if\ $\forall \vec x,\vec y\in D$, $\forall i\in \mathbb{N}$, $||\vec x-\vec y||<2^{-m_f(i)}$ implies $|f(\vec x)-f(\vec y)|<2^{-i}.$
+\end{definition}
+\begin{proposition}[\cite{CAbook}]
+Let $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ be computable and $D\subseteq\dom(f)$ a compact set. Then $f$ has a computable uniform modulus of continuity over $D$.
+\end{proposition}
+Intuitively, if a function has a computable uniform modulus of continuity, then fixing any desired error bound $2^{-i}$ on the outputs, we can compute a {\em global} precision $2^{-m_f(i)}$ on the inputs from $D$ such that using any $2^{-m_f(i)}$-approximation of any $\vec x\in D$, $f(\vec x)$ can be computed within the error bound. 
+
+Most common continuous real functions are computable~\cite{CAbook}. Addition, multiplication, absolute value, $\min$, $\max$, $\exp$, $\sin$ and solutions of Lipschitz-continuous ordinary differential equations are all computable functions. Compositions of computable functions are computable.
+
+Moreover, complexity of real functions can be defined over compact domains. 
+\begin{definition}[\cite{Ko92}]
+Let $D\subseteq \mathbb{R}^n$ be compact. A real function $f:D\rightarrow\mathbb{R}$ is $\mathsf{P}$-computable ($\mathsf{PSPACE}$-computable), if it is computable by an oracle Turing machine $M_{f}^{\gamma(\vec x)}(i)$ that halts in polynomial-time (polynomial-space) for every $i\in \mathbb{N}$ and every $\vec x\in \dom(f)$. 
+\end{definition}
+
+We say $f$ is in Type 2 complexity class $\mathsf{C}$ if it is $\mathsf{C}$-computable. $f$ is $\mathsf{C}$-complete if it is $\mathsf{C}$-computable and $\mathsf{C}$-hard~\cite{Kobook}. If $f:D\rightarrow \mathbb{R}$ is $\mathsf{C}$-computable, then it has a $\mathsf{C}$-computable modulus of continuity over $D$. Polynomials, $\exp$, and $\sin$ are all $\mathsf{P}$-computable functions. A recent result~\cite{Kawamura09} established that the complexity of computing solutions of Lipschitz-continuous ODEs over compact domains is a {\sf PSPACE}-complete problem. 
+%\vspace{-.2cm}
+\subsection{Bounded SMT over $\mathbb{R}_{\mathcal{F}}$}
+
+We now let $\mathcal{F}$ denote an arbitrary collection of Type 2 computable functions. $\mathcal{L}_{\mathcal{F}}$ denotes the first-order signature and $\mathbb{R}_{\mathcal{F}}$ is the standard structure $\langle \mathbb{R}, \mathcal{F}\rangle$. We can then consider the SMT problem over $\mathbb{R}_{\mathcal{F}}$, namely, satisfiability of quantifier-free $\mathcal{L}_{\mathcal{F}}$-formulas over $\mathbb{R}_{\mathcal{F}}$. We consider formulas whose variables take values from bounded intervals. Because of this, it is more convenient to directly write the bounds on existential quantifiers and express bounded SMT problems as $\Sigma_1$-sentences with bounded quantifiers.
+\begin{definition}[Bounded $\Sigma_1$-Sentences]
+A bounded $\Sigma_1$-sentence in $\mathcal{L}_{F}$ is
+$$\varphi:\ \exists^{I_1}x_1\cdots \exists^{I_n}x_n. \psi(x_1,...,x_n).$$
+\begin{itemize}
+\item For all $i$, $I_i\subseteq \mathbb{R}$ is a bounded (open or closed) interval with rational endpoints. 
+\item Each bounded quantifier $\exists^{I_i}x_i.\phi$ denotes $\exists x_i.(x_i\in I_i\wedge \phi)$. 
+\item $\psi(x_1,...,x_n)$ is a quantifier-free $\mathcal{L}_{\mathcal{F}}$-formula, i.e., a Boolean combination of atomic formulas of the form $f(x_1,...,x_n)\circ 0$, where $f$ is a composition of functions in $\mathcal{F}$ and $\circ\in\{<,\leq, >, \geq, =, \neq \}$. 
+\item We write $\dom(\varphi)= I_1\times \cdots \times I_n$, and require that all the functions occurring in $\psi(\vec x)$ are defined everywhere over its closure $\overline{\dom(\varphi)}$.
+\end{itemize}
+We can write a bounded $\Sigma_1$-sentence as $\exists^{\vec I}\vec x.\psi(\vec x)$ for short.
+\end{definition}
+%A first observation is that any bounded $\Sigma_1$-sentence can be put into the following standard form, where inequalities are implicitly expressed by the bounded quantifiers, and the atomic formulas only involve equalities. 
+\begin{lemma}[Standard Form]\label{pre1}
+Any bounded $\Sigma_1$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}}$ is equivalent over $\mathbb{R}_{\mathcal{F}}$ to a sentence of the following form:
+%\vspace{-.2cm}
+$$\exists^{I_1}x_1\cdots \exists^{I_n}x_n\;\bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i} f_{ij}(\vec x)=0).$$ 
+\end{lemma}
+%\vspace{-.6cm}
+\begin{proof}
+Assume that $\varphi$ is originally $\exists^{\vec I}\vec x\;\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i} g_{ij}(\vec x)\circ 0), \mbox{ where }\circ\in\{<,\leq, >, \geq, =,\neq\}.$ We apply the following transformations:
+
+1. {\bf (Eliminate $\neq$)} Substitute each atomic formula of the form $g_{ij}\neq 0$ by $g_{ij}<0\vee g_{ij}>0$.
+
+2. {\bf (Eliminate $\leq, <$)} Substitute $g_{ij}\leq 0$ by $-g_{ij}\geq 0$, and $g_{ij}<0$ by $-g_{ij}>0$. Now the formula is rewritten to $\exists^{\vec I}\vec x. \bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i} g'_{ij}(\vec x)\circ 0), \mbox{ where } \circ\in\{>, \geq, = \}.$ ($g'_{ij} = -g_{ij}$ if the inequality is reversed; otherwise $g'_{ij}=g_{ij}$.)
+
+3. {\bf (Eliminate $\geq, >$)} Substitute $g'_{ij}\geq 0$ (or $g'_{ij}>0$) by $g'_{ij}-v_{ij}=0,$ where $v_{ij}$ is a newly introduced variable, and add an innermost bounded existential quantifier $\exists v_{ij}\in I_{v_{ij}}$, where $I_{v_{ij}} = [0, m_{v_{ij}}]$ ($I_v=(0,m_{v_{ij}}]$). Here, $m_{v_{ij}}\in \mathbb{Q}$ is any value greater than the maximum of $g'_{ij}$ over $\overline{\dom(\varphi)}$. Note that such maximum of $g'_{ij}$ always exists over $\overline{\dom(\varphi)}$, since $g'_{ij}$ is continuous on $\overline{\dom(\varphi)}$, which is a compact, and is computable~\cite{Kobook}. 
+
+The formula is now in the form $\exists^{\vec I}\vec x\exists^{\vec I_{\vec v}} \vec v.\ \bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i} f_{ij}(\vec x, \vec v)=0),$ where $f_{ij} = g'_{ij}-v_{ij}$ if $v_{ij}$ has been introduced in the previous step; otherwise, $f_{ij} = g'_{ij}$. The new formula is in the standard form and equivalent to the original.
+\qed\end{proof}
+\begin{example}
+A standard form of $\exists^{[-1,1]} x\exists^{[-1,1]} y\exists^{[-1,1]} z\;(e^z<x\rightarrow y<\sin(x))$ is $\exists^{[-1,1]} x\exists^{[-1,1]} y \exists^{[-1,1]} z \exists^{[0, 10]} u \exists^{(0,10]} v\;(e^z- x - u = 0) \vee (\sin(x)- y - v = 0).$
+\end{example}
+%\begin{remark}\label{max}
+%Computing the exact maximum of $f$ over a bounded domain is hard. However, exactness is not needed in the transformations since $m_{v_{ij}}$ can be {\em any} value greater than the maximum and any loose bound on $f$ would work. In any case, to avoid ambiguity, our results will always be claimed for input formulas given in the standard form.
+%\end{remark}
+
+Recall that we allow the interval bounds on variables to be either open or closed. Let $\overline{S}$ and $S^o$ denote the closure and interior of any set $S$ over the reals. Based on our need we can consider the closure or the interior of the domains in a $\Sigma_1$-sentence. 
+\begin{definition}[Closure and Interior]
+Let $\varphi:= \exists^{I_1}x_1\cdots\exists^{I_n}x_n. \psi(\vec x)$ be a bounded $\Sigma_1$-sentence in $\mathcal{L}_{\mathcal{F}}$, we define the closure and interior of $\varphi$ as:
+\begin{align*}
+\overline{\varphi} &:= \exists^{\overline{I_1}} x_1\cdots\exists^{\overline{I_n}}x_n. \psi(\vec x) &\mathrm{(Closure)}\\
+{\varphi}^o &:= \exists^{I_1^o} x_1\cdots\exists^{I_n^o}x_n. \psi(\vec x) &\mathrm{(Interior)}
+\end{align*}
+\end{definition}
+\begin{proposition}
+For any $\Sigma_1$-sentence $\varphi$, $\varphi^o\rightarrow \varphi$ and $\varphi\rightarrow \overline{\varphi}$.
+\end{proposition}
+\section{The Bounded $\delta$-SMT Problem}\label{delta}
+The key for bridging numerical procedures and SMT problems is to introduce syntactic perturbations on $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$. 
+
+\begin{definition}[$\delta$-Weakening and Perturbations]\label{weak-def}
+Let $\delta\in \mathbb{Q}^+\cup\{0\}$ be a constant and $\varphi$ be a $\Sigma_1$-sentence in standard form:
+%\vspace{-.3cm}
+\[\varphi:= \exists^{\vec I}\vec x.\bigwedge_{i=1}^m (\bigvee_{j=1}^{k_i} f_{ij}(\vec x)= 0).
+%\vspace{-.3cm}
+\]
+The $\delta$-weakening of $\varphi$ defined as:
+%\vspace{-.3cm}
+\[\varphi^{\delta}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k |f_{ij}(\vec x)|\leq \delta).\]
+Also, a $\delta$-perturbation is a constant vector $\vec c = (c_{11},...,c_{mk_m})$, $c_{ij}\in\mathbb{Q}$, satisfying $||\vec c||\leq\delta$, such that the $\vec c$-perturbed form of $\varphi$ is given by:
+%\vspace{-.2cm}
+\[\varphi^{\vec c}:= \exists^{\vec I} \vec x.\bigwedge_{i=1}^m(\bigvee_{j=1}^k f_{ij}(\vec x) = c_{ij}).\]
+\end{definition}
+
+\begin{proposition} 
+$\varphi^{\delta}$ is true iff there exists a $\delta$-perturbation $\vec c$ such that $\varphi^{\vec c}$ is true. In particular, $\vec c$ can be the zero vector, and thus $\varphi\rightarrow\varphi^{\delta}$. 
+\end{proposition}
+
+We now define the bounded $\delta$-SMT problem. We follow the convention that SMT solvers return sat/unsat, which is equivalent to the corresponding $\Sigma_1$-sentence being true/false. 
+
+%Following conventional terminology, we still regard an SMT problem as a quantifier-free formula $\varphi(\vec x)$, and explicitly write $\exists^{\vec I}\vec x.\varphi(\vec x)$ to denote the corresponding $\Sigma_1$-sentence. 
+
+\begin{definition}[Bounded $\delta$-SMT in $\mathcal{L}_{\mathcal{F}}$] Let $\mathcal{F}$ be a finite collection of Type 2 computable functions. Let $\varphi$ be a bounded $\Sigma_1$-sentence in $\mathcal{L}_{\mathcal{F}}$ in standard form. The {\em bounded $\delta$-SMT problem} asks for one of the following two decisions on $\varphi$:
+\begin{itemize}
+\item $\mathsf{unsat}:$ $\varphi$ is false.
+\item $\delta$-$\mathsf{sat}:$ $\varphi^{\delta}$ is true. 
+\end{itemize}
+When the two cases overlap, either decision can be returned. 
+\end{definition}
+
+Our main theoretical claim is that the bounded $\delta$-SMT problem is decidable for $\delta\in \mathbb{Q}^+$. This is essentially a special case of our more general results for arbitrarily-quantified $\mathcal{L}_{\mathcal{F}}$-sentences~\cite{gaoextended2}. However, different from~\cite{gaoextended2}, here we defined the standard forms of SMT problems to contain only equalities in the matrix, on which the original proof does not work directly. Also, in \cite{gaoextended2} we relied on results from computable analysis that are not needed here. We now give a direct proof for the decidability of $\delta$-SMT and analyze its complexity. 
+
+\begin{theorem}[Decidability] Let $\mathcal{F}$ be a finite collection of Type 2 computable functions and $\delta\in \mathbb{Q}^+$. The bounded $\delta$-SMT problem in $\mathcal{L}_{\mathcal{F}}$ is decidable.  
+\end{theorem}
+
+\begin{proof}
+We describe a decision procedure which, given any bounded $\Sigma_1$-sentence $\varphi$ in $\mathcal{L}_{\mathcal{F}}$ and $\delta\in \mathbb{Q}^+$, decides whether $\varphi$ is false or $\varphi^{\delta}$ is true. Assume that $\varphi$ is in the form of Definition~\ref{weak-def}. 
+
+First, we need a uniform bound on all the variables so that a modulus of continuity for each function can be computed. Suppose each $x_i$ is bounded by $I_i$, whose closure is $\overline{I_i} = [l_i, u_i]$. We write %e transform the closure of the formula into 
+\begin{eqnarray*}
+\overline{\varphi} :=  \exists^{[0,1]} x_1 \cdots \exists^{[0,1]} x_n\; \bigwedge_{i=1}^m(\bigvee_{j=1}^{k_i} f_{ij}\big(l_1+(u_1-l_1)x_1,...,l_n+(u_n-l_n)x_n\big)=0).
+\end{eqnarray*}
+%The interior $\varphi^o$ of $\varphi$ is defined by replacing each $[0,1]$ by $(0,1)$. 
+From now on, $g_{ij} = f_{ij}(l_1+(u_1-l_1)x_1,...,l_n+(u_n-l_n)x_n)$. After the transformation, we have $\overline{\dom(\varphi)} = [0,1]\times\cdots\times [0,1]$, on which each $g_{ij}$ is computable (it is a composition of the finitely many computable functions in $\mathcal{F}$) and has a computable modulus of continuity $m_{g_{ij}}$. We write $\psi(\vec x)$ to denote the matrix of $\varphi$ after the transformation. 
+
+Choose $r\in \mathbb{N}$ such that $2^{-r}<\delta/4$. Then for each $g_{ij}$, we use $m_{g_{ij}}$ to obtain $e_{ij} = m_{g_{ij}}(r)$. Choose $e\in \mathbb{N}$ such that 
+%\vspace{-.3cm}
+\begin{eqnarray}\label{e-def}
+e\geq\max(e_{11},...,e_{mk_m})
+\end{eqnarray} and write $\varepsilon = 2^{-e}$. We then have
+\begin{eqnarray}\label{first}
+\forall \vec x, \vec y\in \overline{\dom(\varphi)}\  (||\vec x-\vec y||<\varepsilon \rightarrow |g_{ij}(\vec x)-g_{ij}(\vec y)|<{\delta}/{4}).
+%\vspace{-.2cm}
+\end{eqnarray}
+
+We now consider a finite $\varepsilon$-net of $\overline{\dom(\varphi)}$, i.e., a finite $S_{\varepsilon} \subseteq \overline{\dom(\varphi)}$, satisfying
+\begin{eqnarray}\label{two}
+\forall \vec x\in \overline{\dom(\varphi)}\;\exists \vec a\in S_{\varepsilon}\ ||\vec x-\vec a||<\varepsilon. 
+\end{eqnarray}
+In fact, $S_{\varepsilon}$ can be explicitly defined as
+\begin{eqnarray}\label{three}
+S_{\varepsilon} = \{(a_1,...,a_n): a_i = k\cdot\varepsilon, \mbox{ where } k\in \mathbb{N}, 0\leq k\leq 2^e \}.
+\end{eqnarray}
+Next, we evaluate the matrix $\psi(\vec x)$ on each point in $S_{\varepsilon}$, as follows. Let $\vec a\in S_{\varepsilon}$ be arbitrary. For each $g_{ij}$ in $\psi$, we compute $g_{ij}(\vec a)$ up to an error bound of $\delta/8$, and write the result of the evaluation as $\overline{g_{ij}(\vec a)}^{\delta/8}$. Then $|g_{ij}(\vec a)- \overline{g_{ij}(\vec a)}^{\delta/8}|<{\delta}/{8}.$ Note $\overline{g_{ij}(\vec a)}^{\delta/8}$ is a rational number. We then define
+\begin{eqnarray}
+\widehat{\psi}(\vec x):= \bigwedge_{i=1}^m \bigvee_{j=1}^{k_i} |\overline{g_{ij}(\vec x)}^{\delta/8}|<\delta/2.
+\end{eqnarray}
+Then for each $\vec a$, evaluating $\widehat{\psi}(\vec a)$ only involves comparison of rational numbers and Boolean evaluation, and $\widehat{\psi}(\vec a)$ is either true or false. Now, by collecting the value of $\widehat{\psi}$ on every point in $S_{\varepsilon}$, we have the following two cases. 
+
+$\bullet$ Case 1: For some $\vec a\in S_{\varepsilon}$, $\widehat{\psi}(\vec a)$ is true. We show that $\varphi^{\delta}$ is true. Note that
+\begin{eqnarray*}
+\widehat{\psi}(\vec a) \Rightarrow \bigwedge_{i=1}^m \bigvee_{j=1}^{k_i} |\overline{g_{ij}(\vec a)}^{\delta/8}|<\delta/2 
+%&\Rightarrow& \bigwedge_{i=1}^m \bigvee_{j=1}^{k_i} |g_{ij}(\vec a)|<\delta/2+\delta/8\\
+&\Rightarrow&\bigwedge_{i=1}^m \bigvee_{j=1}^{k_i} |g_{ij}(\vec a)|<\delta\cdot 5/8.
+\end{eqnarray*}
+We need to be careful about $\vec a$, since it is an element in $\overline{\dom(\varphi)}$, not $\dom(\varphi)$. If $\vec a\in \dom(\varphi)$, then $\varphi^{\delta}$ is true, witnessed by $\vec a$. Otherwise, $\vec a\in \partial(\dom(\varphi))$. Then by continuity of $g_{ij}$, there exists $\vec a'\in \dom(\varphi)$ such that $\bigwedge_{i=1}^m \bigvee_{j=1}^{k_i} |g_{ij}(\vec a')|<\delta$. (Just let a small enough ball around $\vec a$ intersect $\dom(\varphi)$ at $\vec a'$.) That means $\varphi^{\delta}$ is also true in this case, witnessed by $\vec a'$.
+
+$\bullet$ Case 2: For every $\vec a\in S_{\varepsilon}$, $\widehat{\psi}(\vec a)$ is false. We show that $\varphi$ is false. Note that
+\begin{eqnarray*}
+\neg\widehat{\psi}(\vec a) \Rightarrow \bigvee_{i=1}^m \bigwedge_{j=1}^{k_i} |\overline{g_{ij}(\vec a)}^{\delta/8}|\geq\delta/2 
+%&\Rightarrow& \bigvee_{i=1}^m \bigwedge_{j=1}^{k_i} |g_{ij}(\vec a)|\geq\delta/2-\delta/8\\
+&\Rightarrow&\bigvee_{i=1}^m \bigwedge_{j=1}^{k_i} |g_{ij}(\vec a)|\geq \delta\cdot 3/8. 
+\end{eqnarray*}
+Now recall condition (\ref{first}) and (\ref{two}). For an arbitrary $\vec x\in \dom(\varphi)$, there exists $\vec a\in S_{\varepsilon}$ such that $|g_{ij}(\vec x)-g_{ij}(\vec a)|<\delta/4$ for every $g_{ij}$. Consequently, we have $|g_{ij}(\vec x)|\geq \delta\cdot 3/8- \delta/4 = \delta/8.$ Thus, $\forall \vec x\in \dom(\varphi), \bigvee_{i=1}^m\bigwedge_{j=1}^{k_i}\; |g_{ij}(\vec x)|>0.$ This means $\neg \varphi$ is true, and $\varphi$ is false. 
+
+In all, the procedure that decides either that $\varphi^{\delta}$ is true, or that $\varphi$ is false. 
+\qed\end{proof}
+
+We now analyze the complexity of the $\delta$-SMT problem. The decision procedure given above essentially evaluates the formula on each sample point. Thus, given an oracle for evaluating the functions, we can construct a nondeterministic Turing machine that randomly picks the sample points and decides the formula.
+
+Most of the functions we are interested in (exp, sin, ODEs) are in Type 2 complexity class $\mathsf{P}$ or $\mathsf{PSPACE}$. To prove interesting complexity results, a technical restriction is that we need to bound the number of function compositions in a formula, because otherwise evaluating nested polynomial-time functions can be exponential in the number of nesting. Formally we define: 
+\begin{definition}[Uniformly Bounded $\Sigma_1$-class]
+Let $\mathcal{F}$ be a finite set of Type 2 computable functions, and $S$ a class of bounded $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$. Let $l,u\in \mathbb{Q}$ satisfy $l\leq u$. We say $S$ is uniformly ($l,u,\mathcal{F}$)-bounded, if $\forall\varphi\in S$ of the form $\exists^{I_1}x_1\cdots\exists^{I_n}x_n \bigwedge_{i=1}^{m}\bigvee_{j=1}^{k_i}\;f_{ij}(\vec x)=0$,
+\begin{itemize}
+\item $\forall 1\leq i\leq n$, $I_i\subseteq [l,u]$. 
+\item Each $f_{ij}(\vec x)$ is contained in $\mathcal{F}$. 
+\end{itemize}
+\end{definition}
+\begin{proposition}[\cite{Kobook}]\label{polym}
+Let $\mathsf{C}$ be a Type 2 complexity class contained in $\mathsf{PSPACE}$. Then given any compact domain $D$, a $\mathsf{C}$-computable function has a uniform modulus of continuity over $D$ given by a polynomial function.
+\end{proposition}
+
+We are now ready to prove the main complexity claim.
+
+\begin{theorem}[Complexity]
+Let $\mathcal{F}$ be a finite set of functions in Type 2 complexity class $\mathsf{C}$, $\mathsf{P}\subseteq\mathsf{C}\subseteq\mathsf{PSPACE}$. The $\delta$-SMT problem for uniformly bounded $\Sigma_1$-classes in $\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{NP^C}$. 
+\end{theorem}
+\begin{proof}
+We describe a nondeterministic Turing machine with a function oracle of complexity $\mathsf{C}$, that can decide in polynomial-time the $\delta$-SMT problem for a uniformly bounded class.
+
+The function oracle $\theta$ we use behaves as follows. Given strings $s$, $t$, and $d$ on the query tape, $\theta(s,t,d)$ looks up the function $f_s\in \mathcal{F}$ encoded by $s$ and returns the value of $f_s({\vec x}_t)$ up to an error bound of $2^{-d}$, where ${\vec x}_t$ is a rational vector encoded by $t$ taken as the argument of $f_s$. Since all the functions in $\mathcal{F}$ are in complexity class $\mathsf{C}$, $\theta(s,t,d)$ is a $\mathsf{C}$-oracle. 
+
+For any symbol $s$, we write $\len(s)$ to denote its bit-length. For an integer $i$, we know $\len(i)= O(\log(i))$. For a rational number $d$, which is the ratio of coprime integers $p$ and $q$, $\len(d)= O(\len(p)+\len(q))= O(\log(pq))$. For a function $f$, $len(f)$ is the length of its name. We write $O(\poly(n))$ to denote $\bigcup_kO(n^k)$. 
+
+Let $\varphi$ be the input formula as in Definition~\ref{weak-def}, where each $f_{ij}\in \mathcal{F}$. Suppose $\varphi$ is in a uniformly $(l,u,\mathcal{F})$-bounded class. 
+
+First, we observe that $e$, defined in (\ref{e-def}), can be obtained in time $O(\poly(\len(\varphi)+\len(\delta)))$, and $e = O(\poly(\len(\varphi)+\len(\delta)))$ (thus $\len(e) = O(\len(\varphi)+\len(\delta))$). This can be seen as follows. First, $2^{-r}<\delta$, we know $r= O(\log(\delta)) = O(\len(\delta))$. Then for each $f_{ij}$, we use its uniform modulus of continuity over $[l,u]$, given by a polynomial $m_{f_{ij}}$ (Proposition~\ref{polym}), and obtain $e_{ij}^f = m_{f_{ij}}(r)$, in time $O(\poly(\len(r)))$ and $e_{ij}^f = O(\poly(r))$. Then we compute $e_{ij}$ for the function $g_{ij}$ by scaling $e_{ij}^f$, using $e_{ij}  = \lceil -\log(2^{-e^f_{ij}}/\max_{1\leq i\leq n}\{u_i-l_i\})\rceil$. Thus $e_{ij} = O(e_{ij}^f+\log(\max_i(u_i-l_i))) = O(\poly(\len(\delta)+\len(\varphi)))$. Finally, let $e$ be the biggest $e_{ij}$. It is then clear that $e = O(\poly(\len(\varphi)+\len(\delta)))$, obtainable in polynomial time. 
+
+Next, our procedure evaluates the matrix of the formula on each point $\vec a\in S_{\varepsilon}$. Note from ($\ref{three}$) that $S_{\varepsilon}$ is of size exponential in $e$. Here we exploit the nondeterminism of the machine by randomly picking $0\leq k\leq 2^e$ on each dimension. Note that since $\log(k)\leq e$, we have $\len(k) = O(e) = O(poly(\len(\varphi)+\len(\delta)))$. Let $\vec a = (a_1,...,a_n)$ be the randomly picked point in $S_{\varepsilon}$. Following the above estimate of $\len(k)$ and $\len(\varepsilon) = O(\log(2^{-e}))= O(e)$, we have $\len(\vec a) = O(\poly(\len(\varphi)+\len(\delta)))$. 
+
+Now we evaluate $\widehat{\varphi}(\vec a)$. With access to the $\mathsf{C}$-oracle specified above, this can be done in polynomial-time, as follows. For each $g_{ij}(\vec a)$, we query the oracle with $\theta(f_{ij}, \vec a_{lu}, \delta/8)$, where $\vec a_{lu}$ is $\vec a$ scaled by $[l_i, u_i]$ on each dimension. This query uses $O(\poly(\len(\varphi)+\len(\delta)))$-space on the query tape. The oracle then return the value of $\overline{f_{ij}(\vec a_{lu})}^{\delta/8}= \overline{g_{ij}(\vec a)}^{\delta/8}$, and since $\mathsf{C}\subseteq \mathsf{PSPACE}$, $\len(\overline{g_{ij}(\vec a)}^{\delta/8})$ is polynomial in the input. Next we evaluate each atom by comparing these values obtained from the oracle with $\delta/2$. This uses time $O(\poly(\len(\varphi)+\len(\delta)))$. Finally, if $\widehat{\psi}(\vec x)$ is true, we return $\delta$-$\mathsf{sat}$. Thus the problem is decided in nondeterministic polynomial-time using access to the $\mathsf{C}$-oracle. We can conclude that the $\delta$-SMT problem for a uniformly bounded class is in $\mathsf{NP^C}$.\qed
+\end{proof}
+\begin{remark}
+The restriction of a uniformly bounded class of formulas is a technical one. For a class of formulas of interest, we can always choose a rich enough $\mathcal{F}$ that contains the compositions we need, and a loose enough uniform bound on the variables. 
+\end{remark}
+
+We can now obtain a precise characterization of the complexity for $\delta$-SMT problems in signatures of interest. Recall that most common functions, such as polynomials, $\exp$, $\sin$, are all $\mathsf{P}$-computable and Lipschitz-continuous ODEs are $\mathsf{PSPACE}$-complete. 
+\begin{corollary}
+Let $\mathcal{F}$ be a finite set of $\mathsf{P}$-time computable real functions, such as $\{+, \times, \exp, \sin\}$. The uniformly-bounded $\delta$-SMT problem for $\mathcal{L}_{\mathcal{F}}$ is $\mathsf{NP}$-complete.
+\end{corollary}
+\begin{proof}
+Since the functions in $\mathcal{F}$ are $\mathsf{P}$-time computable, the $\delta$-SMT problem is in $\mathsf{NP^P}= \mathsf{NP}$. We only need to encode Boolean satisfiability for hardness. We need to be careful that no negations can be used. For any propositional formula $\phi(p_1,...,p_n)$, substitute $p_i$ by $x_i<0$ and $\neg p_i$ by $x_i>1$, and add $(x_i=0\vee x_i=1)$ as a clause to the formula. Add the quantifiers $\exists^{[-1,2]}x_i$ for each $x_i$. Then for any $\delta<0.5$, $\phi$ is satisfiable iff the translation is $\delta$-true, and unsatisfiable iff the translation is false. Note that the cases do not overlap.\qed 
+\end{proof}
+\begin{corollary}
+Let $\mathcal{F}$ be a finite set of Lipschitz-continuous ODEs over compact domains. Then the uniformly-bounded $\delta$-SMT problem in $\mathcal{L}_{\mathcal{F}}$ is in $\mathsf{PSPACE}$, and there exists $\mathcal{L}_{\mathcal{F}}$ such that it is $\mathsf{PSPACE}$-complete.
+\end{corollary}
+\begin{proof}
+We have $\mathsf{NP^{PSPACE}} = \mathsf{PSPACE}$. Since some ODEs are {\sf PSPACE}-complete to solve~\cite{Kawamura09}, there exists $\mathcal{L}_{\mathcal{F}}$ for which $\delta$-SMT problem is $\mathsf{PSPACE}$-complete. \qed
+\end{proof}
+%\vspace{-.4cm}
+\section{$\delta$-Completeness of the DPLL$\langle$ICP$\rangle$ Framework}\label{dpllicp}
+%\vspace{-.1cm}
+We now give a formal analysis of the integration of ICP and DPLL(T) for solving bounded $\delta$-SMT. Our goal is to establish sufficient and necessary conditions under which such an integration is $\delta$-complete. 
+%\vspace{-.5cm}
+\subsection{Interval Constraint Propagation}
+
+The method of Interval Constraint Propagation (ICP)~\cite{handbookICP} finds solutions of real constraints using a ``branch-and-prune" method, combining interval arithmetic and constraint propagation. The idea is to use interval extensions of functions to ``prune'' out sets of points that are not in the solution set, and ``branch'' on intervals when such pruning can not be done, until a small enough box that may contain a solution is found. A high-level description of the decision version of ICP is given in Algorithm 1 and we give formal definitions as follows.
+
+\begin{definition}[Floating-Point Intervals and Hulls]
+Let $\mathbb{F}$ denote the finite set of all floating point numbers with symbols $-\infty$ and $+\infty$ under the conventional order $<$. Let
+%\vspace{-.2cm}
+$\mathbb{IF} = \{[a,b]\subseteq \mathbb{R}: a,b\in \mathbb{F}, a\leq b\}$ denote the set of closed real intervals with floating-point endpoints, and $\mathbb{BF} = \bigcup_{n=1}^{\infty}\mathbb{IF}^n$ the set of {\em boxes} with these intervals. Let $S\subseteq \mathbb{R}$ be any set of real numbers, the hull of $S$ is written as $\mathrm{Hull}(S) = \bigcap \{I\in \mathbb{IF}: S\subseteq I\}.$
+\end{definition}
+
+For $I= [a, b]\in \mathbb{IF}$, we write $|I| = |b-a|$ to denote its size. 
+
+%Occasionally we will also use real intervals, writte as $\mathbb{IR} = \{[a,b]: a,b\in \mathbb{R}\}$. 
+
+\begin{definition}[Interval Extension (cf. \cite{handbookICP})]
+Let $f:\subseteq\mathbb{R}^n\rightarrow \mathbb{R}$ be a real function. An interval extension operator $\sharp(\cdot)$ maps $f$ to a function $\sharp f:\subseteq \mathbb{BF}\rightarrow \mathbb{IF}$, such that 
+%\vspace{-.1cm}
+$\forall B\in\mathbb{BF}\cap \dom(\sharp f), \{f(\vec x):\vec x\in B\}\subseteq \sharp f(B).$
+\end{definition}
+\begin{example}
+The natural extension of $f = 2\cdot(x+y)\cdot z$ is given by $\sharp f = [2,2]\cdot(I_x+I_y)\cdot I_z$, where the interval operations are defined as $[a_1,b_1]+[a_2, b_2] = [a_1+a_2, b_1+b_2]$ and $[a_1,b_1]\cdot[a_2,b_2] = [\min(a_1a_2,a_1b_2,b_1a_2,b_1b_2), \max(a_1a_2,a_1b_2,b_1a_2,b_1b_2)]$. 
+\end{example}
+
+%\vspace{-.5cm}
+\begin{algorithm}\label{algo1}
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\Input{Constraints $f_1(x_1,...,x_n)=0,...,f_m(x_1,...,x_n)=0$, initial box $B^0 = I^0_1\times \cdots \times I^0_n$, box stack $S=\emptyset$, and precision $\varepsilon\in \mathbb{Q}^+$.}
+\Output{{\sf sat} or {\sf unsat}.}
+\BlankLine
+$S.\mathrm{push}(B_0)$\;
+\While{$S\neq \emptyset$}{\label{while}
+$B\leftarrow S.\mathrm{pop}()$ \;
+\While{$\exists 1\leq i \leq m, B\neq \mathrm{Prune}(B,f_i)$}{ 
+%\For{$j\leftarrow 1$ \KwTo $m$}{
+	$B\leftarrow\mathrm{Prune}(B, f_i)$ \;
+%	\If{$B=\emptyset$}{break\;}
+}
+\If{$B\neq \emptyset$}
+{\eIf{$\exists 1\leq i\leq n, |I_i|\geq \varepsilon$}{$\{B_1,B_2\}\leftarrow \mathrm{Branch}(B, i)$\;$S.\mathrm{push}(\{B_1,B_2\})$\;}{return {\sf sat}\;}}
+}
+return {\sf unsat}\;
+\caption{High-Level ICP$_{\varepsilon}$ (decision version of Branch-and-Prune)}
+\end{algorithm}
+%\vspace{-.5cm}
+In Algorithm 1, Branch$(B,i)$ is an operator that returns two smaller boxes $B' = I_1\times\cdots\times I_i'\times\cdots\times I_n$ and $B''=I_1\times \cdots\times I_i''\times \cdots\times I_n$, where $I_i\subseteq I_i'\cup I_i''$. To ensure termination it is assumed that there exists some constant $0<c<1$ such that $c\cdot |I_i|\leq |I_i'|$ and $c\cdot |I_i|\leq |I_i''|$ for all $i$.
+
+ %The pruning operation $\mathrm{Prune}(B,f_i)$ will be explained in detail below. 
+
+The key component of the algorithm is the $\mathrm{Prune}(B, f)$ operation. A simple example of a pruning operation is as follows.
+\begin{example}
+Consider $x-y^2 = 0$ with initial intervals $x\in [1,2]$ and $y\in [0,4]$. Let $\sharp f(I_x,I_y) = I_x-I_y^2$ be the natural interval extension of the left hand side. Since we know $0\not\in \sharp f([1,2],[2, 4])$, we can contract the interval on $y$ from $[0,4]$ to $[0,2]$ in one pruning step.  
+\end{example}
+%\paragraph{Pruning Operators.} The key component of the ICP algorithm is the $\mathrm{Prune}(B, f)$ operation in Algorithm 1. A simple example of a pruning operation is as follows.
+%\begin{example}
+%Consider $x-y^2 = 0$ with initial intervals $x\in [1,2]$ and $y\in [0,4]$. Let $\sharp f(I_x,I_y) = I_x-I_y^2$ be the natural interval extension of the left handside. Since we know $0\not\in \sharp f([1,2],[2, 4])$, we can contract the interval on $y$ from $[0,4]$ to $[0,2]$ in one pruning step.  
+%\end{example}
+%\vspace{.1cm}
+In principle, any operation that contracts the intervals on variables can be seen as pruning. However, for correctness we need several formal requirements on the pruning operator in ICP$_{\varepsilon}$. 
+\begin{notation}
+For any $f:\mathbb{R}^n\rightarrow \mathbb{R}$, we write $Z_f=\{\vec a\in \mathbb{R}^n: f(\vec a)=0\}$.
+\end{notation}
+\begin{definition}[Well-defined Pruning Operators]\label{well}
+Let $\mathcal{F}$ be a collection of real functions, and $\sharp$ be an interval extension operator on $\mathcal{F}$. A {\em well-defined (equality) pruning operator} with respect to $\sharp$ is a partial function $\mathrm{Prune}_{\sharp} : \subseteq \mathbb{BF}\times \mathcal{F}\rightarrow \mathbb{BF}$, such that $\forall f\in \mathcal{F}$, $B,B'\in \mathbb{BF}$, 
+\begin{itemize}
+\item (W1) $\mathrm{Prune}_{\sharp}(B, f)\subseteq B$;
+\item (W2) If $(\mathrm{Prune}_{\sharp}(B,f))\neq \emptyset$, then $0\in \sharp f(\mathrm{Prune}_{\sharp}(B,f))$. 
+\item (W3) $B \cap Z_f \subseteq \mathrm{Prune}_{\sharp}(B, f)$;
+\end{itemize}
+\end{definition}
+When $\sharp$ is clear, we simply write $\mathrm{Prune}$. It specifies the following requirements. (W1) requires contraction, so that the algorithm always makes progress: branching always decreases the size of boxes, and pruning never increases them. (W2) requires that the result of a pruning is always a reasonable box that may contain a zero. Otherwise $B$ should have been pruned out. (W3) ensures that the real solutions are never discarded in pruning (called ``completeness'' in~\cite{handbookICP}). 
+%These conditions overlap with the usual requirements for designing pruning operators in constraint satisfaction literature, but are not the same. For instance, idempotence ($\mathrm{Prune}(\mathrm{Prune}(B,f))=\mathrm{Prune}(B,f)$) is not needed here. 
+%\begin{definition}
+We use $\mathrm{Prune}(B, f_1,...,f_m)$ to denote the iterative application of $\mathrm{Prune}(\cdot, f_i)$ on $B$ for all $1\leq i\leq m$, until a fixed-point is reached. (Line 4-6 in Algorithm 1.)
+%\end{definition}
+\begin{proposition}
+For all $i$, $Prune(B,f_1,...,f_m)\subseteq Prune(B,f_i)$. 
+\end{proposition}
+
+%\begin{definition}[Branch-and-Prune Derivation]
+%Let $B^0, ..., B^n\in \mathbb{BF}$ be boxes. We write $B_0,...,B_{n-1} \vdash_{bp} B_n$ if $B_n = \mathrm{Prune}(B_{n-1})$ (i.e., the last operation is pruning), and for every $0\leq i< n-1$, either $\mathrm{Prune}(B_i, f) = B_{i+1}$ or $\mathrm{Branch}(B_i) = B_{i+1}$.
+%\end{definition}
+It is clear from the description of Algorithm 1 that the following properties hold.
+\begin{lemma}\label{key-lemma}
+Algorithm 1 always terminates. If it returns $\mathsf{sat}$ then there exists nonempty boxes $B,B'\subseteq B_0$, such that $||B||<\varepsilon$ and $B=\mathrm{Prune}(B',f_1,...,f_m)$. If it returns $\mathsf{unsat}$ then $\forall\vec a\in B_0$, there exists $B\subseteq B_0$ such that $\vec a\in B$ and $\mathrm{Prune}(B,f_1,...,f_m)= \emptyset$. 
+\end{lemma}
+
+Now we prove the main theorem. 
+\begin{theorem}[$\delta$-Completeness of ICP$_{\varepsilon}$]\label{main-theorem}
+Let $\delta\in \mathbb{Q}^+$ be arbitrary. We can find an $\varepsilon\in \mathbb{Q}^+$ such that the $\mathrm{ICP}_{\varepsilon}$ algorithm is $\delta$-complete for conjunctive $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$ (where $\mathsf{sat}$ is interpreted as $\delta$-$\mathsf{sat}$) if and only if the pruning operator in ICP$_{\varepsilon}$ is well-defined. 
+\end{theorem}
+\begin{proof}
+We consider an arbitrary bounded existential $\mathcal{L}_{\mathcal{F}}$-sentence containing only conjunctions, written as $\varphi: \exists^{\vec I}\vec x. \bigwedge_{i=1}^m f_i(\vec x) = 0$. Let $B_0 = \vec I$ be the initial bounding box. 
+
+Since all the functions in $\varphi$ are computable over $B_0$, each $f_i$ has a uniform modulus of continuity over $B_0$, which we write as $m_{f_i}$. Choose any $k\in \mathbb{N}$ such that $2^{-k}<\delta$. Then for any $\varepsilon_i<m_{f_i}(k)$, we have 
+%\vspace{-.3cm}
+\begin{eqnarray}\label{lp}
+\forall \vec x, \vec y\in B_0, ||\vec x-\vec y||<\varepsilon_i\rightarrow |f_i(\vec x)-f_i(\vec y)|<\delta.
+\end{eqnarray}
+We now fix $\varepsilon$ to be any positive rational number smaller than $\min(\varepsilon_1,...,\varepsilon_m)$.
+ 
+By the previous lemma, we know ICP$_{\varepsilon}$ terminates and returns either {\sf sat} or {\sf unsat}. We now prove the two directions of the biconditional.
+
+$\Leftarrow$: Suppose the pruning operator in ICP$_{\varepsilon}$ is well-defined.
+
+Suppose ICP$_{\varepsilon}$ returns ``$\delta$-sat'', then by Lemma \ref{key-lemma}, there exist $B, B'\subseteq B_0$ such that $B = \mathrm{Prune}(B',f_1,...,f_m)$ and $||B'||<\varepsilon$. Then by the (W2), we know that $0\in \sharp f_i(B_{n})$ for every $f_i$. Now, by the definition of $\varepsilon$, we know from (\ref{lp}) that for every $i$, $\forall \vec a\in B, |f_i(\vec a)-0|<\delta.$ Namely, any $\vec a\in B$ is a witness for $\varphi^{\delta}: \exists^{\vec I} \vec x\ |f(\vec x)|<\delta$. Thus the $\delta$-weakening of $\varphi$ is true. 
+
+Suppose ICP$_{\varepsilon}$ returns ``unsat''. Suppose $\varphi$ is in fact satisfiable. Then there is a point $\vec a\in B_0$ such that $\psi(\vec a)$ is true. However, following Lemma~\ref{key-lemma}, $\vec a\in B$ for some $B\subseteq B_0$ and $\mathrm{Prune}(B_0,f_1,...,f_m) = \emptyset$. However, this contradicts condition (W3) of the pruning operator. 
+
+$\Rightarrow$: We only need to show that without any one of the three conditions in Definition~\ref{well}, we can define a pruning operator that fails $\delta$-completeness. 
+
+Without (W1), we define a pruning operator that always outputs intervals bigger than $\varepsilon$ (such as the initial intervals). Then the procedure never terminates. Note that the other two conditions are trivially satisfied in this case (for any $f$ and $B_0$ satisfying $0\in \sharp f(B_0)$). Without (W2), consider the function $f(x)=x^2+1$ with $x\in [-1,1]$. We can define a pruning operator such that $\mathrm{Prune}([-1,1],f) = [1,1]$. This operator satisfies the other two conditions. However, the returned result $[1,1]$ fails $\delta$-completeness for any $\delta$ smaller than 2, since $f(1) = 2$. Without (W3), we simply prune any set to $\emptyset$ and always return {\sf unsat}. This violates $\delta$-completeness, which requires that if {\sf unsat} is returned the formula must be indeed unsatisfiable. The other two conditions are also satisfied in this case.  
+\qed
+\end{proof}
+
+In practice, pruning operators are defined based on {\em consistency conditions} from constraint propagation techniques. Many pruning operators are used in practice~\cite{handbookICP}. Following Theorem~\ref{main-theorem}, we only need to prove their well-definedness to ensure $\delta$-completeness. For instance:
+%For instance, a well-studied notion is called {\em arc-consistency}. 
+%\begin{example}[Arc-Consistency]
+%Let $f(x_1,...,x_n)=0$ be a constraint over $\mathbb{R}^n$. We say the sets $D_1,...,D_n\subseteq\mathbb{R}$ are arc-consistent with $f(\vec x)=0$, if for every $i$, we have $D_i = D_i \cap \{a_i\in \mathbb{R}: \forall j\in [1, i-1]\cup[i+1,n], \exists a_j\in D_j.\ f(a_1,...,a_n)=0\}.$
+%\end{example}
+%To compute the arc-consistent sets, a pruning operator can be defined by the righthand side of the fixed-point equation above. However, this operator is not always computable using intervals with floating-point numbers since it involves computing the solution set of $f$ exactly. To relax this condition, the following used in practice.
+\begin{definition}[Box-consistent Pruning~\cite{newton}]
+We say $\pi_B: \mathbb{BF}\times\mathcal{F}\rightarrow \mathbb{BF}$ is box-consistent, if for all $f\in \mathcal{F}$ and $B= I_1\times \cdots \times I_n \subseteq \dom(f)$, the $i$-th interval of $\pi_B(B,f)$ is $I_i\cap \mathrm{Hull}\big(\{a_i\in \mathbb{R}: 0\in \sharp f(I_1,...,\mathrm{Hull}(\{a_i\}),..., I_n\}\big).$
+\end{definition}
+%%\vspace{-.5cm}
+\begin{proposition}
+The Box-consistent Pruning operator is well-defined.
+\end{proposition}
+%\vspace{-.5cm}
+\subsection{Handling ODEs}
+In this section we expand our language to consider solutions of the initial value problems (IVP) of Lipschitz-continuous ODEs. Let $t_0, T\in \mathbb{R}$ and $g:\mathbb{R}^n\rightarrow \mathbb{R}$ be a Lipschitz-continuous function, i.e., for all $\vec x_1, \vec x_2\in\mathbb{R}^n$, $|g(\vec x_1)-g(\vec x_2)|\leq c||\vec x_1-\vec x_2||$ for some constant $c$. Let $t_0, T\in \mathbb{R}$ satisfy $t_0\leq T$ and $\vec y_0\in \mathbb{R}^n$. An IVP problem is given by 
+%{\begin{eqnarray}\label{ivp}
+$$\frac{d\vec y}{dt} = g(\vec y(t))\mbox{ and } \ \vec y(t_0) = \vec y_0, \mbox{ where }t\in [t_0, T].$$
+%\end{eqnarray}}
+where $\vec y: [t_0, T]\rightarrow \mathbb{R}^n$ is called the {\em solution} of the IVP. Consider $\vec y(t)$ as $(y_1(t),...,y_n(t))$, then each component $y_i: [t, T]\rightarrow \mathbb{R}$ is a Type 2 computable function, and can appear in some signature $\mathcal{F}$. In fact, we can also regard $\vec y_0$ as an argument of $y_i$ and write $y_i(t_0, \vec y_0)$. This does not change computability properties of $y_i$, since following the Picard-Lindel\"of representation $\vec y(t) = \int_{t_0}^t g(\vec y(s))ds + \vec y_0$, $y_i(t)$ is only linearly dependent on $\vec y_0$. 
+
+In practice, with an ICP framework, we can exploit interval solvers for IVP problems~\cite{DBLP:journals/amc/NedialkovJC99}, for pruning intervals on variables that appear in constraints involving ODEs. This direction has received much recent attention~\cite{DBLP:conf/sefm/EggersRNF11,DBLP:conf/atva/EggersFH08,DBLP:conf/cp/GoldsztejnMEH10,DBLP:journals/sttt/IshiiUH11}. 
+%We aim to extend our formal analysis for showing $\delta$-completeness of solvers in this domain.
+
+%\begin{definition}%[Interval-Based ODE Solving]\label{ode-solve}
+Consider the IVP problem defined above, with $\vec y_0$ contained in a box $B_{t_0}\subseteq \mathbb{R}^n$. Let $t_0\leq t_1\leq ...\leq t_m = T$ be a set of points in $[t_0, T]$. An interval-based ODE solver returns a set of boxes $B_{t_1},...,B_{t_m}$ such that 
+%\begin{eqnarray*}
+$$\forall i\in \{1,...,m\},\; \vec [y(t_i; B_{t_0})] = \{\vec y(t): t_0\leq t\leq t_i, \vec y_0\in B_{\vec y_0}\}\subseteq B_{t_i}.$$
+%\end{eqnarray*}
+%\end{definition}
+%This is the guaranteed behavior of practical interval-based solvers such as~\cite{DBLP:journals/amc/NedialkovJC99}. 
+%It is clear that this gives an interval extension of the solutions of the ODEs.
+%\begin{proposition}
+Now let $y_i: [t_0, T]\times B_0 \rightarrow \mathbb{R}$ be the $i$-th component of the solution $\vec y$ of an IVP problem. Then interval-based ODE solvers compute interval extensions of $y_i$. 
+%\end{proposition}
+Thus, pruning operators that respect the interval extension computed by interval ODE solvers can be defined. It can be concluded from Theorem~\ref{main-theorem} that ICP$_{\varepsilon}$ is $\delta$-complete for equalities involving ODEs, as long as the pruning operator is well-defined. A simplest strategy is just to prune out any set of points outside the interval extension:
+\begin{proposition}[Simple ODE-Pruning]
+Let $y_i(t,\vec y_0)$ be the $i$-th component function of an IVP problem. Suppose $\sharp y_i$ is computed by an interval ODE solver. Then the pruning operator $\mathrm{Prune}(I, y_i) = I\cap \sharp y_i(I_t, B_{\vec y_0})$ is well-defined. 
+\end{proposition}
+%\vspace{-.5cm}
+\subsection{DPLL$\langle$ICP$\rangle$}
+Now consider the integration of ICP into the framework of DPLL(T), so that the full $\delta$-SMT problem can be solved. Given a formula $\varphi$, a DPLL$\langle$ICP$\rangle$ solver uses SAT solvers to enumerate solutions to the Boolean abstraction $\varphi^B$ of the formula, and uses ICP$_{\varepsilon}$ to decide the satisfiability of conjunctions of atomic formulas. %(More detailed description is given in the Appendix.) 
+DPLL$\langle$ICP$\rangle$ returns {\sf sat} when ICP$_{\varepsilon}$ returns {\sf sat} to some conjunction of theory atoms witnessing the satisfiability of $\varphi^B$, and returns {\sf unsat} when ICP$_{\varepsilon}$ returns {\sf unsat} on all the solutions to $\varphi^B$. Thus, it follows naturally that using a $\delta$-complete theory solver ICP$_{\varepsilon}$, DPLL$\langle$ICP$\rangle$ is also $\delta$-complete. 
+
+\begin{corollary}[$\delta$-Completeness of DPLL$\langle$ICP$\rangle$]
+Let $\mathcal{F}$ be a set of real functions. Then the pruning operators in ICP$_{\varepsilon}$ are well-defined for $\mathcal{F}$, if and only if, DPLL$\langle$ICP$\rangle$ using ICP$_{\varepsilon}$ is $\delta$-complete for bounded $\Sigma_1$-sentences in $\mathcal{L}_{\mathcal{F}}$.
+\end{corollary}
+
+\begin{proof}
+Let $\varphi$ be a bounded SMT problem $\exists^{\vec I}\vec x \bigwedge_i\bigvee_j f_{ij}(\vec x)=0.$
+Its Boolean abstraction $\varphi^B$ is given by $\bigwedge_i\bigvee_j p_{ij}$, where $p_{ij}$ is the propositional abstraction of $f_{ij}(\vec x)=0$. 
+
+Choose $\varepsilon$ to satisfy that $\forall \vec x, \vec y\in \vec I |f_{ij}(\vec x)-f_{ij}(\vec y)|<\delta$ for all $f_{ij}$ that appear in the $\varphi$.
+
+Now, in the DPLL(T) framework, the SAT solver returns an assignment to $p_{ij}$ such that $\varphi^B$ evaluates to true, then ICP$_{\varepsilon}$ is used for checking the satisfiability of the corresponding conjunction of theory atoms. It is important to note that $\varphi^B$ does not contain negations. 
+
+Suppose the pruning operator in ICP$_{\varepsilon}$ is well-defined. Then ICP$_{\varepsilon}$ is $\delta$-complete. Now, suppose DPLL$\langle$ICP$\rangle$ returns {\sf sat}. Then $\varphi^B$ is true witnessed by a set $\{p_1,...,p_m\}$ assigned to true, which in turn corresponds to a set $\{f_1(\vec x)=0,...,f_m(\vec x)=0\}$ of the theory atoms. By $\delta$-completeness of ICP$_{\varepsilon}$, we know that $\varphi^{\delta}$ is true. On the other hand, suppose $\varphi$ is decided as {\sf unsat}. Then either there is no assignment such that $\varphi^B$ is true, or for each satisfying assigment to $\varphi^B$, ICP$_{\varepsilon}$ decides that the corresponding set of theory atoms is not satisfiable. By $\delta$-completeness of ICP$_{\varepsilon}$, the {\sf unsat} answers are always correct. In all, DPLL$\langle$ICP$\rangle$ is also $\delta$-complete. 
+
+Suppose the pruning operator in ICP$_{\varepsilon}$ is not well-defined, then DPLL$\langle$ICP$\rangle$ is simply not $\delta$-complete for conjunctions of theory atoms, and thus not $\delta$-complete for bounded SMT in $\mathcal{L}_{\mathcal{F}}$. 
+\qed\end{proof}
+
+%\vspace{-.4cm}
+%\subsection{Certificates for Correctness}
+%In practice, correctness of numerical solvers is always a major concern. Even when an algorithm is proved correct in theory, its implementation may violate the theoretical properties because of intricate errors. Numerical programs are also usually highly complex, and are very hard to verify. Thus, there is still a possible gap between the theoretical claim of $\delta$-completeness of a solver, and its actual behaviors. (This problem also occurs in symbolic solvers, but it may be more likely that a symbolic solver can be verified.)
+
+%Consequently, for complete trustworthiness, it is important for numerically-driven decision procedures to always return certificates of their decisions {\sf $\delta$-sat} and {\sf sat}. Note that this is different, and much easier, than the conventional goal of validating numerical answers, since errors are still allowed up to $\delta$. To be concrete, let $\varphi$ be an SMT formula. For {\sf $\delta$-sat} answers, a $\delta$-complete solver should provide a complete assignment $\vec a$ of the variables in $\varphi$, such that $\varphi^{\delta}$ is true witnessed by $\vec a$. This solution can then be externally checked (perhaps symbolically), independently from the solver. For instance, in the DPLL$\langle$ICP$\rangle$ framework, we have:
+%\begin{proposition}
+%Suppose DPLL$\langle$ICP$\rangle$ decides that $\varphi$ is {\sf$\delta$-sat}, after ICP$_{\varepsilon}$ finds a nonempty box $B$ such that $||B||<\varepsilon$. Then $\forall\vec a\in B$, the truth of $\varphi^{\delta}$ is witnessed by $\vec a$. 
+%\end{proposition} 
+%Thus we see that for {\sf$\delta$-sat} answers, a certificate is simply any point in the solution box. The size of this certificate is polynomial in the size of the original formula and $\delta$.  
+
+%In the case of {\sf unsat} answers, a $\delta$-complete solver should return a list of intermediate computation steps, such that the correctness of the final answers can be trusted by checking simple properties of each step. In DPLL$\langle$ICP$\rangle$, this can be done as follows. For each run of the pruning loop in Algorithm 1, return the pre- and post-box $B_i$, $B_{i+1}$ (i.e., $B_{i+1} = \mathrm{Prune}(B_i,\vec f)$). For each branching step, return $B', B''$ that are the branches of $B$. Then we have:
+%\begin{proposition}
+%Let $\varphi$ be an input of Algorithm 1. Then $\varphi$ is false, if each pruning step satisfies $0\not \in\bigcap_{1\leq j\leq m}\sharp f_j(B_i\setminus B_{i+1})$ and each branching step satisfies $B\subseteq B'\cup B''$. 
+%\end{proposition}
+%Both conditions can be externally checked. Note that, however, the size of the certificate could be exponential. Efficient representations are needed for reducing redundancy, and it is conceivable that a verified checker can be used to certify each step separately at run-time. 
+%\vspace{-.5cm}
+\section{Applications}\label{app}
+%\vspace{-.2cm}
+%\subsection{Applications of $\delta$-Complete Procedures}
+$\delta$-Complete solvers return answers that allow one-sided, $\delta$-bounded errors. The framework allows us to easily understand the implications of such errors in practical problems. Indeed, $\delta$-complete solvers can be {\em directly} used in the following correctness-critical problems. 
+%\vspace{-.3cm}
+\paragraph{Bounded Model Checking and Invariant Validation.} Let $S=\langle X, \mathsf{Init}, \mathsf{Trans}\rangle$ be a transition system over $X$, which can by continuous or hybrid. Then given a subset $U\subseteq X$, the bounded model checking problem asks whether $\varphi_n:= \exists \vec x_0,...,\vec x_n(\mathsf{\vec x_0}\wedge \bigwedge_{i=0}^{n-1} \mathsf{Trans}(\vec x_i, \vec x_{i+1}) \wedge \vec x_n\in U)$ is true. Here $U$ denotes the ``unsafe'' values of the system, and we say $S$ is safe up to $n$ if $\varphi_n$ is false. Thus, using a $\delta$-complete solver for $\varphi_n$, we can determine the following: If $\varphi_n$ is {\sf unsat}, then $S$ is indeed safe up to $n$; on the other hand, if $\varphi_n$ is {\sf $\delta$-sat}, then either the system is unsafe, or it would be unsafe under a $\delta$-perturbation, and a counterexample is provided by the certificate for {\sf $\delta$-sat}. This $\delta$ can be set by the user based on the intended tolerance of errors of the system. Thus, a $\delta$-complete solver can be directly used. 
+
+For invariant validation, a proposed invariant $\mathsf{Inv}$ can prove safety if the sentence $\varphi:=\forall\vec x,\vec x'((\mathsf{Init}(\vec x)\rightarrow \mathsf{Inv}(\vec x))\wedge (\mathsf{Inv}(\vec x)\wedge\mathsf{Trans}(\vec x, \vec x')\rightarrow\mathsf{Inv}(\vec x'))\wedge \mathsf{Inv}(\vec x)\rightarrow \neg(U(\vec x)))$ is true. We then use a $\delta$-complete solver on $\neg\varphi$, which is existential. When {\sf unsat} is returned, $\mathsf{Inv}$ is indeed an inductive invariant proving safety. When {\sf $\delta$-sat} is returned, either $\mathsf{Inv}$ is not an inductive invariant, or under a small numerical perturbation, $\mathsf{Inv}$ would violate the inductive conditions.
+%\vspace{-.4cm}
+\paragraph{Theorem Proving.} For theorem proving, one-sided errors are not directly useful since no robustness problem is involved. We can still approach a statement $\varphi$ by making $\delta$-decisions on $\neg\varphi$, and refine $\delta$ when needed. Starting from any $\delta$, whenever {\sf unsat} is returned, $\varphi$ is proved; when {\sf $\delta$-sat}, we can try a smaller $\delta$. This reflects the common practice in proving these statements. 
+
+\section{Discussion}
+\label{discu}
+%\subsection{Applications of $\delta$-Decisions}
+
+%The notion of $\delta$-decision problems we studied has immediate practical relevance. %Here we give a specific example of its application in the important problem of safety verification of hybrid systems. 
+
+%{\em Hybrid automata} combine finite automata and continuous dynamics. Formally, a hybrid automaton $H$ is a tuple $\langle X, Q, \mathit{Flow}, \mathit{Jump}\rangle$ where $X\subseteq \mathbb{R}^n$ is the state space of the system, $Q=\{q_1,...,q_m\}$ is a finite set of discrete locations. Two kinds of transitions are defined as follows. $\mathit{Flow}: Q\times X\rightarrow TX$ assigns a vector field for each location $q\in Q$, where $TX$ is the tangent space of $X$. $\mathit{Jump}: Q\times X \rightarrow 2^{Q \times X}$ gives the discrete transitions. The {\em safety verification problem} of a hybrid automaton asks: Given $H$ and a subset of its state space, written as $\mathit{Unsafe}$, can we determine if $H$ will ever evolve into $\mathit{Unsafe}$ from some initial state $\mathit{Init}\times\{q_0\}$? In bounded model checking, this safety problem is encoded as first-order formulas, for instance: 
+%{\begin{align*}
+%&\mathit{Reach}^{n+1}_{q_0\rightarrow q'}(\vec x) = \exists t_{n+1},\vec x_{n+1},\vec x_{n+1}'.\bigvee_{q\in Q}[\mathit{Reach}^n_{q_0\rightarrow q}(\vec x_{n+1})\\ 
+%&\wedge \vec x = \vec x_{n+1}'+\int_{0}^{t_{n+1}} \mathit{Flow}_{q'}(s)ds\wedge\mathit{Jump}_{q\rightarrow q'}(\vec x_{n+1}, \vec x_{n+1}')
+%\end{align*}}
+%This formula encodes the reachable states of the system after making $n$ transitions. We can then ask whether $\exists\vec x. \bigvee_{q'\in Q}\mathit{Reach}^{n+1}(\vec x)\wedge \mathit{Unsafe}(\vec x)$. This verification problem is believed to be very hard, since it requires solvers that can solve sentences involving various nonlinear functions and differential equations. Indeed, very simple systems with constant dynamics ($\mathit{Flow}$ are constant functions) are already undecidable~\cite{DBLP:conf/lics/Henzinger96}. 
+
+%The theory that we have developed suggests the possibility of solving such formulas, following from the ``reasonable'' complexity of the $\delta$-decision problem on the involved formulas (in $\mathsf{PSPACE}$). Moreover, when we answer $\mathsf{False}$, we obtain the absolute answer that the system is safe up to depth $n$ (since $\mathsf{Unsafe}$ is unsatisfiable), and when we answer $\delta$-$\mathsf{True}$, we would report a bug that the system can have under small numerical perturbations bounded by $\delta$. This relaxation nicely fits the application. 
+
+\subsection{Applications} 
+
+Our focus in the paper is to prove theoretical results to show the possibility of using numerical algorithms in solving hard decision problems over reals. In practice, our framework allows the use of various practical numerical techniques. What we have shown provides a framework of the general evaluation of numerical methods in the context of decision problems. Namely, to justify the use of a particular numerical method, we only need to prove that it can solve the $\delta$-decision problem correctly, and thus suitable for the corresponding applications. If this is the case, we call such a method ``$\delta$-complete''. Numerical methods that have the $\delta$-completeness guarantees should be regarded also suitable for correctness-critical problems such as formal verification and automated theorem proving, as shown in our work~\cite{ijcar12,DBLP:conf/fmcad/Gao10}. As an on-going project, we are using our theory to guide the implementation of a $\delta$-complete solver $\mathsf{dReal}$, and have observed promising results in applications. 
+
+\subsection{Extensions}
+
+We have studied the $\delta$-decision problem for bounded first-order sentences over the reals with computable functions. In fact, the theory of computable functions can be developed over any domain whose elements can be encoded as infinite strings over some finite alphabet. To show decidability of the $\delta$-decision problems, we exploit the compactness of the domain of the variables, and continuity of the computable functions over the domain. Thus, the same line of reasoning can be applied to general compact metric spaces other than the bounded real intervals, such as functions and sets. Such extensions can be useful, for instance, for showing decidability results for ($\delta$-versions of) control problems of dynamical systems, which can be expressed as first-order formulas in the corresponding domains. 
+
+\section{Conclusion and Future Work}\label{conclude}
+
+In this paper we defined a relaxed notion of decision problems for first-order sentences over reals. We allow a decision procedure to return answers that can have one-sided, bounded, numerical error. With this slight relaxation, which can be well-justified in practice, bounded sentences in many important but undecidable theories become decidable, with reasonable complexity. For instance, solving bounded existential sentences with exponential and sine functions become theoretically no harder than solving SAT problems, and solving the quantified sentences with Lipschitz-continuous ODEs are no harder than solving quantified Boolean formulas. We regard the implications of these theoretical results to be profound. The framework we proposed can also be directly used as a framework for guiding the use of numerical methods in decision solvers. In future work, it would be very interesting to see how this framework can be used in developing efficient SMT/SAT solvers and theorem provers. Also, the theoretical relation to approximations in complexity theory is worth investigating.
+
+\bibliographystyle{abbrv}
+\bibliography{refs}
+\newpage
+
+\end{document}
+
