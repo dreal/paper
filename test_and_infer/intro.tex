@@ -36,9 +36,8 @@ Problems as such are serious and bring the immediate need for verifying the corr
 
 We present an approach that establishes such results. Our approach combines testing and static analysis using our SMT solver dReal. We provide a methodology that can generalize testing for both good and bad inputs. Our approach is the following... There is an obvious analogy with con colic testing~\cite{}. The difference is that instead of using solvers to ensure better path coverage, we use the solver to generalize a point to an interval coverage. The emphasis is on the analysis of a point test, instead of finding another test. 
 
-We give a new name of the strategy: test and infer. 
-Whenever it samples a point $c$ from the domain and test a property,
-it infers a neighborhood $I = [c - \delta, c + \delta]$ of the point $c$
+Whenever we sample a point $c$ from the domain and test a property,
+we infer a neighborhood $I = [c - \delta, c + \delta]$ of the point $c$
 which shares the same test result at point $c$. Using the technique,
 we can efficiently cover a region of a domain by testing a point and
 it accelerates the overall verification process.

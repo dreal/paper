@@ -1,6 +1,22 @@
 \section{Reasoning about floating-point implementations}
 
-\subsection{What kind of procedures over the reals is useful?}
+The previous sections focused on real semantics of programs to highlight the analysis techniques. In practice, we need to take into account of floating point operations. 
 
-\subsection{Integration in the overall TAI framework}
+We focus on basic arithmetic of floating point operations. 
+\begin{definition}
+How we encode arithmetic
+\end{definition}
+
+Consider bounded programs. 
+
+\begin{proposition}
+The encoding of $P$ always over-approximates the floating-point program. 
+\end{proposition}
+
+How to pick the delta for SMT queries?
+
+\begin{proposition}
+If the assertion fails, then there is a delta witness. 
+\end{proposition}
+
 
