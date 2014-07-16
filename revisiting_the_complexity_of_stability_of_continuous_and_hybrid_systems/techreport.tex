@@ -86,7 +86,7 @@ pdfpagemode=UseOutlines]{hyperref}
 \date{\today}
 
 \abstract{
-We develop a general framework for obtaining upper bounds on the ``practical" computational complexity of stability problems, for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of dynamical systems in first-order theories over the real numbers, and reduce stability problems to the $\delta$-decision problems of their descrptions. The framework allows us to give a precise characterization of the complexity of different notions of stability for nonlinear continuous and hybrid systems. We prove that bounded versions of the $\delta$-stability problems are generally decidable, and give upper bounds on their complexity. The unbounded versions are generally undecidable, for which we measure their degrees of unsolvability.
+We develop a general framework for obtaining upper bounds on the ``practical'' computational complexity of stability problems, for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of dynamical systems in first-order theories over the real numbers, and reduce stability problems to the $\delta$-decision problems of their descriptions. The framework allows us to give a precise characterization of the complexity of different notions of stability for nonlinear continuous and hybrid systems. We prove that bounded versions of the $\delta$-stability problems are generally decidable, and give upper bounds on their complexity. The unbounded versions are generally undecidable, for which we measure their degrees of unsolvability.
 }
 
 \keywords{Stability, Dynamical Systems, Complexity}
@@ -113,18 +113,18 @@ We will show that $\delta$-decisions over the real numbers~\cite{DBLP:conf/lics/
 \item The system is stable.
 \item The system is unstable under numerical perturbations bounded by $\delta$.
 \end{itemize}
-We call this the $\delta$-stability problem. With this definition, we are able to give precise upper bounds for the ``practical complexity" of stability problems for a wide range of continuous and hybrid systems. We are able to prove results of the following type:
+We call this the $\delta$-stability problem. With this definition, we are able to give precise upper bounds for the ``practical complexity'' of stability problems for a wide range of continuous and hybrid systems. We are able to prove results of the following type:
 \begin{itemize}
 \item Bounded Lyapunov $\delta$-stability resides in the complexity class $\mathsf{(\Pi^P_3)^C}$, where $\mathsf{C}$ is the complexity of continuous functions in the system. ($\mathsf{\Pi^P_3}$ denotes the complexity class in the polynomial hierarchy).
 \item Bounded asymptotic $\delta$-stability resides in the complexity class $\mathsf{(\Sigma^P_4)^C}$.
 \item Unbounded Lyapunov $\delta$-stability is undecidable, whose degree of undecidability is $\mathsf{\Pi^0_1}$. Unbounded asymptotic $\delta$-stability is undecidable, whose degree of undecidability is in $\mathsf{\Sigma^0_2}$.
 \item Lyapunov methods reduce problems into lower complexity classes such as $\mathsf{(\Sigma_2)^C}$.
 \end{itemize}
-We believe these results are the first general characterization of the complexity of stability. Moreoever, the importance of the results is not just theoretical. The past decade has seen great advancement in decision procedures (SAT, QBF, and SMT solvers) that can handle many large instances of $\np$-hard problems. The complexity analysis shows the possibility of developing generic algorithmic approaches to control problems of nonlinear and hybrid systems.
+We believe these results are the first general characterization of the complexity of stability. Moreover, the importance of the results is not just theoretical. The past decade has seen great advancement in decision procedures (SAT, QBF, and SMT solvers) that can handle many large instances of $\np$-hard problems. The complexity analysis shows the possibility of developing generic algorithmic approaches to control problems of nonlinear and hybrid systems.
 
 In all, the main contributions of the paper are as follows:
 \begin{itemize}
-\item We define a framework for measuring the ``practical complexity" of stability problems for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of systems as first-order formulas over the real numbers, and reduce stability problems to the $\delta$-decision problems of these formulas.
+\item We define a framework for measuring the ``practical complexity'' of stability problems for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of systems as first-order formulas over the real numbers, and reduce stability problems to the $\delta$-decision problems of these formulas.
 \item The framework allows us to obtain a precise characterization of the complexity of different notions of stability that has not been discovered previously. We prove that bounded version of the stability problems are generally decidable, and give upper bounds on their complexity. The unbounded versions are generally undecidable, for which we measure their degrees of unsolvability.
 \end{itemize}
 The paper is organized as follows. In Section II, we review definitions of complexity classes and some main results from computable analysis. In Section III, we review the theory of $\delta$-decisions over the reals and introduce the logic language that can encode a wide range of dynamical systems and properties. In Section IV, we study the complexity of stability of continuous systems. In Section V, we study the same questions for hybrid systems. We conclude in Section VI and suggest future directions.
@@ -347,7 +347,7 @@ The unbounded Lyapunov $\delta$-stability problem is in $\Pi^0_1$.
 \begin{proof}
 We compute $\delta$-decisions of the bounded form of the formula {\sf L\_stable} for increasingly larger time bound $T$. If for any $T$ the formula is $\delta$-false, then the system is $\delta$-unstable. On the other hand, we will not be able to confirm that the system is stable as $T$ approaches infinity. Thus, the problem is in $\Pi^0_1$ of the arithmetic hierarchy. \end{proof}
 
-\subsection{Complexiy of Asymptotic Stability}
+\subsection{Complexity of Asymptotic Stability}
 
 Following standard terminology, we say a system is asymptotically stable if it is Lyapunov stable, and there exists some bound on the perturbation in the initial state such that the system will converge to the origin eventually. We now study the complexity of this problem.
 
@@ -409,7 +409,7 @@ In the formula {\sf A\_stable}, we need to incrementally search for a value for 
 \end{proof}
 It is probably interesting to note that the problem $\p\neq \np$ has the same degree of undecidability.
 
-There is also the notion of ``asymptotic stability in the large," which ensures that for any perturbation on $x(0)$, the system will stabilize. The quantification turns out to be slightly different:
+There is also the notion of ``asymptotic stability in the large,'' which ensures that for any perturbation on $x(0)$, the system will stabilize. The quantification turns out to be slightly different:
 \begin{proposition}[Asymptotic Stability in the Large]
 The origin is an asymptotically stable equilibrium point iff the following $\lrf$-formula is true
 \begin{eqnarray*}
@@ -574,7 +574,7 @@ Suppose the terms in describing the stability formulas are polynomial-time Type 
 The reason is that logic formulas can be easily encoded as jumping conditions of hybrid systems. It is then straightforward to reduce complete problems in the complexity class to stability problems of hybrid systems. We omit the full proof here.
 
 \section{Conclusion and Future Work}
-We defined a framework for measuring the ``practical complexity" of stability problems for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of systems as first-order formulas over the real numbers, and reduce stability problems to the $\delta$-decision problems of these formulas. The framework allows us to obtain a precise characterization of the complexity of different notions of stability that has not been discovered previously. We prove that bounded version of the stability problems are generally decidable, and give precise measure of the upper bound of their complexity. The unbounded versions are generally undecidable, for which we give precise measures of their degrees of undecidability.
+We defined a framework for measuring the ``practical complexity'' of stability problems for a wide range of nonlinear continuous and hybrid systems. To do so, we describe stability properties of systems as first-order formulas over the real numbers, and reduce stability problems to the $\delta$-decision problems of these formulas. The framework allows us to obtain a precise characterization of the complexity of different notions of stability that has not been discovered previously. We prove that bounded version of the stability problems are generally decidable, and give precise measure of the upper bound of their complexity. The unbounded versions are generally undecidable, for which we give precise measures of their degrees of undecidability.
 
 We believe the results serve as a basis for developing computational methods towards nonlinear and hybrid control techniques. An immediate next step is to use these methods to study other problems such as controllability and observability of nonlinear systems. On the other hand, the logical descriptions of the problems can directly guide the development of practical decision procedures for the problems.
 
