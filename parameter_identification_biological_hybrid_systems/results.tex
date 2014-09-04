@@ -25,8 +25,8 @@ Figure \ref{model}(a) shows the four modes associated with the BCF model. In Mod
 \paragraph{FK Model.}
 As shown in Figure \ref{model}(b), this model comprises the same four modes and equations of the BCF model, except that the current change induced by gate $s$ is reduced to an explicit term which is integrated in the right-hand side of $du/dt$. Similarly to the BCF model, an AP can be successfully initiated when Mode 4 is reached.
 
-We specified both the BCF and the FK models using dReach's modeling language (in the Appendix B we provide the
-BCF model as an example). Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9, 1.1]$) in Mode 1 (note that the value of $s$ does not matter to FK, which does not contains $s$), we checked whether Mode 4 is reachable using the parameter values presented in \cite{orovio08}. This was true (\ie, dReach returned $\delta$-$\mathsf{sat}$) for both models (Table \ref{tbl:exp}, Run\#1 and Run\#2).
+We specified both the BCF and the FK models using dReach's modeling language. %(in the Appendix B we provide the BCF model as an example). 
+Starting from the state ($u = 0$, $v = 1$, $w = 1$, $s = 0$, $\epsilon \in [0.9, 1.1]$) in Mode 1 (note that the value of $s$ does not matter to FK, which does not contains $s$), we checked whether Mode 4 is reachable using the parameter values presented in \cite{orovio08}. This was true (\ie, dReach returned $\delta$-$\mathsf{sat}$) for both models (Table \ref{tbl:exp}, Run\#1 and Run\#2).
 The simulation of a few witness trajectories are shown in Figure \ref{trace} (the stimulus $\epsilon$ was reset every $500$ milliseconds).
 
 
@@ -40,7 +40,7 @@ The simulation of a few witness trajectories are shown in Figure \ref{trace} (th
 }
 \caption{The simulated witness trajectories of the BCF and the FK models.}
 \label{trace}
-\vspace{-0.7cm}
+%\vspace{-0.7cm}
 \end{figure}
 
 
