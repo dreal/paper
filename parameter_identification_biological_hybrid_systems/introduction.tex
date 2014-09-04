@@ -36,35 +36,19 @@ of Lipschitz-continuous ODEs \citep{gao12b}. Such procedures may return answers 
 one-sided $\delta$-bounded errors, thereby overcoming undecidability issues (note that the maximum 
 allowable error $\delta$ is an arbitrarily small positive rational). In our approach we describe 
 the set of states of interest as a first-order logic formula and perform bounded model checking \cite{BMC}
-to determine reachability of these states. We then adapt an interval constrains propagation based algorithm
+to determine reachability of these states. We then adapt an interval constrains propagation based algorithm 
 to explore the parameter space and identify the sets of resulting parameters. 
 %
 We show the applicability of our method by carrying out a thorough case study characterized by 
 highly nonlinear hybrid models. We discriminate two cardiac cell action potential 
 models \cite{fenton98,orovio08} in terms of cell-type specificity and identify parameter ranges for which a cardiac cell may lose excitability.
-%The results show that our method can obtain biological insights that are consistent with experimental  observations, scales to complex systems. In particular, the cardiac model studied is out of the scope of state-of-the-art tools.
-The results show that our method scales to complex systems and can gain interesting biological insights that would be difficult to obtain using state-of-the-art tools such as HyTech? \cite{hytech} and Breach? \cite{breach}.
+The results show that our method can obtain biological insights that are consistent with experimental observations, scales to complex systems. 
+%In particular, the cardiac model studied is out of the scope of state-of-the-art tools. 
+In particular, the analysis we carried out in the cardiac case study is difficult to be performed by --- if not out of the scope of ---  state-of-the-art tools \cite{prism,breach,taliro,biocham}.
+% Bing:  I think the cardiac model is of "out of the scope" of Prism, Biocham, but probably not tools like Breach, Taliro, because one can use simulation-based tools and parameter scan to answer the same questions we asked (e.g. model falsiﬁcation, robustness, parameter identification). Thus, to be safe, I rephrased the strong statement. Please check. 
 %
-% Bing: please help to address the following comments 
-% reviewer#1 "You state that the cardiac model studied is out of the scope of state of the art tools. This is a rather strong statement. Please note that a lot of work exist in traditional modeling and simulation (even outside the area of systems biology), as parameter estimation is one of the essential tasks in all simulation studies. So please be more concrete which state of the art tools you have in mind, and where it has been shown that those do not suffice for the problem at hand.
+% [Reviewer#1]: "You state that the cardiac model studied is out of the scope of state of the art tools. This is a rather strong statement. Please note that a lot of work exist in traditional modeling and simulation (even outside the area of systems biology), as parameter estimation is one of the essential tasks in all simulation studies. So please be more concrete which state of the art tools you have in mind, and where it has been shown that those do not suffice for the problem at hand."
 
-
-
-\hide{
-\vspace{-2ex}
-\paragraph{{\bf Our Contribution.}}
-To summarize, in this paper we tackle parameter synthesis for hybrid biological models 
-and we make the following contributions:
-\vspace{-1ex}
-\begin{itemize}
-	\item we show how to encode the parameter synthesis problem as a bounded $\delta$-satisfiable
-	      formula;
-	\item we present a novel parameter synthesis technique based on $\delta$-complete procedures and
-	      bounded model checking;
-	\item we showcase the performance of our method by analyzing two hybrid models featuring 
-	      highly nonlinear behavior which is out of the scope of state-of-the-art tools.
-\end{itemize}
-}
 
 %\vspace{-2ex}
 \paragraph{Related Work.}
@@ -81,24 +65,19 @@ model checking approach. Other techniques perform a sweep of the entire (bounded
 after it has been discretized \cite{Calzone06,Donaldson08}. Randomized optimization techniques were used
 for parameter estimation in stochastic hybrid systems \cite{Koutroumpas08}, while identification
 techniques for affine systems were used in \cite{Cinquemani08}.
+%
 The techniques above can handle nonlinear hybrid systems only through sampling and 
-simulation, and so are incomplete. Our approach is instead $\delta$-complete, so that if a model 
-is found to be unfeasible, then this is correct (see Section 2 for more details).
+simulation, and so are incomplete. Our approach is instead $\delta$-complete. %so that if a model is found to be unfeasible, then this is correct. 
+It is based on verified numerical integration and constraint programming algorithms, which effectively enable an over-approximation of the system dynamics to be computed. Thus, if a model is found to be unfeasible (i.e. an $\mathsf{unsat}$ answer is returned, see Section 2 for more details), then this is correct.  
+%A $\delta$-$\mathsf{sat}$ answer might be due to the over-approximation.
+This behavior better fits with the safety requirements expected by formal verification.
+% Bing: please check above
+%
+% [Reviewer#1] "You state that all the other approaches can only handle hybrid systems by sampling and simulation. However, if I understand the appendix correctly, your approach also uses numerical simulation to compute a function, see Page 13. Referring to the delta function I am wondering whether this is related to the problem of the step sizes of numerical integration algorithms and thus the problem e.g., encountered in threshold crossing in hybrid simulation and traditionally addressed by bi-section methods (up to a certain error epsilon), see also your algorithm 1. It seems the language puts together two things that are often kept separately in modeling and simulation, i.e., a model of the dynamics and some requirements referring to the model behavior (its goal), maybe you can comment on this."
+%
+% [Paolo]: We may say something along the lines of ‘… dreal is based on verified numerical integration and constraint programming algorithms, which effectively enable us to compute an over-approximation of the system dynamics […] an unsat answer can always be trusted, while a delta-sat answer might be due to the over-approximation […] we chose this behaviour as it better fits with the safety requirements expected by formal verification …’
 
-% Bing: do we need to address the following comment? 
-% Reviewer#1 "You state that all the other approaches can only handle hybrid systems by sampling and simulation. However, if I understand the appendix correctly, your approach also uses numerical simulation to compute a function, see Page 13. Referring to the delta function I am wondering whether this is related to the problem of the step sizes of numerical integration algorithms and thus the problem e.g., encountered in threshold crossing in hybrid simulation and traditionally addressed by bi-section methods (up to a certain error epsilon), see also your algorithm 1. It seems the language puts together two things that are often kept separately in modeling and simulation, i.e., a model of the dynamics and some requirements referring to the model behavior (its goal), maybe you can comment on this. BTW: how does your approach relate to simulation-based model checking of deterministic models as e.g. proposed by Francois Fages?"
 
-
-
-\hide{
-The rest of the paper is organized as follows. The next section introduces the necessary 
-theoretical background on $\delta$-complete decision procedures. 
-In Section we formulate the parameter synthesis problem for hybrid automata. 
-In Section 2.3, we present our novel techniques for synthesizing parameters using 
-$\delta$-complete decision procedures. In the subsequent section we present a case study in which
-we analyze in depth a hybrid model of the cardiac cell action potential.
-In the final section, we summarize our results and discuss future work.
-}
 
 %%% Local Variables:
 %%% TeX-master: "main"

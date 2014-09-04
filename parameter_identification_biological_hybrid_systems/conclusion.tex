@@ -3,24 +3,19 @@
 We have presented a framework using $\delta$-complete decision procedures for the parameter identification 
 of hybrid biological systems. We have used $\delta$-satisfiable formulas to describe parameterized hybrid automata 
 and to encode parameter synthesis problems. We have employed $\delta$-decision procedures to perform bounded model 
-checking, and developed an algorithm to obtain the resulting parameters.
-We have demonstrated the applicability of our method on a highly nonlinear hybrid model of a cardiac cell that
-% Bing: Reviewer#1 "The statement that this cannot be handled by state of the art tools requires further justification"
-% cannot
-are difficult to
-be handled by other verification tools. We have successfully ruled out a model candidate which did not fit 
-experimental observations, and we have identified critical parameter ranges that can induce cardiac disorders.
+checking, and developed an algorithm to obtain the resulting parameters. 
+Our verified numerical integration and constraint programming algorithms to effectively compute an over-approximation of the system dynamics. An  $\mathsf{unsat}$ answer can always be trusted, while a $\delta$-$\mathsf{sat}$ answer might be due to the over-approximation (see Section 2 for more details). We chose this behavior as it better fits with the safety requirements expected by formal verification.
+We have demonstrated the applicability of our method on a highly nonlinear hybrid model of a cardiac cell that are difficult to
+be handled by other verification tools. We have successfully ruled out a model candidate which did not fit experimental observations, and we have identified critical parameter ranges that can induce cardiac disorders.
 
-% Bing: Reviewer#3 "Indeed the SBML standard allows for specifying such models (jump conditions are called "events") and there are existing software packages capable of implementing and simulating them (eg COPASI), which would also be appropriate to mention in their introduction or discussion."
 It is worth noting that our method can be applied to ODE based models with discrete events, which are special forms of hybrid automata. Such models are often specified using the Systems Biology Markeup Language (SBML) %\cite{sbml} 
-and archived in the BioModels database \cite{biomodels}. Currently, we are currently developing an SBML-to-dReal translator to facilitate the $delta$-decision based analysis of dozens of such models. 
-Further, our method also has the potential to be applied to model classes such as hybrid functional Petri nets models \citep{hfpn}. We plan to explore this in future work. Another interesting direction is applying our method for parameter estimation from experimental data. By properly encoding the noisy wet-lab experimental data using logic formulas, bounded model checking can be utilized to find the unknown parameter values.
-% Bing: Reviewer#1 "You suggested to apply due to noisy wet-lab data statistical model checking. The number of runs (so to speak) of many wet-lab experiments are rather limited often only 3 maybe 7 - so I am not sure whether statistical model checking will work here. Maybe I understood this wrong, so please clarify" 
+and archived in the BioModels database \cite{biomodels}. Currently, we are currently developing an SBML-to-dReal translator to facilitate the $delta$-decision based analysis of SBML models. 
+Further, our method also has the potential to be applied to other model formalisms such as hybrid functional Petri nets \cite{hfpn} and the formalisms realized in Ptolemy \cite{ptolemy}. We plan to explore this in future work.
+% Bing: cited ptolemy 
+% [Reviewer#1] "However, the approach also inherits the problems of hybrid automata for specifying large hybrid systems, therefore I assume you mention Hybrid Petri Nets in the conclusion, have you thought about other possibilities to specify hybrid systems, like e.g. multi-formalisms as realized in Ptolemy, maybe this point could be discussed in more detail"
+Another interesting direction is applying our method for parameter estimation from experimental data. By properly encoding the noisy wet-lab experimental data using logic formulas, bounded model checking can be utilized to find the unknown parameter values.
 In this respect, the specification logic used in \cite{liu13} promises to offer helpful pointers.
 
-
-
-% Bing: [todo] Reviewer#1 "However, the approach also inherits the problems of hybrid automata for specifying large hybrid systems, therefore I assume you mention Hybrid Petri Nets in the conclusion, have you thought about other possibilities to specify hybrid systems, like e.g. multi-formalisms as realized in Ptolemy, maybe this point could be discussed in more detail"
 
 
 
