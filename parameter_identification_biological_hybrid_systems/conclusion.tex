@@ -11,8 +11,6 @@ difficult to analyze with other verification tools. We have successfully ruled o
 It is worth noting that our method can be applied to ODE based models with discrete events, which are special forms of hybrid automata. Such models are often specified using the Systems Biology Markeup Language (SBML) %\cite{sbml} 
 and archived in the BioModels database \cite{biomodels}. Currently, we are currently developing an SBML-to-dReal translator to facilitate the $\delta$-decision based analysis of SBML models. 
 Further, our method also has the potential to be applied to other model formalisms such as hybrid functional Petri nets \cite{hfpn} and the formalisms realized in Ptolemy \cite{ptolemy}. We plan to explore this in future work.
-% Bing: cited ptolemy 
-% [Reviewer#1] "However, the approach also inherits the problems of hybrid automata for specifying large hybrid systems, therefore I assume you mention Hybrid Petri Nets in the conclusion, have you thought about other possibilities to specify hybrid systems, like e.g. multi-formalisms as realized in Ptolemy, maybe this point could be discussed in more detail"
 Another interesting direction is applying our method for parameter estimation from experimental data. By properly encoding the noisy wet-lab experimental data using logic formulas, bounded model checking can be utilized to find the unknown parameter values.
 In this respect, the specification logic used in \cite{liu13} promises to offer helpful pointers.
 
