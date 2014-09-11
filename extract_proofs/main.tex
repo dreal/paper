@@ -1,5 +1,5 @@
 \documentclass{IEEEtran}
-\usepackage{mathpartir,amsmath,mathtools}
+\usepackage{mathpartir,amsmath,mathtools,amsthm}
 \input{preamble}
 
 \title{Proof Generation from Delta-Decisions}
@@ -20,9 +20,9 @@ With the standard C library implementation {\em eglibc-2.15}, included in the la
 \end{quote}
 Note that when we obtain a proof of unsatisfiability, then the correctness of the result becomes independent from the numerical procedures that were used to obtain them.
 
-Besides certifying correctness of solvers, obtaining such proofs is also important from the perspective of automated theorem proving. Decision solvers can estalbish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absense of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. We will demonstrate that we can automatically generate proofs for many of such formulas. 
+Besides certifying correctness of solvers, obtaining such proofs is also important from the perspective of automated theorem proving. Decision solvers can establish mathematical theorems by solving satisfiability of the negation of a theorem, and establish correctness through the absence of counterexamples. Valid proofs of unsatisfiability can be directly used as formal proofs for the theorems. As an approach to automated theorem proving over the real numbers, the scalability can outperform existing symbolic approaches. For instance, Tom Hales' Flyspeck project~\cite{DBLP:conf/dagstuhl/Hales05,DBLP:journals/dcg/HalesHMNOZ10} for the formalization of his proof the Kepler conjecture, requires proving hundreds of nonlinear real inequalities. We will demonstrate that we can automatically generate proofs for many of such formulas. 
 
-It is worth pointing out that after proof generation, proof checking is still a nontrivial problem because of the use of numerical procedures in the computation. Indeed, not all of the {\sf unsat} answers that we have obtained can be proof checked. For instance, for the Kepler conjecture benchmarks, roughly 70\% of the {\sf unsat} answers obtained by the solver can be validated by formal proofs. Our current proof checker has difficulty with the rest 30\% of these answers. The challenge lies in validating basic axioms about nonlinear functions over the reals, which can be easily established by numerical algorithms (such as Newton iteration), but not symbolically. Ideally, we need to formalize most of the numerical algorithm in a $\delta$-complete decision procedure to achieve full validation. We regard this as an interesting direction towards bridging the gap between numerical and symbolic methods in  solving formulas over the real numbers. 
+It is worth pointing out that after proof generation, proof checking is still a nontrivial problem because of the use of numerical procedures in the computation. Indeed, not all of the {\sf unsat} answers that we have obtained can be proof checked. The challenge lies in validating basic axioms about nonlinear functions over the reals, which can be easily established by numerical algorithms (such as Newton iteration), but not symbolically. Ideally, we need to formalize most of the numerical algorithm in a $\delta$-complete decision procedure to achieve full validation. We regard this as an interesting direction towards bridging the gap between numerical and symbolic methods in  solving formulas over the real numbers. 
 
 We will describe our approach in the following steps:
 
@@ -185,7 +185,7 @@ $y\in [1,2]$ are the initial interval assignment. A possible ICP run is:
 &\stackrel{br}{\Longrightarrow}& x\in [1.5,2],
 y\in [1,2], (x\in [1.7, 2])^d\parallel c\\
 &\stackrel{bt}{\Longrightarrow}& x\in [1.5,2], y\in [1,2], x\in [1.5, 1.7]\parallel c\\
-& & \mbox{  (backtracking, since $\forall\vec a\in [1.7,2]\times [1,2]$,
+& &\hspace{-.5cm} \mbox{  (backtracking, since $\forall\vec a\in [1.7,2]\times [1,2]$,
 $c(\vec a)$ is false,}\\
 & & \ \ \mbox{and $[1.5,2]\subseteq[1.5,1.7]\cup [1.5, 2]$ for
 $x$)}\\
@@ -505,7 +505,7 @@ For every ICP run ending with $\emptyset\parallel c$, the tree construction proc
 \end{proposition}
 
 \begin{proof}
-It is clear that each proof step, as represented by the subtree created in each case, is a valud natural deduction step in $\mathbb{D}_A$. We only need to show that the tree can be constructed. For this, we need to show that for each step $S_k\parallel c\stackrel{t}{\Longrightarrow} S_{k+1}\parallel c$, where $S_{k+1}$ is not $\emptyset$, it is always the case that $S_k\parallel c$ labels a leaf node in the tree constructed so far. When $k=0$, this is the case since $V_L^0 = \{v_0\}$. Now suppose $S_k\parallel c$ labels a leaf node. If $t$ is a pruning step, then $\forall \vec x(\vec x\in \vec I_2\rightarrow \neg c)$ labels $v^3_{k+1}$, which is added in $V_L^{k+1}$. The same applies to the other branching and backtracking. Finally, the step $S_{m-1}||c\Longrightarrow \emptyset||c$ corresponds to closing the last leaf labelled by $\forall \vec x(\vec x \in \vec I\rightarrow \neg c)$.
+It is clear that each proof step, as represented by the subtree created in each case, is a valid natural deduction step in $\mathbb{D}_A$. We only need to show that the tree can be constructed. For this, we need to show that for each step $S_k\parallel c\stackrel{t}{\Longrightarrow} S_{k+1}\parallel c$, where $S_{k+1}$ is not $\emptyset$, it is always the case that $S_k\parallel c$ labels a leaf node in the tree constructed so far. When $k=0$, this is the case since $V_L^0 = \{v_0\}$. Now suppose $S_k\parallel c$ labels a leaf node. If $t$ is a pruning step, then $\forall \vec x(\vec x\in \vec I_2\rightarrow \neg c)$ labels $v^3_{k+1}$, which is added in $V_L^{k+1}$. The same applies to the other branching and backtracking. Finally, the step $S_{m-1}||c\Longrightarrow \emptyset||c$ corresponds to closing the last leaf labelled by $\forall \vec x(\vec x \in \vec I\rightarrow \neg c)$.
 \end{proof}
 Again, once the proof tree is constructed, the details of
 the ICP algorithm no longer matters.  The only rules involved are the two
@@ -624,7 +624,7 @@ solver for proof traces of the right amount of details. We sketch the procedures
 
 When we fail to prove an axiom through simple interval arithmetic, the
 proof checker generates new subproblems that are returned to the
-solver. At this stage, the axioms becomes the new theorems to be
+solver. At this stage, the axioms become the new theorems to be
 proved. This is an abstraction refinement procedure.
 Algorithm~\ref{alg:branch-and-prove} illustrates the procedure. By
 executing the loop, we may obtain proof trees that contain more and more
