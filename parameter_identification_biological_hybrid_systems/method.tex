@@ -4,8 +4,6 @@ which allows the use of a wide range of real functions including nonlinear ODEs.
 We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize 
 parameters. 
 
-%\subsection{Hybrid Automata and Encoding of Reachability}\label{language}
-%We use $\lrf$-formulas to represent hybrid automata and encode reachability problems as follows. 
 \begin{definition}[$\lrf$-Formulas]
 Let $\mathcal{F}$ be a collection of computable real functions. We define:
 \begin{align*}
@@ -28,7 +26,7 @@ Now, the $\delta$-decision problem is deciding correctly whether:
 If both cases are true, then either decision is correct. In previous work~\cite{gao12a,gao12b,gao13}
 we presented algorithms ($\delta$-{\em complete} decision procedures) for solving $\delta$-decision 
 problems for $\lrf$ and for ODEs. These algorithms have been implemented in the dReal 
-toolset \cite{dreal}. More details on $\delta$-decision problems are in Appendix A. 
+toolset \cite{dreal}. More details on $\delta$-decision problems are in Appendix. %(\verb#http://www.cs.cmu.edu/~liubing/cmsb14/#). 
 
 Now we state the encoding for hybrid models. Recall that hybrid automata generalize finite-state
 automata by permitting continuous-time evolution (or {\em flow}) in each discrete state (or {\em mode}). 
@@ -116,7 +114,6 @@ combination for which the model reaches the goal region in $k$ steps? If none ex
 {\em unfeasible}. Otherwise, a witness (\ie, a value for each parameter) is returned. Note that because we ask for
 $\delta$-decisions, the returned witness might correspond to a {\em spurious} behavior of the system. The occurrence
 of such behaviors can be controlled via the precision $\delta$, but in general cannot be eliminated. 
-%However, any witnesses can be easily verified whether it corresponds to a spurious or a genuine behavior of the system.
 We have developed the dReach tool (\verb#http://dreal.cs.cmu.edu/dreach.html#) 
 that automatically builds reachability formulas from a hybrid model and a goal 
 description. Such formulas are then verified by our $\delta$-complete solver dReal \citep{dreal}.

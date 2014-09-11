@@ -1,29 +1,8 @@
 \begin{abstract} 
-A central problem in systems biology is to identify parameter values such that a biological 
-model satisfies some behavioral constraints (\eg, time series). In this paper we focus on
-parameter synthesis for hybrid (continuous/discrete) models, as many biological systems 
-can possess multiple operational modes with specific continuous dynamics in each mode. 
-These biological systems are naturally modeled as hybrid automata, most often with nonlinear continuous 
-dynamics. However, hybrid automata are notoriously hard to analyze --- even simple reachability 
-for hybrid systems with linear differential dynamics is an undecidable problem. In this paper 
-we present a parameter synthesis framework based on $\delta$-complete decision procedures that
-sidesteps undecidability.
-%This enables us to identify parameters for biological hybrid models with a wide range
-%of nonlinear dynamics, including solutions of ordinary differential equations. 
+A central problem in systems biology is to identify parameter values such that a biological model satisfies some behavioral constraints (\eg, time series). In this paper we focus on parameter synthesis for hybrid (continuous/discrete) models, as many biological systems can possess multiple operational modes with specific continuous dynamics in each mode. These biological systems are naturally modeled as hybrid automata, most often with nonlinear continuous dynamics. However, hybrid automata are notoriously hard to analyze --- even simple reachability for hybrid systems with linear differential dynamics is an undecidable problem. In this paper we present a parameter synthesis framework based on $\delta$-complete decision procedures that sidesteps undecidability.
 We demonstrate our method on two highly nonlinear hybrid models of the cardiac cell action potential. 
 The results show that our parameter synthesis framework is convenient and efficient, and 
 it enabled us to select a suitable model to study and identify crucial parameter ranges related to cardiac disorders.
-
-%We demonstrate our method on two highly nonlinear hybrid systems: the prostate cancer progression model and the cardiac cellular action potential model. The results show that the parameter identification framework is convenient and efficient for performing model selection and personalized therapy optimization. We have also identified crucial parameter ranges related to cardiac disorders.
-%\section{Availability:} The source code is freely available at \\
-%\href{http://dreal.cs.cmu.edu/dreach.html}{http://dreal.cs.cmu.edu/dreach.html}
-%
-%\section{Contact:} liubing@cs.cmu.edu
-%
-%\section{Supplementary information:} Supplementary data are available at \emph{Bioinformatics} online.
-
 \end{abstract}
 
 
-%% old
-%Biological systems can possess multiple operational modes with specific nonlinear dynamics in each mode. Hybrid automata and its variants are often used to model and analyze the dynamics of such systems. An important problem is to identify parameters for a hybrid model so that the model can reach certain states. To tackle this problem, we present a framework using $\delta$-complete decision procedures, which can solve SMT problems over the reals with a wide range of nonlinear functions, including ODEs. We demonstrate our methods on two highly nonlinear biological hybrid systems. The results show that our method scales and can obtain biological insights that are consistent with experimental observations 
