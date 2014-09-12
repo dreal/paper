@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[11pt]{article}
 \usepackage{amssymb,amsmath,amsthm,hyperref}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -12,7 +12,7 @@
 }
 
 \newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
-
+\usepackage{fullpage}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \newtheorem{example}{Example}[section]
@@ -31,10 +31,10 @@
 \renewcommand\qedsymbol{$\blacksquare$}
 
 
-\setlength{\textwidth}{5.5in}
-\setlength{\oddsidemargin}{0.5in}
+%\setlength{\textwidth}{5.5in}
+%\setlength{\oddsidemargin}{0.5in}
 
-\title{\bf Descriptive Control Theory \\(Preliminary Proposal)}
+\title{\bf Descriptive Control Theory: A Proposal}
 \author{Sicun Gao}
 \date{}
 
@@ -226,10 +226,12 @@ We have conjectured in~\cite{DBLP:conf/lics/GaoAC12} that the second-order langu
 
 \subsection{Main Goals in Descriptive Complexity} 
 In sum, the two main goals under the theme of descriptive complexity are the following:
-\begin{itemize}
-\item Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
-\item Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions and prove decidability results, possibility with preliminary complexity results. 
-\end{itemize}
+\begin{goal}
+Express control theory in $\mathcal{L}^2_{\mathbb{R}_{\mathcal{F}}}$ with a suitable interpretation (by choosing appropriate domains for the second-order variables), whose bounded $\delta$-decision problem should be decidable.
+\end{goal}
+\begin{goal}
+Develop a descriptive complexity theory for $\lrf^2$-formulas with respect to the $\delta$-decisions and prove decidability results, possibility with preliminary complexity results. 
+\end{goal}
 The goals are important for the investigations in the other two components of the main theme. With the logical encodings, we can investigate the strength of theorems in control theory regarding these properties. At the same time, the encodings place the problems into different computational hierarchies, for which we can apply practical computational engines to solve. 
 
 \section{Logical Foundation}\label{lf}
@@ -321,22 +323,19 @@ Develop practical algorithms for the $\delta$-decision problem of $\exists\foral
 \begin{goal}
 Develop a framework for solving $\delta$-decision problems of $\lrf^2$-sentences.
 \end{goal}
-\section{Summary and Timeline}\label{summary}
+\section{Summary}\label{summary}
 
-The six goals in the previous sections can be divided into theoretical and computational goals in the following way:
-\begin{enumerate}
-\item Theoretical Goals
+The six goals in the previous sections can be divided into theoretical and computational goals. The theoretical ones include:
 \begin{enumerate}
 \item Completely formalize first-order problems in control theory in $\lrf^1$, and characterize the complexity accordingly. 
 \item Develop a suitable second-order language $\lrf^2$ and prove decidability for control design problems that can be expressed accordingly. 
 \item Categorize theorems in control theory in suitable subsystems of second-order arithmetic, and find proof complexity for decidable theorems. 
 \end{enumerate}
-\item Computational Goals
+And the computational ones are:
 \begin{enumerate}
 \item Develop formal proofs of basic theorems in control theory in an interactive theorem prove.
 \item Implement a practical solver for $\Sigma_2$ problems in control theory. 
-\item Develop a possibly preliminary framework for solving second-order problems. 
-\end{enumerate}
+\item Develop a framework for solving second-order problems. 
 \end{enumerate}
 \bibliographystyle{abbrv}
 \bibliography{ref}
