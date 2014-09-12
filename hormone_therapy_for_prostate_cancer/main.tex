@@ -1,0 +1,92 @@
+\documentclass{acm_proc_article-sp}
+%\documentclass{sig-alternate}
+\input{macros}
+
+\begin{document}
+\conferenceinfo{HSCC}{'14 Seattle, Washington, USA}
+
+
+
+\title{Identifiying Personalized Hormone Therapy Schedules for Prostate Cancer Using Delta-Decisions\titlenote{This work has been partially supported by award N00014-13-1-0090 of the US Office of Naval Research and award CNS0926181 of the National Science foundation (NSF).}}
+
+% alternative titles:
+% Identifiying Optimized Intermittent Androgen Suppression Therapy Schedules for Prostate Cancer Using $\delta$-Decisions 
+% Hybrid Modeling of Prostate Cancer Progression Reveals Optimized Angrogen Ablation Therapy Schedules
+% Delta-Decision Based Analysis of a Hybrid Model for Prostate Cancer Progression
+ 
+\numberofauthors{6} 
+\author{
+% 1st. author
+\alignauthor
+Bing Liu\\
+       \affaddr{Computer Science Dept.}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{Pittsburgh, PA, USA}\\
+       \email{liubing@cs.cmu.edu}
+% 2nd. author
+\alignauthor
+Soonho Kong\\
+       \affaddr{Computer Science Dept.}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{Pittsburgh, PA, USA}\\
+       \email{soonhok@cs.cmu.edu}
+% 3rd. author
+\alignauthor 
+Sicun Gao\\
+       \affaddr{Computer Science Dept.}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{Pittsburgh, PA, USA}\\
+       \email{sicung@cs.cmu.edu}
+\and  % use '\and' if you need 'another row' of author names
+% 4th. author
+\alignauthor 
+Paolo Zuliani\\
+       \affaddr{School of Computer Science}\\
+       \affaddr{Newcastle University}\\
+       \affaddr{Newcastle, UK}\\
+       \email{paolo.zuliani@ncl.ac.uk}
+% 5th. author
+\alignauthor 
+Edmund M. Clarke\\
+       \affaddr{Computer Science Dept.}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{Pittsburgh, PA, USA}\\
+       \email{emc@cs.cmu.edu}
+}
+
+\date{20 October 2014}
+
+
+\maketitle
+
+\begin{abstract}
+Recent clinical studies suggest that the efficacy of hormone therapy for prostate cancer depends on the characteristics of individual patients. In this paper, we develop a computational framework for identifying patient-specific androgen ablation therapy schedules for postponing the potential cancer relapse. We model the population dynamics of heterogeneous prostate cancer cells in response to androgen suppression as a nonlinear hybrid automaton and estimate personalized parameters to characterize patients. We employ a delta-complete decision procedures based approach to synthesize patient-specific therapeutic strategies. The results show that our framework is promising and may lead to a prognostic tool for personalized cancer therapy.
+\end{abstract}
+
+
+% Meta info
+% [todo]
+
+\category{D.2.4}{Software Engineering}{Software/Program Verification}[Model checking]
+\category{J.3}{Life and Medical Sciences}{Biology and genetics}
+
+\terms{Theory, Verification}
+
+\keywords{hybrid systems, parameter synthesis, decision procedures, systems biology, prostate cancer}
+
+
+\input{intro}
+\input{model}
+%\input{method}
+\input{results}
+\input{conclusion}
+
+
+
+%ACKNOWLEDGMENTS are optional
+%\section{Acknowledgments}
+
+\bibliographystyle{abbrv}
+\bibliography{sigproc}
+
+\end{document}

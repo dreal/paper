@@ -1,0 +1,46 @@
+\usepackage{stmaryrd,amsmath,amssymb,newlfont,graphicx,verbatim}
+\usepackage[ruled,lined,boxed,commentsnumbered,linesnumbered]{algorithm2e}
+\usepackage{subfigure}
+\usepackage{fancyvrb}
+
+
+%\newtheorem{notation}[theorem]{Notation}
+
+\newcounter{thedef} \setcounter{thedef}{1}
+\newenvironment{definition}[1][]{\medskip\noindent {\textbf{Definition
+  \arabic{thedef} #1} \stepcounter{thedef} \rm}}{\medskip}
+
+\newcounter{theass} \setcounter{theass}{1}
+\newenvironment{assumption}[1][]{\medskip\noindent {\textbf{Assumption
+  \arabic{theass} #1} \stepcounter{theass} \rm}}{\medskip}
+
+\newcounter{theeg} \setcounter{theeg}{1}
+\newenvironment{example}[1][]{\medskip\noindent {\textbf{Example
+  \arabic{theeg} #1} \stepcounter{theeg} \rm}{\medskip}}
+
+
+
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\goal}{\mathsf{goal}}
+\newcommand{\safe}{\mathsf{safe}}
+\newcommand{\p}{\mathsf{P}}
+\newcommand{\np}{\mathsf{NP}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
+\newcommand{\citep}{\cite}
+
+\newcommand{\hide}[1]{}
+\newcommand{\eg}{{\em e.g.}}
+\newcommand{\ie}{{\em i.e.}}
+\newcommand{\enforce}{\mathsf{enforce}}
+
+
