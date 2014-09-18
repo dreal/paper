@@ -58,34 +58,32 @@ initial condition, and goals.
 In macro definitions, we allow users to define C-preprocessor macros
 (\texttt{\#define}) which can be used in following sections. Macros
 are expanded before the other parts are processed. A variable
-declaration has a form:
+declaration has a form
 \[
-\textit{variable-declaration} \ := \ \textit{[l, u] var;}
+\textit{variable-declaration} \ := \ \texttt{[}
+                                     \textit{l}
+                                     \texttt{,}
+                                     \ \textit{u}
+                                     \texttt{]}
+                                     \ \textit{var}
+                                     \texttt{;}
 \]
 and it declares a real variable $var$ whose domain is $[l, u]$. A special
 variable \textit{time} has to be delcared to specify the time bound of
 bounded model checking. A mode definition consists of mode-invariant,
-flow, and jump:
+flow, and jump
 \begin{align*}
-  \textit{mode-definition} := & \texttt{invt}:\textit{invt}^+\\
-                              & \texttt{flow}:\textit{flow}^+\\
-                              & \texttt{junp}:\textit{jump}^+
+  \textit{mode-definition} \ := & \ \texttt{\{}
+                                    \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
+                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
 \end{align*}
+$\textit{formula}$ denotes a logic formula. $\textit{ode}$
+denotes an ordinary differential equations of a form
+\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}. \textit{jump}
+describes a discrete jump between modes which has a form
+\textit{guard} \texttt{==>} \texttt{@}\textit{n} \textit{changes}
 
- describe dynamics of a hybrid
-system by providing mode-invariant, flow, and jump for each mode in a
-system. An mode invariant is a list of logic formulae separated by
-\texttt{;}. In flow,
-
-\paragraph{Mode definitions}
-
-\paragraph{Initial condition}
-
-\paragraph{Goals}
-asd
-
-
-% 1. Define the input language (drh)
 % 2. A small example of translation to logic formulas. Use two boxes,
 % one drh, one smt2.
 
