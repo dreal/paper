@@ -1,4 +1,12 @@
 \section{System Description}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{images/dReach}
+  \caption{System Description}
+  \label{fig:system-description}
+\end{figure}
+
 \subsection{Hybrid Systems}
 
 Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
@@ -33,12 +41,49 @@ following answers:
 \end{itemize}
 
 \subsection{drh: A Language for Hybrid Systems}
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{images/dReach}
-  \caption{System Description}
-  \label{fig:system-description}
-\end{figure}
+
+We define \texttt{drh}, a small language for describing hybrid systems
+and their initial and safety conditions. It consists of five sections
+- macro definitions, variable declarations, mode definitions, and
+initial condition, and goals.
+
+\begin{align*}
+  \textit{drh} := \ & \textit{macro-definition}^*\\
+                  & \textit{variable-declaration}^+\\
+                  & \textit{mode-definition}^+\\
+                  & \textit{initial-condition}\\
+                  & \textit{goal}^+
+\end{align*}
+
+In macro definitions, we allow users to define C-preprocessor macros
+(\texttt{\#define}) which can be used in following sections. Macros
+are expanded before the other parts are processed. A variable
+declaration has a form:
+\[
+\textit{variable-declaration} \ := \ \textit{[l, u] var;}
+\]
+and it declares a real variable $var$ whose domain is $[l, u]$. A special
+variable \textit{time} has to be delcared to specify the time bound of
+bounded model checking. A mode definition consists of mode-invariant,
+flow, and jump:
+\begin{align*}
+  \textit{mode-definition} := & \texttt{invt}:\textit{invt}^+\\
+                              & \texttt{flow}:\textit{flow}^+\\
+                              & \texttt{junp}:\textit{jump}^+
+\end{align*}
+
+ describe dynamics of a hybrid
+system by providing mode-invariant, flow, and jump for each mode in a
+system. An mode invariant is a list of logic formulae separated by
+\texttt{;}. In flow,
+
+\paragraph{Mode definitions}
+
+\paragraph{Initial condition}
+
+\paragraph{Goals}
+asd
+
 
 % 1. Define the input language (drh)
 % 2. A small example of translation to logic formulas. Use two boxes,
@@ -53,9 +98,8 @@ Example:
 [9.8] g;
 [-18, 18] v;
 [0, 3] time;
-
-{ mode 1;
-
+{
+  mode 1;
   invt:
         (v <= 0);
         (x >= 0);
