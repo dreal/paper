@@ -42,10 +42,12 @@ following answers:
 
 \subsection{drh: A Language for Hybrid Systems}
 
+\subsubsection{Definition}
+
 We define \texttt{drh}, a small language for describing hybrid systems
-and their initial and safety conditions. It consists of five sections
-- macro definitions, variable declarations, mode definitions, and
-initial condition, and goals.
+and specifying their initial and safety conditions. It consists of
+five sections - macro definitions, variable declarations, mode
+definitions, and initial condition, and goals.
 
 \begin{align*}
   \textit{drh} := \ & \textit{macro-definition}^*\\
@@ -57,8 +59,9 @@ initial condition, and goals.
 
 In macro definitions, we allow users to define C-preprocessor macros
 (\texttt{\#define}) which can be used in following sections. Macros
-are expanded before the other parts are processed. A variable
-declaration has a form
+are expanded before the other parts are processed.
+
+A variable declaration has a form:
 \[
 \textit{variable-declaration} \ := \ \texttt{[}
                                      \textit{l}
@@ -68,28 +71,46 @@ declaration has a form
                                      \ \textit{var}
                                      \texttt{;}
 \]
-and it declares a real variable $var$ whose domain is $[l, u]$. A special
-variable \textit{time} has to be delcared to specify the time bound of
-bounded model checking. A mode definition consists of mode-invariant,
-flow, and jump
+and it declares a real variable $var$ whose domain is $[l, u] \in
+\mathbb{IR}$. A special variable \textit{time} has to be delcared to
+specify the time bound of bounded model checking.
+
+A mode definition consists of mode id, mode invariant, flow, and jump.
 \begin{align*}
   \textit{mode-definition} \ := & \ \texttt{\{}
-                                    \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                                    \texttt{mode} \ \textit{id}\texttt{;}\\
+                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
                            & \ \ \  \texttt{flow}:\textit{ode}^+\\
                            & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
 \end{align*}
-$\textit{formula}$ denotes a logic formula. $\textit{ode}$
-denotes an ordinary differential equations of a form
-\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}. \textit{jump}
-describes a discrete jump between modes which has a form
-\textit{guard} \texttt{==>} \texttt{@}\textit{n} \textit{changes}
+\textit{id} is a unique unsigned integer assigned to a mode. An
+invariant is a conjuction of logic formulae which must hold in a mode.
+A flow describes a continuous dynamics of a mode by providing a set of
+ordinary differential equations (\textit{ode}s) which is a form of
+``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
+a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
+\textit{reset}'' where \textit{guard} is a logic formula specifying a
+condition to make a transition, $n$ is an id of target mode, and
+\textit{reset} is a logic formula specifying the relationship between
+old and new values.
 
-% 2. A small example of translation to logic formulas. Use two boxes,
-% one drh, one smt2.
+\texttt{initial-condition} is of a form
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
+where \textit{mode-id} is an initial mode of a hybrid system and
+\textit{formula} specifies the initial configuration of it.
 
-Example:
+\texttt{goal} shares the same syntactic structure
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
+\textit{initial-condition} with a different interpretation. It poses a
+reachability question: ``Is there a trajectory of a hybrid system
+reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
 
-\begin{Verbatim}[fontfamily=courier, frame=single, framesep=5mm, numbers=left, fontsize=\footnotesize]
+
+\subsubsection{Example}
+\begin{figure}
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
 #define D 0.45
 #define K 0.9
 [0, 15] x;
@@ -124,6 +145,9 @@ init:
 goal:
 @1    (and (x >= 0.45));
 \end{Verbatim}
+  \caption{Bouncing ball example}
+  \label{fig:bouncing-ball}
+\end{figure}
 
 
 %%% Local Variables:
