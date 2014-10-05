@@ -1,4 +1,155 @@
 \section{System Description}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{images/dReach}
+  \caption{System Description}
+  \label{fig:system-description}
+\end{figure}
+
+\subsection{Hybrid Systems}
+
+Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
+\mathsf{inv},\mathsf{init}\rangle$ be a hybrid system, where
+$\mathsf{flow}$, $\mathsf{jump}$, $\mathsf{inv}$, $\mathsf{init}$ are
+SMT formulas that \texttt{dReal} can handle (first-order formulas over
+the reals that allow polynomials, trigonometric functions, exponential
+functions, Lipschitz-continuous ODEs, etc.)
+
+Now specify a numerical error bound $\delta$, and recall that for any
+formula $\varphi$ we have defined a notion of $\delta$-perturbation of
+$\varphi$, written as $\varphi^{\delta}$. We can then define the
+$\delta$-perturbation of $H$ as:
+
+\[
+H^{\delta} = \langle X, Q, {\mathsf{flow}}^{\delta},
+{\mathsf{jump}}^{\delta}, {\mathsf{inv}}^{\delta},
+{\mathsf{init}}^{\delta}\rangle,
+\]
+
+by simply relaxing the logic formulas in the representation of $H$.
+Choose $n\in\mathbb{N}$ to be a bound on the number of discrete mode
+changes and $T\in \mathbb{R}^+$ an upper bound on the time duration.
+Let $\mathsf{unsafe}$ encode a subset of $X\times Q$, the state space
+of $H$. The bounded $\delta$-reachability problem asks for one of the
+following answers:
+
+\begin{itemize}
+\item  safe: $H$ cannot reach $\mathsf{unsafe}$ in $n$ steps within
+  time $T$.
+\item $\delta$-unsafe: $H^{\delta}$ can reach ${\mathsf{unsafe}}^{\delta}$ in $n$ steps within time $T$.
+\end{itemize}
+
+\subsection{drh: A Language for Hybrid Systems}
+
+\subsubsection{Definition}
+
+We define \texttt{drh}, a small language for describing hybrid systems
+and specifying their initial and safety conditions. It consists of
+five sections - macro definitions, variable declarations, mode
+definitions, and initial condition, and goals.
+
+\begin{align*}
+  \textit{drh} := \ & \textit{macro-definition}^*\\
+                  & \textit{variable-declaration}^+\\
+                  & \textit{mode-definition}^+\\
+                  & \textit{initial-condition}\\
+                  & \textit{goal}^+
+\end{align*}
+
+In macro definitions, we allow users to define C-preprocessor macros
+(\texttt{\#define}) which can be used in following sections. Macros
+are expanded before the other parts are processed.
+
+A variable declaration has a form:
+\[
+\textit{variable-declaration} \ := \ \texttt{[}
+                                     \textit{l}
+                                     \texttt{,}
+                                     \ \textit{u}
+                                     \texttt{]}
+                                     \ \textit{var}
+                                     \texttt{;}
+\]
+and it declares a real variable $var$ whose domain is $[l, u] \in
+\mathbb{IR}$. A special variable \textit{time} has to be delcared to
+specify the time bound of bounded model checking.
+
+A mode definition consists of mode id, mode invariant, flow, and jump.
+\begin{align*}
+  \textit{mode-definition} \ := & \ \texttt{\{}
+                                    \texttt{mode} \ \textit{id}\texttt{;}\\
+                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
+                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
+\end{align*}
+\textit{id} is a unique unsigned integer assigned to a mode. An
+invariant is a conjuction of logic formulae which must hold in a mode.
+A flow describes a continuous dynamics of a mode by providing a set of
+ordinary differential equations (\textit{ode}s) which is a form of
+``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
+a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
+\textit{reset}'' where \textit{guard} is a logic formula specifying a
+condition to make a transition, $n$ is an id of target mode, and
+\textit{reset} is a logic formula specifying the relationship between
+old and new values.
+
+\texttt{initial-condition} is of a form
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
+where \textit{mode-id} is an initial mode of a hybrid system and
+\textit{formula} specifies the initial configuration of it.
+
+\texttt{goal} shares the same syntactic structure
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
+\textit{initial-condition} with a different interpretation. It poses a
+reachability question: ``Is there a trajectory of a hybrid system
+reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
+
+
+\subsubsection{Example}
+\begin{figure}
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
+#define D 0.45
+#define K 0.9
+[0, 15] x;
+[9.8] g;
+[-18, 18] v;
+[0, 3] time;
+{
+  mode 1;
+  invt:
+        (v <= 0);
+        (x >= 0);
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = -g + (- D * v ^ 1);
+  jump:
+        (x = 0) ==> @2 (and (x' = x) (v' = - K * v));
+}
+{
+  mode 2;
+  invt:
+        (v >= 0);
+        (x >= 0);
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = -g + (- D * v ^ 1);
+  jump:
+        (v = 0) ==> @1 (and (x' = x) (v' = v));
+}
+init:
+@1    (and (x >= 5) (v = 0));
+
+goal:
+@1    (and (x >= 0.45));
+\end{Verbatim}
+  \caption{Bouncing ball example}
+  \label{fig:bouncing-ball}
+\end{figure}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "main"
