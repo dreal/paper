@@ -1,1 +1,1140 @@
+\documentclass{sig-alternate}
+
+\usepackage{amsmath,mathtools,nccmath}
+\usepackage{paralist}
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,shapes,calc}
+
+\newtheorem{definition}{Definition}
+\newcommand{\ifthenelse}[3]{\mathbf{if}\ #1\ \mathbf{then}\ #2\ \mathbf{else}\ #3\ \mathbf{fi}}
+
+\begin{document}
+
+
+\title{Bounded Model Checking of Distributed Cyber-Physical Systems 
+using SMT over Reals
+(tentative)
+%\titlenote{For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}
+}
+
+\numberofauthors{4}
+\author{
+Kyungmin Bae, Sicun Gao, Soonho Kong, Edmund M. Clarke\\
+\affaddr{Department of Computer Science}\\
+\affaddr{Carnegie Mellon University}
+}
+
+\maketitle
+\begin{abstract}
+Many cyber physical systems %such as airplanes and cars, 
+are \emph{distributed hybrid systems}
+where distributed controllers communicate with each other via a network
+and govern physical entities with continuous dynamics.
+For model checking \emph{virtually synchronous} cyber physical systems,
+the PALS methodology \cite{pals-rtss09,mr-pals-journal,pals-tcs} 
+has been proposed to 
+reduce the combinatorial complexity  caused by the system's concurrency.
+But its application to distributed hybrid systems is quite limited 
+due to  
+real-number inputs and parameters, 
+imprecisions of the local clocks, 
+correlation between physical entities,
+nonlinear differential equations, etc.
 %
+This paper explains how a wide range of distributed hybrid systems,
+involving non-linear differential equations and real number inputs and parameters,
+can be effectively verified using a $\delta$-complete SMT solver over reals,
+together with Multirate PALS.
+We illustrate our method with two nontrivial distributed hybrid system case studies.
+\end{abstract}
+
+
+
+
+%
+\section{Introduction}
+
+\emph{Virtually synchronous} cyber physical systems (CPS) are given by  a number of 
+\emph{periodic} controllers that communicate  asynchronously with each other through a network,
+but that obey hard real-time synchronization constraints for their correctness.
+A controller in the system may interact with its  local \emph{physical environment}
+whose continuous dynamics is modeled by differential equations
+(e.g., avionics, aerospace, 
+automotive, robotics, etc). 
+%
+In practice, the design of such systems is very hard because of race 
+conditions, clock skews, network delays, and execution times,  in addition to the 
+usual difficulties for non-distributed CPS.
+Furthermore, the model checking 
+of a virtually synchronous CPS becomes typically unfeasible 
+due to the combinatorial explosion caused by 
+the system's concurrency.
+% Although DCPS very widely appears in many practical applications, 
+%such as avionics, aerospace, automotive, robotics, etc, 
+%formal verification of DCPS is very restrictive even these days.
+The PALS (physically asynchronous, but logically synchronous) methodology 
+\cite{pals-rtss09,mr-pals-journal,pals-tcs} has been
+developed to reduce the system complexity of a virtually 
+synchronous CPS,
+provided that the network infrastructure defines \emph{performance bounds} %$\Gamma$ 
+on  computation times, network delays, and imprecisions of the local clocks.
+
+
+However, 
+the model checking verification of distributed hybrid systems with continuous dynamics
+is still limited even with PALS by the following reasons.
+First, inputs or parameters of CPS can be any real numbers in a certain bound.
+That is, model checking using concrete inputs and parameters 
+cannot verify the safety of the system in this case,
+although quite useful for finding erroneous behaviors.
+Second, the continuous behavior of the system depends on
+the local clocks of the distributed components, 
+because they can read their sensor values according to the local clocks;
+but the underlying infrastructure can only guarantee that the imprecisions 
+between the local clocks are up to a certain bound $\epsilon > 0$.
+Similarly, model checking using specific local clocks cannot verify 
+the correctness of the system.
+Third, the continuous behavior of a CPS often 
+involves \emph{nonlinear} ordinary differential equations
+which do not provide exact solutions in general.
+A typical approach of using numerical simulations
+cannot of course verify the correctness.
+
+
+Moreover, in distributed hybrid systems, 
+a local physical environment of one component
+may \emph{immediately} affect the behavior of 
+a local environment of another component,
+when they are \emph{physically correlated} to each other.
+For example, if we consider two adjacent rooms with thermostat controllers, 
+the temperature of one room may immediately affect 
+the temperature of the other room, unless they are perfectly insulated.
+Such a behavior cannot be properly captured 
+by a network communication between distributed components
+in the previous PALS framework,
+because components are assumed to be periodically executed in PALS.
+Therefore, it is nontrivial to specify the behavior of a local environment
+of a single component  \emph{in a modular way} 
+without taking account into the entire system.
+Also, how can we verify the safety of distributed hybrid systems in these cases?
+
+This paper shows that all the above-mentioned problems
+in verifying distributed hybrid systems can be dealt with by:
+\begin{inparaenum}[(i)]
+	\item modeling the behavior of physical environments as 
+	 logical constraints (over reals), and
+	\item performing bounded model checking with \emph{delta-complete SMT} solving
+	to verify the safety of the system.
+\end{inparaenum}
+%
+An SMT (satisfiability modulo theories) problem is to check
+the satisfiability of first-order formulas with respect to 
+certain (decidable) logical  theories.
+The \texttt{dReal} \cite{DBLP:conf/cade/GaoKC13} is an SMT solver 
+to automatically check the satisfiability of first-order formulas over reals 
+with non-linear   ordinary differential equations,
+up to any given precision $\delta > 0$
+(which is shown to be decidable in
+\cite{DBLP:conf/cade/GaoAC12,DBLP:conf/fmcad/GaoKC13}).
+The basic idea is to reduce the verification problem of a CPS
+with physical environment constraints
+to the SMT problem for reals and (non-linear)  differential equations.
+
+
+
+
+
+More precisely,
+our main contribution in this paper can be summarized as follows:
+
+\begin{itemize}
+	\item We show that the behavior of physical environments
+	in distributed CPS
+	can be precisely modeled in a modular way
+	by logic constraints of physical parameters,
+	even when they are physically correlated to each other.
+	
+	
+	\item We show that the verification problem of distributed CPS 
+	can be reduced to 
+	checking the unsatisfiability of logical formulas over real numbers.
+	%based on the bounded model checking framework.
+	We also show how we can deal with 
+	arbitrary real number inputs and parameters, 
+	and imprecisions of the local clocks.
+	
+	
+	\item We explain how the satisfaction of the generated logic formula 
+	can be decided using \texttt{dReal}
+	(the formula itself may be beyond the class of formulas directly handled
+	in the current input language of \texttt{dReal}).
+	
+
+	\item We illustrate two case studies, namely, a distributed controller for turning
+	an airplane, and a distributed robot controller for simulating a Turing machine.
+\end{itemize}
+
+The rest of our paper is organized as follows.
+%
+Section~\ref{sec:dcps-design}
+briefly recalls the PALS methodology,
+and shows how a wide range of distributed CPS
+can be specified in this framework, by expressing 
+the continuous behavior as logical constraints over real numbers.
+Section~\ref{sec:dcps-bmc}
+presents the bounded model checking of a CPS using SMT over reals,
+and
+%Section~\ref{sec:component-dReal} 
+then explains how such SMT problems,
+which may involve uninterpreted functions for reals,
+can be dealt with by \texttt{dReal}.
+Section~\ref{sec:case-studies} presents two case studies 
+and their verification using our methods.
+Finally,
+Section~\ref{sec:related-work} explains some related work,
+and 
+Section~\ref{sec:concl} presents some concluding remarks.
+
+\section{Distributed CPS Design}
+\label{sec:dcps-design}
+
+We consider \emph{virtually synchronous} cyber-physical systems (CPS)
+that are implemented as networked devices
+and are 
+controlled by a hierarchy of multirate distributed controllers. 
+%
+The devices and controllers may operate at different rates,
+where the period of a higher-level component is 
+a multiple of the period of its connected (fast) component.
+The design and verification of such virtually synchronous CPS is 
+very hard due to asynchronous communication, network delays,
+clock skews, plus the state space explosion caused by the system's concurrency.
+The PALS (physically asynchronous, but logically synchronous) 
+methodology \cite{pals-rtss09,mr-pals-journal,pals-tcs}
+can reduce the design and verification of a virtually synchronous CPS to
+those of its (much simpler) synchronous version.
+
+Consider a synchronous design $\mathcal{E}$---given by a 
+collection of state machines with local clocks and different rates---and 
+performance bounds
+$\Gamma = (\epsilon, \alpha_{\min}, \alpha_{\max}, \mu_{\min}, \mu_{\max})$
+of the underlying network infrastructure, where:
+\begin{inparaenum}[(i)]
+	\item the difference between a local clock of 
+	each component and the global time is less than $\epsilon$;
+	\item the duration for each component to process input, 
+	execute a transition, and generate output is within 
+	the interval $[\alpha_{\min},\alpha_{\max}]$;
+	and
+	\item  the point-to-point message transmission time between 
+	any two components is within the interval $[\mu_{\min}, \mu_{\max}]$.
+\end{inparaenum}
+The PALS transformation then generates
+the corresponding distributed asynchronous design 
+$\mathcal{A}(\mathcal{E}, T, \Gamma)$,
+with $T$ a global period,
+in which
+  $\mathcal{E}$ and $\mathcal{A}(\mathcal{E}, T, \Gamma)$
+satisfy 
+the same temporal logic 
+properties \cite{mr-pals-journal,pals-tcs}.
+Therefore, we can simply design and verify a synchronous model $\mathcal{E}$,
+and then PALS can give  the \emph{correct-by-construction} distributed 
+implementation $\mathcal{A}(\mathcal{E}, T, \Gamma)$ automatically.
+
+This section first recalls a synchronous model $\mathcal{E}$
+which defines a discrete behavior of CPS,
+specified as a multirate synchronous composition of state machines (Section~\ref{sec:ensemble}).
+To deal with the  continuous behavior of physical environments,
+we specify  physical environments 
+using periodic
+dynamic systems together with logical constraints %of physical parameters
+%logical constraints over real numbers and (nonlinear) ordinary differential equations
+(Section~\ref{sec:env-const}). 
+This is different from the previous approach in \cite{ftscs-journal}
+where local physical environments are modeled as
+usual state machines.
+Any network communication between different 
+distributed components
+\emph{cannot be immediate} due to network delays,
+and therefore
+``physically correlated'' local environments---where one local environment may immediately 
+affect  another environment---were not properly dealt with in the previous approach,
+whereas they can  be naturally expressed by our new approach
+using logical constraints.
+
+
+
+
+\subsection{Discrete Synchronous Models}
+\label{sec:ensemble}
+
+The synchronous model is formally specified as
+ a multirate synchronous composition of 
+a collection of nondeterministic \emph{typed state machines}
+ and a \emph{wiring diagram} connecting  the input and output \emph{ports} of the machines \cite{pals-tcs}.   
+%
+A \emph{typed machine} %$M$ with $n$ input ports and $m$ output ports
+is a tuple $M = (D_i,S,D_o,\delta_M)$, with
+$S$ a finite set of states,
+$\delta_M \subseteq (D_i \times S) \times (S \times D_o)$ a %total 
+	transition relation, and:
+
+\begin{itemize}
+	\item $D_i = D_{i_1} \times \cdots \times D_{i_n}$ an input set 
+(a value to \emph{input port} $1 \leq k \leq n$ is an element of $D_{i_k}$), 
+	\item $D_o =D_{o_1} \times \cdots \times D_{o_m}$ an output set
+(a value from \emph{output port} $1 \leq j \leq m$ is an element of $D_{o_j}$), and
+\end{itemize}
+
+As shown in Figure~\ref{fig:ensemble},
+typed machines can be composed using a wiring diagram
+into a \emph{multirate machine ensemble}
+$\mathcal{E} = (J_S \cup J_F, e, \{M_j\}_{j\in J_s \cup J_F}, E, \mathit{src}, \mathit{rate}, \mathit{adap})$,
+ where:
+ 
+\begin{itemize}
+	\item $J_S$ and $J_F$ are sets of ``slow'' and ``fast'' machine indices,
+	respectively, % ($J_S \cap J_F = \emptyset$), 
+	and  $e\not\in J_S \cup J_F$ is the ``interface'' index;
+		
+ 	\item $\{M_j\}_{j\in J_S \cup J_F}$ is  a family of typed machines;
+	
+	\item $E=(\mathcal{D}^e_i, \mathcal{D}^e_o)$ is the ensemble's \emph{interface}
+	with $\mathcal{D}^{e}_i$   the \emph{input set} and $\mathcal{D}^{e}_o$  the \emph{output set};
+	
+	\item $\mathit{src}$ is  a \emph{wiring diagram} assigning to each input port $(j, n)$ 
+	(port $n$ of machine $j$)  its ``source'' output port;
+	
+	\item $\mathit{rate}$ assigns to each fast machine 
+	its \emph{rate} denoting 
+	how many times faster than the slow machines; 
+	and
+
+	\item $\mathit{adap}$ assigns an \emph{input adaptor} (explained below) to each typed machine in $\{M_j\}_{j\in J_S \cup J_F}$.
+\end{itemize}
+%\end{definition}
+
+\noindent
+The physical environments of components are 
+assumed to be integrated with their controllers (see Section~\ref{sec:env-const}).
+
+
+\begin{figure}
+\centering
+\includegraphics[clip=true,trim=0.3cm 0.4cm 0.3cm 0.4cm,width=1.0\columnwidth]{ensemble.pdf}    
+\caption{A multirate ensemble.
+$M_1$ and $M_2$ are slow machines, and 
+%$M_3$, $M_4$, and $M_5$ are fast machines.
+$\mathit{env}_4$ and $\mathit{env}_5$ are local physical environments 
+of $M_4$ and $M_5$, respectively.
+}  \label{fig:ensemble}
+\end{figure}
+
+
+
+The transitions of all components in an ensemble $\mathcal{E}$
+are performed at the same time in lockstep for each iteration.
+Each fast component $j \in J_F$ is \emph{slowed down} 
+by performing $k = \mathit{rate}(j)$ internal transitions  in one synchronous step.
+If a machine has a ``feedback'' wire connected to itself or to another component,
+then the output becomes an input of the destination component in the \emph{next} iteration.
+That is,
+the \emph{synchronous composition}  of an ensemble $\mathcal{E}$
+is equivalent to a single machine $M_\mathcal{E}$
+whose state consists of the states of its subcomponents
+and the feedback outputs \cite{mr-pals-journal,pals-tcs}.
+For example, 
+the synchronous composition $M_\mathcal{E}$ 
+of the ensemble $\mathcal{E}$ in Figure~\ref{fig:ensemble} 
+is the machine given by the outer box. 
+Notice that $M_\mathcal{E}$ can appear as a component 
+in another multirate ensemble, resulting in hierarchical multirate systems.
+
+Since a fast machine performs $k$ internal transitions 
+one synchronous step,
+a $k$-tuple of outputs from the fast machine
+must be transformed to a single input (e.g., the last value, or the average of the $k$ values)
+to be read by a slow component.
+Similarly,
+a single output from a slow component must be transformed 
+to a $k$-tuple of inputs for a fast component
+(e.g., 
+a $k$-tuple $(d, \bot, \ldots, \bot)$ for some ``don't care'' value $\bot$).
+An \emph{input adaptor} 
+$\alpha=\{\alpha_j: D'_j \rightarrow D_{i_j}\}_{j\in\{1,\ldots, n\}}$
+for a typed machine $M = (D_i, S, D_o, \delta_M)$
+is a family of functions which determine a desired  value 
+$\alpha_j(d_j) \in D_{i_j}$ for each input 
+port $j$  from an output $d_j \in D_{j}'$
+of another typed machine.
+
+
+%The $k$-step \emph{deceleration} of  
+%a machine $M = (D_i, S, D_o, \delta_M)$ for $k \in \mathbb{N}_{>0}$
+%%with $D_i =  D_{i_1}\times \cdots \times D_{i_n}$ and 
+%%$D_o = D_{o_1}\times \cdots \times D_{o_m}$, 
+%is defined by
+%%
+%$M^{ \times k} = ((D_{i_1})^k \times \cdots \times (D_{i_n})^k,\,  S,\,
+%(D_{o_1})^k\times \cdots \times (D_{o_m})^k,\, \delta_{M^{ \times k}})$,
+%%
+%where
+%\[
+%\begin{multlined}
+%\big((((d_{i_{1_1}}, \ldots, d_{i_{1_k}}), \ldots,(d_{i_{n_1}}, \ldots, d_{i_{n_k}})),  s), \\
+%(s',((d_{o_{1_1}}, \ldots, d_{o_{1_k}}), \ldots,(d_{o_{m_1}}, \ldots,d_{o_{m_k}})) ) \big) \in \delta_{M^{ \times k}}
+%\end{multlined}
+%\]
+%iff there exist states $s_1, \ldots, s_{k-1} \in S$ such that 
+%	\begin{alignat*}{2}
+%		(((d_{i_{1_1}}, \ldots, d_{i_{n_1}}), s) &,\; (s_1, (d_{o_{1_1}}, \ldots, d_{o_{m_1}}))) &&\in \delta_M \\
+%		(((d_{i_{1_2}}, \ldots, d_{i_{n_2}}), s_1) &,\; (s_2, (d_{o_{1_2}}, \ldots, d_{o_{m_2}}))) &&\in \delta_M\\
+%		&\vdots  &&\;\,\vdots\\
+%%		(((d_{i_{1_{k-1}}}, \ldots, d_{i_{n_{k-1}}}) , s_{k-2}) &,\; (s_{k-1},(d_{o_{1_{k-1}}}, \ldots, d_{o_{m_{k-1}}}) )) &&\in \delta_M\\
+%		(((d_{i_{1_{k}}}, \ldots, d_{i_{n_{k}}}), s_{k-1}) &,\; (s', (d_{o_{1_{k}}}, \ldots, d_{o_{m_{k}}}))) &&\in \delta_M.
+%	\end{alignat*}
+
+% Given an input adaptor
+% $\alpha=\{\alpha_k: D'_k \rightarrow D_{i_k}\}_{k\in\{1,\ldots, n\}}$
+% of a machine $M = (D_i, S, D_o, \delta_M)$,
+%the \emph{adaptor closure}  is 
+%a machine $M_\alpha = ((D'_1\times\cdots\times D'_n), S, D_o, \delta_{M_\alpha})$
+%such that
+%$((\vec{d_i}, s), (s', \vec{d_o})) \in \delta_{M_\alpha}$
+%iff
+%$((\alpha(\vec{d_i}), s), (s', \vec{d_o})) \in \delta_{M}$,
+%where $\alpha(\vec{d}) = (\alpha_1(d_1), \ldots, \alpha_n(d_n))$.
+
+
+
+\subsection{Continuous Physical Constraints}
+\label{sec:env-const}
+
+A state of a physical environment $E_M$ %for a machine $M$
+is %in general 
+represented as a tuple $\vec{v} = (v_1,v_2,\ldots,v_l) \in \mathbb{R}^l$ 
+of its physical parameters $\vec{x} = (x_1,x_2, \ldots,x_l)$.
+%As usual in physical dynamics,
+The behavior of $E_M$
+can be modeled as differential equations %for the parameters,
+that specify \emph{trajectories} 
+$\tau_1, \tau_2, \ldots, \tau_l$ of the parameters $\vec{x}$. %$x_1,x_2, \ldots,x_l$.
+A \emph{trajectory} \cite{lynch2003hybrid} of duration $T \in \mathbb{R}_{\geq 0}$ is a function $\tau : [0,T] \rightarrow \mathbb{R}$
+that defines the 
+continuous behavior of a physical parameter.
+% during $T \in \mathbb{R}_{\geq 0}$.
+%
+Let  $\mathcal{T}_T$ be
+the set of all trajectories of 
+duration $T \in \mathbb{R}_{\geq 0}$,
+%$\mathcal{T} = \cup_{T \in \mathbb{R}_{\geq 0}} \mathcal{T}_T$,
+and
+$\vec{\tau}(t) = (\tau_1(t),\ldots,\tau_l(t))$
+for an l-tuple of trajectories $\vec{\tau} = (\tau_1,\ldots,\tau_l) \in \mathcal{T}_T^l$.
+%
+Notice that $\vec{x}$ can also be considered as trajectories
+in such a way that a physical state of  $E_M$ at time $t \in \mathbb{R}_{\geq 0}$
+is given by $\vec{x}(t)$.
+
+
+
+
+
+A controller $M$ is a ``periodic'' component 
+that collects the  state $(v_1,\ldots,v_l)$  of 
+its physical environment 
+$E_M$ using its sensors and has an effect on 
+$E_M$ through its actuators.
+%
+Conceptually,  $E_M$ can be  modeled as a 
+$U$-\emph{periodic dynamic system} 
+$E_M = (C, P, U, \Lambda)$ 
+that defines possible trajectories of its parameters $\vec{x}$
+during its period $U \in \mathbb{R}_{>0}$ \cite{ftscs-journal}, where:
+
+ \begin{itemize}
+	\item $C$ is a set of \emph{control commands}, representing
+          ``actuator outputs'' from the controller $M$;
+	
+	\item $P \subseteq \mathbb{R}^l$ is a set of all possible values 
+          of the ``physical 
+          parameters'' $\vec{x} = (x_1, x_2, \ldots, x_l)$ 
+          of  $E_M$;
+        
+	
+	\item $\Lambda \subseteq (C \times P) \times \mathcal{T}_{U}^l$
+	is a \emph{physical transition relation} in which
+	%that defines possible trajectories of the parameters $\vec{x}$.
+	%By definition, 
+	$((a, \vec{v}),  \vec{\tau}) \in \Lambda$
+	 iff for a control command $a \in C$, % of the controller $M$,
+	$E_M$'s physical state gives the trajectory 
+	$\vec{\tau} \in \mathcal{T}_{U}^l$
+	from a current physical state $\vec{v} \in P$
+	with $\vec{\tau}(0) = \vec{v}$.
+	%from the beginning of a period up to the end of the period.
+\end{itemize}
+	
+
+In reality, a local clock of $M$
+may be differ from the global time up to $\epsilon > 0$ (given by PALS performance 
+bounds $\Gamma$).
+This means that for a machine $M$ with a period $T$,
+ its ``real'' period can be any value in the interval $(T-2\epsilon, T + 2\epsilon)$.
+In this case, if a $U$-periodic dynamic system $E_M$ specifies  
+a  physical environment of $M$, then $U \geq T + 2\epsilon$ must hold.
+%
+%\begin{definition}
+Let $c_M : \mathbb{N} \to \mathbb{R}_{>0}$
+denote an \emph{exact periodic local clock} of $M$ with
+$c_M(0) = 0$ and  $c_M(n) \in (n T - \epsilon, n T + \epsilon)$ for $n > 0$.
+%\end{definition}
+
+Given an exact local clock $c_M$ of $M$,
+a physical transition $((a, \vec{v}), \vec{\tau}) \in \Lambda$---where
+$\vec{\tau}$'s duration is greater than or equal to $T + 2\epsilon$---actually defines 
+a trajectory $\vec{\tau}$ of $E_M$'s physical parameter $\vec{x}$
+for its $i$-th period  ($i \in \mathbb{N}$)
+during the  interval  $[c_M(i), c_M(i+1)]$. That is,
+\[\vec{x}(t) = \vec{\tau}(t - c_M(i))
+\;\;\mbox{for} \;\;t \in [c_M(i), c_M(i+1)].
+\]
+Notice that $T - 2\epsilon < c_M(i+1) - c_M(i) < T + 2\epsilon$ holds.
+For example,
+consider the periodic dynamic system %$E_M$ 
+of Figure~\ref{fig:physical-transition}
+in which
+$((a_0,v_0), \tau_0) \in \Lambda$, 
+$((a_1,v_1), \tau_1) \in \Lambda$, 
+$((a_1',v_1'), \tau_1') \in \Lambda$, 
+$((a_2,v_2), \tau_2) \in \Lambda$, 
+$((a_2',v_2'), \tau_2') \in \Lambda$,  and so on.
+%
+Each physical transition then defines a trajectory $\tau_i$
+from the value $v_i$ to $v_{i+1}$
+ according to the control command $a_i$ 
+from $M$ during the time interval $[c_M(i), c_M(i+1)]$.
+
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=2.4]
+%baseline
+\draw[-latex,thin] (-0.1,0) -- (3.2,0);
+\foreach \x in {0,1,2,3}
+\draw[shift={(\x,0)},thin,dashed] (0,1.4) -- (0,-0.1) node[below] { $c_M(\x)$};
+%curves
+\begin{scope}[yshift=7pt,font=\footnotesize]
+\filldraw (0,0.21) circle (0.5pt) node[above,xshift=-1.2ex] {$v_0$};
+\draw (0,0.21) .. controls (0.3,0.15) and (0.6,0.5) .. node[above,sloped] (t0) {$\tau_0$} (1,0.35);
+\draw[-open triangle 45,very thin] ($(t0.north) + (-0.2,0.15)$) node[left,yshift=2pt] {$a_0$} -- ($(t0.north) + (-0.02,0.02)$);
+	\filldraw (1,0.35) circle (0.5pt) node[above,xshift=-1.2ex] {$v_1$};
+	\draw (1,0.35) .. controls (1.3,0.25) and (1.6,0.4) .. node[above,sloped] (t1) {$\tau_1$} (2,0.57);
+	\draw[-open triangle 45,very thin] ($(t1.north) + (-0.2,0.15)$) node[left,yshift=2pt] {$a_1$} -- ($(t1.north) + (-0.02,0.02)$);
+		\filldraw (2,0.57) circle (0.5pt) node[above,xshift=-1.2ex] {$v_2$};
+		\draw (2,0.57) .. controls (2.3,0.65) and (2.6,0.6) .. node[above,sloped] (t2) {$\tau_2$} (3,0.77);
+		\draw[-open triangle 45,very thin] ($(t2.north) + (-0.2,0.15)$) node[left,yshift=2pt] {$a_2$} -- ($(t2.north) + (-0.02,0.02)$);
+			\filldraw (3,0.77) circle (0.5pt) node[above,xshift=-1.2ex] {$v_3$};
+	\draw (1,0.35) .. controls (1.3,0.15) and (1.6,0.5) .. node[below,sloped] (t1') {$\tau_1'$} (2,0.1);
+	\draw[-open triangle 45,very thin] ($(t1'.south) + (-0.2,-0.15)$) node[left,yshift=-2pt] {$a_1'$} -- ($(t1'.south) + (-0.02,-0.02)$);
+		\filldraw (2,0.1) circle (0.5pt) node[below,xshift=-1.5ex] {$v_2'$};
+		\draw (2,0.1) .. controls (2.3,-0.1) and (2.6,0.4) .. node[below,sloped] (t2'){$\tau_2'$} (3,0.3);
+		\draw[-open triangle 45,very thin] ($(t2'.west) + (-0.15,-0.15)$) node[left,yshift=-2pt] {$a_2'$} -- ($(t2'.west) + (-0.02,-0.02)$);
+			\filldraw (3,0.3) circle (0.5pt) node[below,xshift=-1.5ex] {$v_3'$};;;
+\end{scope}
+\end{tikzpicture}
+\caption{A periodic dynamic system $E_M$.
+%where
+%$((a_0,v_0), \tau_0) \in \Lambda$, 
+%$((a_1,v_1), \tau_1) \in \Lambda$, 
+%$((a_1',v_1), \tau_1') \in \Lambda$, etc.
+%$((a_2,v_2), \tau_2) \in \Lambda$, 
+%$((a_2',v_2), \tau_2') \in \Lambda$, 
+%and so on.
+}
+\label{fig:physical-transition}
+\end{figure}
+
+
+
+
+
+A controller machine $M = (D_i, S, D_o,\delta_{M})$ is considered as 
+a \emph{nondeterministic} typed
+machine that is
+parameterized  by any possible \emph{observable}
+behavior of its physical environment $E_M  = (C, P, U, \Lambda)$.%
+\footnote{A controller $M$
+is assumed to be tightly integrated with its physical environment 
+$E_M$,
+and thus $M$ can observe or affect $E_M$  immediately;
+for ``remote'' sensors and actuators, % not tightly integrated,
+they  can be considered as parts of another
+controller that communicates with $M$ via a network \cite{ftscs-journal}.}
+Each state $s \in S$ of $M$ provides:
+%
+\begin{inparaenum}[(i)]
+	\item the current control command %of $M$ 
+	to $E_M$,
+	denoted by $\pi_C(s) \in C$,
+	\item 
+	the ``observed'' physical state by $M$
+	from a physical state  $\vec{v} \in P$ of $E_M$,
+	denoted by $\pi_P(s) = \pi_O(\vec{v})$, and
+	\item the current local time of $M$,
+	denoted by $\pi_t(s) \in \mathbb{N}$.
+\end{inparaenum}
+%
+Notice that the ``observed'' physical parameters of $E_M$  are 
+also parts of $M$'s (discrete) state,
+and the control commands to $E_M$ are given based on the current state of $M$.
+
+The \emph{environment restriction} of $M$ %by $E_M$ 
+is the typed machine
+$M \restriction E_M = (D_i, S \times P, D_o, \delta_{M \restriction E_M})$,
+where its transition $\delta_{M \restriction E_M}$ is constrained by the observed behavior of $E_M$. That is,
+%
+$( (\vec{d}_i, (s,\vec{v})), ((s',\vec{v}'), \vec{d}_o) ) \in \delta_{M \restriction E_M}$
+iff:
+
+\begin{itemize}
+	\item $( (\vec{d}_i, s), (s', \vec{d}_o) ) \in \delta_{M}$, 
+	\item $\pi_P(s) = \pi_O(\vec{v})$ and $\pi_P(s') = \pi_O(\vec{v}')$, and
+	\item from the current physical state $\vec{v}$ at time $c_M(\pi_t(s))$,
+	%where $\pi_P(s) = \pi_O(\vec{v})$,
+	the ``next'' physical state $\vec{v}'$ at time $c_M(\pi_t(s'))$
+	%where $\pi_P(s') = \pi_O(\vec{v}')$,
+	is reachable 
+	through some trajectory $\vec{\tau}$ %\in \mathcal{T}^l
+	of  $E_M$ based on the current control command $\pi_C(s)$.
+		Formally:
+	\begin{alignat*}{3}
+	((\pi_C(s), \vec{v}),  \vec{\tau} ) \in \Lambda,
+	\quad&
+	\pi_t(s') = \pi_t(s) + 1,
+	\\
+	\vec{\tau}(0) = \vec{v},
+	\quad&
+	\vec{\tau}(c_M(\pi_t(s')) - c_M(\pi_t(s))) = \vec{v}'.
+	\end{alignat*}
+\end{itemize}
+
+\noindent
+This extends the notion of environment restrictions in \cite{ftscs-journal},
+which is a special case when $M$'s local clock is exactly the same as the global clock
+(i.e., $c_M(n) = nT$ for $n \in \mathbb{N}$).
+
+
+
+
+
+A physical correlation between $N$ physical environments 
+$E_{M_i} = (C_i, P_i, c_{M_i}, \Lambda_i)$ 
+for $i \in \{1, 2, \ldots, N\}$
+can be specified by  a \emph{time-invariant constraint}
+\[
+(\forall t)\; \psi(\vec{x}_1(t), \vec{x}_2(t), \ldots, \vec{x}_N(t))
+\]
+over $E_{M_i}$'s parameters $\vec{x}_i$,
+where $\psi$ is a logic formula over real numbers
+with extra function symbols $\vec{x}_1, \ldots, \vec{x}_N$
+yet \emph{no} free variables
+(notice that $\vec{x}_1, \ldots, \vec{x}_N$ are considered as trajectories).
+%
+A tuple of  trajectories 
+$(\vec{\tau}_1, \vec{\tau}_2, \ldots, \vec{\tau}_N)$ 
+of the parameters $\vec{x}_1, \ldots, \vec{x}_N$
+is \emph{realizable} up to time $X \in \mathbb{R}_{\geq 0}$
+iff 
+$\psi(\vec{\tau}_1(t), \vec{\tau}_2(t), \ldots, \vec{\tau}_N(t))$
+holds for every $t \in [0, X]$.
+To verify a system design $\mathcal{E}$ 
+where its subcomponents may have their local physical environments,
+we examine every behavior of $\mathcal{E}$
+given by realizable trajectories in Section~\ref{sec:dcps-bmc}.
+
+
+
+
+
+
+
+
+In principle, a time-invariant constraint $\psi$ can be any first order logic formula,
+but %in this paper 
+we focus on \emph{equality} constraints
+in which equalities are only predicate symbols.
+In practice, many physical correlations can  be captured by
+using such equality
+constraints
+as illustrated by examples in this paper.
+%
+For instance, if a parameter $x_1$ of $E_{M_1}$
+must be equal to a parameter $x_2$ of $E_{M_2}$,
+then the time-invariant constraint is given by $(\forall t)\; x_1(t) = x_2(t)$.
+In this case,
+the behavior of $E_{M_1}$ can immediately affect 
+ $E_{M_2}$ using the parameter $x_1$.
+
+
+ 
+\subsection{Example}
+
+We consider two simple hybrid systems to illustrate our approach.
+Figure~\ref{fig:thermostat} shows a thermostat controller with a local clock,
+adapted from \cite{hybridaut,ftscs-journal},
+operating at a certain rate to control a temperature, 
+specified by the typed machine
+\[
+M = (\mathbb{R}^2, \{m_\texttt{on},m_\texttt{off}\} \times \mathbb{N} \times \mathbb{R}, \{\ast\}, \delta_M).
+\]
+For each step, %the controller 
+$M$ receives two inputs 
+$(t_{\max},t_{\min}) \in \mathbb{R}^2$
+from other controllers,
+which denote the desired maximum and minimum temperature, respectively.
+Each state $(m, n, v)$
+is a tuple of a heater's mode $m \in \{m_\texttt{on},m_\texttt{off}\}$,
+a counter $n$ to denote time $c_M(n)$ at the beginning of the current period, and
+an observed temperature $v \in \mathbb{R}$ at time $c_M(n)$.
+%
+The output set $\{\ast\}$ indicates that $M$ has no output port.
+The transition relation $\delta_M$
+defines the next state $(m', n + 1, v')$ from
+input $(t_{\max},t_{\min})$ and a state $(m, n, v)$, where:
+\[\begin{medsize}
+\begin{alignedat}{3}
+(( (t_{\max},t_{\min}), (m_\texttt{on},n,v))&, ((m_\texttt{on}, n+1, v'),\ast)) &\in \delta_M	&\quad\mbox{if}\;\;	v \leq t_{\max} 
+\\
+(( (t_{\max},t_{\min}), (m_\texttt{on},n,v))&, ((m_\texttt{off}, n+1, v'),\ast)) &\ \in \delta_M	&\quad\mbox{if}\;\;	v > t_{\max} 
+\\
+(( (t_{\max},t_{\min}), (m_\texttt{off},n,v))&, ((m_\texttt{on}, n+1, v'),\ast)) &\in \delta_M	&\quad\mbox{if}\;\;	v <  t_{\min} 
+\\
+(( (t_{\max},t_{\min}), (m_\texttt{off},n,v))&, ((m_\texttt{off}, n+1, v'),\ast)) &\in \delta_M	&\quad\mbox{if}\;\;	v \geq t_{\min}.
+\end{alignedat}
+\end{medsize}\]
+The \emph{next} observed temperature $v' \in \mathbb{R}$ 
+at time $c_M(n+1)$ %the beginning of the \emph{next} period
+can be any value, but  is determined by its physical environment $E_M$ below.
+During each period, % (from $c_M(n)$ to $c_M(n + 1)$),
+the controller $M$ gives a control command $\texttt{out}$ through its actuator
+to turn the heater \emph{on}/\emph{off}
+according to the mode $m \in \{m_\texttt{on},m_\texttt{off}\}$.
+
+
+
+\begin{figure}
+\centering
+%layers to draw the block diagram
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+\begin{tikzpicture}[scale=0.9] %baseline=-0.6ex
+%states
+\matrix[row sep=1ex,column sep=14ex,text centered]{
+\node (on) [draw,circle,text width=4.6ex,font=\footnotesize] {$m_\texttt{on}$}; & 
+\node (off) [draw,circle,text width=4.6ex,font=\footnotesize] {$m_\texttt{off}$};  \\
+};
+%text
+\node[below,font=\scriptsize] at (on.south) {$\texttt{out} \leftarrow \mathit{on}$};
+\node[below,font=\scriptsize] at (off.south) {$\texttt{out} \leftarrow \mathit{off}$};
+%arrows
+\path[->,font=\scriptsize]
+(on) edge[bend left=40] node[above] {$v > t_{\max}$} (off)
+(on) edge [loop left,in=150,out=-150,looseness=5] node[above=2ex] {$v \leq t_{\max}$} (on)
+(off) edge[bend left=40] node[below] {$v< t_{\min}$} (on)
+(off) edge [loop right,in=-30,out=30,looseness=5] node[above=2ex] {$v \geq t_{\min}$} (off);
+%blocks
+\begin{pgfonlayer}{background}
+\path (on.west |- off.north)+(-1.5,0.9) node (a) {};
+\path (off.east |- on.south)+(+1.5,-0.9) node (b) {};
+\path[rounded corners, draw] (a) rectangle (b);
+%ports
+\draw [<-,thick] (on.west |- on.north)+(-1.3,0.2) -- node{ }+(-1.7,0.2) node[left] {$t_{\max}$};
+\draw [<-,thick] (on.west |- on.south)+(-1.3,-0.2) -- node{ }+(-1.7,-0.2) node[left] {$t_{\min}$};
+\draw [-open triangle 45,thick] (off.east |- off.north)+(1.3,0.2) -- node{ } + (1.7,0.2) node[right] {\texttt{out}};
+\draw [open triangle 45-,thick] (off.east |- off.south)+(1.3,-0.2) -- node{ } + (1.7,-0.2) node[right] {$v$};
+\end{pgfonlayer}
+\end{tikzpicture}
+%\quad
+%$
+%\dot{x} =
+%\begin{cases}
+%K (h - x) &\mbox{if } \texttt{out} = \mathit{on}\\
+%- K x &\mbox{if } \texttt{out} = \mathit{off} 
+%\end{cases}
+%$
+\caption{A digital thermostat controller \cite{ftscs-journal}.
+%with two input ports $t_{\max}$ (a maximum temperature)
+%and $t_{\min}$ (a minimum temperature).
+}\label{fig:thermostat}
+\end{figure}
+
+%The physical environment EM of the nondeterministic digital thermostat controller M is specified by the 1-dimensional periodic dynamic system with period T:%EM = ({on,off}, R, T, ?)%with a set of control commands {on,off}, the physical state R for the current temperature x of the room,%and the physical transition relation ? ? ({on, off } × R) × TT given by:
+
+For the nondeterministic controller $M$,
+its local physical environment $E_M$ models
+the open room environment shown in Figure~\ref{fig:open-room},
+where the temperature $x$ of the room changes 
+based on the heater of $M$ and  the outside temperature $x_o$.
+This environment $E_M$ is specified by:
+\[
+E_M = (\{\mathit{on},\mathit{off}\}, \mathbb{R}^2, T + 2\epsilon, \Lambda)
+\]
+for
+a set of control commands $\{\mathit{on}, \mathit{off}\}$,
+and 
+a physical state $(v,v_o) \in \mathbb{R}^2$ 
+to denote the room's temperature $x$ and the outside temperature $x_o$.
+The physical transition relation 
+$\Lambda$
+% %\subseteq (\{\mathit{on},\mathit{off}\} \times \mathbb{R}^2) \times \mathcal{T}_{T+2\epsilon}^2$ 
+is given by:
+$
+\big( (\texttt{out}, (v,v_o)), (\tau,\tau_o) \big) \in \Lambda
+$
+iff there are continuous trajectories $\tau, \tau_o: [0,T + 2\epsilon] \to \mathbb{R}$
+for the parameters $x$ and $x_o$,
+respectively, 
+such that $\tau(0) = v$, $\tau_o(0) = v_o$, and:
+\begin{equation}
+\dot{x} =
+\begin{cases}
+K (h - ((1-k) x + k  x_o)) &\mbox{if } \texttt{out} = \mathit{on}\\
+- K ((1-k) x + k  x_o) &\mbox{if } \texttt{out} = \mathit{off},
+\end{cases}
+\label{eq:open-thermo}
+\end{equation}
+where $K, h, k \in \mathbb{R}$ are constants depending on 
+the size of the room, 
+the power of the heater,
+and the size of the door, respectively.
+That is, given a \emph{nondeterministically chosen}
+trajectory $\tau_o$ of the outside temperature $x_o$,
+if the heater is on,
+then the temperature $x$ rises according to the differential equation $\dot{x} = K (h - ((1-k) x + k  x_o))$,
+and if the heater is off,
+then 
+the temperature $x$ falls according to the differential equation $\dot{x} = - K ((1-k) x + k  x_o)$.
+ 
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=1.00]
+%room
+\filldraw (0,-1.2) rectangle  + (-0.08,0.8)
+	(0,-0.4) rectangle  + (-3,0.08)
+	(-3,-0.32) rectangle  + (-0.08,-2.6)
+	(-3.08,-3.0) rectangle  + (3,0.08)
+	(0,-3.0) rectangle  + (-0.08,0.8);
+%M
+\path (-2.5,-2.1) node[draw] (machine) { $M$};
+\draw[<-] (machine.north) -- node {} + (0,0.5) node[above] {$x$};
+\draw[->] (machine.east) -- node {} + (0.5,0) node[right] {$\texttt{out}$};
+%door
+\draw[dashed] (0,-1.2) -- (0,-2.2);
+\draw (0,-1.2) rectangle +(-1,-0.05);
+\draw (-1,-1.2) arc (180:270:1);
+%outside
+\draw[<->,dotted,thick] (-0.5,-1.7) -- (0.5,-1.7) node[right] {the outside temperature $x_o$};
+\end{tikzpicture}
+\caption{Open room environment.
+%with two input ports $t_{\max}$ (a maximum temperature)
+%and $t_{\min}$ (a minimum temperature).
+}\label{fig:open-room}
+\end{figure}
+
+By definition, the environment restriction of $M$ by $E_M$ 
+is the typed machine 
+$M \restriction E_M = (\mathbb{R}^2, S \times P, \{\ast\}, \delta_{M \restriction E_M})$
+with
+$M$'s state space $S = \{m_\texttt{on},m_\texttt{off}\} \times \mathbb{N} \times \mathbb{R}$
+and $E_M$'s physical state space $P = \mathbb{R}^2$.
+The combined transition
+$(( (t_{M},t_{m}), (m,n,v,v,v_o)),\,
+ ((m',n',v', v',v_o'),\ast)) \in \delta_{M \restriction E_M}$
+of the machine $M \restriction E_M$
+holds iff:
+
+\begin{itemize}
+	\item $(( (t_{M},t_{m}), (m,n,v)), ((m',n',v'),\ast)) \in \delta_M$ (i.e., 
+	the corresponding $M$'s transition holds);
+	\item the observed physical parameters of $E_M$ are given by
+	$\pi_P(m,n,v) = v$ and
+	$\pi_O(v,v_o) = v$;
+	and
+	\item there are $E_M$'s trajectories $(\tau, \tau_o) \in \mathcal{T}_{T+2\epsilon}^2$
+	 % of duration $T + 2\epsilon$
+	 such that
+	 \begin{align*}
+	 ((\pi_C(m,n,v), (v,v_o)),  (\tau,\tau_o) ) \in \Lambda, \\
+	 n' = n + 1, 
+	 \qquad\quad
+	 (\tau,\tau_o)(0) = (v,v_o), \\
+	 (\tau,\tau_o)(c_M(n+1) - c_M(n)) = (v',v_o'),
+	 \end{align*}
+	 where $M$'s control commands to $E_M$ are defined by
+	 $\pi_C(m_\texttt{on}, n, v) = \mathit{on}$ and $\pi_C(m_\texttt{off}, n, v) = \mathit{off}$,
+	 and
+	 $M$'s local time is given by $\pi_t(m, n, v) = n$.	 
+\end{itemize}
+
+\noindent
+For example,
+given a \emph{constant} outside temperature ($\dot{x_o} = 0$),
+the combined behavior of %the environment restriction 
+$M \restriction E_M$
+is shown in Figure~\ref{fig:restriction-diagram-thermo}.
+From a physical state $\vec{v}_i$ at time $c_M(i)$,
+the next \emph{observed} physical state $\vec{v}_{i+1}$ 
+(at time $c_M(i+1)$)
+is given according to  
+the differential equations~(\ref{eq:open-thermo}) and $\dot{x_o} = 0$. 
+
+
+
+
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=1.16,font=\footnotesize]
+%baseline
+\draw[-latex,thin] (-0.1,0) node[left] {% Step
+}-- (6.5,0);
+%\draw[shift={(0,0)},thin] (0,1.9) -- (0,-0.1);
+\foreach \x in {0,1,2,3,4,5,6}
+\draw[shift={(\x,0)},thin,dashed] (0,2.0) -- (0,-0.1) node[below] { $c_M(\x)$};
+%M_{E_M}              
+\draw[-latex,thin] (-0.1,1.1) node[left] { $E_M$} -- (6.5,1.1);
+\foreach \z in {0,1,2,3,4,5,6}
+\path (\z+0.15,1.1) node[above] { $\vec{v}_\z$};
+%M
+\draw[-latex,thin] (-0.1,1.9) node[left] { $M$} -- (6.5,1.9);
+\foreach \z in {1,2,3} \path (\z-0.85,1.9)  node[above] {$m_{\texttt{on}}$};
+\foreach \z in {4,5,6,7} \path (\z-0.8,1.9)  node[above] {$m_{\texttt{off}}$};
+%x_0 line
+\draw[thick,dotted] (-0.1,0.65) node[left] { $x_o$} -- (6.5,0.65);
+%x curves
+\draw (-0.1,0.21) node[left] { $x$} .. controls (1,0.65) and (2,0.8) .. (3,0.87);
+%\draw[shift={(0,-0.15)},smooth,samples=1000,domain=-0.1:3] plot(\x,{1.2-0.8*exp(-0.5*\x)});
+\draw (3,0.87) .. controls (4,0.37) and (5,0.17) .. (6.3,0.05);
+%\draw[shift={(0,-0.15)},smooth,samples=1000,domain=3:6.3] plot(\x,{4.58*exp(-0.5*\x)});
+%
+\end{tikzpicture}
+\caption{The behavior of $M \restriction E_M$,
+when $\dot{x_o} = 0$.
+%the digital thermostat controller $M$ with period $T$
+%integrated with its physical environment $E_M$.
+}
+\label{fig:restriction-diagram-thermo}
+\end{figure}
+
+
+We now consider digital thermostat controllers 
+$M_1$ and $M_2$ that are 
+respectively installed in two \emph{adjacent} rooms connected by an open 
+door, as illustrated in Figure~\ref{fig:adj-rooms}.
+The temperature of each room is separately controlled by 
+the normal thermostat controller in Figure~\ref{fig:thermostat}
+that turns on/off the switch of the heater in the room:
+for $i=1,2$,
+\[
+M_i = (\mathbb{R}^2, \{m_\texttt{on},m_\texttt{off}\} \times \mathbb{N} \times \mathbb{R}, \{\ast\}, \delta_{M_i}).
+\]
+Suppose that $M_1$ and $M_2$ have different rates. For example,
+$\mathit{rate}(1) = 2$ and $\mathit{rate}(2) = 3$;
+i.e., for the logical periods $T_1$ and $T_2$ of $M_1$ and $M_2$, respectively,
+$2 T_1 = 3 T_2$ holds.
+
+
+The local physical environment $E_{M_i}$ of each controller $M_i$
+can be just considered as the open room environment in Figure~\ref{fig:open-room}
+explained above.
+That is, for $i = 1,2$:
+\[
+E_{M_i} = (\{\mathit{on},\mathit{off}\}, \mathbb{R}^2, T_i + 2\epsilon, \Lambda_i).
+\]
+Similarly,
+the physical transition relation $\Lambda_i$ %for $i = 1,2$
+states that 
+the room's temperature $x_i$  and the outside temperature $x_{o_i}$
+are  governed by the following differential equation:
+\[
+\dot{x}_i =
+\begin{cases}
+K_i (h_i - ((1-k) x_i + k  x_{o_i})) &\mbox{if } \texttt{out}_i = \mathit{on}\\
+- K_i ((1-k) x_i + k  x_{o_i}) &\mbox{if } \texttt{out}_i = \mathit{off}.
+\end{cases}
+\]
+where $K_i, h_i \in \mathbb{R}$ are constants given by the size of each room
+and the heater's power, respectively,
+and $k \in \mathbb{R}$ is a constant based on the size of the open door. 
+Recall that 
+the behavior of each $E_{M_i}$ depends on 
+\emph{nondeterministic chosen} trajectories of 
+the outside temperature $x_{o_i}$.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+%room1
+\filldraw (0,-1) rectangle  + (-0.08,1)
+	(0,0) rectangle  + (-3,0.08)
+	(-3,0.08) rectangle  + (-0.08,-3)
+	(-3.08,-3) rectangle  + (3,0.08)
+	(0,-3) rectangle  + (-0.08,1);
+\path (-2.5,-2.5) node[draw] { $M_1$};
+\draw[dashed] (0,-1) -- (0,-2);
+%room2
+\filldraw (0,0) rectangle  + (3.5,0.08)
+	(3.5,0.08) rectangle  + (-0.08,-3)
+	(3.5,-3) rectangle  + (-3.5,0.08);
+\path (2.9,-2.5) node[draw] (m2){ $M_2$};
+%door
+\draw (0,-1) rectangle +(-1,-0.05);
+\draw (-1,-1) arc (180:270:1);
+\end{tikzpicture}
+\caption{Two rooms connected by an open door.
+} \label{fig:adj-rooms}
+\end{figure}
+
+
+
+However,
+because those two rooms $1$ and $2$ are physically connected %to each other 
+by the open door,
+the outside temperature $x_{o_1}$ of the room~$1$
+must be equal to
+the temperature $x_2$ of the room~$2$, and vice versa.
+This can be precisely specified by the time-invariant constraint between $E_{M_1}$ and $E_{M_2}$:
+\[
+(\forall t)\;
+x_{o_1}(t) = x_2(t)
+\;\wedge\;
+x_{o_2}(t) = x_1(t).
+\]
+By adding this constraint,
+the composed behavior of
+the nondeterministic local environments 
+$E_{M_1}$ and $E_{M_2}$ 
+becomes \emph{deterministic},
+since the outside temperature $x_{o_i}$ of each $E_{M_i}$
+is determined by the temperature of the other room.
+
+
+
+A multirate ensemble $\mathcal{E}$ 
+of the two thermostat controllers $M_1$ and $M_2$ is shown in Figure~\ref{fig:room-ensemble}
+%
+The system is built by a multirate ensemble $\mathfrak{E}$ of three typed machines:
+the main controller $\texttt{Main}$, and the thermostat controllers $M_1$ and $M_2$.
+Both $M_1$ and $M_2$ are are connected to the main controller $\texttt{Main}$ 
+that can set their maximum temperature $t_{\max}$ and the minimum temperature $t_{\min}$.
+
+
+%since the behavior of the composed local environment is now completely determined 
+%by its local state and the input from $M_1$ and $M_2$.
+
+
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=1.08] %baseline=(current bounding box.north)
+\node (main) [draw,thick,minimum width=40ex,minimum height=5ex] 
+{\texttt{Main} {\small (rate = 1)}}; % 
+\path (main.west |- main.south) + (8ex,-10ex) node (t1) [draw,thick,minimum width=16ex,minimum height=5ex] 
+{$M_1$ {\small (rate = 2)}}; %
+\path (main.east |- main.south) + (-8ex,-10ex) node (t2) [draw,thick,minimum width=16ex,minimum height=5ex] 
+{$M_2$ {\small (rate = 3)}}; %
+%connection t_max
+\draw [thick,font=\scriptsize,->] ($(main.west |- main.south)+(2ex,0)$) 
+	-- node[left] {$t_{\max}$} ($(main.west |- t1.north) + (2ex,0)$);
+\draw [thick,font=\scriptsize,->] ($(main.west |- main.south)+(2ex,-2ex)$) 
+	-- node {} ($(t2.west |- main.south) + (2ex,-2ex)$) 
+	-- node {} ($(t2.west |- t2.north) + (2ex,0)$);
+%connection t_min
+\draw [thick,font=\scriptsize,->] ($(main.east |- main.south)+(-2ex,0)$) 
+	-- node[right] {$t_{\min}$} ($(main.east |- t2.north) + (-2ex,0)$);
+\draw [thick,font=\scriptsize,->] ($(main.east |- main.south)+(-2ex,-5ex)$) 
+	-- ($(t2.west |- main.south) + (2.5ex,-5ex)$) arc(0:180:.7mm)
+	-- node {} ($(t1.east |- main.south) + (-2ex,-5ex)$) 
+	-- node {} ($(t1.east |- t1.north) + (-2ex,0)$);
+%ports
+\draw [<-,thick] (t1.west |- t1.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_1$};
+\draw [->,thick] (t1.east |- t1.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_1$};
+\draw [<-,thick] (t2.west |- t2.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_2$};
+\draw [->,thick] (t2.east |- t2.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_2$};
+\end{tikzpicture}
+\caption{A multirate ensemble $\mathcal{E}$} \label{fig:room-ensemble}
+\end{figure}
+
+
+
+%
+\section{Bounded Model Checking}
+\label{sec:dcps-bmc}
+
+some brief summary...?
+
+\subsection{Logic Formulas?}
+
+formulas for typed machines and environment closures
+
+formulas for multirate ensembles with constraints  
+
+$n$-step?
+
+\subsubsection{Verification?}
+
+safety properties?
+
+liveness properties?
+
+
+\subsubsection{Example}
+
+adjacent rooms
+
+
+\subsection{Checking Satisfiability}
+\label{sec:component-dReal}
+
+??
+
+%
+\section{Case Studies}
+\label{sec:case-studies}
+
+..
+
+\subsection{Turning an Airplane}
+
+..
+
+\subsection{Simulating a Turing Machine}
+
+..
+
+
+\section{Related Work}
+\label{sec:related-work}
+
+Multirate PALS ?? ( Abdullah's work, other synchronizer, virtually synchronization, ...)
+
+Hybrid automata? 
+
+Approximation of hybrid systems?
+
+SMT and \texttt{dReal} ??
+
+$d\mathcal{L}$ and deductive methods ??
+
+\section{Concluding Remarks}
+\label{sec:concl}
+
+..
+
+\bibliographystyle{abbrv}
+\bibliography{kbae-bib,../ref}
+
+\end{document}
