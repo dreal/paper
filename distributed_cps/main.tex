@@ -198,7 +198,7 @@ Section~\ref{sec:concl} presents some concluding remarks.
 \section{Distributed CPS Design}
 \label{sec:dcps-design}
 
-We consider \emph{virtually synchronous} cyber-physical systems (CPS)
+We consider \emph{virtually synchronous} cyber physical systems (CPS)
 that are implemented as networked devices
 and are 
 controlled by a hierarchy of multirate distributed controllers. 
@@ -317,7 +317,7 @@ $\mathcal{E} = (J_S \cup J_F, e, \{M_j\}_{j\in J_s \cup J_F}, E, \mathit{src}, \
 
 \noindent
 The physical environments of components are 
-assumed to be integrated with their controllers (see Section~\ref{sec:env-const}).
+assumed to be already integrated with their controllers (see Section~\ref{sec:env-const}).
 
 
 \begin{figure}
@@ -680,6 +680,7 @@ the behavior of $E_{M_1}$ can immediately affect
 
  
 \subsection{Example}
+\label{sec:thermo-example}
 
 We consider two simple hybrid systems to illustrate our approach.
 Figure~\ref{fig:thermostat} shows a thermostat controller with a local clock,
@@ -1007,76 +1008,132 @@ the outside temperature $x_{o_1}$ of the room~$1$
 must be equal to
 the temperature $x_2$ of the room~$2$, and vice versa.
 This can be precisely specified by the time-invariant constraint between $E_{M_1}$ and $E_{M_2}$:
-\[
+\begin{equation}
 (\forall t)\;
 x_{o_1}(t) = x_2(t)
 \;\wedge\;
 x_{o_2}(t) = x_1(t).
-\]
+\label{eq:thermo-connected}
+\end{equation}
 By adding this constraint,
 the composed behavior of
-the nondeterministic local environments 
+the nondeterministic physical environments 
 $E_{M_1}$ and $E_{M_2}$ 
-becomes \emph{deterministic},
+is now \emph{deterministic},
 since the outside temperature $x_{o_i}$ of each $E_{M_i}$
 is determined by the temperature of the other room.
 
 
-
-A multirate ensemble $\mathcal{E}$ 
-of the two thermostat controllers $M_1$ and $M_2$ is shown in Figure~\ref{fig:room-ensemble}
-%
-The system is built by a multirate ensemble $\mathfrak{E}$ of three typed machines:
-the main controller $\texttt{Main}$, and the thermostat controllers $M_1$ and $M_2$.
-Both $M_1$ and $M_2$ are are connected to the main controller $\texttt{Main}$ 
-that can set their maximum temperature $t_{\max}$ and the minimum temperature $t_{\min}$.
-
-
-%since the behavior of the composed local environment is now completely determined 
-%by its local state and the input from $M_1$ and $M_2$.
+Figure~\ref{fig:room-ensemble}
+shows a multirate ensemble $\mathcal{E}$
+for controlling the temperatures of the two adjacent rooms.
+the ensemble $\mathcal{E}$ consists of 
+three discrete components:
+The main controller $\texttt{Main}$
+sets a maximum temperature $t_{\max}$ and  a minimum temperature $t_{\min}$ for both
+of the rooms,
+and
+each thermostat controller $M_i$ ($i = 1,2$) then controls the room's heather
+according to given $t_{\max}$ and $t_{\min}$.
+Because the behavior of each controller $M_i$ is restricted by 
+the behavior of its local physical environment $E_{M_i}$,
+the machine in the ensemble $\mathcal{E}$ is indeed
+the environment restriction $M_i \restriction E_{M_i}$,
+which further satisfies 
+the time-invariant constraint (\ref{eq:thermo-connected}).
+Notice that the behavior of each $M_i \restriction E_{M_i}$
+is also parameterized by the exact local clock $c_{M_i}$ of each controller $M_i$,
+since $M_i$ ``observes'' the current temperature
+based on $c_{M_i}$.
 
 
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[scale=1.08] %baseline=(current bounding box.north)
-\node (main) [draw,thick,minimum width=40ex,minimum height=5ex] 
+\begin{tikzpicture} %[baseline=(current bounding box.north)]
+\node (main) [draw,thick,minimum width=50ex,minimum height=5ex] 
 {\texttt{Main} {\small (rate = 1)}}; % 
-\path (main.west |- main.south) + (8ex,-10ex) node (t1) [draw,thick,minimum width=16ex,minimum height=5ex] 
-{$M_1$ {\small (rate = 2)}}; %
-\path (main.east |- main.south) + (-8ex,-10ex) node (t2) [draw,thick,minimum width=16ex,minimum height=5ex] 
-{$M_2$ {\small (rate = 3)}}; %
+\path (main.west |- main.south) + (11ex,-11ex) node (t1) [draw,thick,minimum width=16ex,minimum height=5ex] 
+{$M_1\restriction E_{M_1}$ {\small (rate = 2)}}; %
+\path (main.east |- main.south) + (-11ex,-11ex) node (t2) [draw,thick,minimum width=16ex,minimum height=5ex] 
+{$M_2\restriction E_{M_2}$ {\small (rate = 3)}}; %
 %connection t_max
-\draw [thick,font=\scriptsize,->] ($(main.west |- main.south)+(2ex,0)$) 
+\draw [thick,->] ($(main.west |- main.south)+(2ex,0)$) 
 	-- node[left] {$t_{\max}$} ($(main.west |- t1.north) + (2ex,0)$);
-\draw [thick,font=\scriptsize,->] ($(main.west |- main.south)+(2ex,-2ex)$) 
+\draw [thick,->] ($(main.west |- main.south)+(2ex,-2ex)$) 
 	-- node {} ($(t2.west |- main.south) + (2ex,-2ex)$) 
 	-- node {} ($(t2.west |- t2.north) + (2ex,0)$);
 %connection t_min
-\draw [thick,font=\scriptsize,->] ($(main.east |- main.south)+(-2ex,0)$) 
+\draw [thick,->] ($(main.east |- main.south)+(-2ex,0)$) 
 	-- node[right] {$t_{\min}$} ($(main.east |- t2.north) + (-2ex,0)$);
-\draw [thick,font=\scriptsize,->] ($(main.east |- main.south)+(-2ex,-5ex)$) 
+\draw [thick,->] ($(main.east |- main.south)+(-2ex,-5ex)$) 
 	-- ($(t2.west |- main.south) + (2.5ex,-5ex)$) arc(0:180:.7mm)
 	-- node {} ($(t1.east |- main.south) + (-2ex,-5ex)$) 
 	-- node {} ($(t1.east |- t1.north) + (-2ex,0)$);
 %ports
-\draw [<-,thick] (t1.west |- t1.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_1$};
-\draw [->,thick] (t1.east |- t1.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_1$};
-\draw [<-,thick] (t2.west |- t2.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_2$};
-\draw [->,thick] (t2.east |- t2.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_2$};
+%\draw [<-,thick] (t1.west |- t1.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_1$};
+%\draw [->,thick] (t1.east |- t1.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_1$};
+%\draw [<-,thick] (t2.west |- t2.south) + (2ex,0)-- node{ }+(2ex,-2ex) node[below] {$x_2$};
+%\draw [->,thick] (t2.east |- t2.south) + (-2ex,0)-- node{ }+(-2ex,-2ex) node[below] {$\texttt{out}_2$};
 \end{tikzpicture}
+\[
+(\forall t)\;
+x_{o_1}(t) = x_2(t)
+\;\wedge\;
+x_{o_2}(t) = x_1(t).
+\vspace{-0.7ex}
+\]
 \caption{A multirate ensemble $\mathcal{E}$} \label{fig:room-ensemble}
 \end{figure}
 
 
 
 %
-\section{Bounded Model Checking}
+\section{SMT-based Model Checking}
 \label{sec:dcps-bmc}
 
-some brief summary...?
+Suppose that  a distributed CPS is specified 
+by the modeling framework in Section~\ref{sec:dcps-design}
+using multirate ensembles, periodic dynamic systems,
+and time-invariant constraints.
+In principle, we can model check the system
+by simulating its all possible behavior of the system,
+where the parameters of interest are precisely given.
+For example, we can easily extend the execution framework
+in \cite{ftscs-journal} for this purpose.
 
-\subsection{Logic Formulas?}
+However, in general,
+there are often an infinite number of such parameters for the system,
+so that a model checking verification is typically performed
+only for specific parameters of the system.
+For example, 
+an exact local clock $c_M$ of each controller in the system
+can vary, and in the thermostat example in Section~\ref{sec:thermo-example},
+the main controller can give an infinite number of $t_{\max}$ and $t_{\min}$.
+Therefore, model checking verifications based on explicitly simulating the system
+is not satisfactory in general,
+because for other parameters, the system may not satisfy the requirements.
+
+This section explains how we can verify the system 
+for such an infinite number of parameters.
+Section~\ref{sec:formula} shows that a complete behavior of the system can be
+expressed a logic formula up to a given bound.
+The safety requirements of the system is also expressed as a certain logic formula.
+This means that by checking the satisfiability of such formulas, 
+we can verify that the system requirements are satisfied up to a certain bound.
+Section~\ref{sec:component-dReal}
+explains how the satisfaction problems of such formulas generated by our framework
+can be automatically checked up to any precision $\delta > 0$
+using the \texttt{dReal} SMT solver.
+This also involves a nontrivial extension of  \texttt{dReal},
+since, due to the distributed nature of the system,
+the generated formula may include uninterpreted real function symbols
+that are not supported by the existing \texttt{dReal} interface.
+Section~\ref{sec:thermo-smt-example} then illustrates our approach
+using the thermostat example in Section~\ref{sec:thermo-example}.
+
+\subsection{Generating Logic Formulas}
+\label{sec:formula}
 
 formulas for typed machines and environment closures
 
@@ -1084,22 +1141,24 @@ formulas for multirate ensembles with constraints
 
 $n$-step?
 
-\subsubsection{Verification?}
 
 safety properties?
 
 liveness properties?
 
 
-\subsubsection{Example}
-
-adjacent rooms
 
 
 \subsection{Checking Satisfiability}
 \label{sec:component-dReal}
 
 ??
+
+
+\subsection{Example}
+\label{sec:thermo-smt-example}
+
+adjacent rooms
 
 %
 \section{Case Studies}
