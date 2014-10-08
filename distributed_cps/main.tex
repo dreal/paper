@@ -6,7 +6,13 @@
 \usetikzlibrary{matrix,arrows,shapes,calc}
 
 \newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 \newcommand{\ifthenelse}[3]{\mathbf{if}\ #1\ \mathbf{then}\ #2\ \mathbf{else}\ #3\ \mathbf{fi}}
+
+%for primed vector (by egreg)
+\newcommand{\pvec}[1]{\vec{#1}\mkern2mu\vphantom{#1}}
 
 \begin{document}
 
@@ -157,7 +163,7 @@ our main contribution in this paper can be summarized as follows:
 	
 	\item We show that the verification problem of distributed CPS 
 	can be reduced to 
-	checking the unsatisfiability of logical formulas over real numbers.
+	checking the satisfiability of logic formulas over real numbers.
 	%based on the bounded model checking framework.
 	We also show how we can deal with 
 	arbitrary real number inputs and parameters, 
@@ -495,12 +501,13 @@ Given an exact local clock $c_M$ of $M$,
 a physical transition $((a, \vec{v}), \vec{\tau}) \in \Lambda$---where
 $\vec{\tau}$'s duration is greater than or equal to $T + 2\epsilon$---actually defines 
 a trajectory $\vec{\tau}$ of $E_M$'s physical parameter $\vec{x}$
-for its $i$-th period  ($i \in \mathbb{N}$)
-during the  interval  $[c_M(i), c_M(i+1)]$. That is,
-\[\vec{x}(t) = \vec{\tau}(t - c_M(i))
-\;\;\mbox{for} \;\;t \in [c_M(i), c_M(i+1)].
+for its $i$-th period  (for $i \in \mathbb{N}$)
+during the time interval  $[c_M(i), c_M(i+1)]$. That is,
+\[
+\vec{x}(t) = \vec{\tau}(t - c_M(i))
+\;\;\mbox{for} \;\;t \in [c_M(i), c_M(i+1)],
 \]
-Notice that $T - 2\epsilon < c_M(i+1) - c_M(i) < T + 2\epsilon$ holds.
+where $T - 2\epsilon < c_M(i+1) - c_M(i) < T + 2\epsilon$ holds.
 For example,
 consider the periodic dynamic system %$E_M$ 
 of Figure~\ref{fig:physical-transition}
@@ -595,16 +602,19 @@ is the typed machine
 $M \restriction E_M = (D_i, S \times P, D_o, \delta_{M \restriction E_M})$,
 where its transition $\delta_{M \restriction E_M}$ is constrained by the observed behavior of $E_M$. That is,
 %
-$( (\vec{d}_i, (s,\vec{v})), ((s',\vec{v}'), \vec{d}_o) ) \in \delta_{M \restriction E_M}$
+$( (\vec{d}_i, (s,\vec{v})), ((s',\pvec{v}'), \vec{d}_o) ) \in \delta_{M \restriction E_M}$
 iff:
 
 \begin{itemize}
-	\item $( (\vec{d}_i, s), (s', \vec{d}_o) ) \in \delta_{M}$, 
-	\item $\pi_P(s) = \pi_O(\vec{v})$ and $\pi_P(s') = \pi_O(\vec{v}')$, and
+	\item $( (\vec{d}_i, s), (s', \vec{d}_o) ) \in \delta_{M}$,
+	and $\pi_t(s') = \pi_t(s) + 1$,
+	
+	\item $\pi_P(s) = \pi_O(\vec{v})$, and $\pi_P(s') = \pi_O(\pvec{v}')$, and
+	
 	\item from the current physical state $\vec{v}$ at time $c_M(\pi_t(s))$,
 	%where $\pi_P(s) = \pi_O(\vec{v})$,
-	the ``next'' physical state $\vec{v}'$ at time $c_M(\pi_t(s'))$
-	%where $\pi_P(s') = \pi_O(\vec{v}')$,
+	the ``next'' physical state $\pvec{v}'$ at time $c_M(\pi_t(s'))$
+	%where $\pi_P(s') = \pi_O(\pvec{v}')$,
 	is reachable 
 	through some trajectory $\vec{\tau}$ %\in \mathcal{T}^l
 	of  $E_M$ based on the current control command $\pi_C(s)$.
@@ -612,11 +622,10 @@ iff:
 	\begin{alignat*}{3}
 	((\pi_C(s), \vec{v}),  \vec{\tau} ) \in \Lambda,
 	\quad&
-	\pi_t(s') = \pi_t(s) + 1,
-	\\
 	\vec{\tau}(0) = \vec{v},
+	\\
 	\quad&
-	\vec{\tau}(c_M(\pi_t(s')) - c_M(\pi_t(s))) = \vec{v}'.
+	\vec{\tau}(c_M(\pi_t(s')) - c_M(\pi_t(s))) = \pvec{v}'.
 	\end{alignat*}
 \end{itemize}
 
@@ -640,7 +649,7 @@ over $E_{M_i}$'s parameters $\vec{x}_i$,
 where $\psi$ is a logic formula over real numbers
 with extra function symbols $\vec{x}_1, \ldots, \vec{x}_N$
 yet \emph{no} free variables
-(notice that $\vec{x}_1, \ldots, \vec{x}_N$ are considered as trajectories).
+(the parameters $\vec{x}_1, \ldots, \vec{x}_N$ are considered as trajectories).
 %
 A tuple of  trajectories 
 $(\vec{\tau}_1, \vec{\tau}_2, \ldots, \vec{\tau}_N)$ 
@@ -772,7 +781,11 @@ according to the mode $m \in \{m_\texttt{on},m_\texttt{off}\}$.
 }\label{fig:thermostat}
 \end{figure}
 
-%The physical environment EM of the nondeterministic digital thermostat controller M is specified by the 1-dimensional periodic dynamic system with period T:%EM = ({on,off}, R, T, ?)%with a set of control commands {on,off}, the physical state R for the current temperature x of the room,%and the physical transition relation ? ? ({on, off } × R) × TT given by:
+
+%The physical environment EM of the nondeterministic digital thermostat controller M is specified by the 1-dimensional periodic dynamic system with period T:
+%EM = ({on,off}, R, T, ?)
+%with a set of control commands {on,off}, the physical state R for the current temperature x of the room,
+%and the physical transition relation ? ? ({on, off } × R) × TT given by:
 
 For the nondeterministic controller $M$,
 its local physical environment $E_M$ models
@@ -859,7 +872,10 @@ holds iff:
 
 \begin{itemize}
 	\item $(( (t_{M},t_{m}), (m,n,v)), ((m',n',v'),\ast)) \in \delta_M$ (i.e., 
-	the corresponding $M$'s transition holds);
+	the $M$'s transition holds) with $n' = n + 1$,
+	where
+	 $M$'s periodic local time is given by $\pi_t(m, n, v) = n$;
+
 	\item the observed physical parameters of $E_M$ are given by
 	$\pi_P(m,n,v) = v$ and
 	$\pi_O(v,v_o) = v$;
@@ -868,16 +884,12 @@ holds iff:
 	 % of duration $T + 2\epsilon$
 	 such that
 	 \begin{align*}
-	 ((\pi_C(m,n,v), (v,v_o)),  (\tau,\tau_o) ) \in \Lambda, \\
-	 n' = n + 1, 
-	 \qquad\quad
-	 (\tau,\tau_o)(0) = (v,v_o), \\
-	 (\tau,\tau_o)(c_M(n+1) - c_M(n)) = (v',v_o'),
+	 ((\pi_C(m,n,v), (v,v_o)),  (\tau,\tau_o) ) &\in \Lambda, \\
+	 (\tau,\tau_o)(0) &= (v,v_o), \\
+	 (\tau,\tau_o)(c_M(n+1) - c_M(n)) &= (v',v_o'),
 	 \end{align*}
 	 where $M$'s control commands to $E_M$ are defined by
-	 $\pi_C(m_\texttt{on}, n, v) = \mathit{on}$ and $\pi_C(m_\texttt{off}, n, v) = \mathit{off}$,
-	 and
-	 $M$'s local time is given by $\pi_t(m, n, v) = n$.	 
+	 $\pi_C(m_\texttt{on}, n, v) = \mathit{on}$ and $\pi_C(m_\texttt{off}, n, v) = \mathit{off}$.
 \end{itemize}
 
 \noindent
@@ -898,7 +910,7 @@ the differential equations~(\ref{eq:open-thermo}) and $\dot{x_o} = 0$.
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[scale=1.16,font=\footnotesize]
+\begin{tikzpicture}[scale=1.15,font=\footnotesize]
 %baseline
 \draw[-latex,thin] (-0.1,0) node[left] {% Step
 }-- (6.5,0);
@@ -1092,59 +1104,521 @@ x_{o_2}(t) = x_1(t).
 \section{SMT-based Model Checking}
 \label{sec:dcps-bmc}
 
-Suppose that  a distributed CPS is specified 
-by the modeling framework in Section~\ref{sec:dcps-design}
+A distributed CPS specified 
+by the modeling framework in Section~\ref{sec:dcps-design},
 using multirate ensembles, periodic dynamic systems,
-and time-invariant constraints.
-In principle, we can model check the system
-by simulating its all possible behavior of the system,
-where the parameters of interest are precisely given.
-For example, we can easily extend the execution framework
-in \cite{ftscs-journal} for this purpose.
-
-However, in general,
-there are often an infinite number of such parameters for the system,
-so that a model checking verification is typically performed
-only for specific parameters of the system.
+and time-invariant constraints,
+can be verified by simulating all possible behavior of the system,
+provided that the \emph{concrete} parameters (e.g., inputs and exact local clocks) are given.
 For example, 
-an exact local clock $c_M$ of each controller in the system
-can vary, and in the thermostat example in Section~\ref{sec:thermo-example},
-the main controller can give an infinite number of $t_{\max}$ and $t_{\min}$.
-Therefore, model checking verifications based on explicitly simulating the system
-is not satisfactory in general,
-because for other parameters, the system may not satisfy the requirements.
+the previous execution framework in \cite{ftscs-journal}---that
+assumes no time-invariant constraints and no local clock skews---can 
+be easily adapted  for this purpose.
+In this case, 
+we can verify the system with respect to
+a \emph{finite} number of (specified) parameters for the system.
+
+However, 
+the system may in general involve an \emph{infinite} number of 
+(real number) parameters. % and inputs.
+For example, 
+in the distributed thermostat controller of Section~\ref{sec:thermo-example},
+it is more realistic to assume that 
+the main controller can give
+the outputs $(t_{\max}, t_{\min})$
+from  any reals within certain bounds,
+rather than from a finite set of specified reals.
+Also, 
+exact values of local clocks %for distributed components 
+in the system 
+is determined on-the-fly by 
+\emph{clock synchronization} mechanisms \cite{pals-rtss09,lynch-book}.
+It is in practice not possible to 
+predict such an exact local clock $c_M$ of a controller $M$,
+since there are infinitely many possibilities for $c_M$.
+Consequently, 
+model checking by explicitly simulating the system
+is not satisfactory for CPS, %in general,
+because it is not possible to simulate it
+for every parameter. 
 
 This section explains how we can verify the system 
-for such an infinite number of parameters.
-Section~\ref{sec:formula} shows that a complete behavior of the system can be
-expressed a logic formula up to a given bound.
-The safety requirements of the system is also expressed as a certain logic formula.
-This means that by checking the satisfiability of such formulas, 
-we can verify that the system requirements are satisfied up to a certain bound.
-Section~\ref{sec:component-dReal}
-explains how the satisfaction problems of such formulas generated by our framework
-can be automatically checked up to any precision $\delta > 0$
-using the \texttt{dReal} SMT solver.
-This also involves a nontrivial extension of  \texttt{dReal},
-since, due to the distributed nature of the system,
-the generated formula may include uninterpreted real function symbols
-that are not supported by the existing \texttt{dReal} interface.
-Section~\ref{sec:thermo-smt-example} then illustrates our approach
-using the thermostat example in Section~\ref{sec:thermo-example}.
+even for such an infinite number of  parameters, inputs, and local clocks.
+Instead of explicitly simulating the system as usual,
+we \emph{symbolically} represent the behavior of the system
+as logic formulas
+up to a given bound,
+where the safety requirements %of the system 
+are also expressed as certain logic formulas
+(Section~\ref{sec:formula}).
+Then, we verify the system %up to any given precision $\delta > 0$
+by checking the satisfiability of these formulas
+%using $\delta$-complete SMT solving 
+using the \texttt{dReal} SMT solver (Section~\ref{sec:component-dReal}).
+%This also involves a nontrivial extension of  \texttt{dReal},
+%since, due to the distributed nature of the system,
+%the generated formula may include uninterpreted real function symbols
+%that are not supported by the existing \texttt{dReal} interface.
+Our approach is illustrated with the distributed thermostat example,
+and later with the case studies in Section~\ref{sec:case-studies}.
+
+ 
+
+
 
 \subsection{Generating Logic Formulas}
 \label{sec:formula}
 
-formulas for typed machines and environment closures
+For a machine  $M = (D_i,S,D_o,\delta_M)$
+with $n$ input ports and $m$ output ports,
+its transition $\delta_M \subseteq (D_i \times S) \times (S \times D_o)$
+can be naturally expressed as a %first order 
+logic formula of the form:
+\[
+\varphi_{M}(y_{i_1},\ldots,y_{i_n}\shortmid
+y_{s_1},\ldots,y_{s_k}\shortmid
+y_{s_1}',\ldots,y_{s_k}'\shortmid
+y_{o_1},\ldots,y_{o_m}),
+\]
+with:
+\begin{inparaenum}[(i)]
+	\item the variables $y_{i_1},\ldots,y_{i_n}$ for the inputs,
+	\item the variables $y_{s_1},\ldots,y_{s_k}$  for the current discrete state, 
+	\item the variables $y_{s_1}',\ldots,y_{s_k}'$  for the next discrete state, and 
+	\item the variables $y_{o_1},\ldots,y_{o_m}$  for the outputs.
+\end{inparaenum}
+That is:
+\begin{equation}
+\varphi_{M}(\vec{d}_i\shortmid s\shortmid s'\shortmid  \vec{d}_o)
+\;\iff\;
+( (\vec{d}_i, s), (s', \vec{d}_o) ) \in \delta_{M}
+\label{eq:formula-rel-machine}
+\end{equation}
+In practice, the transitions of a controller are written 
+in a modeling language (such as C),
+and the logic of the controller in the language
+is directly translated into the formula $\varphi_{M}$.
 
-formulas for multirate ensembles with constraints  
 
-$n$-step?
+\begin{example}
+\label{ex:thermo-formula}
+Consider the digital thermostat controller in Figure~\ref{fig:thermostat},
+given by
+$M = (\mathbb{R}^2, \{m_\texttt{on},m_\texttt{off}\} \times \mathbb{N} \times \mathbb{R}, \{\ast\}, \delta_M)$.
+The logic formula $\varphi_{M}$ can be expressed by:
+\begin{alignat*}{2}
+&
+\varphi_{M}(
+y_{t_{\max}}, y_{t_{\min}}\shortmid
+y_m, y_n, y_v\shortmid
+y_m', y_n', y_v'\shortmid
+\ast)
+\\
+\ArrowBetweenLines[\equiv]
+%
+& y_n' = y_n + 1 \;\wedge\; 
+\\
+& 
+\left(
+\begin{aligned}
+&(y_m = m_\texttt{on} \;\wedge\; y_v \leq y_{t_{\max}} \;\wedge\; y_m' = m_\texttt{on}) \;\vee\;
+\\
+& (y_m = m_\texttt{on} \;\wedge\; y_v > y_{t_{\max}} \;\wedge\; y_m' = m_\texttt{off}) \;\vee\;
+\\
+& (y_m = m_\texttt{off} \;\wedge\; y_v < y_{t_{\min}} \;\wedge\; y_m' = m_\texttt{on}) \;\vee\;
+\\
+& (y_m = m_\texttt{off} \;\wedge\; y_v \geq y_{t_{\min}} \;\wedge\; y_m' = m_\texttt{on})
+\end{aligned}
+\right)
+\end{alignat*}
+\end{example}
 
 
-safety properties?
+%Similarly, 
+For a $U$-periodic dynamic system
+$E_M = (C, P, U, \Lambda)$,
+its physical transition relation
+$\Lambda$ can be expressed as a first order formula
+over reals of the form:
+\[
+\varphi_{E_M}(
+y_{C_1},\ldots,y_{C_j}\shortmid
+y_{v_1}, \ldots, y_{v_l}\shortmid
+x_1, \ldots, x_l\shortmid
+y_t, y_t'
+)
+\]
+with:
+\begin{inparaenum}[(i)]
+	\item the variables $y_{C_1},\ldots,y_{C_j}$  for control commands  from $M$,
+	\item the variables $y_{v_1}, \ldots, y_{v_l}$  for the initial values 
+	of $E_M$'s physical parameters $x_1, \ldots, x_l$, 
+	\item the unary \emph{function symbols} $x_1, \ldots, x_l$
+	denoting $E_M$'s physical parameters,
+	and
+	\item  the variables $y_t$ and $y_t'$ denoting times 
+	at the beginning and the end of the period, respectively.
+\end{inparaenum}
+%
+The formula $\varphi_{E_M}$ defines 
+the trajectories of the physical parameter $x_1, \ldots, x_l$ %of duration $y_t' - y_t$
+during the time interval  $[y_t, y_t']$. 
+%after time $y_t' - y_t$ elapsed.
+That is,
+\begin{equation}
+\begin{aligned}
+&
+\varphi_{E_M}(a\shortmid \vec{v}\shortmid \vec{x}\shortmid y_t, y_t')
+\\
+\iff\;\;
+&
+((a, \vec{v}),  \vec{\tau}) \in \Lambda
+\;\wedge\;
+\forall t \in [y_t, y_t'].\; \vec{x}(t) = \vec{\tau}(t - y_t)
+\end{aligned}
+\label{eq:formula-rel-env}
+\end{equation}
+The solution functions for differential equations
+are written in the formula $\varphi_{E_M}$
+by using integral operators.
 
-liveness properties?
+
+\begin{example}
+\label{ex:openroom-formula}
+Consider the open room local environment of 
+the thermostat controller $M$
+in Section~\ref{sec:thermo-example}, given by
+the periodic dynamic system
+$E_M = (\{\mathit{on},\mathit{off}\}, \mathbb{R}^2, T + 2\epsilon, \Lambda)$.
+The logic formula $\varphi_{E_M}$ can be expressed by:
+\begin{alignat*}{2}
+&
+\varphi_{E_M}(y_{\texttt{out}}\shortmid y_v, y_{v_o}\shortmid x, x_o\shortmid  y_t,y_t')
+\\
+\ArrowBetweenLines[\equiv]
+& 
+x_o(y_t) = y_{v_o} \;\wedge\; 
+\\
+&
+\left(
+\begin{aligned}
+(y_{\texttt{out}} = \mathit{on}
+&\;\wedge\; 
+\forall t \in [y_t,y_t'].\; x(t) = \mathit{flow}_{\!\mathit{on}}(y_v, t)) \;\vee\;
+\\
+(y_{\texttt{out}} = \mathit{off}
+&\;\wedge\; 
+\forall t \in [y_t,y_t'].\; x(t) = \mathit{flow}_{\!\mathit{off}}(y_v, t))
+\end{aligned}
+\right)
+\end{alignat*}
+where
+$\mathit{flow}_{\!\mathit{on}}(y_v, t) = y_v + \int_{y_t}^{t} K (h - ((1-k) x + k  x_o)) \,\mathrm{d} t$
+and
+$\mathit{flow}_{\!\mathit{off}}(t) = y_v + \int_{y_t}^{t} (- K ((1-k) x + k  x_o)) \,\mathrm{d} t$.
+The parameters $x$ and $x_o$ in the formula $\varphi_{E_M}$
+are \emph{not} variables,
+but \emph{logical operators} to denote unary functions 
+$x, x_o: \mathbb{R} \to \mathbb{R}$.
+% over reals.
+\end{example}
+
+
+
+Now consider the \emph{environment restriction} of $M$ by $E_M$,
+namely,
+$M \restriction E_M = (D_i, S \times P, D_o, \delta_{M \restriction E_M})$.
+The combined transition relation $\delta_{M \restriction E_M}$
+can then be expressed as a logic formula
+in a straightforward way as follows:
+
+\begin{align*}
+&
+\varphi_{M \restriction E_M}(\vec{y}_i\shortmid \vec{y}_s,\; \vec{y}_v\shortmid \pvec{y}_{\!s}',\; \pvec{y}_{\!v}'\shortmid \vec{y}_o)
+\\
+\ArrowBetweenLines[\equiv]
+&
+\varphi_M(\vec{y}_i\shortmid \vec{y}_s\shortmid \pvec{y}_{\!s}'\shortmid \vec{y}_o)
+\;\wedge\;
+\pi_t(\pvec{y}_{\!s}') = \pi_t(\vec{y}_s) + 1
+\;\wedge
+\\
+&
+\pi_P(\vec{y}_s) = \pi_O(\vec{y}_v) 
+\,\;\quad\wedge\; \pi_P(\pvec{y}_{\!s}') = \pi_O(\pvec{y}_{\!v}')
+\;\wedge
+\\
+&
+\varphi_{E_M}( \pi_C(\vec{y}_s)\shortmid \vec{y}_v\shortmid \vec{x}\shortmid \pi_t(\vec{y}_{s}), \pi_t(\pvec{y}_{\!s}'))
+\;\wedge
+\\
+&
+\vec{y}_{v} = \vec{x}(c_M(\pi_t(\vec{y}_{s})))
+\,\,\wedge\;
+\pvec{y}_{\!v}' = \vec{x}(c_M(\pi_t(\pvec{y}_{\!s}'))),
+\end{align*}
+%
+where the four projection functions  $\pi_t$,  $\pi_P$, $\pi_O$, and $\pi_C$
+are defined for tuples of variables in an expected way.
+Notice that the definition of $\varphi_{M \restriction E_M}$
+is just a direct translation of the definition of $\delta_{M \restriction E_M}$
+in Section~\ref{sec:env-const}
+using the equivalences (\ref{eq:formula-rel-machine}) and (\ref{eq:formula-rel-env}),
+which implies the equivalence:
+\begin{equation}
+\begin{aligned}
+&
+\varphi_{M \restriction E_M}(\vec{d}_i\shortmid s,\, \vec{v} \shortmid s',\, \pvec{v}' \shortmid \vec{d}_o)
+\\
+\iff\quad&
+( (\vec{d}_i, (s,\vec{v})), ((s',\pvec{v}'), \vec{d}_o) ) \in \delta_{M \restriction E_M}
+\end{aligned}
+\end{equation}
+
+\begin{example}
+Consider the environment restriction 
+of the thermostat controller $M$ by the open room environment $E_M$
+in Section~\ref{sec:thermo-example},
+given by
+$M \restriction E_M = (\mathbb{R}^2, S \times P, \{\ast\}, \delta_{M \restriction E_M})$
+with 
+ $S = \{m_\texttt{on},m_\texttt{off}\} \times \mathbb{N} \times \mathbb{R}$
+ and
+$P = \mathbb{R}^2$.
+The formula 
+\[
+\varphi_{M \restriction E_M}(
+y_{t_{M}}, y_{t_{m}}\shortmid
+y_m, y_n, y_v, y_v, y_{v_o}\shortmid
+y_m', y_n', y_v', y_v', y_{v_o}'\shortmid
+\ast)
+\]
+is defined 
+using the formulas in 
+Examples~\ref{ex:thermo-formula}--\ref{ex:openroom-formula}
+as follows:
+\begin{align*}
+&
+\varphi_{M}( y_{t_{M}}, y_{t_{m}}\shortmid y_m, y_n, y_v\shortmid y_m', y_n', y_v'\shortmid \ast) 
+\;\wedge\;
+y_n' = y_n + 1
+\\
+\wedge\;\;&
+\varphi_{E_M}(y_m \shortmid y_v, y_{v_o}\shortmid x, x_o\shortmid  c_M(y_n),c_M(y_n'))
+\\
+\wedge\;\;&
+y_v = x(c_M(y_n))
+\;\wedge\;
+y_{v_o} = x_o(c_M(y_n))
+\\
+\wedge\;\;&
+y_v' = x(c_M(y_n'))
+\;\wedge\;
+y_{v_o}' = x_o(c_M(y_n'))
+\end{align*}
+where the projection functions are given by:
+\begin{align*}
+\pi_t(y_m, y_n, y_v) &= y_n,
+&
+\pi_P(y_m, y_n, y_v) &= y_v,
+\\
+\pi_O(y_v, y_{v_o}) &= y_v,
+&
+\pi_C(y_m, y_n, y_v) &= y_m.
+\end{align*}
+We can easily see that 
+ $\varphi_{M \restriction E_M}$ is a direct translation of the 
+definition of  $\delta_{M \restriction E_M}$
+in Section~\ref{sec:thermo-example}.
+\end{example}
+
+
+To perform bounded model checking of a machine $M$,
+we generate a logic formula
+that expresses the behavior of $M$ up to $N$ steps
+for a given bound $N \in \mathbb{N}$. 
+Note that an environment restriction 
+is also a typed machine, and thus treated in the same way
+(see below for multirate ensembles and time-invariant constraints).
+We can just \emph{symbolically execute}
+transitions of $M$ to generate such a formula.
+From given input variables $\vec{y}_{i}$ and state variables $\vec{y}_{s}$,
+a \emph{symbolic transition function}  $\tilde{\delta}_M$ 
+generates 
+``next state'' variables $\pvec{y}_{\!s}'$,
+output variables $\vec{y}_{o}$,
+and the formula $\varphi_M(\vec{y}_i \shortmid \vec{y}_s \shortmid \pvec{y}_{\!s}' \shortmid \vec{y}_o)$
+that defines the logical relations between the variables:
+i.e.,
+$\tilde{\delta}_M(\vec{y}_{i},  \vec{y}_{s}) = 
+((\pvec{y}_{\!s}',\,
+ \vec{y}_o),\,
+\varphi_M(\vec{y}_i \shortmid \vec{y}_s \shortmid \pvec{y}_{\!s}' \shortmid \vec{y}_o))$,
+where $\pvec{y}_{\!s}'$ and $\vec{y}_o$ are \emph{fresh new} variables.
+Then,
+a \emph{one-step formula generation process} for $M$ is straightforwardly defined by:
+\begin{align*}
+&
+\langle\vec{y}_{s} \mid \mathcal{C} \rangle
+\;\xrightarrow{\;\vec{y}_{i}\;}\;
+\langle\pvec{y}_{\!s}' \mid
+ \mathcal{C} \,\wedge\, \varphi_M(\vec{y}_i \shortmid \vec{y}_s \shortmid \pvec{y}_{\!s}' \shortmid \vec{y}_o)\rangle
+\\
+\iff\quad&
+\tilde{\delta}_M(\vec{y}_{i},  \vec{y}_{s}) = 
+((\pvec{y}_{\!s}',\,\vec{y}_o),\,
+\varphi_M(\vec{y}_i \shortmid \vec{y}_s \shortmid \pvec{y}_{\!s}' \shortmid \vec{y}_o)),
+\end{align*}
+where $\mathcal{C}$ denotes the \emph{accumulated formula} generated in the previous steps.
+We can perform 
+this process for $N$ steps
+from
+the initial configuration 
+$\langle\vec{y}_{s_0} \mid \varphi_{\mathit{Init}}(\vec{y}_{s_0}) \rangle$ 
+with initial state variables $\vec{y}_{s_0}$
+and an initial condition $\varphi_{\mathit{Init}}(\vec{y}_{s_0})$.
+
+
+
+
+
+
+To generate a formula for  a multirate ensemble $\mathcal{E}$,
+we can also symbolically execute
+the synchronous composition of $\mathcal{E}$.
+As explained in Section~\ref{sec:dcps-design},
+each machine $M_j$ in $\mathcal{E}$
+is already integrated with its local physical environment
+(that is, $M_j$ is an environment restriction).
+A symbolic transition function $\tilde{\delta}_{M_j}$ of each $M_j$
+is well defined above:
+given input variables $\vec{y}_{i_j}$ and state variables $\vec{y}_{s_j}$,
+$\tilde{\delta}_{M_j}$ returns 
+next state variables $\pvec{y}_{\!s_j}'$,
+output variables $\vec{y}_{o_j}$,
+and the formula $\varphi_{M_j}$.
+A symbolic transition function $\tilde{\delta}_\mathcal{E}$
+of an ensemble $\mathcal{E}$
+is then defined
+by regarding such input/output variables 
+$\vec{y}_{i_j}$ and $\vec{y}_{s_j}$
+as normal data   in an obvious way.
+A resulting formula $\varphi_{\mathcal{E}}$ of $\tilde{\delta}_\mathcal{E}$
+is a conjunction of the formulas $\varphi_{M_j}$ for machines $M_j$
+in $\mathcal{E}$,
+plus a time-invariant $\varphi_{\mathit{INV}}$
+for their local environments.
+Then,
+a one-step formula generation process for an ensemble $\mathcal{E}$
+is defined by using $\tilde{\delta}_\mathcal{E}$
+in the exactly same way.
+
+More precisely, 
+''symbolic states'' of an ensemble $\mathcal{E}$
+consist of:
+\begin{inparaenum}[(i)]
+	\item state variables $\vec{y}_{s_j}$ for each subcomponent $M_j$,
+	and
+	\item feedback output variables $\vec{y}_{\mathit{fo}_{j}}$
+that represent outputs of $M_j$ to be transferred to itself or to another subcomponent  in the next synchronous step of $\mathcal{E}$.
+\end{inparaenum}
+Consider ensemble input variables $\vec{y}_{i}$
+and ensemble state variables $[\vec{y}_{s_j}, \vec{y}_{\mathit{fo}_{j}}]_{j \in J}$,
+where $J = J_S \cup J_F$ is a set of machine indices in $\mathcal{E}$.
+Using the wiring diagram of $\mathcal{E}$,
+input variables $\vec{y}_{i_j}$ for each $M_j$ are given
+from the ensemble inputs $\vec{y}_{i}$ and the feedback outputs $[\vec{y}_{\mathit{fo}_{j}}]_{j \in J}$.
+For each $j \in J$, we have.
+$\tilde{\delta}_{M_j}(\vec{y}_{i_j}, \vec{y}_{s_j})
+=
+((\pvec{y}_{\!s_j}', \pvec{y}_{\!o_j}), \varphi_{M_j})$.
+From those machine outputs $[\vec{y}_{\mathit{o}_j}]_{j \in J}$,
+$\mathcal{E}$'s wiring diagram gives
+next feedback outputs $[\pvec{y}_{\!\mathit{fo}_{j}}']_{j \in J}$
+and ensemble outputs $\vec{y}_{o}$.
+Finally, $\tilde{\delta}_\mathcal{E}$ returns 
+the next ensemble state variables $[\pvec{y}_{\!s_j}', \pvec{y}_{\!\mathit{fo}_{j}}']_{j \in J}$,
+the ensemble output variables $\vec{y}_{o}$,
+and
+the logic formula $\varphi_{\mathcal{E}} = \varphi_{\mathit{INV}} \,\wedge\, \bigwedge_{j \in J} \varphi_{M_j}$.
+%with $\mathcal{E}$'s time-invariant $\varphi_{\mathit{INV}}$.
+%In summary:
+%\[
+%\tilde{\delta}_\mathcal{E}(\vec{y}_{i},  [\vec{y}_{s_j}, \vec{y}_{\mathit{fo}_{j}}]_{j \in J})
+%=
+%\big(([\pvec{y}_{\!s_j}', \pvec{y}_{\!\mathit{fo}_{j}}']_{j \in J}, \vec{y}_{o}),\;
+%\varphi_{\mathit{INV}}
+%\wedge
+%\bigwedge_{j \in J} \varphi_{M_j}\big)
+%\]
+%iff for each $j \in J$,
+%$\tilde{\delta}_{M_j}(\vec{y}_{i_j}, \vec{y}_{s_j})
+%=
+%((\pvec{y}_{\!s_j}', \pvec{y}_{\!o_j}), \varphi_{M_j})$,
+%where $\vec{y}_{i_j}$, $\pvec{y}_{\!\mathit{fo}_{j}}'$, and $\vec{y}_{o}$
+%are accordingly given by using the wiring diagram
+%as explained above.
+
+%$\vec{y}_{i_j} = \mathit{in}_l(\vec{y}_{i}, [\vec{y}_{\mathit{fo}_{j}}]_{j \in J})$
+
+
+We can avoid the use of concrete values for 
+an exact local clock $c_M$ of a controller $M$,
+and symbolically represent $c_M$ using logic formulas.
+Recall that 
+$c_M : \mathbb{N} \to \mathbb{R}_{>0}$ can be any function that satisfies
+the conditions:
+$c_M(0) = 0$ and  $c_M(n) \in (n T - \epsilon, n T + \epsilon)$ for $n > 0$,
+where the period of $M$ is $T \in \mathbb{R}_{>0}$,
+assuming PALS performance bounds $\Gamma$.
+These conditions can be used to express 
+\emph{any possible} local clock
+of $M$. Given a function symbol $c_M$, % denoting $M$'s local clock,
+we can add the formulas
+$c_M(0) = 0$
+and
+$\forall n > 0.\; \exists t \in (n T - \epsilon, nT + \epsilon).\; c_M(n) = t$.
+The satisfiability of such universally quantified formulas are  
+more difficult problems than existentially quantified ones for SMT solvers.
+But for bounded model checking purposes, 
+we only need the values of $c_M$ up to a certain bound $N \in \mathbb{N}$.
+In this case, instead of adding the above universally quantified formula,
+for each $n = 1, 2, \ldots, N$,
+we can add the formula
+$\exists t_n \in (n T - \epsilon, nT + \epsilon).\;c_M(n) = t_n$
+with a new variable $t_n$.
+
+A bounded model checking process of a CPS $\mathcal{E}$
+can be summarized as follows. Suppose that 
+a safety property is given by a formula $\psi(\vec{y}_s)$ %, \vec{y}_o
+with respect to state variables $\vec{y}_s$. % and output variables $\vec{y}_o$.
+Given an initial configuration $\langle\vec{y}_{s_0} \mid \varphi_{\mathit{Init}}(\vec{y}_{s_0}) \rangle$ of $\mathcal{E}$,
+consider a $N$-step formula generation process:
+\[
+\langle\vec{y}_{s_0} \mid \varphi_{\mathit{Init}}(\vec{y}_{s_0}) \rangle
+\;\xrightarrow{\;\vec{y}_{1}\;}\;
+\cdots
+\;\xrightarrow{\;\vec{y}_{N}\;}\;
+\langle\vec{y}_{s_N} \mid  \mathcal{C}_N\rangle,
+\]
+The system $\mathcal{E}$ can violate  the safety property at the $N$-th 
+synchronous step 
+iff the formula $\mathcal{C}_N \wedge \neg \psi(\vec{y}_{s_N})$
+is satisfiable.
+Section~\ref{sec:component-dReal}
+explains how the satisfiability of such a formula
+can be automatically checkable
+using \texttt{dReal} SMT solver.
+We can repeat this process by iteratively incrementing a bound $N$.
+This process is \emph{refutationally complete},
+in the sense that 
+if the system $\mathcal{E}$ violates the safety property,
+then  the process can detect the violation and generate a counterexample.
+
+\begin{example}
+
+\end{example}
+
 
 
 
@@ -1155,10 +1629,9 @@ liveness properties?
 ??
 
 
-\subsection{Example}
-\label{sec:thermo-smt-example}
 
 adjacent rooms
+
 
 %
 \section{Case Studies}
