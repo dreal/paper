@@ -1,10 +1,15 @@
 \documentclass{llncs}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath, amssymb, fancyvrb, multirow, color}
 \usepackage{svg}
 \usepackage{graphicx}
 \usepackage{fancyvrb}
 
-\title{dReach: $\delta$-Complete Analysis Tool for Bounded Reachability of Hybrid Systems}
+\newcommand{\dReal}{\textsf{dReal}}
+\newcommand{\dReach}{\textsf{dReach}}
+
+\input{preamble}
+
+\title{\dReach{}: $\delta$-Complete Analysis Tool for Bounded Reachability of Hybrid Systems}
 
 \begin{document}
 
@@ -38,4 +43,6 @@
 \input{system.tex}
 \input{using.tex}
 \input{application.tex}
+\bibliographystyle{abbrv}
+\bibliography{tau_tacas}
 \end{document}
