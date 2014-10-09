@@ -1454,7 +1454,7 @@ $\tilde{\delta}_M(\vec{y}_{i},  \vec{y}_{s}) =
 \varphi_M(\vec{y}_i \shortmid \vec{y}_s \shortmid \pvec{y}_{\!s}' \shortmid \vec{y}_o))$,
 where $\pvec{y}_{\!s}'$ and $\vec{y}_o$ are \emph{fresh new} variables.
 Then,
-a \emph{one-step formula generation process} for $M$ is straightforwardly defined by:
+a \emph{one-step formula generation process} for $M$ is straightforwardly defined as:
 \begin{align*}
 &
 \langle\vec{y}_{s} \mid \mathcal{C} \rangle
@@ -1632,16 +1632,15 @@ and the main controller $\mathtt{Main}$
 in Figure~\ref{fig:room-ensemble}.
 Suppose that $\mathtt{Main}$ can give 
 any output $20^\circ < t_{\min} < t_{\max} < 30^\circ$ for each step.
-That is, for the input set $\{\ast\}$ and a single state $\cdot$ of $\mathtt{Main}$:
-\[
-\tilde{\delta}_{\mathtt{Main}}(\ast,\cdot) = 
-\big((\cdot, (t_{m}, t_{M})),\;  20 < t_{m} < t_{M} < 30\big).
-\] 
+That is, for the input set $\{\ast\}$ and a single state $\cdot$ of $\mathtt{Main}$,
+$\tilde{\delta}_{\mathtt{Main}}(\ast,\cdot) = 
+\big((\cdot, (t_{m}, t_{M})),\;  20 < t_{m} < t_{M} < 30\big)$. 
+%
 Let the input adaptor $\alpha_i$ of $M_i$
 just duplicate given inputs according to $M_i$'s rate.
 Since $\mathit{rate}(1) = 2$ and $\mathit{rate}(2) = 3$,
-$\alpha_1(v) = (v,v)$ and $\alpha_2(v) = (v,v,v)$
-for input $v \in \mathbb{R}$.
+for input $v \in \mathbb{R}$,
+we have $\alpha_1(v) = (v,v)$ and $\alpha_2(v) = (v,v,v)$.
 
 Each component $M_i\restriction E_{M_i}$
 has no feedback output ports,
@@ -1739,29 +1738,32 @@ $\varphi_{\mathit{Init}} \equiv 20 < y_{t_{m}} < y_{t_{M}} < 30 \;\wedge\; y_{n_
 where
 the local clock $y_{n_i}$ of each thermostat controller $M_i$ is set to $0$ (for $i = 1,2$),
 the two-step formula generation process then produces the logic formula:
-\begin{align*}
+\[
+\begin{aligned}
 \varphi_{\mathit{Init}}
-&\;\wedge\;
+\;\wedge\;
 \varphi_\mathcal{E}(\ast \shortmid 
 y_{t_{m}}, y_{t_{M}}, \vec{y}_{s_1}, \vec{y}_{s_2} \shortmid
 y_{t_{m}}', y_{t_{M}}', \pvec{y}_{\!s_1}', \pvec{y}_{\!s_2}'
 \shortmid \ast)
 \\
-&\;\wedge\;
+\;\wedge\;
 \varphi_\mathcal{E}(\ast \shortmid 
 y_{t_{m}}', y_{t_{M}}', \pvec{y}_{\!s_1}', \pvec{y}_{\!s_2}' \shortmid
 y_{t_{m}}'', y_{t_{M}}'', \pvec{y}_{\!s_1}'', \pvec{y}_{\!s_2}''
 \shortmid \ast)
 \\
-&\;\wedge\;
-c_M(0) = 0
+c_{M_1}(0) = 0
+\;\wedge\;
+\smashoperator{\bigwedge_{1 \leq n \leq 2\cdot\mathit{rate}(1)}}
+\exists t_{1,n} \in (n T_1 - \epsilon, n T_1 + \epsilon).\;c_M(n) = t_{1,n}
 \\
-&\;\wedge\;
-\exists t_1 \in (T - \epsilon, T + \epsilon).\;c_M(1) = t_1
-\\
-&\;\wedge\;
-\exists t_2 \in (2 T - \epsilon, 2T + \epsilon).\;c_M(2) = t_2.
-\end{align*}
+c_{M_2}(0) = 0
+\;\wedge\;
+\smashoperator{\bigwedge_{1 \leq n \leq 2\cdot\mathit{rate}(2)}}
+\exists t_{2,n} \in (n T_2 - \epsilon, nT_2 + \epsilon).\;c_M(n) = t_{2,n}
+\end{aligned}
+\]
 \end{example}
 
 
