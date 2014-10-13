@@ -1,10 +1,14 @@
 \documentclass{llncs}
-\usepackage{amsmath, amssymb, fancyvrb, multirow, color}
+\usepackage{amsmath, amssymb, fancyvrb, multirow, color, stmaryrd}
 \usepackage{svg}
 \usepackage{wrapfig}
 \usepackage{graphicx}
 \usepackage{fancyvrb}
+\usepackage{hyperref}
+\usepackage[]{algorithm2e}
 
+\newcommand{\enforce}{\mathsf{enforce}}
+\newcommand{\traj}{\mathsf{traj}}
 \newcommand{\dReal}{\textsf{dReal}}
 \newcommand{\dReach}{\textsf{dReach}}
 
@@ -23,6 +27,13 @@
 \institute{Computer Science Department, Carnegie Mellon University, USA}
 \maketitle
 
+\abstract{dReach encodes reachability problems of hybrid systems to
+  first-order formulas over real numbers. The formulas are solved by
+  delta-complete decision procedures in the SMT solver dReal. In this
+  way, dReach is able to handle a wide range of highly nonlinear
+  hybrid systems. Experiments have shown promising results on many
+  nonlinear benchmarks that are not solvable by other existing tools.}
+
 % Tool demonstration papers focus on the usage aspects of tools. As with
 % regular tool papers, authors are strongly encouraged to make their
 % tools publicly available, preferably on the web. Theoretical
@@ -40,7 +51,9 @@
 % - http://www.sci.unich.it/~fioravan/papers/2014-DFPP-TACAS14.pdf
 
 \input{intro.tex}
+\input{prelim.tex}
 \input{system.tex}
+\input{example.tex}
 \input{using.tex}
 \input{application.tex}
 \bibliographystyle{abbrv}

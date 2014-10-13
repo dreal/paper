@@ -1,37 +1,23 @@
 \section{System Description}
 
-\subsection{Hybrid systems}
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{images/dReach}
+  \caption{System Description of \dReach{}}
+  \label{fig:system-description}
+\end{figure}
 
-Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
-\mathsf{inv},\mathsf{init}\rangle$ be a hybrid system, where
-$\mathsf{flow}$, $\mathsf{jump}$, $\mathsf{inv}$, $\mathsf{init}$ are
-SMT formulas that \dReal{} can handle (first-order formulas over
-the reals that allow polynomials, trigonometric functions, exponential
-functions, Lipschitz-continuous ODEs, etc.)
+Figure~\ref{fig:system-description} illustrates the architecture of
+\dReach{}. We provide a domain-specific lanaguage to describe a hybrid
+system and specify its safety properties. Given an input model,
+specification, and unrolling bound $k$, \dReach{} reduces the
+$\delta$-reachability problem to a $\delta$-decision problem of
+formulas over the reals by providing a corresponding SMT encoding for
+the problem. Then we answer the bounded reachability queries by using
+our nonlinear SMT solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13} to
+solve the encoded problems.
 
-Now specify a numerical error bound $\delta$, and recall that for any
-formula $\varphi$ we have defined a notion of $\delta$-perturbation of
-$\varphi$, written as $\varphi^{\delta}$. We can then define the
-$\delta$-perturbation of $H$ as:
-\[
-H^{\delta} = \langle X, Q, {\mathsf{flow}}^{\delta},
-{\mathsf{jump}}^{\delta}, {\mathsf{inv}}^{\delta},
-{\mathsf{init}}^{\delta}\rangle,
-\]
-by simply relaxing the logic formulas in the representation of $H$.
-Choose $n\in\mathbb{N}$ to be a bound on the number of discrete mode
-changes and $T\in \mathbb{R}^+$ an upper bound on the time duration.
-Let $\mathsf{unsafe}$ encode a subset of $X\times Q$, the state space
-of $H$. The bounded $\delta$-reachability problem asks for one of the
-following answers:
-
-\begin{itemize}
-\item  safe: $H$ cannot reach $\mathsf{unsafe}$ in $n$ steps within
-  time $T$.
-\item $\delta$-unsafe: $H^{\delta}$ can reach ${\mathsf{unsafe}}^{\delta}$ in $n$ steps within time $T$.
-\end{itemize}
-
-\subsection{drh: a language for modeling and specifying hybrid systems}
+\subsection{drh: a Language for Modeling and Specifying Hybrid Systems}
 
 We define \texttt{drh}, a small language for describing hybrid systems
 and specifying their initial and safety conditions. It consists of
@@ -92,104 +78,48 @@ where \textit{mode-id} is an initial mode of a hybrid system and
 reachability question: ``Is there a trajectory of a hybrid system
 reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
 
+\subsection{Encoding Bounded Reachability Problem}
+\subsubsection{Encoding}
+There are different encodings according to the requirements of the
+solution. Out encoding formula is described in
+\cite{gao2014delta}. The critical definitions that are related are
+listed as follows:
 
-\subsubsection{Example}
-\begin{wrapfigure}{l}{0.5\textwidth}
-  \centering
-  \includegraphics[width=0.5 \textwidth]{images/bouncing_ball.pdf}
-  \caption{Bouncing ball example}
-  \label{fig:bouncing-ball}
-\end{wrapfigure}
+\begin{definition}
+Let $H$ be a hybrid automaton. We use $\unsafe = \{\unsafe_q:q\in Q\}$
+in the state space of $H$. We can write $\llbracket \unsafe\rrbracket
+= \bigcup_{q\in Q} \llbracket \unsafe_q \rrbracket\times \{q\}$.
+\end{definition}
 
+\begin{definition}
+Let $Q = \{q_1,...,q_m\}$ be a set of modes. For any $q\in Q$, and
+$i\in\mathbb{N}$, use $b_{q}^i$ to represent a Boolean variable. We
+now define
+$$\enforce_Q(q,i) = b^i_{q} \wedge \bigwedge_{p\in Q\setminus\{q\}}\neg b^{i}_{p}$$
+$$\enforce_Q(q, q',i) = b^{i}_{q}\wedge \neg b^{i+1}_{q'} \wedge
+\bigwedge_{p\in Q\setminus\{q\}} \neg b^i_{p} \wedge \bigwedge_{p'\in
+  Q\setminus\{q'\}} \neg b^{i+1}_{p'}$$ We omit the subscript $Q$ when
+the context is clear.
+\end{definition}
 
-\begin{figure}
-  \centering
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
-  numbers=left, fontsize=\scriptsize]
-#define D 0.45
-#define K 0.9
-[0, 15] x;
-[9.8] g;
-[-18, 18] v;
-[0, 3] time;
-{
-  mode 1;
-  invt:
-        (v <= 0);
-        (x >= 0);
-  flow:
-        d/dt[x] = v;
-        d/dt[v] = -g + (- D * v ^ 1);
-  jump:
-        (x = 0) ==> @2 (and (x' = x) (v' = - K * v));
-}
-{
-  mode 2;
-  invt:
-        (v >= 0);
-        (x >= 0);
-  flow:
-        d/dt[x] = v;
-        d/dt[v] = -g + (- D * v ^ 1);
-  jump:
-        (v = 0) ==> @1 (and (x' = x) (v' = v));
-}
-init:
-@1    (and (x >= 5) (v = 0));
-
-goal:
-@1    (and (x >= 0.45));
-\end{Verbatim}
-  \caption{Bouncing ball example}
-  \label{fig:bouncing-ball}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
-  numbers=left, fontsize=\scriptsize]
-(set-logic QF_NRA_ODE)
-(declare-fun x () Real)
-(declare-fun v () Real)
-(declare-fun x_0_0 () Real)
-(declare-fun x_0_t () Real)
-...
-(declare-fun x_10_0 () Real)
-(declare-fun x_10_t () Real)
-(declare-fun v_0_0 () Real)
-(declare-fun v_0_t () Real)
-...
-(declare-fun v_10_0 () Real)
-(declare-fun v_10_t () Real)
-(declare-fun time_0 () Real)
-...
-(declare-fun time_10 () Real)
-(declare-fun mode_0 () Real)
-...
-(declare-fun mode_10 () Real)
-(define-ode flow_1 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
-(define-ode flow_2 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
-(assert (<= 0.0 x_0_0))
-(assert (<= x_0_0 15.0))
-...
-(assert (<= -18.0 v_10_t))
-(assert (<= v_10_t 18.0))
-(assert (<= 0.0 time_0))
-(assert (<= time_0 3.0))
-...
-(assert (<= 0.0 time_10))
-(assert (<= time_10 3.0))
-...
-
-(assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (= [x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0 1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<= v_0_0 0.0) (forall_t 1.0 [0.0 time_0] (>= x_0_t 0.0)) (>= x_0_t 0.0) (>= x_0_0 0.0) (= mode_1 2.0) (= x_0_t 0.0) (= v_1_0 (* -0.9 v_0_t)) (= x_1_0 x_0_t) (= [x_1_t v_1_t] (integral 0. time_1 [x_1_0 v_1_0] flow_2)) (= mode_1 2.0) (forall_t 2.0 [0.0 time_1] (>= v_1_t 0.0)) (>= v_1_t 0.0) (>= v_1_0 0.0) (forall_t 2.0 [0.0 time_1] (>= x_1_t 0.0)) (>= x_1_t 0.0) (>= x_1_0 0.0) (= mode_2 1.0) (= v_1_t 0.0) (= v_2_0 v_1_t) (= x_2_0 x_1_t) (= [x_2_t v_2_t] (integral 0. time_2 [x_2_0 v_2_0] flow_1)) (= mode_2 1.0) (forall_t 1.0 [0.0 time_2] (<= v_2_t 0.0)) (<= v_2_t 0.0) (<= v_2_0 0.0) (forall_t 1.0 [0.0 time_2] (>= x_2_t 0.0)) (>= x_2_t 0.0) (>= x_2_0 0.0) (= mode_3 2.0) (= x_2_t 0.0) (= v_3_0 (* -0.9 v_2_t)) (= x_3_0 x_2_t) (= [x_3_t v_3_t] (integral 0. time_3 [x_3_0 v_3_0] flow_2)) (= mode_3 2.0) (forall_t 2.0 [0.0 time_3] (>= v_3_t 0.0)) (>= v_3_t 0.0) (>= v_3_0 0.0) (forall_t 2.0 [0.0 time_3] (>= x_3_t 0.0)) (>= x_3_t 0.0) (>= x_3_0 0.0) (= mode_4 1.0) (= v_3_t 0.0) (= v_4_0 v_3_t) (= x_4_0 x_3_t) (= [x_4_t v_4_t] (integral 0. time_4 [x_4_0 v_4_0] flow_1)) (= mode_4 1.0) (forall_t 1.0 [0.0 time_4] (<= v_4_t 0.0)) (<= v_4_t 0.0) (<= v_4_0 0.0) (forall_t 1.0 [0.0 time_4] (>= x_4_t 0.0)) (>= x_4_t 0.0) (>= x_4_0 0.0) (= mode_5 2.0) (= x_4_t 0.0) (= v_5_0 (* -0.9 v_4_t)) (= x_5_0 x_4_t) (= [x_5_t v_5_t] (integral 0. time_5 [x_5_0 v_5_0] flow_2)) (= mode_5 2.0) (forall_t 2.0 [0.0 time_5] (>= v_5_t 0.0)) (>= v_5_t 0.0) (>= v_5_0 0.0) (forall_t 2.0 [0.0 time_5] (>= x_5_t 0.0)) (>= x_5_t 0.0) (>= x_5_0 0.0) (= mode_6 1.0) (= v_5_t 0.0) (= v_6_0 v_5_t) (= x_6_0 x_5_t) (= [x_6_t v_6_t] (integral 0. time_6 [x_6_0 v_6_0] flow_1)) (= mode_6 1.0) (forall_t 1.0 [0.0 time_6] (<= v_6_t 0.0)) (<= v_6_t 0.0) (<= v_6_0 0.0) (forall_t 1.0 [0.0 time_6] (>= x_6_t 0.0)) (>= x_6_t 0.0) (>= x_6_0 0.0) (= mode_7 2.0) (= x_6_t 0.0) (= v_7_0 (* -0.9 v_6_t)) (= x_7_0 x_6_t) (= [x_7_t v_7_t] (integral 0. time_7 [x_7_0 v_7_0] flow_2)) (= mode_7 2.0) (forall_t 2.0 [0.0 time_7] (>= v_7_t 0.0)) (>= v_7_t 0.0) (>= v_7_0 0.0) (forall_t 2.0 [0.0 time_7] (>= x_7_t 0.0)) (>= x_7_t 0.0) (>= x_7_0 0.0) (= mode_8 1.0) (= v_7_t 0.0) (= v_8_0 v_7_t) (= x_8_0 x_7_t) (= [x_8_t v_8_t] (integral 0. time_8 [x_8_0 v_8_0] flow_1)) (= mode_8 1.0) (forall_t 1.0 [0.0 time_8] (<= v_8_t 0.0)) (<= v_8_t 0.0) (<= v_8_0 0.0) (forall_t 1.0 [0.0 time_8] (>= x_8_t 0.0)) (>= x_8_t 0.0) (>= x_8_0 0.0) (= mode_9 2.0) (= x_8_t 0.0) (= v_9_0 (* -0.9 v_8_t)) (= x_9_0 x_8_t) (= [x_9_t v_9_t] (integral 0. time_9 [x_9_0 v_9_0] flow_2)) (= mode_9 2.0) (forall_t 2.0 [0.0 time_9] (>= v_9_t 0.0)) (>= v_9_t 0.0) (>= v_9_0 0.0) (forall_t 2.0 [0.0 time_9] (>= x_9_t 0.0)) (>= x_9_t 0.0) (>= x_9_0 0.0) (= mode_10 1.0) (= v_9_t 0.0) (= v_10_0 v_9_t) (= x_10_0 x_9_t) (= [x_10_t v_10_t] (integral 0. time_10 [x_10_0 v_10_0] flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0)) (<= v_10_t 0.0) (<= v_10_0 0.0) (forall_t 1.0 [0.0 time_10] (>= x_10_t 0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t 0.45)))
-(check-sat)
-(exit)
-\end{Verbatim}
-  \caption{Bouncing ball example}
-  \label{fig:bouncing-ball}
-\end{figure}
+\begin{definition}[$k$-Step Reachability, Invariant-Free Case]
+Suppose $H$ is invariant-free, and $U$ a subset of its state space
+represented by $\unsafe$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is
+defined as:
+\begin{eqnarray*}
+%\reach^{k,M}(H,U) &:=&
+& &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec
+  x_{k}\exists^X\vec x_{k}^t\exists^{[0,M]}t_0\cdots
+  \exists^{[0,M]}t_k.\\ & &\bigvee_{q\in Q} \Big(\init_{q}(\vec
+  x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge
+  \enforce(q,0)\Big)\\%\wedge (b_{q_i}\wedge \bigwedge_{q\neq q_i}
+  \neg b_{q}) \wedge & & \bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in
+    Q} \Big(\jump_{q\rightarrow q'}(\vec x_{i}^t, \vec x_{i+1})\wedge
+  \enforce(q,q',i)\\ & & \hspace{4.7cm}\wedge\flow_{q'}(\vec x_{i+1},
+  \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q',i+1)\Big)\bigg)\\ \wedge
+  & & \bigvee_{q\in Q} \unsafe_q(\vec x_{k}^t).
+\end{eqnarray*}
+\end{definition}
 
 %%% Local Variables:
 %%% mode: latex

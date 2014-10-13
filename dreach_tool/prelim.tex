@@ -1,0 +1,35 @@
+\section{Preliminaries}
+\subsection{Hybrid systems}
+Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
+\mathsf{inv},\mathsf{init}\rangle$ be a hybrid system, where
+$\mathsf{flow}$, $\mathsf{jump}$, $\mathsf{inv}$, $\mathsf{init}$ are
+first-order formulas over the reals that allow polynomials,
+trigonometric functions, exponential functions, logarithmetic
+functions, and Lipschitz-continuous ODEs.
+
+Now specify a numerical error bound $\delta$, and recall that for any
+formula $\varphi$ we have defined a notion of $\delta$-perturbation of
+$\varphi$, written as $\varphi^{\delta}$. We can then define the
+$\delta$-perturbation of $H$ as:
+\[
+H^{\delta} = \langle X, Q, {\mathsf{flow}}^{\delta},
+{\mathsf{jump}}^{\delta}, {\mathsf{inv}}^{\delta},
+{\mathsf{init}}^{\delta}\rangle,
+\]
+by simply relaxing the logic formulas in the representation of $H$.
+Choose $n\in\mathbb{N}$ to be a bound on the number of discrete mode
+changes and $T\in \mathbb{R}^+$ an upper bound on the time duration.
+Let $\mathsf{unsafe}$ encode a subset of $X\times Q$, the state space
+of $H$. The bounded $\delta$-reachability problem asks for one of the
+following answers:
+
+\begin{itemize}
+\item  safe: $H$ cannot reach $\mathsf{unsafe}$ in $n$ steps within
+  time $T$.
+\item $\delta$-unsafe: $H^{\delta}$ can reach ${\mathsf{unsafe}}^{\delta}$ in $n$ steps within time $T$.
+\end{itemize}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
