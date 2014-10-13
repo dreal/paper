@@ -1,7 +1,6 @@
 \section{System Description}
 
-
-\subsection{Hybrid Systems}
+\subsection{Hybrid systems}
 
 Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
 \mathsf{inv},\mathsf{init}\rangle$ be a hybrid system, where
@@ -14,13 +13,11 @@ Now specify a numerical error bound $\delta$, and recall that for any
 formula $\varphi$ we have defined a notion of $\delta$-perturbation of
 $\varphi$, written as $\varphi^{\delta}$. We can then define the
 $\delta$-perturbation of $H$ as:
-
 \[
 H^{\delta} = \langle X, Q, {\mathsf{flow}}^{\delta},
 {\mathsf{jump}}^{\delta}, {\mathsf{inv}}^{\delta},
 {\mathsf{init}}^{\delta}\rangle,
 \]
-
 by simply relaxing the logic formulas in the representation of $H$.
 Choose $n\in\mathbb{N}$ to be a bound on the number of discrete mode
 changes and $T\in \mathbb{R}^+$ an upper bound on the time duration.
@@ -34,9 +31,7 @@ following answers:
 \item $\delta$-unsafe: $H^{\delta}$ can reach ${\mathsf{unsafe}}^{\delta}$ in $n$ steps within time $T$.
 \end{itemize}
 
-\subsection{drh: A Language for Hybrid Systems}
-
-\subsubsection{Definition}
+\subsection{drh: a language for modeling and specifying hybrid systems}
 
 We define \texttt{drh}, a small language for describing hybrid systems
 and specifying their initial and safety conditions. It consists of
@@ -50,8 +45,8 @@ definitions, and initial condition, and goals.
                   & \textit{goal}^+
 \end{align*}
 In macro definitions, we allow users to define C-preprocessor macros
-(\texttt{\#define}) which can be used in following sections. Macros
-are expanded before the other parts are processed.
+which can be used in following sections. Macros are expanded before
+the other parts are processed.
 
 A variable declaration has a form:
 \[
@@ -91,7 +86,7 @@ old and new values.
 where \textit{mode-id} is an initial mode of a hybrid system and
 \textit{formula} specifies the initial configuration of it.
 
-\texttt{goal} shares the same syntactic structure
+\texttt{goal} shares the same syntactic structure,
 ``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
 \textit{initial-condition} with a different interpretation. It poses a
 reachability question: ``Is there a trajectory of a hybrid system
@@ -99,6 +94,14 @@ reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?'
 
 
 \subsubsection{Example}
+\begin{wrapfigure}{l}{0.5\textwidth}
+  \centering
+  \includegraphics[width=0.5 \textwidth]{images/bouncing_ball.pdf}
+  \caption{Bouncing ball example}
+  \label{fig:bouncing-ball}
+\end{wrapfigure}
+
+
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
@@ -184,6 +187,8 @@ goal:
 (check-sat)
 (exit)
 \end{Verbatim}
+  \caption{Bouncing ball example}
+  \label{fig:bouncing-ball}
 \end{figure}
 
 %%% Local Variables:
