@@ -1,16 +1,15 @@
-\section{Preliminaries}
-\subsection{Hybrid systems}
+\section{Bounded $\delta$-reachability Problem for Hybrid Systems}
 Let $H = \langle X, Q, \mathsf{flow}, \mathsf{jump},
 \mathsf{inv},\mathsf{init}\rangle$ be a hybrid system, where
 $\mathsf{flow}$, $\mathsf{jump}$, $\mathsf{inv}$, $\mathsf{init}$ are
 first-order formulas over the reals that allow polynomials,
 trigonometric functions, exponential functions, logarithmetic
-functions, and Lipschitz-continuous ODEs.
-
-Now specify a numerical error bound $\delta$, and recall that for any
-formula $\varphi$ we have defined a notion of $\delta$-perturbation of
-$\varphi$, written as $\varphi^{\delta}$. We can then define the
-$\delta$-perturbation of $H$ as:
+functions, and Lipschitz-continuous ODEs. Let $\delta \in
+\mathbb{Q}^{+}$ be a numerical error bound. In
+~\cite{DBLP:journals/corr/GaoKCC14}, we have defined a notion of
+$\delta$-perturbation of $\varphi$, written as
+$\varphi^{\delta}$. Extending this notion, we then define the
+$\delta$-perturbation of a hybrid system $H$ as:
 \[
 H^{\delta} = \langle X, Q, {\mathsf{flow}}^{\delta},
 {\mathsf{jump}}^{\delta}, {\mathsf{inv}}^{\delta},
