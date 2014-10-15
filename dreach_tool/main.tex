@@ -14,7 +14,7 @@
 
 \input{preamble}
 
-\title{\dReach{}: $\delta$-Complete Analysis Tool for Bounded Reachability of Hybrid Systems}
+\title{\dReach{}: $\delta$-Reachability Analysis Tool for Hybrid Systems}
 
 \begin{document}
 
@@ -27,12 +27,14 @@
 \institute{Computer Science Department, Carnegie Mellon University, USA}
 \maketitle
 
-\abstract{dReach encodes reachability problems of hybrid systems to
+\begin{abstract}
+  \dReach{} encodes reachability problems of hybrid systems to
   first-order formulas over real numbers. The formulas are solved by
-  delta-complete decision procedures in the SMT solver dReal. In this
-  way, dReach is able to handle a wide range of highly nonlinear
-  hybrid systems. Experiments have shown promising results on many
-  nonlinear benchmarks that are not solvable by other existing tools.}
+  delta-decision procedures in the SMT solver \dReal{}. In this way,
+  \dReach{} is able to handle a wide range of highly nonlinear hybrid
+  systems. Experiments have shown promising results on many nonlinear
+  benchmarks that are not solvable by other existing tools.
+\end{abstract}
 
 % Tool demonstration papers focus on the usage aspects of tools. As with
 % regular tool papers, authors are strongly encouraged to make their
@@ -43,15 +45,7 @@
 % They should have an appendix of up to 6 additional pages with details
 % on the actual demonstration.
 
-% http://www.etaps.org/index.php/2014/tacas/accepted-papers
-% - http://costa.ls.fi.upm.es/papers/costa/AlbertAFGGMPR14.pdf
-% - http://maude.sip.ucm.es/~adrian/files/tacas14.pdf
-% - http://www.cs.vu.nl/~wanf/pubs/cif3.pdf
-% - http://www.loria.fr/~chevalvi/files/Cheval-tacas14.pdf
-% - http://www.sci.unich.it/~fioravan/papers/2014-DFPP-TACAS14.pdf
-
 \input{intro.tex}
-\input{prelim.tex}
 \input{system.tex}
 \input{example.tex}
 \input{using.tex}
