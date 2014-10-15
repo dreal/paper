@@ -9,12 +9,13 @@
 
 \newcommand{\enforce}{\mathsf{enforce}}
 \newcommand{\traj}{\mathsf{traj}}
+\newcommand{\drh}{\textsf{drh}}
 \newcommand{\dReal}{\textsf{dReal}}
 \newcommand{\dReach}{\textsf{dReach}}
 
 \input{preamble}
 
-\title{\dReach{}: $\delta$-Reachability Analysis Tool for Hybrid Systems}
+\title{\dReach{}: $\delta$-Reachability Analysis Tool\\ for Hybrid Systems}
 
 \begin{document}
 
@@ -29,7 +30,7 @@
 
 \begin{abstract}
   \dReach{} encodes reachability problems of hybrid systems to
-  first-order formulas over real numbers. The formulas are solved by
+  first-order formulae over real numbers. The formulae are solved by
   delta-decision procedures in the SMT solver \dReal{}. In this way,
   \dReach{} is able to handle a wide range of highly nonlinear hybrid
   systems. Experiments have shown promising results on many nonlinear
@@ -46,10 +47,11 @@
 % on the actual demonstration.
 
 \input{intro.tex}
+\input{drh.tex}
 \input{system.tex}
 \input{example.tex}
 \input{using.tex}
-\input{application.tex}
+\input{exp.tex}
 \bibliographystyle{abbrv}
 \bibliography{tau_tacas}
 \end{document}

@@ -1,6 +1,6 @@
-\section{drh: Language for Modeling and Specifying Hybrid Systems}
+\section{\drh{}: Language for Modeling and Specifying Hybrid Systems}
 
-We define \texttt{drh}, a language for describing hybrid systems and
+We define \drh{}, a language for describing hybrid systems and
 specifying their reachability properties. It consists of five sections
 - macro definitions, variable declarations, mode definitions, and
 initial condition, and goals.
@@ -60,6 +60,57 @@ where \textit{mode-id} is an initial mode of a hybrid system and
 \textit{initial-condition} with a different interpretation. It poses a
 reachability question: ``Is there a trajectory of a hybrid system
 reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
+
+\begin{figure}
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
+#define D 0.45
+#define K 0.9
+[0, 15] x;
+[9.8] g;
+[-18, 18] v;
+[0, 3] time;
+{   mode 1;
+    invt:
+        (v <= 0);
+        (x >= 0);
+    flow:
+        d/dt[x] = v;
+        d/dt[v] = -g - (D * v ^ 2);
+    jump:
+        (x = 0) ==> @2 (and (x' = x) (v' = - K * v)); }
+ {  mode 2;
+    invt:
+        (v >= 0);
+        (x >= 0);
+    flow:
+        d/dt[x] = v;
+        d/dt[v] = -g + (D * v ^ 2);
+    jump:
+        (v = 0) ==> @1 (and (x' = x) (v' = v)); }
+init:
+@1    (and (x >= 5) (v = 0));
+
+goal:
+@1    (and (x >= 0.45));
+\end{Verbatim}
+\caption{An example of \drh{} format: Inelastic bouncing ball with air
+  resistance. At lines 1 and 2, we define a drag coefficient $D = 0.45$
+  and an elastic coefficient $K = 0.9$ using \texttt{\#define} macros.
+  At lines 3 - 6, we declare variables $x, g, v,$ and $time$. At lines
+  7 - 15 and 16 - 24, we define two modes -- the falling and the
+  bouncing-back modes respectively. At lines 25 and 26, we specify
+  that this hybrid system starts at mode 1 (\texttt{@1}) with initial
+  condition satisfying $x \ge 5 \land v = 0$. At lines 28 and 29, it
+  is asking whether we can have a trajectory ending at mode 1
+  (\texttt{@1}) while the height of the ball is higher than $0.45$.}
+\label{fig:bouncing-ball-drh}
+\end{figure}
+
+Figure~\ref{fig:bouncing-ball-drh} shows a canonical example of hybrid
+systems, an inelastic bouncing ball with air resistance, in \drh{}
+format.
 
 %%% Local Variables:
 %%% mode: latex

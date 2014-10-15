@@ -1,8 +1,14 @@
-\section{dReach: System Description}
+\section{\dReach{}: System Description}
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{images/dReach}
-  \caption{System Description of \dReach{}}
+  \caption{Architecture of \dReach{}: It consists of an bounded
+    model-checking module and an SMT solver, \dReal{}. In the first
+    phase, the BMC module translate an input hybrid system into a
+    logic formula with respect to the specified unrolling bound $k$
+    and the provided reachability condition $\textit{goal}$ in the
+    model. In the second phase, an SMT solver, \dReal{}, solves the
+    encoded $\delta$-reachability problem.}
   \label{fig:system-description}
 \end{figure}
 
@@ -11,72 +17,9 @@ Figure~\ref{fig:system-description} illustrates the architecture of
 system and specify its safety properties. Given an input model,
 specification, and unrolling bound $k$, \dReach{} reduces the
 $\delta$-reachability problem to a $\delta$-decision problem of
-formulas over the reals by providing a corresponding SMT encoding for
+formulae over the reals by providing a corresponding SMT encoding for
 the problem. Then, the bounded reachability queries are answered by
 using our nonlinear SMT solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13}.
-
-\subsection{drh: a Language for Modeling and Specifying Hybrid Systems}
-
-We define \texttt{drh}, a language for describing hybrid systems and
-specifying their safety conditions. It consists of five sections -
-macro definitions, variable declarations, mode definitions, and
-initial condition, and goals.
-\begin{align*}
-  \textit{drh} := \ & \textit{macro-definition}^*\\
-                    & \textit{variable-declaration}^+\\
-                    & \textit{mode-definition}^+\\
-                    & \textit{initial-condition}\\
-                    & \textit{goal}^+
-\end{align*}
-In macro definitions, we allow users to define macros in
-C preprocessor (\texttt{cpp}) style which can be used in following
-sections. Macro expansions occur before the other parts are processed.
-
-A variable declaration has a form:
-\[
-\textit{variable-declaration} \ := \ \texttt{[}
-                                     \textit{l}
-                                     \texttt{,}
-                                     \ \textit{u}
-                                     \texttt{]}
-                                     \ \textit{var}
-                                     \texttt{;}
-\]
-and it declares a real variable, $var$, whose domain is an Real
-interval $[l, u] \in \mathbb{IR}$. It requires a variable declaration
-for a special variable, \textit{time}, to specify the upperbound of
-time duration in the analysis of bounded reachability.
-
-A mode definition consists of mode id, mode invariant, flow, and jump.
-\begin{align*}
-  \textit{mode-definition} \ := & \ \texttt{\{}
-                                    \texttt{mode} \ \textit{id}\texttt{;}\\
-                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
-                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
-                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
-\end{align*}
-\textit{id} is a unique positive interger assigned to a mode. An
-invariant is a conjuction of logic formulae which must always hold in
-a mode. A flow describes a continuous dynamics of a mode by providing
-a set of ordinary differential equations (\textit{ode}s) which is a
-form of
-``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
-a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
-\textit{reset}'' where \textit{guard} is a logic formula specifying a
-condition to make a transition, $n$ denotes the target mode-id, and
-\textit{reset} is a logic formula connecting the old and new values
-for the transition.
-
-\texttt{initial-condition} is of a form
-``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
-where \textit{mode-id} is an initial mode of a hybrid system and
-\textit{formula} specifies the initial configuration of it.
-
-\texttt{goal} shares the same syntactic structure,
-``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
-\textit{initial-condition} with a different interpretation. It poses a
-reachability question: ``Is there a trajectory of a hybrid system
-reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
 
 \subsection{Encoding Bounded Reachability Problem}
 
@@ -106,7 +49,7 @@ the Picard-Lindel$\ddot{o}$f representation:
 [x\_1\_t, x\_2\_t, \dots, x\_n\_t] = \int_0^t \vec{g}([x_1(s), x_2(s), \cdots,
 x_n(s)]) \mathrm{d}s.
 \]
-In \dReach~{}, we use \texttt{define-ode} to name a flow by assigning
+In \dReach{}, we use \texttt{define-ode} to name a flow by assigning
 a name to it. Then \texttt{integral} connects the value of the initial
 and final variables. For instance, the following example
 
@@ -124,6 +67,60 @@ of varialbes at the beginning of a mode and at the end of it.
 \begin{Verbatim}[fontfamily=courier]
 (forall_t 2 [0 time_3] (>= x_3_t 0))
 \end{Verbatim}
+
+\begin{figure}[!h]
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
+(set-logic QF_NRA_ODE)
+(declare-fun x () Real)
+(declare-fun v () Real)
+(declare-fun x_0_0 () Real)
+(declare-fun x_0_t () Real)
+...
+(declare-fun x_10_0 () Real)
+(declare-fun x_10_t () Real)
+(declare-fun v_0_0 () Real)
+(declare-fun v_0_t () Real)
+...
+(declare-fun v_10_0 () Real)
+(declare-fun v_10_t () Real)
+(declare-fun time_0 () Real)
+...
+(declare-fun time_10 () Real)
+(declare-fun mode_0 () Real)
+...
+(declare-fun mode_10 () Real)
+(define-ode flow_1 ((= d/dt[x] v)
+                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
+(define-ode flow_2 ((= d/dt[x] v)
+                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
+(assert (<= 0.0 x_0_0))
+(assert (<= x_0_0 15.0))
+...
+(assert (<= -18.0 v_10_t))
+(assert (<= v_10_t 18.0))
+(assert (<= 0.0 time_0))
+(assert (<= time_0 3.0))
+...
+(assert (<= 0.0 time_10))
+(assert (<= time_10 3.0))
+...
+
+(assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
+[x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
+1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
+...
+x_9_t) (= [x_10_t v_10_t] (integral 0. time_10 [x_10_0 v_10_0]
+flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
+(<= v_10_t 0.0) (<= v_10_0 0.0) (forall_t 1.0 [0.0 time_10] (>= x_10_t
+0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
+0.45))) (check-sat) (exit)
+\end{Verbatim}
+  \caption{SMT2 encoding of the bounded reachability problem of
+    bouncing ball ($k = 3$) }
+  \label{fig:bouncing-ball-smt2}
+\end{figure}
 
 %%% Local Variables:
 %%% mode: latex
