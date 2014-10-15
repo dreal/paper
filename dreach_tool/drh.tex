@@ -1,0 +1,67 @@
+\section{drh: Language for Modeling and Specifying Hybrid Systems}
+
+We define \texttt{drh}, a language for describing hybrid systems and
+specifying their reachability properties. It consists of five sections
+- macro definitions, variable declarations, mode definitions, and
+initial condition, and goals.
+\begin{align*}
+  \textit{drh} := \ & \textit{macro-definition}^*\\
+                    & \textit{variable-declaration}^+\\
+                    & \textit{mode-definition}^+\\
+                    & \textit{initial-condition}\\
+                    & \textit{goal}^+
+\end{align*}
+In macro definitions, it allows users to define macros in C
+preprocessor (\texttt{cpp}) style which can be used in the following
+sections. Note that macro expansions occur before the other parts are processed.
+
+A variable declaration has a form:
+\[
+\textit{variable-declaration} \ := \ \texttt{[}
+                                     \textit{l}
+                                     \texttt{,}
+                                     \ \textit{u}
+                                     \texttt{]}
+                                     \ \textit{var}
+                                     \texttt{;}
+\]
+and it declares a real variable, $var$ and its domain $[l, u]$ which
+is in Real interval $\mathbb{IR}$. It requires a special variable
+declaration for \textit{time}, to specify the upperbound of time
+duration in the analysis of bounded $\delta$-reachability.
+
+A mode definition consists of mode id, mode invariant, flow, and jump.
+\begin{align*}
+  \textit{mode-definition} \ := & \ \texttt{\{}
+                                    \texttt{mode} \ \textit{id}\texttt{;}\\
+                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
+                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
+\end{align*}
+\textit{id} is a unique positive interger assigned to a mode. An
+invariant is a conjuction of logic formulae which must always hold in
+a mode. A flow describes a continuous dynamics of a mode by providing
+a set of ordinary differential equations (\textit{ode}s) which is a
+form of
+``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
+a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
+\textit{reset}'' where \textit{guard} is a logic formula specifying a
+condition to make a transition, $n$ denotes the target mode-id, and
+\textit{reset} is a logic formula connecting the old and new values
+for the transition.
+
+\texttt{initial-condition} is of a form
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
+where \textit{mode-id} is an initial mode of a hybrid system and
+\textit{formula} specifies the initial configuration of it.
+
+\texttt{goal} shares the same syntactic structure,
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
+\textit{initial-condition} with a different interpretation. It poses a
+reachability question: ``Is there a trajectory of a hybrid system
+reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
