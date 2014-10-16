@@ -17,9 +17,8 @@
 \begin{document}
 
 
-\title{Bounded Model Checking of Distributed Cyber-Physical Systems 
-using SMT over Reals
-(tentative)
+\title{Analyzing Nonlinear Distributed CPS using PALS and SMT
+(TO BE WRITTEN LATER)
 %\titlenote{For use with ACM\_PROC\_ARTICLE-SP.CLS. Supported by ACM.}
 }
 
@@ -36,21 +35,23 @@ Many cyber physical systems %such as airplanes and cars,
 are \emph{distributed hybrid systems}
 where distributed controllers communicate with each other via a network
 and govern physical entities with continuous dynamics.
-For model checking \emph{virtually synchronous} cyber physical systems,
-the PALS methodology \cite{pals-rtss09,mr-pals-journal,pals-tcs} 
+For effectively designing and analyzing \emph{virtually synchronous} cyber physical systems,
+the PALS methodology %\cite{pals-rtss09,mr-pals-journal,pals-tcs} 
 has been proposed to 
-reduce the combinatorial complexity  caused by the system's concurrency.
-But its application to distributed hybrid systems is quite limited 
-due to  
+reduce the combinatorial complexity
+caused by the system's concurrency. 
+%
+But its application to distributed hybrid systems was often quite limited,
+because of immediate correlation between physical entities,
+nonlinear differential equations,
 real-number inputs and parameters, 
-imprecisions of the local clocks, 
-correlation between physical entities,
-nonlinear differential equations, etc.
+%imprecisions of the local clocks, 
+etc.
 %
 This paper explains how a wide range of distributed hybrid systems,
 involving non-linear differential equations and real number inputs and parameters,
 can be effectively verified using a $\delta$-complete SMT solver over reals,
-together with Multirate PALS.
+together with PALS.
 We illustrate our method with two nontrivial distributed hybrid system case studies.
 \end{abstract}
 
@@ -165,9 +166,9 @@ our main contribution in this paper can be summarized as follows:
 	can be reduced to 
 	checking the satisfiability of logic formulas over real numbers.
 	%based on the bounded model checking framework.
-	We also show how we can deal with 
-	arbitrary real number inputs and parameters, 
-	and imprecisions of the local clocks.
+	%We also show how we can deal with 
+	%arbitrary real number inputs and parameters, 
+	%and imprecisions of the local clocks.
 	
 	
 	\item We explain how the satisfaction of the generated logic formula 
@@ -212,6 +213,7 @@ controlled by a hierarchy of multirate distributed controllers.
 The devices and controllers may operate at different rates,
 where the period of a higher-level component is 
 a multiple of the period of its connected (fast) component.
+%(i.e., a hyper-period of the fast components).
 The design and verification of such virtually synchronous CPS is 
 very hard due to asynchronous communication, network delays,
 clock skews, plus the state space explosion caused by the system's concurrency.
@@ -233,7 +235,8 @@ of the underlying network infrastructure, where:
 	the interval $[\alpha_{\min},\alpha_{\max}]$;
 	and
 	\item  the point-to-point message transmission time between 
-	any two components is within the interval $[\mu_{\min}, \mu_{\max}]$.
+	any two components is within %the interval 
+	$[\mu_{\min}, \mu_{\max}]$.
 \end{inparaenum}
 The PALS transformation then generates
 the corresponding distributed asynchronous design 
@@ -243,7 +246,10 @@ in which
   $\mathcal{E}$ and $\mathcal{A}(\mathcal{E}, T, \Gamma)$
 satisfy 
 the same temporal logic 
-properties \cite{mr-pals-journal,pals-tcs}.
+properties \cite{mr-pals-journal,pals-tcs},
+provided that 
+$T \geq \mu_{\max} + 2 \epsilon + \max(2\epsilon - \mu_{\min}, \alpha_{\max})$ holds.
+%
 Therefore, we can simply design and verify a synchronous model $\mathcal{E}$,
 and then PALS can give  the \emph{correct-by-construction} distributed 
 implementation $\mathcal{A}(\mathcal{E}, T, \Gamma)$ automatically.
@@ -1756,12 +1762,12 @@ y_{t_{m}}'', y_{t_{M}}'', \pvec{y}_{\!s_1}'', \pvec{y}_{\!s_2}''
 c_{M_1}(0) = 0
 \;\wedge\;
 \smashoperator{\bigwedge_{1 \leq n \leq 2\cdot\mathit{rate}(1)}}
-\exists t_{1,n} \in (n T_1 - \epsilon, n T_1 + \epsilon).\;c_M(n) = t_{1,n}
+\exists t_{1,n} \in (n T_1 - \epsilon, n T_1 + \epsilon).\;c_{M_1}(n) = t_{1,n}
 \\
 c_{M_2}(0) = 0
 \;\wedge\;
 \smashoperator{\bigwedge_{1 \leq n \leq 2\cdot\mathit{rate}(2)}}
-\exists t_{2,n} \in (n T_2 - \epsilon, nT_2 + \epsilon).\;c_M(n) = t_{2,n}
+\exists t_{2,n} \in (n T_2 - \epsilon, nT_2 + \epsilon).\;c_{M_2}(n) = t_{2,n}
 \end{aligned}
 \]
 \end{example}
@@ -1778,18 +1784,70 @@ c_{M_2}(0) = 0
 
 \newpage
 
+
 %
 \section{Case Studies}
 \label{sec:case-studies}
 
-..
+We have applied our techniques to 
+design and verify two  multirate distributed cyber physical systems:
+a distributed control system for turning an airplane where its effectors located 
+in the airplane's wings (Section~\ref{sec:airplane}),
+and a robotics system with  a conveyer belt and robot arms
+for physically simulating a Turing machine (Section~\ref{sec:turing-machine}).
+%
+Both systems are  distributed \emph{hybrid} systems
+consisting of \emph{discrete} multirate periodic controllers, interconnected by a wired network,
+and 
+interacting with their \emph{continuous} local environments.
+The systems can provide PALS bounds $\Gamma$;
+%\begin{inparaenum}[(i)]
+%\item 
+in particular, 
+a bound $\epsilon > 0$ on the imprecisions of the local clocks.
+%of the components.
+%\item minimum and maximum message transmission times 	
+%%$0 \leq \mu_{\min} \leq \mu_{\max}$
+%between two different components, 		
+%and
+%\item minimum and maximum execution times 	
+%%$0 \leq \alpha_{\min} \leq \alpha_{\max}$ 
+%to perform transitions of any component.
+%\end{inparaenum}
+%
+Therefore, using Multirate PALS,
+the discrete behavior can be precisely modeled 
+as a multirate synchronous system $\mathcal{E}$.
+However, the continuous behavior
+still depends on the exact values of the local clocks,
+given by clock synchronization mechanisms.
+The local physical environments of different components 
+can be simultaneously correlated to each other,
+which cannot be modeled as network communications in general.
+The hybrid system modeling framework in Section~\ref{sec:env-const}
+was shown to be effective for dealing with these difficulties.
+The bounded model checking method in Section~\ref{sec:formula}
+was applied to verify
+the  given safety properties of the systems,
+with respect to (bounded) real number parameters and inputs,
+by means of \texttt{dReal}-based SMT solving in Section~\ref{sec:formula}.
+
+
+
+
+
 
 \subsection{Turning an Airplane}
-
+\label{sec:airplane}
 ..
 
-\subsection{Simulating a Turing Machine}
+(adapted from \cite{ftscs-journal}),
 
+
+\subsection{Simulating a Turing Machine}
+\label{sec:turing-machine}
+
+(adapted from \cite{chaki2013compositional}).
 ..
 
 
