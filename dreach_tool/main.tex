@@ -1,15 +1,21 @@
 \documentclass{llncs}
-\usepackage{amsmath, amssymb, fancyvrb, multirow, color}
+\usepackage{amsmath, amssymb, fancyvrb, multirow, color, stmaryrd}
 \usepackage{svg}
+\usepackage{wrapfig}
 \usepackage{graphicx}
 \usepackage{fancyvrb}
+\usepackage{hyperref}
+\usepackage[]{algorithm2e}
 
+\newcommand{\enforce}{\mathsf{enforce}}
+\newcommand{\traj}{\mathsf{traj}}
+\newcommand{\drh}{\textsf{drh}}
 \newcommand{\dReal}{\textsf{dReal}}
 \newcommand{\dReach}{\textsf{dReach}}
 
 \input{preamble}
 
-\title{\dReach{}: $\delta$-Complete Analysis Tool for Bounded Reachability of Hybrid Systems}
+\title{\dReach{}: $\delta$-Reachability Analysis Tool\\ for Hybrid Systems}
 
 \begin{document}
 
@@ -22,27 +28,30 @@
 \institute{Computer Science Department, Carnegie Mellon University, USA}
 \maketitle
 
-% Tool demonstration papers
+\begin{abstract}
+  \dReach{} encodes reachability problems of hybrid systems to
+  first-order formulae over real numbers. The formulae are solved by
+  delta-decision procedures in the SMT solver \dReal{}. In this way,
+  \dReach{} is able to handle a wide range of highly nonlinear hybrid
+  systems. Experiments have shown promising results on many nonlinear
+  benchmarks that are not solvable by other existing tools.
+\end{abstract}
 
-% Submissions should consist of two parts:
-
-% The first part, at most 4 pages, should describe the tool presented.
-% Please include the URL of the tool (if available) and provide
-% information that illustrates the maturity and robustness of the tool
-% (this part will be included in the proceedings).
-
-% The second part, at most 6 pages, should explain how the
-% demonstration will be carried out and what it will show, including
-% screen dumps and examples. (This part will be not be included in the
-% proceedings, but will be evaluated.) ESOP and FOSSACS do not accept
-% tool demonstration papers.
-
-% TACAS has a page limit of 6 pages for tool demonstrations.
+% Tool demonstration papers focus on the usage aspects of tools. As with
+% regular tool papers, authors are strongly encouraged to make their
+% tools publicly available, preferably on the web. Theoretical
+% foundations and experimental evaluation are not required, however, a
+% motivation as to why the tool is interesting and significant should be
+% provided. Tool demonstration papers can have a maximum of 6 pages.
+% They should have an appendix of up to 6 additional pages with details
+% on the actual demonstration.
 
 \input{intro.tex}
+\input{drh.tex}
 \input{system.tex}
+\input{example.tex}
 \input{using.tex}
-\input{application.tex}
+\input{exp.tex}
 \bibliographystyle{abbrv}
 \bibliography{tau_tacas}
 \end{document}
