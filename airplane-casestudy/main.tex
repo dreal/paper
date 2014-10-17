@@ -1,7 +1,7 @@
 \documentclass{sig-alternate}
 
 \usepackage{amsmath,mathtools,nccmath}
-\usepackage{paralist}
+\usepackage{paralist,url}
 \usepackage{bigints}
 \usepackage{tikz}
 \usetikzlibrary{matrix,arrows,shapes,calc}
@@ -48,11 +48,46 @@ handling more general properties like ....
 \textbf{TO BE WRITTEN}
 
 \newpage
-..
 
 
 %%%
 \subsection{Related Work}
+
+The Multirate PALS model of the distributed airplane
+turning controller was introduced \cite{ftscs-journal}.
+Both liveness and safety properties of the airplane controller was analyzed,
+based on explicit-state model checking in Real-Time Maude \cite{journ-rtm}.
+These analyses only considered  specified pilot behaviors and system parameters,
+and used numerical simulations to deal with nonlinear differential equations.
+%
+On the contrary, 
+this paper applies $\delta$-complete SMT solving 
+to analyze the airplane controller
+for arbitrary pilot behaviors and bounds of system parameters,
+and to deal with nonlinear differential equations up to 
+up to any precision $\delta > 0$.
+The synchronous model $\mathcal{E}$ 
+is also modified from \cite{ftscs-journal} to precisely model
+the physical correlations between distributed controllers,
+rather than using approximations as did in \cite{ftscs-journal}.
+For the Multirate PALS methodology,
+we refer to \cite{ftscs-journal,mr-pals-journal,pals-tcs} for details.
+
+Distributed hybrid systems for avionics have been much studied
+in the context of collision avoidance maneuvers for a set of airplanes
+(e.g., see \cite{loos-hscc13} and the references therein).
+However, we are not aware of hybrid system models for a turning 
+controller of an airplane to move the ailerons and rudder.
+Such a coordinated turn is essential for fly-by-wire control systems,
+and is an elemental topic in aeronautics \cite{anderson2005introduction}.
+
+
+
+\textbf{Sean, could you add some related work on \texttt{dReal}, or SMT for hybrid systems,
+if necessary?}
+
+
+
 
 \newpage
 
@@ -345,7 +380,7 @@ iff:
 %%%
 \subsection{Delta-Complete SMT}
 
-\textbf{To be written by Sean}
+\textbf{Sean, please write a brief overview of dReal}
 \newpage
 
 
@@ -471,12 +506,12 @@ The architecture of the system is illustrated in Figure~\ref{fig:airplane-ctrl}.
 %components
 \node (main) [comp,text width=10ex,minimum height=36ex] 
 	{{Main\\ controller} ($60\, \mathrm{ms}$, $\mathit{rate}$ = $1$)}; 
-\path (main.east |- main.north) + (17ex,-5.5ex) node (left) [comp,text width=12.5ex,minimum height=11ex] 
-	{{Left wing\\ subcontroller}\\ ($15\, \mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
-\path (main.east) + (17ex,0) node (vert) [comp,text width=12.5ex,minimum height=11ex] 
+\path (main.east |- main.north) + (17ex,-5.5ex) node (left) [comp,text width=13ex,minimum height=11ex] 
+	{{Left aileron\\ subcontroller}\\ ($15\, \mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
+\path (main.east) + (17ex,0) node (vert) [comp,text width=13ex,minimum height=11ex] 
 	{{Rudder\\ subcontroller}\\ ($20\, \mathrm{ms}$, $\mathit{rate}$ = $3$)}; 
-\path (main.east |- main.south) + (17ex,5.5ex) node (right) [comp,text width=12.5ex,minimum height=11ex] 
-	{{Right wing\\ subcontroller}\\ ($15\, \mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
+\path (main.east |- main.south) + (17ex,5.5ex) node (right) [comp,text width=13ex,minimum height=11ex] 
+	{{Right aileron\\ subcontroller}\\ ($15\, \mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
 %comp connections
 \draw [conn,latex-] (main.west |- main.north) + (3ex,0)-- node{ }+(3ex,3ex) node[above] {$\mathit{goal}_\psi$};
 \draw [conn] (main.east |- main.north) + (-3ex,0)-- node{ }+(-3ex,3ex) node[above] {$\psi$};
@@ -525,7 +560,7 @@ from the main controller,
 and gradually moves the surface of the wing toward the goal angle.
 The continuous movement of the angle is modeled by its physical environment.
 E.g., 
-the left wing sub-controller receives the goal angle $\mathit{goal}_l$ from the main controller, 
+the left aileron sub-controller receives the goal angle $\mathit{goal}_l$ from the main controller, 
 and sets the moving rate $\mathit{rate}_l$
   for the physical environment $E_\mathit{left}$
 (that is less than or equal to the maximal rate $\mathit{max}_l$).
@@ -536,7 +571,7 @@ $\frac{\mathrm{d} x_l}{\mathrm{d}t} = \mathit{rate}_l$ during a $15\,\mathrm{ms}
 The other sub-controllers are similar,
 except their periods and the maximal rates.
 
-The left wing sub-controller  can be specified 
+The left aileron sub-controller  can be specified 
 as the typed machine 
 $M_\mathit{left} = (\mathbb{R}, \mathbb{R}^2, \mathbb{R}, \delta_{\mathit{left}})$.
 The machine $M_\mathit{left}$ has one input port to receive $\mathit{goal}_l \in \mathbb{R}$,
@@ -554,7 +589,7 @@ determined by the physical environment $E_\mathit{left}$.
 The periodic dynamic system 
 $E_\mathit{left} = (\mathbb{R}, \mathbb{R}, 15\,\mathrm{ms}, \Lambda_\mathit{left})$
 has the control command set $\mathbb{R}$ for the moving rate $\mathit{rate}_l$,
-and the state set $\mathbb{R}$ for the surface angle of the left wing.
+and the state set $\mathbb{R}$ for the surface angle of the left aileron.
 The physical transition 
 $( (\mathit{rate}_l, a_l), x_l ) \in \Lambda_{E_\mathit{left}}$ holds
 iff there exists a trajectory $x_l \in \mathcal{T}_{15}$ such that
@@ -596,7 +631,7 @@ and determines the new surface angles of the sub-controllers
 for a coordinated turn. 
 %
 The direction angle $\psi$, the roll angle $\phi$, and the yaw angle $\beta$,
-governed by the nonlinear differential equations (\ref{eq:dir}--\ref{eq:yaw}),
+governed by the nonlinear differential equations (\ref{eq:dir})--(\ref{eq:yaw}),
 consist in the physical environment $E_\mathit{main}$.
 For each step, the main controller receives the goal direction
 $\mathit{goal}_\psi$ from the pilot 
@@ -609,7 +644,7 @@ based on the current observed position angles $(\psi, \phi, \beta)$.
 
 The position angles $\psi$, $\phi$, and $\beta$ correlate
 physically with the surface angles $x_l$, $x_r$, and $x_v$,
-because the differential equations (\ref{eq:dir}--\ref{eq:yaw}) contain 
+because the differential equations (\ref{eq:dir})--(\ref{eq:yaw}) contain 
 the variables $x_l$, $x_r$, and $x_v$.
 These angles are \emph{not} constants,
 since the sub-controllers gradually  moves the surfaces of the wings.
@@ -639,7 +674,7 @@ satisfying
 $(\psi,  \phi, \beta, x_l, x_v, x_r)(0) = (d,  l, y, a_l, a_v, a_r)$
 and
 the aeronautics 
-differential equations~(\ref{eq:dir}--\ref{eq:yaw}). 
+differential equations~(\ref{eq:dir})--(\ref{eq:yaw}). 
 Note that 
 the trajectories $x_l$, $x_v$, and $x_r$ of the three surface angles 
 are determined by the subcontrollers.
@@ -734,10 +769,10 @@ The safety of the system can then be verified
  provided that the safety requirements are also expressed as logic formulas.
  %
 The generated formulas include 
-many instances of the nonlinear differential equations (\ref{eq:dir}--\ref{eq:yaw}).
+may instances of the nonlinear differential equations (\ref{eq:dir})--(\ref{eq:yaw}).
 Thanks to $\delta$-complete SMT solving, 
 the satisfiability of such formulas can be decided 
-up to a given error-bound $\delta > 0$.
+up to a given error bound $\delta > 0$.
 Unlike the previous work \cite{ftscs-journal}
 that numerically simulates the behavior of $\mathcal{E}$, 
 using this method we can verify the system 
@@ -757,10 +792,10 @@ also depends on the surface angles $(x_l, x_v, x_r)$ of the ailerons and the rud
 Since our model is a multirate system,
 the moving rate of the surface angles can be changed by the sub-controllers
 \emph{at different moments}
-(e.g., a $15\,\mathrm{ms}$ period for the ailerons, and $20\,\mathrm{ms}$ period for the rudder).
+(e.g., a $15\,\mathrm{ms}$ period for the ailerons, and a $20\,\mathrm{ms}$ period for the rudder).
 This makes it difficult to generate a formula of the main controller (having a $60\,\mathrm{ms}$ period) in a modular way,
 since they must take into account those different flows of $(x_l, x_v, x_r)$.
-Therefore, we extend the \texttt{dReal} SMT solver
+Hence, we have extended the \texttt{dReal} SMT solver
 to directly handle such \emph{parameterized} differential equations over different flows
 in input formulas.
 
@@ -887,7 +922,7 @@ For example, the formula for the main controller's physical environment
 \end{medsize}
 \]
 is expressed
-using the aeronautics equations~(\ref{eq:dir}--\ref{eq:yaw})
+using the aeronautics equations~(\ref{eq:dir})--(\ref{eq:yaw})
 and the flow parameters $\mathit{fp}_{x_l}$,
 $\mathit{fp}_{x_v}$, and $\mathit{fp}_{x_r}$
 bounded in the time interval $[t, t+60]$ as follows:
@@ -918,7 +953,7 @@ y_{a_r}^{E_m;t}
 \end{medsize}
 \right]
 +
-\bigintssss_{t}^{t + 60}
+\bigintssss_{0}^{60}
 \left[
 \begin{medsize}
 \begin{aligned}
@@ -940,17 +975,18 @@ y_{a_r}^{E_m;t}
 \]
 The formulas for the sub-controllers' physical environments
 syntactically assign the relevant flows  to the parameters;
-e.g., for the left aileron controller:
+e.g., for the left aileron controller, four consecutive instances of the following formula 
+for $u \in \{t, t + 15, t + 30, t + 45\}$:
 \[
 \begin{medsize}
 \begin{aligned}
 &
-\varphi_{E_{M_\mathit{left}}}(y_{r}^{E_l;t} \shortmid y_{a}^{E_l;t} \shortmid y_{a}^{E_l;t + 15})
+\varphi_{E_{M_\mathit{left}}}(y_{r}^{E_l;u} \shortmid y_{a}^{E_l;u} \shortmid y_{a}^{E_l;u + 15})
 \\ 
 \equiv\quad&
-y_{a}^{E_l;t + 15} = y_{a}^{E_l;t} + \int_{t}^{t+15} y_{r}^{E_l;t} \mathrm{d}t
+y_{a}^{E_l;u + 15} = y_{a}^{E_l;u} + \int_{0}^{15} y_{r}^{E_l;u} \mathrm{d}t
 \;\wedge\;
-\mathit{fp}_{x_l}{[t,t+15]} = [y_{r}^{E_l;t}]
+\mathit{fp}_{x_l}{[t,t+15]} = [y_{r}^{E_l;u}]
 \end{aligned}
 \end{medsize}
 \]
@@ -1027,7 +1063,7 @@ then  the process can detect the violation and generate a counterexample.
 %%%
 \subsection{Checking Satisfiability}
 
-\textbf{To be written by Sean}
+\textbf{Sean, please briefly write something about the new implementation}
 \newpage
 
 
@@ -1045,11 +1081,19 @@ then  the process can detect the violation and generate a counterexample.
 %%%
 \subsection{Limitations}
 
+liveness properties
+
+continuous invariants $\forall \beta(t) < \epsilon$
+
+more general physical correlations
+
+
+
 
 
 %%%%
 %%%%
-\section{Concluding Remarks}
+%\section{Concluding Remarks}
 
 
 %%%%
