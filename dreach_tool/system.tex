@@ -1,14 +1,18 @@
 \section{\dReach{}: System Description}\label{sec:system}
 \begin{figure}
   \centering
-  \includegraphics[width=\textwidth]{images/dReach}
+  \includegraphics[width=\textwidth]{images/dreach_archi}
   \caption{Architecture of \dReach{}: It consists of an bounded
     model-checking module and an SMT solver, \dReal{}. In the first
-    phase, the BMC module translate an input hybrid system into a
-    logic formula with respect to the specified unrolling bound $k$
-    and the provided reachability condition $\textit{goal}$ in the
-    model. In the second phase, an SMT solver, \dReal{}, solves the
-    encoded $\delta$-reachability problem.}
+    phase, the Encoder module translates an input hybrid system into a
+    logic formula with respect to the given numerical error $\delta$,
+    specified unrolling bound $k$, and the provided reachability
+    condition $\textit{goal}$ in the model. In the second phase, an
+    SMT solver, \dReal{}, solves the encoded $\delta$-reachability
+    problem using ICP (Interval Constraint Propagation) algorithm with
+    the help of ODE Solvers. If \dReal{} returns $\delta$-SAT, then it
+    means that the goal is $\delta$-reachable. Otherwise, it means
+    that the property is unreachable.}
   \label{fig:system-description}
 \end{figure}
 
