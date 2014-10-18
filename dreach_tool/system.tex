@@ -53,9 +53,8 @@ $\frac{\mathrm{d}v}{\mathrm{d}t} = -9.8$.
 \texttt{(define-ode flow\_1 ((= d/dt[x] v) (= d/dt[v] -9.8)))}
 \]
 To encode reachability properties of hybrid systems, we need a way to
-formulate constraints between $\vec{x}^0$, the value of $\vec{x}$ at
-the beginning of a mode ($time = 0$), and $\vec{x}^t$, the value of
-$\vec{x}$ at the end of the mode ($time = t$). Let $\vec{g_i}$ be the
+formulate constraints between the initial variables $\vec{x}^0$ and the
+final state variables $\vec{x}^t$ at time $t$. Let $\vec{g_i}$ be the
 right-hand sides of the ODEs of $flow_i$. Then Using the
 Picard-Lindel$\ddot{o}$f representation, we can formulate the
 constraint as
@@ -63,15 +62,24 @@ constraint as
 [x_1^t, x_2^t, \dots, x_n^t] &= \int_0^t \vec{g}_i([x_1(s), x_2(s), \cdots,
 x_n(s)]) \mathrm{d}s.
 \end{align*}
-In \drh{}, we provide a command \texttt{(integral 0 t [x\_0\_0 x\_0\_1
-  ... x\_0\_n] flow\_i)} to encode the
-constraint between $t$, $\vec{x}^0 = [x_1^0, x_2^0, \dots, x_n^0]$,
-$\vec{x}^t = [x_1^t, x_2^t, \dots, x_n^t]$, and $\vec{g_i}$ of
-$flow_i$. Note that we do not include a variable in $\vec{x}^t$ such
-as \texttt{x\_t\_n} because it can be inferred from the given time
+In \drh{}, we introduce a new keyword \texttt{integral} and encode the
+above constraint as
+\[
+\texttt{(integral 0 t [x\_0\_0 x\_0\_1 ... x\_0\_n] flow\_i)}.
+\]
+Note that we do not include a variable in $\vec{x}^t$ such as
+\texttt{x\_t\_n} because it can be inferred from the given time
 \texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
 
-\paragraph{forall\_t}
+\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
+need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
+is a restricted form of $\exists\forall$ formula where the universal
+quantifications are limited to the time variables. In \drh{}, we
+introduce a new keyword $\texttt{forall\_t}$ to encode
+$\exists\forall^t$ formulas. For instance, \texttt{(forall\_t n [0
+  time\_i] (>= x\_i\_t 0))} denotes a mode invariant at ${mode_n}$
+
+
 \begin{Verbatim}[fontfamily=courier]
 (forall_t 2 [0 time_3] (>= x_3_t 0))
 \end{Verbatim}
