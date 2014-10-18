@@ -71,54 +71,24 @@ Note that we do not include a variable in $\vec{x}^t$ such as
 \texttt{x\_t\_n} because it can be inferred from the given time
 \texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
 
-\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
-need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
-is a restricted form of $\exists\forall$ formula where the universal
-quantifications are limited to the time variables. In \drh{}, we
-introduce a new keyword $\texttt{forall\_t}$ to encode
-$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
-invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
-  time\_i] f)}.
-
-\begin{figure}[!h]
+\begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
   numbers=left, fontsize=\scriptsize]
 (set-logic QF_NRA_ODE)
 (declare-fun x () Real)
 (declare-fun v () Real)
-(declare-fun x_0_0 () Real)
-(declare-fun x_0_t () Real)
-...
-(declare-fun x_10_0 () Real)
-(declare-fun x_10_t () Real)
-(declare-fun v_0_0 () Real)
-(declare-fun v_0_t () Real)
-...
-(declare-fun v_10_0 () Real)
-(declare-fun v_10_t () Real)
-(declare-fun time_0 () Real)
-...
-(declare-fun time_10 () Real)
-(declare-fun mode_0 () Real)
-...
-(declare-fun mode_10 () Real)
+(declare-fun x_0_0 () Real) ...
+(declare-fun v_0_t () Real) ...
+(declare-fun time_0 () Real) ...
 (define-ode flow_1 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
+                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 2.0))))))
 (define-ode flow_2 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 1.0))))))
-(assert (<= 0.0 x_0_0))
-(assert (<= x_0_0 15.0))
-...
-(assert (<= -18.0 v_10_t))
+                    (= d/dt[v] (+ (- 0.0 9.8) (* +0.45 (^ v 2.0))))))
+(assert (<= 0.0 x_0_0)) ...
 (assert (<= v_10_t 18.0))
 (assert (<= 0.0 time_0))
-(assert (<= time_0 3.0))
-...
-(assert (<= 0.0 time_10))
-(assert (<= time_10 3.0))
-...
-
+(assert (<= time_0 3.0)) ...
 (assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
 [x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
 1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
@@ -129,10 +99,19 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
 0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
 0.45))) (check-sat) (exit)
 \end{Verbatim}
-  \caption{SMT2 encoding of the bounded reachability problem of
-    bouncing ball ($k = 3$) }
+\caption{An example of SMT2 encoding: the bounded reachability problem
+  of bouncing ball ($k = 3$) }
   \label{fig:bouncing-ball-smt2}
 \end{figure}
+
+\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
+need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
+is a restricted form of $\exists\forall$ formula where the universal
+quantifications are limited to the time variables. In \drh{}, we
+introduce a new keyword $\texttt{forall\_t}$ to encode
+$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
+invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
+  time\_i] f)}.
 
 %%% Local Variables:
 %%% mode: latex
