@@ -76,13 +76,9 @@ need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
 is a restricted form of $\exists\forall$ formula where the universal
 quantifications are limited to the time variables. In \drh{}, we
 introduce a new keyword $\texttt{forall\_t}$ to encode
-$\exists\forall^t$ formulas. For instance, \texttt{(forall\_t n [0
-  time\_i] (>= x\_i\_t 0))} denotes a mode invariant at ${mode_n}$
-
-
-\begin{Verbatim}[fontfamily=courier]
-(forall_t 2 [0 time_3] (>= x_3_t 0))
-\end{Verbatim}
+$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
+invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
+  time\_i] f)}.
 
 \begin{figure}[!h]
   \centering
