@@ -2,30 +2,18 @@
 
 % Need a paragrapgh or two to explain why the tool is interesting and
 % significant should be provided.
+\dReach{} is a bounded model checker for hybrid systems. It encodes bounded reachability problems of hybrid systems as first-order formulas over the real numbers, and solves them using $\delta$-decision procedures in the SMT solver \dReal{}. \dReach{} is able to handle a wide range of highly nonlinear hybrid systems. It has scaled well on various realistic nonlinear models from biomedical and robotics applications~\cite{}. 
 
-Hybrid system provides a way to model complex dynamical systems which
-exhibit both of discrete and continuous behaviors. This expresive
-power allows many areas to adopt it to formulate models. The examples
-include flight controllers~\cite{?}, medical equipments~\cite{?}, and
-biological systems~\cite{?}.
+It is well-known that the standard bounded reachability problems for simple hybrid systems are already highly undecidable~\cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92}. In previous work~\cite{}, we have defined the notion of $\delta$-reachability problem of hybrid systems. In this new framework, we have shown that bounded $\delta$-reachability is decidable for a wide range of hybrid systems, with reasonable complexity bounds~\cite{}. We give a brief review of the framework in Section~\ref{}. 
 
-However, this expresive power limits the possibility of analysis. In
-the seminal work of
-\cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92}, it is already
-shown that even for simple classes of hybrid automata the problem of
-bounded reachability is undecidable. This decidability result has led
-verification tools either to accept a restricted form of
-input~\cite{?} or to over-approximate the set of reachable states of
-input models~\cite{?}.
+\paragraph{Related Work} 
+%reachable set computation tools: flow star, SpaceX, Phaver, 
+%theorem provers:
+%similar tools: iSAT, RSolver -- emphasize on the nonlinearity that we can handle. 
 
-We present our tool \dReach{} for solving hybrid system
-reachability problems. Our tool performs bounded model checking for a
-wide range of hybrid systems whose descriptions can involve various
-nonlinear elementrary functions (such as $\exp$ and $\sin$) and
-ODEs. We avoid the undecidability of the problem in the standard
-definition by switching to what we call the ``bounded
-$\delta$-reachability'' which we now briefly explain.
+The paper is structured as follows. 
 
+%put the following two paragraphs in a \section{Bounded delta-reachability} 
 Let $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ be a hybrid
 system as standardly defined. We use first-order formulae over the
 real numbers to represent $H$, by writing $$H = \langle X, Q,
