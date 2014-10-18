@@ -1,121 +1,29 @@
-\section{\dReach{}: System Description}\label{sec:system}
-\begin{figure}
+\section{System Description}\label{sec:system}
+
+\dReach{} asks the user to provide one input file and two parameters as follows: 
+\begin{itemize}
+\item The input file that describes the hybrid system and reachability properties in question, with a grammar described in Section~\ref{}. 
+\item A bound on the number of mode changes. 
+\item A numerical error bound $\delta$, as explained in Section~\ref{}.
+\end{itemize}
+
+The tool uses a concise logical encoding that generates a logic formula, which involves existential quatification as well as universal quantification on the time variables. The encoding is compact, always linear in the size of the input file and the number of mode changes. It then makes iterative calls to the underlying solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13} to decide the reachability properties, and generate a visualization of the counterexample if one can be found. Figure~\ref{fig:system-description} illustrates the architecture of
+\dReach{}. 
+
+\begin{figure}[!h]
   \centering
   \includegraphics[width=\textwidth]{images/dreach_archi}
   \caption{Architecture of \dReach{}: It consists of an bounded
     model-checking module and an SMT solver, \dReal{}. In the first
     phase, the Encoder module translates an input hybrid system into a
-    logic formula with respect to the given numerical error $\delta$,
-    specified unrolling bound $k$, and the provided reachability
-    condition $\textit{goal}$ in the model. In the second phase, an
+    logic formula. In the second phase, an
     SMT solver, \dReal{}, solves the encoded $\delta$-reachability
-    problem using ICP (Interval Constraint Propagation) algorithm with
-    the help of ODE Solvers. If \dReal{} returns $\delta$-SAT, then it
-    means that the goal is $\delta$-reachable. Otherwise, it means
-    that the property is unreachable.}
+    problem using a solving framework that combines DPLL(T), Interval Constraint Propagation, and reliable (interval-based) numerical integration. 
+  }  
   \label{fig:system-description}
 \end{figure}
 
-Figure~\ref{fig:system-description} illustrates the architecture of
-\dReach{}. We provide a domain-specific lanaguage to describe a hybrid
-system and specify its safety properties. Given an input model,
-specification, and unrolling bound $k$, \dReach{} reduces the
-$\delta$-reachability problem to a $\delta$-decision problem of
-formulae over the reals by providing a corresponding SMT encoding for
-the problem. Then, the bounded reachability queries are answered by
-using our nonlinear SMT solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13}.
 
-\subsection{Encoding Bounded Reachability Problem}
-
-Our previous work~\cite{DBLP:journals/corr/GaoKCC14} already studied
-logic encodings of bounded reachability problems of hybrid
-systems. The encoding scheme is based on the standard bounded model
-checking while non-trivial mode invariants and systems with
-nondeterministic flows make the problem interesting.
-
-In this section, we explain the extensions and variable naming
-convention that we make to the standard SMT-LIB~\cite{BarST-SMT-10} to
-represent flows and mode invariants of hybrid systems.
-
-\paragraph{Variable naming convention}
-In our encoding, a system variable $\texttt{x\_i\_p}$ has two
-subscripts $i \in \mathbb{N}$ and $p \in \{0, t\}$. The first
-subscript $i$ indicates that it represents the value of a system
-variable $x$ at the $i$-th step. The second subscript $p \in \{0, t\}$
-denotes the value at the begining of mode (end of mode,
-respectively). For instance, $x\_0\_t$ denotes the value of variable
-$x$ at the end of first mode (step 0).
-
-\paragraph{define-ode and integral}
-A flow consists of a group of ordinary differential equations. In
-\drh{}, we provide a command \texttt{define-ode} to associate a flow
-with a name. For instance, we use $\texttt{define-ode}$ as follows to
-assign a name $\mathrm{flow_1}$ to a group of ODE,
-$\frac{\mathrm{d}x}{\mathrm{d}t} = v$ and
-$\frac{\mathrm{d}v}{\mathrm{d}t} = -9.8$.
-\[
-\texttt{(define-ode flow\_1 ((= d/dt[x] v) (= d/dt[v] -9.8)))}
-\]
-To encode reachability properties of hybrid systems, we need a way to
-formulate constraints between the initial variables $\vec{x}^0$ and the
-final state variables $\vec{x}^t$ at time $t$. Let $\vec{g_i}$ be the
-right-hand sides of the ODEs of $flow_i$. Then Using the
-Picard-Lindel$\ddot{o}$f representation, we can formulate the
-constraint as
-\begin{align*}
-[x_1^t, x_2^t, \dots, x_n^t] &= \int_0^t \vec{g}_i([x_1(s), x_2(s), \cdots,
-x_n(s)]) \mathrm{d}s.
-\end{align*}
-In \drh{}, we introduce a new keyword \texttt{integral} and encode the
-above constraint as
-\[
-\texttt{(integral 0 t [x\_0\_0 x\_0\_1 ... x\_0\_n] flow\_i)}.
-\]
-Note that we do not include a variable in $\vec{x}^t$ such as
-\texttt{x\_t\_n} because it can be inferred from the given time
-\texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
-
-\begin{figure}
-  \centering
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
-  numbers=left, fontsize=\scriptsize]
-(set-logic QF_NRA_ODE)
-(declare-fun x () Real)
-(declare-fun v () Real)
-(declare-fun x_0_0 () Real) ...
-(declare-fun v_0_t () Real) ...
-(declare-fun time_0 () Real) ...
-(define-ode flow_1 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 2.0))))))
-(define-ode flow_2 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* +0.45 (^ v 2.0))))))
-(assert (<= 0.0 x_0_0)) ...
-(assert (<= v_10_t 18.0))
-(assert (<= 0.0 time_0))
-(assert (<= time_0 3.0)) ...
-(assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
-[x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
-1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
-...
-x_9_t) (= [x_10_t v_10_t] (integral 0. time_10 [x_10_0 v_10_0]
-flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
-(<= v_10_t 0.0) (<= v_10_0 0.0) (forall_t 1.0 [0.0 time_10] (>= x_10_t
-0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
-0.45))) (check-sat) (exit)
-\end{Verbatim}
-\caption{An example of SMT2 encoding: the bounded reachability problem
-  of bouncing ball ($k = 3$) }
-  \label{fig:bouncing-ball-smt2}
-\end{figure}
-
-\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
-need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
-is a restricted form of $\exists\forall$ formula where the universal
-quantifications are limited to the time variables. In \drh{}, we
-introduce a new keyword $\texttt{forall\_t}$ to encode
-$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
-invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
-  time\_i] f)}.
 
 %%% Local Variables:
 %%% mode: latex

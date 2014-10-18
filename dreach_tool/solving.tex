@@ -1,0 +1,139 @@
+\section{Solving Techniques}
+
+We describe the underlying techniques of \dReach{}. 
+
+\subsection{Bounded $\delta$-reachability}\label{sec:delta-reachability}
+Let $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ be a hybrid
+system as standardly defined. We use first-order formulae over the
+real numbers to represent $H$, by writing $$H = \langle X, Q,
+\varphi_{\flow}, \varphi_{\jump}, \varphi_{\inv},
+\varphi_{\init}\rangle$$ where $\varphi_{\flow}, \varphi_{\jump},
+\varphi_{\inv}$ and $\varphi_{\init}$ are logic formulae that define
+the corresponding predicates in the standard definition. Now, let
+$\delta\in \mathbb{Q}^+$ be a chosen error bound, we define the
+$\delta$-perturbation of $H$ to be $$H^{\delta} = \langle X, Q,
+\varphi_{\flow}^{\delta}, \varphi_{\jump}^{\delta},
+\varphi_{\inv}^{\delta}, \varphi_{\init}^{\delta}\rangle.$$ Here,
+$\varphi^{\delta}$ is a syntactic variant of $\varphi$ which relaxes
+the numerical terms in $\varphi$ up to an error bound $\delta$. The
+notion is formally defined in our recent
+work~\cite{DBLP:conf/lics/GaoAC12,DBLP:conf/cade/GaoAC12,DBLP:journals/corr/GaoKCC14}.
+We now define the bounded $\delta$-reachability problem that \dReach{}
+solves.
+
+%\paragraph{Bounded $\delta$-Reachability.}
+Let $n\in \mathbb{N}$ be a bound and $T\in \mathbb{R}^+$ be an upper
+bound of time duration. We write $\unsafe$ to denote a subset of the
+state space of $H$ defined by a first-order formula. The bounded
+$\delta$-reachability problem asks for one of the following answers
+\begin{itemize}
+ \item $H$ cannot reach $\unsafe$ in $n$ steps within time $T$.
+ \item $H^{\delta}$ can reach $\unsafe^{\delta}$ in $n$ steps within time $T$.
+\end{itemize}
+Note that these answers are not weaker than the precise ones. When
+{\sf safe} is the answer, we know for certain that $H$ does not reach
+the unsafe region; when {\sf $\delta$-unsafe} is the answer, there
+exists some $\delta$-bounded perturbation in the system that {\em
+  would} render it unsafe. Note that the error-bound $\delta$ can be
+chosen to be arbitrarily small, so that the {\sf$\delta$-unsafe}
+answer discovers robustness problem in the system, which should be
+regarded as unsafe indeed.
+
+\subsection{Encoding Reachability}
+
+In our work~\cite{DBLP:journals/corr/GaoKCC14} already studied
+logic encodings of bounded reachability problems of hybrid
+systems. The encoding scheme is based on the standard bounded model
+checking while non-trivial mode invariants and systems with
+nondeterministic flows make the problem interesting.
+
+In this section, we explain the extensions and variable naming
+convention that we make to the standard SMT-LIB~\cite{BarST-SMT-10} to
+represent flows and mode invariants of hybrid systems.
+
+\paragraph{Variable naming convention}
+In our encoding, a system variable $\texttt{x\_i\_p}$ has two
+subscripts $i \in \mathbb{N}$ and $p \in \{0, t\}$. The first
+subscript $i$ indicates that it represents the value of a system
+variable $x$ at the $i$-th step. The second subscript $p \in \{0, t\}$
+denotes the value at the begining of mode (end of mode,
+respectively). For instance, $x\_0\_t$ denotes the value of variable
+$x$ at the end of first mode (step 0).
+
+\paragraph{define-ode and integral}
+A flow consists of a group of ordinary differential equations. In
+\drh{}, we provide a command \texttt{define-ode} to associate a flow
+with a name. For instance, we use $\texttt{define-ode}$ as follows to
+assign a name $\mathrm{flow_1}$ to a group of ODE,
+$\frac{\mathrm{d}x}{\mathrm{d}t} = v$ and
+$\frac{\mathrm{d}v}{\mathrm{d}t} = -9.8$.
+\[
+\texttt{(define-ode flow\_1 ((= d/dt[x] v) (= d/dt[v] -9.8)))}
+\]
+To encode reachability properties of hybrid systems, we need a way to
+formulate constraints between the initial variables $\vec{x}^0$ and the
+final state variables $\vec{x}^t$ at time $t$. Let $\vec{g_i}$ be the
+right-hand sides of the ODEs of $flow_i$. Then Using the
+Picard-Lindel$\ddot{o}$f representation, we can formulate the
+constraint as
+\begin{align*}
+[x_1^t, x_2^t, \dots, x_n^t] &= \int_0^t \vec{g}_i([x_1(s), x_2(s), \cdots,
+x_n(s)]) \mathrm{d}s.
+\end{align*}
+In \drh{}, we introduce a new keyword \texttt{integral} and encode the
+above constraint as
+\[
+\texttt{(integral 0 t [x\_0\_0 x\_0\_1 ... x\_0\_n] flow\_i)}.
+\]
+Note that we do not include a variable in $\vec{x}^t$ such as
+\texttt{x\_t\_n} because it can be inferred from the given time
+\texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
+
+\begin{figure}
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
+(set-logic QF_NRA_ODE)
+(declare-fun x () Real)
+(declare-fun v () Real)
+(declare-fun x_0_0 () Real) ...
+(declare-fun v_0_t () Real) ...
+(declare-fun time_0 () Real) ...
+(define-ode flow_1 ((= d/dt[x] v)
+                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 2.0))))))
+(define-ode flow_2 ((= d/dt[x] v)
+                    (= d/dt[v] (+ (- 0.0 9.8) (* +0.45 (^ v 2.0))))))
+(assert (<= 0.0 x_0_0)) ...
+(assert (<= v_10_t 18.0))
+(assert (<= 0.0 time_0))
+(assert (<= time_0 3.0)) ...
+(assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
+[x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
+1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
+...
+x_9_t) (= [x_10_t v_10_t] (integral 0. time_10 [x_10_0 v_10_0]
+flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
+(<= v_10_t 0.0) (<= v_10_0 0.0) (forall_t 1.0 [0.0 time_10] (>= x_10_t
+0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
+0.45))) (check-sat) (exit)
+\end{Verbatim}
+\caption{An example of SMT2 encoding: the bounded reachability problem
+  of bouncing ball ($k = 3$) }
+  \label{fig:bouncing-ball-smt2}
+\end{figure}
+
+\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
+need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
+is a restricted form of $\exists\forall$ formula where the universal
+quantifications are limited to the time variables. In \drh{}, we
+introduce a new keyword $\texttt{forall\_t}$ to encode
+$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
+invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
+  time\_i] f)}.
+
+\subsection{Solving the SMT Formulas}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

@@ -1,5 +1,115 @@
 \section{Using \dReach{}}\label{sec:using-dreach}
 
+We now describe the input format and command line options of \dReach{}. 
+
+\subsection{Input Format}\label{sec:input-format}
+
+We now describe the input language for describing hybrid systems and
+specifying reachability properties. It consists of five sections
+- macro definitions, variable declarations, mode definitions, and
+initial condition, and goals.
+\begin{align*}
+  \textit{drh} := \ & \textit{macro-definition}^*\\
+                    & \textit{variable-declaration}^+\\
+                    & \textit{mode-definition}^+\\
+                    & \textit{initial-condition}\\
+                    & \textit{goal}^+
+\end{align*}
+In macro definitions, it allows users to define macros in C
+preprocessor (\texttt{cpp}) style which can be used in the following
+sections. Note that macro expansions occur before the other parts are processed.
+
+A variable declaration has a form:
+\[
+\textit{variable-declaration} \ := \ \texttt{[}
+                                     \textit{l}
+                                     \texttt{,}
+                                     \ \textit{u}
+                                     \texttt{]}
+                                     \ \textit{var}
+                                     \texttt{;}
+\]
+and it declares a real variable, $var$ and its domain $[l, u]$ which
+is in Real interval $\mathbb{IR}$. It requires a special variable
+declaration for \textit{time}, to specify the upperbound of time
+duration in the analysis of bounded $\delta$-reachability.
+
+A mode definition consists of mode id, mode invariant, flow, and jump.
+\begin{align*}
+  \textit{mode-definition} \ := & \ \texttt{\{}
+                                    \texttt{mode} \ \textit{id}\texttt{;}\\
+                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
+                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
+\end{align*}
+\textit{id} is a unique positive interger assigned to a mode. An
+invariant is a conjuction of logic formulae which must always hold in
+a mode. A flow describes a continuous dynamics of a mode by providing
+a set of ordinary differential equations (\textit{ode}s) which is a
+form of
+``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
+a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
+\textit{reset}'' where \textit{guard} is a logic formula specifying a
+condition to make a transition, $n$ denotes the target mode-id, and
+\textit{reset} is a logic formula connecting the old and new values
+for the transition.
+
+\texttt{initial-condition} is of a form
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
+where \textit{mode-id} is an initial mode of a hybrid system and
+\textit{formula} specifies the initial configuration of it.
+
+\texttt{goal} shares the same syntactic structure,
+``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
+\textit{initial-condition} with a different interpretation. It poses a
+reachability question: ``Is there a trajectory of a hybrid system
+reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
+
+\begin{figure}
+  \centering
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
+  numbers=left, fontsize=\scriptsize]
+#define D 0.45
+#define K 0.9
+[0, 15] x;
+[9.8] g;
+[-18, 18] v;
+[0, 3] time;
+{   mode 1;
+    invt: (v <= 0);  (x >= 0);
+    flow: d/dt[x] = v;
+          d/dt[v] = -g - (D * v ^ 2);
+    jump: (x = 0) ==> @2 (and (x' = x) (v' = - K * v)); }
+ {  mode 2;
+    invt: (v >= 0); (x >= 0);
+    flow: d/dt[x] = v;
+          d/dt[v] = -g + (D * v ^ 2);
+    jump: (v = 0) ==> @1 (and (x' = x) (v' = v)); }
+init: @1 (and (x >= 5) (v = 0));
+goal: @1 (and (x >= 0.45));
+\end{Verbatim}
+\caption{An example of \drh{} format: Inelastic bouncing ball with air
+  resistance. At lines 1 and 2, we define a drag coefficient $D = 0.45$
+  and an elastic coefficient $K = 0.9$ using \texttt{\#define} macros.
+  At lines 3 - 6, we declare variables $x, g, v,$ and $time$. At lines
+  7 - 15 and 16 - 24, we define two modes -- the falling and the
+  bouncing-back modes respectively. At lines 25 and 26, we specify
+  that this hybrid system starts at mode 1 (\texttt{@1}) with initial
+  condition satisfying $x \ge 5 \land v = 0$. At lines 28 and 29, it
+  is asking whether we can have a trajectory ending at mode 1
+  (\texttt{@1}) while the height of the ball is higher than $0.45$.}
+\label{fig:bouncing-ball-drh}
+\end{figure}
+
+Figure~\ref{fig:bouncing-ball-drh} shows a canonical example of hybrid
+systems, an inelastic bouncing ball with air resistance, in \drh{}
+format.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:
+\subsection{Command Line Options}
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm, fontsize=\scriptsize]
 usage: /home/soonhok/work/dreal/bin/dReach options <*.drh> <options to dReal>
 
