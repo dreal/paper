@@ -80,12 +80,6 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
 % {\sf CAPD}~\cite{capd} for computing interval-enclosures of ODEs. The
 % tool is open-source at~\url{http://dreal.cs.cmu.edu/dreach.html}.
 
-All benchmarks and data shown here are also available on the tool
-website.All experiments were conducted on a machine with a 3.4GHz
-octa-core Intel Core i7-2600 processor and 16GB RAM, running 64-bit
-Ubuntu 12.04LTS. Table~\ref{tbl:exp} is a summary of the running time
-of the tool on various hybrid system models.
-
 \newcommand{\hmodel}[2]{\href{http://dreal.cs.cmu.edu/#1}{#2}}
 {\small
 \begin{table}[!th]
@@ -147,6 +141,16 @@ of the tool on various hybrid system models.
 }\label{tbl:exp}
 \end{table}
 
+
+All benchmarks and data shown here are also available on the tool
+website\footnote{\url{http://dreal.cs.cmu.edu}}. Due to space limit,
+we only highlight the typical nonlinear differential equations in the
+models. All models are hybrid systems with multiple modes containing
+these equations All experiments were conducted on a machine with a
+3.4GHz octa-core Intel Core i7-2600 processor and 16GB RAM, running
+64-bit Ubuntu 12.04LTS. Table~\ref{tbl:exp} is a summary of the
+running time of the tool on various hybrid system models.
+
 \paragraph{Atrial Fibrillation.} We studied the Atrial Fibrillation model. The model has four discrete control locations, four state variables, and nonlinear ODEs. A typical set of ODEs in the model is:
 \begin{eqnarray*}
 \frac{du}{dt} &=& e + (u-\theta_v)(u_u-u ) v g_{fi} + wsg_{si}-g_{so}(u)\\
@@ -154,6 +158,7 @@ of the tool on various hybrid system models.
 \frac{dv}{dt} &=& -g_v^+\cdot v \hspace{1cm} \frac{dw}{dt} = -g_w^+\cdot w
 \end{eqnarray*}
 The exponential term on the right-hand side of the ODE is the sigmoid function, which often appears in modelling biological switches.
+
 \paragraph{Prostate Cancer Treatment.} The Prostate Cancer Treatment model~\cite{CMSB14} exhibits more nonlinear ODEs. The reachability questions are
 \begin{eqnarray*}
 \frac{dx}{dt} &=& (\alpha_x
@@ -164,6 +169,7 @@ The exponential term on the right-hand side of the ODE is the sigmoid function, 
 (k_1+(1-k_1)\frac{z}{z+k_2}-\beta_x(k_3+(1-k_3)\frac{z}{z+k_4}))\\
 & &- m_1(1-\frac{z}{z_0}))x + c_1 x + m_1(1-\frac{z}{z_0})x+(\alpha_y (1- d\frac{z}{z_0}) - \beta_y)y+c_2y
 \end{eqnarray*}
+
 \paragraph{Electronic Oscillator.} The EO model represents an electronic oscillator model that contains nonlinear ODEs such as the following:
 \begin{eqnarray*}
 \frac{dx}{dt} &=& - ax \cdot sin(\omega_1 \cdot \tau)\\
@@ -171,6 +177,7 @@ The exponential term on the right-hand side of the ODE is the sigmoid function, 
 \frac{dz}{dt} &=& - az \cdot sin( (\omega_2 + c_2) \cdot \tau) \cdot cos(\omega_1)\cdot 2\\
 \frac{\omega_1}{dt} &=& - c_3\cdot \omega_1\ \ \ \frac{\omega_2}{dt} = -c_4\cdot\omega_2\ \ \ \frac{d\tau}{dt} = 1
 \end{eqnarray*}
+
 \paragraph{Quadcopter Control.} We developed a model that contains the full dynamics of a quadcopter. We use the model to solve control problems by answering reachability questions. A typical set of the differential equations are the following:
 \begin{eqnarray*}
 \frac{\mathrm{d}\omega_x}{\mathrm{d}t} &=& L\cdot k\cdot (\omega_1^2 - \omega_3^2)(1/I_{xx})-(I_{yy} - I_{zz})\omega_y\omega_z/I_{xx}\\
