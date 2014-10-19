@@ -31,7 +31,7 @@ simple hybrid systems are already highly
 undecidable~\cite{DBLP:conf/rex/AlurD91,DBLP:conf/hybrid/AlurCHH92}.
 Instead, we work in the framework of $\delta$-reachability of hybrid systems~\cite{DBLP:journals/corr/GaoKCC14}.
 Here $\delta$ is an arbitrary positive rational number, provided by the user to
-speficy the bound on numerical errors that can be tolerated in the analysis.
+specify the bound on numerical errors that can be tolerated in the analysis.
 For a hybrid system $H$ and an unsafe region $\unsafe$ (both encoded as logic formulas),
 the $\delta$-reachability problem asks for one of the following answers:
 \begin{itemize}
@@ -62,20 +62,20 @@ and the jump and reset conditions with complex Boolean combinations of nonlinear
 which can be directly solved under certain restrictions on the invariants.
 
 2. Property-guided search. \dReach{} maintains logical encodings, whose size is linear in the size of the inputs, of the reachable states of
-a hybrid system. The tool searches for concrete counterexamples to faulsify the reachability properties, instead of overapproximating the full reachable states. 
+a hybrid system. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
 This avoids the usual state explosion problem in reachable set computation, because the full set of states does not need to be explicitly stored. This change
 is analogous to the difference between SAT-based model checking and BDD-based symbolic model checking.
 
 3. Tight integration of symbolic reasoning and numerical solving. \dReach{} delegates the
-reasoning on discrete mode changes to SAT solvers, and uses numerlcal constraint solving to handle nonlinear dynamics.
+reasoning on discrete mode changes to SAT solvers, and uses numerical constraint solving to handle nonlinear dynamics.
 As a result, it can combine the full power of both symbolic reasoning and numerical analysis algorithms. In particular,
 all existing tools for reachable set computation can be easily plugged-in as engines for solving
-the continuous part of the dynamics, while logic reasoning tools can overcome the difficulty 
+the continuous part of the dynamics, while logic reasoning tools can overcome the difficulty
 in handling complex mode transitions.
 
-The paper is structured as follows. We describe the system architechture in Section 2, 
-and give some details about the logical encoding in the tool in Section 3. 
-We then explain the input format and usage in Section 4. More details and examples are given in the Appendix. 
+The paper is structured as follows. We describe the system architecture in Section 2,
+and give some details about the logical encoding in the tool in Section 3.
+We then explain the input format and usage in Section 4. More details and examples are given in the Appendix.
 
 %Realistic hybrid systems involves nonlinear ODEs with transcendental
 %functions. \dReach{} allows users to specify a hybrid system in a
@@ -88,7 +88,7 @@ We then explain the input format and usage in Section 4. More details and exampl
 %provide a visualization for the $\delta$-sat case to help
 %understand the analysis result.
 
-% TODO: Need to diiferentiate this paper from FMCAD paper
+% TODO: Need to differentiate this paper from FMCAD paper
 %  - FMCAD: underlying solving techniques for SMT with ODEs
 %  - TACAS: tool, encoding, using solver...
 
