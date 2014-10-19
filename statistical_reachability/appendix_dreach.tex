@@ -1,0 +1,84 @@
+\section{$\delta$-Decisions for Hybrid Models}\label{apndx:dreach}
+The reachability problems of hybrid automata can be encoded using a first-order language $\lrf$ over the reals,
+which allows the use of a wide range of real functions including nonlinear ODEs.
+Then, $\delta$-complete decision procedures are used to find solutions to these formulas to synthesize
+parameters.
+\begin{definition}[$\lrf$-Formulas]
+Let $\mathcal{F}$ be a collection of computable real functions. We define:
+\begin{align*}
+t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants are 0-ary functions)};\\
+\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi
+\; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
+\end{align*}
+\end{definition}
+By computable real function we mean Type 2 computable, which informally requires that a (real)
+function can be algorithmically evaluated with arbitrary accuracy. Since in general
+$\lrf$ formulas are undecidable, the decision problem needs to be relaxed. In particular, for
+any $\lrf$ formula $\phi$ and any rational $\delta >0$ one can obtain a $\delta$-weakening
+formula $\phi^\delta$ from $\phi$ by substituting the atoms $t > 0$ with $t > -\delta$ (and
+similarly for $t \geq 0$). Obviously, $\phi$ implies $\phi^\delta$, but not the {\em vice versa}.
+Now, the $\delta$-decision problem is deciding correctly whether:
+\begin{itemize}
+\item $\phi$ is false ($\mathsf{unsat}$);
+\item $\phi^\delta$ is true ($\delta$-$\mathsf{sat}$).
+\end{itemize}
+If both cases are true, then either decision is correct. More details on algorithms ($\delta$-{\em complete} decision procedures) for solving $\delta$-decision problems for $\lrf$ and for ODEs can be found in \cite{gao2013satisfiability, gao2013dreal, gaodelta}.
+
+Now we state the encoding for hybrid models. Hybrid automata generalize finite-state
+automata by permitting continuous time flow in each discrete mode.
+Also, in each mode an {\em invariant} must be satisfied by the flow, and mode switches are controlled
+by {\em jump} conditions.
+\begin{definition}[$\lrf$-Representations of Hybrid Automata]\label{lrf-definition}
+A hybrid\\ automaton in $\lrf$-representation is a tuple
+\begin{multline*}
+H = \langle X, Q, \{{\flow}_q(\vec x, \vec y, t): q\in Q\},\{\inv_q(\vec x): q\in Q\},\\
+\{\jump_{q\rightarrow q'}(\vec x, \vec y): q,q'\in Q\},\{\init_q(\vec x): q\in Q\}\rangle
+\end{multline*}
+where $X\subseteq \mathbb{R}^n$ for some $n\in \mathbb{N}$, $Q=\{q_1,...,q_m\}$ is a finite set of modes, and the other components are finite sets of quantifier-free $\lrf$-formulas.
+\end{definition}
+
+We now show the encoding of bounded reachability, which is used for encoding the parameter synthesis
+problem. We want to decide whether a given
+hybrid system reaches a particular region of its state space after following a (bounded) number
+of discrete transitions, \ie, jumps. First, we need to define auxiliary formulas used
+for ensuring that a particular mode is picked at a certain step.
+\begin{definition}
+Let $Q = \{q_1,...,q_m\}$ be a set of modes. For any $q\in Q$, and $i\in\mathbb{N}$, use $b_{q}^i$ to represent a Boolean variable. We now define
+$$\enforce_Q(q,i) = b^i_{q} \wedge \bigwedge_{p\in Q\setminus\{q\}}\neg b^{i}_{p}$$
+$$\enforce_Q(q, q',i) = b^{i}_{q}\wedge \neg b^{i+1}_{q'} \wedge \bigwedge_{p\in Q\setminus\{q\}} \neg b^i_{p} \wedge \bigwedge_{p'\in Q\setminus\{q'\}} \neg b^{i+1}_{p'}$$
+We omit the subscript $Q$ when the context is clear.\end{definition}
+We can now define the following formula that checks whether a {\em goal} region of the automaton
+state space is reachable after exactly $k$ discrete transitions. We first state
+the simpler case of a hybrid system without invariants.
+\begin{definition}[$k$-Step Reachability, Invariant-Free Case]
+Suppose $H$ is an invariant-free hybrid automaton, $U$ a subset of its state space represented by $\goal$,
+and $M>0$. \\The formula $\reach_{H,U}(k,M)$ is defined as:
+\begin{eqnarray*}
+%\reach^{k,M}(H,U) &:=&
+& &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t\exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
+& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\Big)\\%\wedge (b_{q_i}\wedge \bigwedge_{q\neq q_i} \neg b_{q})
+\wedge & & \bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec x_{i}^t, \vec x_{i+1})\wedge \enforce(q,q',i)\\
+& & \hspace{1.1cm}\wedge\flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1}) \wedge \enforce(q',i+1)\Big)\bigg)\\
+\wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k))
+\end{eqnarray*}
+where $\exists^X x$ is a shorthand for $\exists x\in X$.
+\end{definition}
+Intuitively, the trajectories start with some initial state satisfying $\init_q(\vec x_{0})$ for some $q$.
+Then, in each step the trajectory follows $\flow_q(\vec x_{i}, \vec x_{i}^t, t)$ and makes a continuous flow from $\vec x_i$ to $\vec x_i^t$ after time $t$. When the automaton makes a $\jump$ from mode $q'$ to $q$, it resets variables following $\jump_{q'\rightarrow q}(\vec x_{k}^t, \vec x_{k+1})$. The auxiliary $\enforce$ formulas ensure that picking $\jump_{q\rightarrow q'}$ in the $i$-the step enforces picking $\flow_q'$ in the $(i+1)$-th step.
+When the invariants are not trivial, we need to ensure that for all the time points along a continuous flow, the invariant condition holds. We need to universally quantify over time, and the encoding is as follows:
+\begin{definition}[$k$-Step Reachability, Nontrivial Invariant]\label{br2}
+Suppose $H$ contains invariants, and $U$ is a subset of the state space represented by $\goal$. The $\lrf$-formula $\reach_{H,U}(k,M)$ is defined as:
+\begin{eqnarray*}
+& &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
+& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\\
+& &\hspace{1.1cm} \wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q}(\vec x_{0}, \vec x, t)\rightarrow \inv_{q}(\vec x))\Big) \\
+\wedge & &\bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec
+x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\\
+& &\hspace{1.1cm} \wedge \enforce(q,q',i) \wedge\enforce(q',i+1)\\
+& &\hspace{1.1cm} \wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
+t)\rightarrow \inv_{q'}(\vec x)) )\Big)\bigg)\\
+\wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k)).
+\end{eqnarray*}
+\end{definition}
+The extra universal quantifier for each continuous flow expresses the requirement that for all the time points between the initial and ending time point ($t\in[0,t_i+1]$) in a flow, the continuous variables $\vec x$ must take values that satisfy the invariant conditions $\inv_q(\vec x)$.
+
