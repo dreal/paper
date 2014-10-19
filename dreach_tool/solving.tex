@@ -1,18 +1,9 @@
 \section{Logical Encoding of Reachability}
 
-In this section, we explain the extensions and variable naming
-convention that we make to the standard SMT-LIB~\cite{BarST-SMT-10} to
-represent flows and mode invariants of hybrid systems. The detailed
-encoding scheme is shown in~\cite{DBLP:journals/corr/GaoKCC14}
-
-\paragraph{Variable naming convention}
-In our encoding, a system variable $\texttt{x\_i\_p}$ has two
-subscripts $i \in \mathbb{N}$ and $p \in \{0, t\}$. The first
-subscript $i$ indicates that it represents the value of a system
-variable $x$ at the $i$-th step. The second subscript $p \in \{0, t\}$
-denotes the value at the begining of the mode (at the end of the mode,
-respectively). For instance, $x\_0\_t$ denotes the value of variable
-$x$ at the end of first mode (step $0$).
+In this section, we explain the extensions that we made to the
+standard SMT-LIB~\cite{BarST-SMT-10} to represent flows and mode
+invariants of hybrid systems. The detailed encoding scheme is shown
+in~\cite{DBLP:journals/corr/GaoKCC14}
 
 \paragraph{define-ode and integral}
 A flow consists of a group of ordinary differential equations. In

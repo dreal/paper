@@ -9,28 +9,22 @@ and initial condition, and goals. Here is the syntax grammar of \drh{}:
 
 \begin{align*}
   % drh
-  \mathit{drh} := \ & \mathit{macro\_def}^* \
+  \mathit{drh} \ := \ & \mathit{macro\_def}^* \
   \mathit{variable\_decl}^+ \ \mathit{mode\_def}^+ \  \mathit{initial\_cond} \  \mathit{goal}^+\\
   % variable-decl
-  \mathit{macro\_decl} \ := \ &  \mathtt{\#define} \ \mathit{var} \ (\mathit{expr} \, | \, \mathit{formula})\\
+  \mathit{macro\_decl} \ := \ &  \texttt{\#define} \ \mathit{var} \ (\mathit{expr} \, | \, \mathit{formula})\\
   % variable-decl
-  \mathit{variable\_decl} \ := \ &  \mathtt{[}
-  \mathit{l}
-  \mathtt{,}
-  \ \mathit{u}
-  \mathtt{]}
-  \ \mathit{var}
-  \mathtt{;}\\
+  \mathit{variable\_decl} \ := \ &  \texttt{[} \mathit{l} \texttt{,} \ \mathit{u} \texttt{]} \ \mathit{var} \texttt{;}\\
   % variable-decl
-  \mathit{mode\_def} \ := \ & \ \mathtt{\{}
-  \mathtt{mode} \
-  \mathit{id}\mathtt{;} \quad
-  \mathtt{invt}:(\mathit{formula} \mathtt{;})^+ \ \ \
-  \mathtt{flow}:\mathit{ode}^+ \ \ \ \mathtt{jump}:\mathit{jump}^+ \mathtt{\}}\\
-  \mathit{ode} \ := \ & \mathtt{d/dt[}\mathit{x}\mathtt{]=}\mathit{exp}\\
+  \mathit{mode\_def} \ := \ & \texttt{\{}
+  \texttt{mode} \
+  \mathit{id}\texttt{;} \quad
+  \texttt{invt}:(\mathit{formula} \texttt{;})^+ \ \ \
+  \texttt{flow}:\mathit{ode}^+ \ \ \ \texttt{jump}:\mathit{jump}^+ \texttt{\}}\\
+  \mathit{ode} \ := \ & \texttt{d/dt[}\mathit{x}\texttt{]=}\mathit{exp}\\
   \mathit{jump} \ := \ & \mathit{formula} \ \texttt{==>} \ \texttt{@}\mathit{n} \ \mathit{formula}\\
-  \mathit{initial\_cond} \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\mathtt{;}\\
-  \mathit{goal}              \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\mathtt{;}
+  \mathit{initial\_cond} \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}\\
+  \mathit{goal}              \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}
 \end{align*}
 Note that we use the standard definitions for $\mathit{formlua}$ and
 $\mathit{expr}$ here.
@@ -106,21 +100,17 @@ dReach <options> <drh file>
 \end{Verbatim}
 It has the following options:
 \begin{itemize}
-\item If \texttt{-k <N>} is used, set the unrolling bound $k$ as $N$
-  (Default: 3).
-\item If \texttt{--precision <p>} is used: use precision $p$ instead of
-  the default value, $0.001$.
-\item If \texttt{--visualize} is set, \dReach{} generate extra
-  visualization data in \texttt{json} format.
+\item If \texttt{-k <N>} is used, set the unrolling bound $k$ as $N$ (Default: 3).
+\item If \texttt{--precision <p>} is used: use precision $p$ (Default: $0.001$).
+\item If \texttt{--visualize} is set, \dReach{} generate extra visualization data.
 \end{itemize}
 We have a web-based visualization toolkit\footnote{The detailed
   instructions are available at
   \url{https://github.com/dreal/dreal/blob/master/doc/ode-visualization.md}.}
-which takes the generated \texttt{json} data file and shows the
+which processes the generated visualization data and shows the
 counterexample trajectory. It provides a way to navigate and
 zoom-in/out trajectories which helps understand and debug the target
-hybrid system better. Figure~\ref{fig:viz} is a screenshot of the
-visualization for a cardiac-cell model.
+hybrid system better.
 
 %%% Local Variables:
 %%% mode: latex
