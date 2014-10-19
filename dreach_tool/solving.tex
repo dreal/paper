@@ -41,24 +41,19 @@ regarded as unsafe indeed.
 
 \subsection{Encoding Reachability}
 
-In our work~\cite{DBLP:journals/corr/GaoKCC14}, we already studied
-logic encodings of bounded reachability problems of hybrid
-systems. The encoding scheme is based on the standard bounded model
-checking while non-trivial mode invariants and systems with
-nondeterministic flows make the problem interesting.
-
 In this section, we explain the extensions and variable naming
 convention that we make to the standard SMT-LIB~\cite{BarST-SMT-10} to
-represent flows and mode invariants of hybrid systems.
+represent flows and mode invariants of hybrid systems. The detailed
+encoding scheme is shown in~\cite{DBLP:journals/corr/GaoKCC14}
 
 \paragraph{Variable naming convention}
 In our encoding, a system variable $\texttt{x\_i\_p}$ has two
 subscripts $i \in \mathbb{N}$ and $p \in \{0, t\}$. The first
 subscript $i$ indicates that it represents the value of a system
 variable $x$ at the $i$-th step. The second subscript $p \in \{0, t\}$
-denotes the value at the begining of mode (end of mode,
+denotes the value at the begining of the mode (at the end of the mode,
 respectively). For instance, $x\_0\_t$ denotes the value of variable
-$x$ at the end of first mode (step 0).
+$x$ at the end of first mode (step $0$).
 
 \paragraph{define-ode and integral}
 A flow consists of a group of ordinary differential equations. In
@@ -96,10 +91,6 @@ introduce a new keyword $\texttt{forall\_t}$ to encode
 $\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
 invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
   time\_i] f)}.
-
-% \subsection{Solving the SMT Formulas}
-
-% TODO: ?
 
 %%% Local Variables:
 %%% mode: latex
