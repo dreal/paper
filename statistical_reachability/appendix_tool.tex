@@ -1,0 +1,147 @@
+\section{The SReach tool}\label{apndx:usage}
+\subsection{Input format}
+The inputs to our {\it SReach} tool are descriptions of (stochastic) hybrid automata with random variables (representing the probabilistic system parameters, and probabilistic jumps), and the reachability property to be checked. Following roughly the same format as the above definition of (stochastic) hybrid automata, and adding the declarations of random variables, the description of an automaton is as follows.
+
+{\bf Preprocessor.} We can use the C language syntax to define constants and macros. 
+
+{\bf Variable declaration.} For a random variable, the declaration specifies its distribution and name. Variables which are not random variables are required to be declared within bounds. 
+
+{\bf (Probabilistic) Hybrid automaton.} A (probabilistic) hybrid automaton is represented by a set of modes. Within each mode declaration, we can specify statements for the mode invariant(s), flow function(s), and (probabilistic) jump condition(s). For a mode invariant, we can give any logic formula of the variables. A flow function is expressed by an ODE.  As for a nonprobabilistic jump condition, it is written as 
+\vspace{-0.4cm}
+\begin{verbatim} 
+<logic_formula1>  ==> 
+            @<target_mode>  <logic_formula2>,
+\end{verbatim}
+\vspace{-0.4cm}
+where the first logic formula is given as the guard of the jump, and the second one specifies the reset condition after the jump. While for a probabilistic jump condition, we need an extra constraint to express the stochastic choice, which is of the following form
+\vspace{-0.4cm}
+\begin{verbatim}
+(and <logic_formula1> <stochastic choice>)  ==> 
+            @<target_mode>  <logic_formula2>,
+\end{verbatim}
+\vspace{-0.4cm}
+where the stochastic choice is a formula indicating which probabilistic transition will be chosen for this jump.
+
+{\bf Initial conditions and Goals.} Following the declaration of modes, we can declare one initial mode with corresponding conditions, and the reachability properties in the end.
+
+\noindent\textit{Example 1}. The following is an example input file for a hybrid automaton with parametric uncertainty. Currently, users can specify random variables (representing certain system parameters) with Bernoulli distribution (B), Uniform distribution (U), Gaussian distribution (N), Exponential distribution (E), and general Discrete distribution with given possible values and corresponding probabilities (DD). 
+\lstset{basicstyle=\ttfamily\small, numbers=left, breaklines=true }
+\begin{lstlisting}
+#define pi 3.1416
+N(1,0.1) mu1;
+U(10,15) thro;
+E(0.49) theta1;
+B(0.75) xinit;
+DD(0:0.7, 1:0.3) mu2;
+[0,5] x;
+[0,3] time;
+{ mode 1; 
+  invt:
+         (x<=1.5);
+         (x>=0);
+  flow:
+	 d/dt[x]=thro*(1/(theta1*sqrt(2*pi)))
+	          *exp(0-((x-mu1+mu2)^2)/(2*theta1^2));
+  jump:
+        (x>=(thre1+5))==>@2(x'=x);
+}
+init:
+@1	(x=xinit);
+goal:
+@4	(x>=50);
+\end{lstlisting}
+
+\noindent\textit{Example 2}.  This example demonstrates the format of the input file for a probabilistic hybrid automaton. Note that, unlike the notations of declarations of random variables representing system parameters, declarations of random variables used to express transition probabilities for probabilistic jumps start with a prefix $j$.
+\lstset{basicstyle=\ttfamily\small, numbers=left, breaklines=true }
+\begin{lstlisting}
+jU(0.7, 0.9) pjumprv;
+DD(1:pjumprv, 2:(1 - pjumprv)) pjump1;
+DD(1:0.3, 2:0.7) pjump2;
+[-1000, 1000] x;
+[-1000, 1000] y;
+[0, 3] time;
+
+{ mode 1;
+
+  invt:
+        (x <= 2);
+        (x >= 0);
+	(y <= 7.7);
+	(y >= -3);
+  flow:
+        d/dt[x] = x * y;
+        d/dt[y] = 3 * x - y;
+  jump:
+        (and (abs(y) * x ^ 2 <= x / 2) (pjump1 = 1)) ==> @1 (and (x' >= sin(y)) (y' <= 4 * y));
+	(and (abs(y) * x ^ 2 <= x / 2) (pjump1 = 2)) ==> @2 (and (x' <= 3.1) (y' = 2 * x));
+	(and (cos(x) <= 0) (pjump2 = 1)) ==> @2 (and (x' = x) (y' = y));
+	(and (cos(x) <= 0) (pjump2 = 2)) ==> @1 (and (x' = x) (y' = y));
+}
+
+{
+  mode 2;
+  invt:
+        (x <= 200);
+        (x >= -2.2);
+	(y <= 85.1);
+	(y >= 2);
+  flow:
+        d/dt[x] = x;
+        d/dt[y] = 3 * x - y ^ 2;
+  jump:
+        (and (x <= 1000) (x >= -1000) (y <= 1000) (y >= -1000)) ==> @2 (and (x' = x) (y' = y));
+}
+init:
+@1	(and (x >= 0.1) (x <= 1.4) (y = 1.1));
+
+goal:
+@2	(and (x >= -10) (y >= -10));
+\end{lstlisting}
+
+
+\subsection{Command line}
+{\it SReach} offers two choices. It can be run sequentially by typing
+\vspace{-0.4cm}
+\begin{verbatim} 
+sreach_sq <statistical_testing_option> <filename> 
+		<dReach> <k> <delta>,
+\end{verbatim} 
+\vspace{-0.4cm}
+or in parallel by 
+\vspace{-0.4cm}
+\begin{verbatim} 
+sreach_para <statistical_testing_option> <filename> 
+		<dReach> <k> <delta>,
+\end{verbatim} 
+\vspace{-0.4cm}
+where:
+\begin{itemize}
+\item \verb+statistical_testing_option+ is a text file containing a sequence of test specifications. We will introduce the usages of statistical testing options in the following part;
+\item \verb+filename+ is a .pdrh file describing the model of a hybrid system with probabilistic system parameters. It is of the input format described in last sub-section;
+\item \verb+dReach+ is a tool for bounded reachability analysis of hybrid systems based on dReal;
+\item \verb+k+ is the number of steps of the model that the tool will explore; and
+\item \verb+delta+ is the precision for the $\delta$-decision problem.
+\end{itemize}
+
+\subsection{Statistical testing options}
+
+{\it SReach} can be used with different statistical testing methods through the following specifications.
+
+\textit {Lai's test}: \verb+Lai <theta> <cost_per_sample>+, where \verb+theta+ indicates the probability threshold.
+ 
+\textit {Bayes factor test}: \verb+BFT <theta> <T> <alpha> <beta>+,
+where \verb+theta+ is a probability threshold satisfying \verb+0 < theta < 1+, \verb+T+ is a ratio threshold satisfying \verb+T > 1+, and \verb+alpha+, and \verb+beta+ are beta prior parameters.
+
+\textit {BFT with indifference region}: \\ \verb+BFTI <theta> <T> <alpha> <beta> <delta>+,
+where, besides the parameters used in the above Bayes factor test, \verb+delta+ is given to create the indifference region - [$p_0$, $p_1$], where $p_0$ = \verb+theta+ - \verb+delta+ and $p_1$ = \verb+theta+  + \verb+delta+.  Now, it tests $H_0 :\; p \ge p_0$ against $H_1:\; p \le p_1$ .
+
+\textit {Sequential probability ratio test (SPRT)}: \\ \verb+SPRT <theta> <T> <delta>+.
+
+\textit {Chernoff-Hoeffding bound}:\\ \verb+CHB <delta1> <coverage_probability>+,
+where \verb+delta1+ is the given precision, and \verb+coverage_probability+ indicates the confidence.
+
+\textit {Bayesian Interval Estimation with Beta prior}: \\ \verb+BEST <delta1> <coverage_probability> <alpha> <beta>+.
+
+\textit {Direct/Na\"{i}ve Sampling}: \verb+NSAM <num_of_samples>+.
+
+
