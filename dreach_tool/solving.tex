@@ -97,33 +97,7 @@ $\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
 invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
   time\_i] f)}.
 
-\paragraph{Example encoding} The bounded reachability problem of a
-bouncing ball example (when $k = 3$) is encoded into the following
-shortened SMT2 formula.
-\begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,  numbers=left, fontsize=\scriptsize]
-(set-logic QF_NRA_ODE)
-(declare-fun x_0_0 () Real) ...
-(declare-fun v_0_t () Real) ...
-(declare-fun time_0 () Real) ...
-(define-ode flow_1 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* -0.45 (^ v 2.0))))))
-(define-ode flow_2 ((= d/dt[x] v)
-                    (= d/dt[v] (+ (- 0.0 9.8) (* +0.45 (^ v 2.0))))))
-(assert (<= 0.0 x_0_0)) ...
-(assert (<= v_10_t 18.0))
-(assert (<= 0.0 time_0))
-(assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
-[x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
-1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
-...
-x_9_t) (= [x_10_t v_10_t] (integral 0. time_10 [x_10_0 v_10_0]
-flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
-(<= v_10_t 0.0) (<= v_10_0 0.0) (forall_t 1.0 [0.0 time_10] (>= x_10_t
-0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
-0.45))) (check-sat) (exit)
-\end{Verbatim}
-
-\subsection{Solving the SMT Formulas}
+% \subsection{Solving the SMT Formulas}
 
 % TODO: ?
 
