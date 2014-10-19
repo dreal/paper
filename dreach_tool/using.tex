@@ -2,11 +2,43 @@
 % We now describe the input format and command line options of
 % \dReach{}.
 \subsection{Input Format}\label{sec:input-format}
-We introduce the input language \drh{} for describing hybrid
-systems and specifying reachability properties. It consists of five
-sections - macro definitions, variable declarations, mode definitions,
-and initial condition, and goals. Here is the syntax grammar of \drh{}:
+The input format for describing hybrid systems and reachability properties consists of five
+sections: macro definitions, variable declarations, mode definitions,
+and initial condition, and goals. 
 
+\noindent$\bullet$
+In macro definitions, we allows users to define macros in C
+preprocessor (\texttt{cpp}) style which can be used in the following
+sections. Macro expansions occur before the other parts are processed.
+
+\noindent$\bullet$
+	A variable declaration specifies a real variable, $var$ and its domain
+$[l, u]$ which is in Real interval $\mathbb{IR}$. \drh{} requires a
+special declaration for \textit{time} variable, to specify the
+upperbound of time duration in the analysis of bounded
+$\delta$-reachability.
+
+
+\noindent$\bullet$ A mode definition consists of mode id, mode invariant, flow, and jump.
+\textit{id} is a unique positive interger assigned to a mode. An
+invariant is a conjuction of logic formulae which must always hold in
+a mode. A flow describes a continuous dynamics of a mode by providing
+a set of ordinary differential equations (\textit{ode}s). The first
+formula of \textit{jump} is interpreted as a guard, a logic formula
+specifying a condition to make a transition. Note that this allows a
+transition but does not force it. The second argument of
+\textit{jump}, $n$ denotes the target mode-id. The last one is
+\textit{reset}, a logic formula connecting the old and new values for
+the transition.
+
+\noindent$\bullet$ \textit{initial-condition} specifies the initial mode of a hybrid
+system and its initial configuration. \textit{goal} shares the same
+syntactic structure of \textit{initial-condition}. It poses a
+reachability question: ``Is there a trajectory of a hybrid system
+reaching \textit{mode-id} while satisfying the goal condition
+\textit{formula}?''.
+
+Here is the syntax grammar of \drh{}:
 \begin{align*}
   % drh
   \mathit{drh} \ := \ & \mathit{macro\_def}^* \
@@ -28,36 +60,6 @@ and initial condition, and goals. Here is the syntax grammar of \drh{}:
 \end{align*}
 Note that we use the standard definitions for $\mathit{formlua}$ and
 $\mathit{expr}$ here.
-
-In macro definitions, we allows users to define macros in C
-preprocessor (\texttt{cpp}) style which can be used in the following
-sections. Macro expansions occur before the other parts are processed.
-
-A variable declaration specifies a real variable, $var$ and its domain
-$[l, u]$ which is in Real interval $\mathbb{IR}$. \drh{} requires a
-special declaration for \textit{time} variable, to specify the
-upperbound of time duration in the analysis of bounded
-$\delta$-reachability.
-
-A mode definition consists of mode id, mode invariant, flow, and jump.
-\textit{id} is a unique positive interger assigned to a mode. An
-invariant is a conjuction of logic formulae which must always hold in
-a mode. A flow describes a continuous dynamics of a mode by providing
-a set of ordinary differential equations (\textit{ode}s). The first
-formula of \textit{jump} is interpreted as a guard, a logic formula
-specifying a condition to make a transition. Note that this allows a
-transition but does not force it. The second argument of
-\textit{jump}, $n$ denotes the target mode-id. The last one is
-\textit{reset}, a logic formula connecting the old and new values for
-the transition.
-
-\textit{initial-condition} specifies the initial mode of a hybrid
-system and its initial configuration. \textit{goal} shares the same
-syntactic structure of \textit{initial-condition}. It poses a
-reachability question: ``Is there a trajectory of a hybrid system
-reaching \textit{mode-id} while satisfying the goal condition
-\textit{formula}?''.
-
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
