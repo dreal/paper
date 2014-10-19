@@ -1,0 +1,217 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THIS IS SIGPROC-SP.TEX - VERSION 3.1
+% WORKS WITH V3.2SP OF ACM_PROC_ARTICLE-SP.CLS
+% APRIL 2009
+%
+% It is an example file showing how to use the 'acm_proc_article-sp.cls' V3.2SP
+% LaTeX2e document class file for Conference Proceedings submissions.
+% ----------------------------------------------------------------------------------------------------------------
+% This .tex file (and associated .cls V3.2SP) *DOES NOT* produce:
+%       1) The Permission Statement
+%       2) The Conference (location) Info information
+%       3) The Copyright Line with ACM data
+%       4) Page numbering
+% ---------------------------------------------------------------------------------------------------------------
+% It is an example which *does* use the .bib file (from which the .bbl file
+% is produced).
+% REMEMBER HOWEVER: After having produced the .bbl file,
+% and prior to final submission,
+% you need to 'insert'  your .bbl file into your source .tex file so as to provide
+% ONE 'self-contained' source file.
+%
+% Questions regarding SIGS should be sent to
+% Adrienne Griscti ---> griscti@acm.org
+%
+% Questions/suggestions regarding the guidelines, .tex and .cls files, etc. to
+% Gerald Murray ---> murray@hq.acm.org
+%
+% For tracking purposes - this is V3.1SP - APRIL 2009
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HSCC 2015 tool paper (6 pages, 10pt, two-column)
+% New outline (extended from the old SReach paper)
+% Title: SReach: A Model Checking Tool for Stochastic Hybrid Systems
+% Abstract
+% 1. Introduction
+% 2. Probabilistic Bounded Reachability for Hybrid Systems with Parametric Uncertainty
+% 	2.1 Hybrid Systems with Parametric Uncertainty
+%	2.2 Probabilistic Bounded Reachability
+%	2.3 SReach Algorithm
+% 3. Probabilistic Bounded Reachability for Stochastic Hybrid Automata
+% 	3.1 Stochastic Hybrid Automata
+%	3.2 Probabilistic Bounded Reachability
+%	3.3 SReach Algorithm
+% 		3.3.1 Algorithm 
+%		3.3.2 Sampling Method
+%		3.3.3 Error Analysis
+% 4. Case Studies
+%	4.1 Hybrid models with parametric uncertainty
+% 		Prostate cancer treatment
+%		Atrial Fibrilation
+% 		Additional benchmarks
+%	4.2 Stochastic hybrid models
+%		Killerred Bio system
+% 5. Conclusion and Future Work
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{acm_proc_article-sp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\usepackage{caption}
+
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{rotating}
+\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
+\urldef{\mailsb}\path|anna.kramer, leonie.kunz, christine.reiss, nicole.sator,|
+\urldef{\mailsc}\path|erika.siebert-cole, peter.strasser, lncs}@springer.com|    
+
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\len}{\mathit{len}}
+\newcommand{\poly}{\mathsf{poly}}
+\newcommand{\flow}{\mathsf{flow}}
+\newcommand{\jump}{\mathsf{jump}}
+\newcommand{\inv}{\mathsf{inv}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\guard}{\mathsf{guard}}
+\newcommand{\reset}{\mathsf{reset}}
+\newcommand{\reach}{\mathsf{Reach}}
+\newcommand{\goal}{\mathsf{goal}}
+\newcommand{\safe}{\mathsf{safe}}
+\newcommand{\p}{\mathsf{P}}
+\newcommand{\np}{\mathsf{NP}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\lrf}{\mathcal{L}_{\mathbb{R}_{\mathcal{F}}}}
+\newcommand{\citep}{\cite}
+\newcommand{\hide}[1]{}
+\newcommand{\eg}{{\em e.g.}}
+\newcommand{\ie}{{\em i.e.}}
+\newcommand{\enforce}{\mathsf{enforce}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+
+\newenvironment{definition}[1][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{example}[1][Example]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{remark}[1][Remark]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{SReach: A Bounded Model Checker for Stochastic Hybrid Systems}
+%\subtitle{SReach: Combining Statistical Tests and Bounded Model Checking}
+%
+% You need the command \numberofauthors to handle the 'placement
+% and alignment' of the authors beneath the title.
+%
+% For aesthetic reasons, we recommend 'three authors at a time'
+% i.e. three 'name/affiliation blocks' be placed beneath the title.
+%
+% NOTE: You are NOT restricted in how many 'rows' of
+% "name/affiliations" may appear. We just ask that you restrict
+% the number of 'columns' to three.
+%
+% Because of the available 'opening page real-estate'
+% we ask you to refrain from putting more than six authors
+% (two rows with three columns) beneath the article title.
+% More than six makes the first-page appear very cluttered indeed.
+%
+% Use the \alignauthor commands to handle the names
+% and affiliations for an 'aesthetic maximum' of six authors.
+% Add names, affiliations, addresses for
+% the seventh etc. author(s) as the argument for the
+% \additionalauthors command.
+% These 'additional authors' will be output/set for you
+% without further effort on your part as the last section in
+% the body of your article BEFORE References or any Appendices.
+
+\numberofauthors{5} 
+
+\author{
+% 1st. author
+\alignauthor
+Qinsi Wang\\
+       \affaddr{Computer Science Department}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{USA}\\
+       \email{qinsiw@cs.cmu.edu}
+% 2nd. author
+\alignauthor
+Paolo Zuliani\\
+       \affaddr{School of Computing Science}\\
+       \affaddr{Newcastle University}\\
+       \affaddr{UK}\\
+       \email{paolo.zuliani@ncl.ac.uk}
+% 3rd. author
+\alignauthor 
+Soonho Kong\\
+       \affaddr{Computer Science Department}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{USA}\\
+       \email{soonhok@cs.cmu.edu}
+\and  % use '\and' if you need 'another row' of author names
+% 4th. author
+\alignauthor 
+Sicun Gao\\
+       \affaddr{Computer Science Department}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{USA}\\
+       \email{sicung@cs.cmu.edu}
+% 5th. author
+\alignauthor 
+Edmund M. Clarke\\
+       \affaddr{Computer Science Department}\\
+       \affaddr{Carnegie Mellon University}\\
+       \affaddr{USA}\\
+       \email{emc@cs.cmu.edu}
+}
+
+
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+\vspace{-.2cm}
+\input{sec1_intro}
+\input{sec2_models}
+\input{sec3_algorithm}
+\input{sec4_exp}
+\vspace{-.2cm}
+\input{sec5_con}
+\bibliography{ref}{}
+\bibliographystyle{abbrv}
+
+%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+
+\input{appendix_stattests}
+\input{appendix_dreach}
+\input{appendix_tool}
+\input{appendix_models}
+\input{appendix_exp}
+
+%%%%%%%%%%%%%%%%%%%%
+\end{document}
