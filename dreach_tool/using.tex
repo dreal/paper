@@ -81,11 +81,11 @@ goal: @1 (and (x >= 0.45));
 \caption{An example of \drh{} format: Inelastic bouncing ball with air
   resistance. At lines 1 and 2, we define a drag coefficient $D = 0.45$
   and an elastic coefficient $K = 0.9$ using \texttt{\#define} macros.
-  At lines 3 - 6, we declare variables $x, g, v,$ and $time$. At lines
-  7 - 15 and 16 - 24, we define two modes -- the falling and the
-  bouncing-back modes respectively. At lines 25 and 26, we specify
+  At line 3, we declare variables $x, g, v,$ and $time$. At lines
+  4 - 7 and 8 - 11, we define two modes -- the falling and the
+  bouncing-back modes respectively. At line 12, we specify
   that this hybrid system starts at mode 1 (\texttt{@1}) with initial
-  condition satisfying $x \ge 5 \land v = 0$. At lines 28 and 29, it
+  condition satisfying $x \ge 5 \land v = 0$. At line 23, it
   is asking whether we can have a trajectory ending at mode 1
   (\texttt{@1}) while the height of the ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
