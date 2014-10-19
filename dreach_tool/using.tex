@@ -4,22 +4,21 @@
 \subsection{Input Format}\label{sec:input-format}
 The input format for describing hybrid systems and reachability properties consists of five
 sections: macro definitions, variable declarations, mode definitions,
-and initial condition, and goals.
+and initial condition, and goals. We focus on intuitive explanations here, and the formal grammar is
+given in the Appendix. Figure~\ref{fig:bouncing-ball-drh} shows how to describe a small
+example hybrid system, an inelastic bouncing ball with air resistance. 
 
-\noindent$\bullet$
+$\bullet$
 In macro definitions, we allows users to define macros in C
 preprocessor (\texttt{cpp}) style which can be used in the following
 sections. Macro expansions occur before the other parts are processed.
 
-\noindent$\bullet$
-        A variable declaration specifies a real variable, $var$ and its domain
-$[l, u]$ which is in Real interval $\mathbb{IR}$. \drh{} requires a
-special declaration for \textit{time} variable, to specify the
-upperbound of time duration in the analysis of bounded
-$\delta$-reachability.
+$\bullet$
+        A variable declaration specifies a real variable and its domain in a real interval. 
+	\dReach{} requires special declaration for \textit{time} variable, to specify the
+	upperbound of time duration.
 
-
-\noindent$\bullet$ A mode definition consists of mode id, mode invariant, flow, and jump.
+$\bullet$ A mode definition consists of mode id, mode invariant, flow, and jump.
 \textit{id} is a unique positive interger assigned to a mode. An
 invariant is a conjuction of logic formulae which must always hold in
 a mode. A flow describes a continuous dynamics of a mode by providing
@@ -31,13 +30,9 @@ transition but does not force it. The second argument of
 \textit{reset}, a logic formula connecting the old and new values for
 the transition.
 
-\noindent$\bullet$ \textit{initial-condition} specifies the initial mode of a hybrid
+$\bullet$ \textit{initial-condition} specifies the initial mode of a hybrid
 system and its initial configuration. \textit{goal} shares the same
-syntactic structure of \textit{initial-condition}. It poses a
-reachability question: ``Is there a trajectory of a hybrid system
-reaching \textit{mode-id} while satisfying the goal condition
-\textit{formula}?''.
-
+syntactic structure of \textit{initial-condition}.
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
@@ -68,10 +63,6 @@ goal: @1 (and (x >= 0.45));
   (\texttt{@1}) while the height of the ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
 \end{figure}
-\vspace{-0.1cm}
-Figure~\ref{fig:bouncing-ball-drh} shows a canonical example of hybrid
-systems, an inelastic bouncing ball with air resistance, in \drh{}
-format.
 
 \subsection{Command Line Options}
 \dReach{} follows the standard unix command-line usage:
