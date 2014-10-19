@@ -1,0 +1,50 @@
+\section{Models for Stochastic Hybrid Systems}
+Before discussing the details of {\it SReach} algorithms, we first represent the two types of formalism that {\it SReach} considers in details. The first class is GHAs with parametric uncertainty. To formally define it, we follow the definition of GHAs in \cite{henzinger2000theory}, and extend it to consider probabilistic parameters in the following way.
+\vspace{-.4cm}
+\begin{definition}
+\label{def:ha_para}
+{\rm(Hybrid Automata with Parametric Uncertainty)} A hybrid automaton with probabilistic parameters is a tuple $H_p = \langle (Q, E), \;V, \;RV, \; \mathsf{Init},\; \mathsf{Flow}, \; \mathsf{Inv}, \; \mathsf{Jump}, \; \Sigma \rangle$, where
+\vspace{-.4cm}
+\begin{itemize}
+\item $(Q, E)$ is a finite directed multigraph. The vertices $Q=\{q_1, \cdots,q_m\}$ is a finite set of discrete modes, and edges in $E$ are control switches.
+\vspace{-.2cm}
+\item $V = \{ v_1, \cdots, v_n \}$ denotes a finite set of real-valued systems variables, where $n$ is the dimension of $H_p$. We write $\dot{V}$ for the set $\{\dot{v_1}, \cdots, \dot{v_n}\}$ to represent first derivatives of variables during the continuous change, and write $V'$ for the set $\{v_1', \cdots, v_n'\}$ to denote values of variables at the conclusion of the discrete change.
+\vspace{-.2cm}
+\item $RV = \{ u_1, \cdots, u_k \}$ is a finite set of random variables, where the distribution of $u_i$ is denoted by $P_i$.
+\vspace{-.2cm}
+\item $\mathsf{Init}$, $\mathsf{Flow}$, and $\mathsf{Inv}$ are labeling functions over each mode $q \in Q$. The initial condition $Init(q)$ is predicate whose free variables are from $V \cup RV$, the invariant condition $Inv(q)$ is a predicate whose free variables are from $V \cup RV$, and the flow condition $Flow(q)$ is a predicate whose free variables are from $V \cup \dot{V} \cup RV$.
+\vspace{-.2cm}
+\item $\mathsf{Jump}$ is transition labeling function that assigns to each transition $e \in E$ a predicate whose free variables are from $V \cup V' \cup RV$.
+\vspace{-.2cm}
+\item $\Sigma$ is a finite set of events, and an edge labeling function $event: E \to \Sigma$ assigns to each control switch an event. 
+\end{itemize}
+\end{definition}
+\vspace{-.4cm}
+As the other modeling formalism that {\it SReach} currently considers, PHAs with additional randomness are formally defined as follows.
+\vspace{-.4cm}
+\begin{definition}
+\label{def:pha}
+{\rm(Probabilistic Hybrid Automata)} A probabilistic hybrid automaton  (with additional randomness) $H$ is a tuple (${\it Q}$, ${\it \bar{q}}$, ${\it V}$, ${\it \left \langle Post_m \right \rangle_{m \in M}}$, $RV$, ${\it Cmds}$) where
+\vspace{-.4cm}
+\begin{itemize}
+\item ${\it Q} := \{ q_1, \cdots, q_n \}$ is a finite set of control modes.
+\vspace{-.2cm}
+\item ${\it \bar{q}} \subseteq {\it Q}$ is the initial mode.
+\vspace{-.2cm}
+\item $V = \{ v_1, \cdots, v_k \}$ denotes a finite set of real-numbered systems variables, where $k$ is the dimension of $H$. As mentioned, $\dot{V}$ represents first derivatives of variables, and $V'$ denotes values of variables at the conclusion of the discrete change.
+\vspace{-.2cm}
+\item ${\it \left \langle Post_q \right \rangle_{q \in Q}}$ indicates continuous timed behaviors on each mode. 
+\vspace{-.2cm}
+\item $RV$ is a finite set of random variables with known discrete or continuous probability distributions.
+\vspace{-.2cm}
+\item ${\it Cmds}$ is a finite set of probabilistic guarded commands of the following form: \\
+$g \; \rightarrow \; p_1:u_1 \; + \; \cdots \; + \; p_m:u_m$,\\
+where $g$ is a predicate representing a transition guard with free variables from $V$, $p_i$ is the transition probability for the $i$th probabilistic choice which can be expressed by an equation involving random variable(s) in $RV$, and $u_i$ is the corresponding transition function for the $i$th probabilistic choice, whose free variables are from $V \cup V' \cup RV$.
+\end{itemize}
+\end{definition}
+To illustrate the additional randomness allowed on transition probabilities and variable resets, an example probabilistic guarded command can be $x \geq 5 \; \rightarrow \; p_1:(x' = sin(x) + (1-p_1):(x' = p_x))$, where $x$ is a system variable, $p_1 \sim  U(0.2, 0.9)$, and $p_x  \sim  B(0.85)$. This means that, the probability to choose the first transition is not a fixed value, but a random variable obeying to an Uniform distribution. Also, after taking the second transition, $x$ can be assigned to either $1$ with probability $0.85$, or $0$ with $0.15$. In general, for an individual probabilistic guarded command, the transition probabilities can be expressed by equations of one or more novel random variables, as long as values of all transtion probabilities are within $[0, 1]$, and their sum is $1$. Currently, $+, -, \times, \div$ are supported. Note that, to preserve the Markov property, only unused random variables can be adopted so that no dependence between the current probabilistic jump and previous transtions will be incurred. 
+
+
+
+
+
