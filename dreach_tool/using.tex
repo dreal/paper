@@ -1,69 +1,76 @@
 \section{Using \dReach{}}\label{sec:using-dreach}
 
-We now describe the input format and command line options of \dReach{}. 
+We now describe the input format and command line options of \dReach{}.
 
 \subsection{Input Format}\label{sec:input-format}
 
-We now describe the input language for describing hybrid systems and
-specifying reachability properties. It consists of five sections
-- macro definitions, variable declarations, mode definitions, and
-initial condition, and goals.
-\begin{align*}
-  \textit{drh} := \ & \textit{macro-definition}^*\\
-                    & \textit{variable-declaration}^+\\
-                    & \textit{mode-definition}^+\\
-                    & \textit{initial-condition}\\
-                    & \textit{goal}^+
-\end{align*}
+\begin{figure}
+  \begin{framed}
+    % drh
+    \begin{align*}
+      \textit{drh} := \ & \textit{macro-definition}^* \ \textit{variable-declaration}^+ \\
+                        & \textit{mode-definition}^+ \  \textit{initial-condition} \  \textit{goal}^+\\
+    % variable-decl
+      \textit{macro-declaration} \ := \ &  \texttt{\#define} \ \textit{var} \ (\textit{expr} \, | \, \textit{formula})\\
+    % variable-decl
+      \textit{variable-declaration} \ := \ &  \texttt{[}
+                                              \textit{l}
+                                              \texttt{,}
+                                              \ \textit{u}
+                                              \texttt{]}
+                                              \ \textit{var}
+                                              \texttt{;}\\
+    % variable-decl
+      \textit{mode-definition} \ := \ & \ \texttt{\{}
+                                         \texttt{mode} \
+                                         \textit{id}\texttt{;} \quad
+                                         \texttt{invt}:(\textit{formula} \texttt{;})^+\\
+                                    & \ \ \ \texttt{flow}:\textit{ode}^+ \quad
+                                    \texttt{jump}:\textit{jump}^+ \texttt{\}}\\
+      \textit{ode} \ := \ & \texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}\\
+      \textit{jump} \ := \ & \textit{formula} \ \texttt{==>} \ \texttt{@}\textit{n} \ \textit{formula}\\
+      \textit{initial-condition} \ := \ & \texttt{@}\textit{mode-id} \ \textit{formula}\texttt{;}\\
+      \textit{goal}              \ := \ & \texttt{@}\textit{mode-id} \ \textit{formula}\texttt{;}
+    \end{align*}
+  \end{framed}
+  \caption{Syntax grammar of $\drh{}$}\label{fig:drh-grammar}
+\end{figure}
+
+Figure~\ref{fig:drh-grammar} describes the input language \drh{} for
+describing hybrid systems and specifying reachability properties. It
+consists of five sections - macro definitions, variable declarations,
+mode definitions, and initial condition, and goals.
+
+% extracted to the grammar
 In macro definitions, it allows users to define macros in C
 preprocessor (\texttt{cpp}) style which can be used in the following
-sections. Note that macro expansions occur before the other parts are processed.
+sections. Note that macro expansions occur before the other parts are
+processed.
 
-A variable declaration has a form:
-\[
-\textit{variable-declaration} \ := \ \texttt{[}
-                                     \textit{l}
-                                     \texttt{,}
-                                     \ \textit{u}
-                                     \texttt{]}
-                                     \ \textit{var}
-                                     \texttt{;}
-\]
-and it declares a real variable, $var$ and its domain $[l, u]$ which
-is in Real interval $\mathbb{IR}$. It requires a special variable
-declaration for \textit{time}, to specify the upperbound of time
-duration in the analysis of bounded $\delta$-reachability.
+A variable declaration specifies a real variable, $var$ and its domain
+$[l, u]$ which is in Real interval $\mathbb{IR}$. \drh{} requires a
+special declaration for \textit{time} variable, to specify the
+upperbound of time duration in the analysis of bounded
+$\delta$-reachability.
 
 A mode definition consists of mode id, mode invariant, flow, and jump.
-\begin{align*}
-  \textit{mode-definition} \ := & \ \texttt{\{}
-                                    \texttt{mode} \ \textit{id}\texttt{;}\\
-                           & \ \ \  \texttt{invt}:(\textit{formula} \texttt{;})^+\\
-                           & \ \ \  \texttt{flow}:\textit{ode}^+\\
-                           & \ \ \ \texttt{jump}:\textit{jump}^+ \texttt{\}}
-\end{align*}
 \textit{id} is a unique positive interger assigned to a mode. An
 invariant is a conjuction of logic formulae which must always hold in
 a mode. A flow describes a continuous dynamics of a mode by providing
-a set of ordinary differential equations (\textit{ode}s) which is a
-form of
-``\texttt{d/dt[}\textit{x}\texttt{]=}\textit{exp}''. \textit{jump} is
-a form of ``\textit{guard} \texttt{==>} \texttt{@}\textit{n}
-\textit{reset}'' where \textit{guard} is a logic formula specifying a
-condition to make a transition, $n$ denotes the target mode-id, and
-\textit{reset} is a logic formula connecting the old and new values
-for the transition.
+a set of ordinary differential equations (\textit{ode}s). The first
+formula of \textit{jump} is interpreted as a guard, a logic formula
+specifying a condition to make a transition. Note that this allows a
+transition but does not force it. The second argument of
+\textit{jump}, $n$ denotes the target mode-id. The last one is
+\textit{reset}, a logic formula connecting the old and new values for
+the transition.
 
-\texttt{initial-condition} is of a form
-``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}''
-where \textit{mode-id} is an initial mode of a hybrid system and
-\textit{formula} specifies the initial configuration of it.
-
-\texttt{goal} shares the same syntactic structure,
-``\texttt{@}\textit{mode-id} \textit{formula}\texttt{;}'' of
-\textit{initial-condition} with a different interpretation. It poses a
+\textit{initial-condition} specifies the initial mode of a hybrid
+system and its initial configuration. \textit{goal} shares the same
+syntactic structure of \textit{initial-condition}. It poses a
 reachability question: ``Is there a trajectory of a hybrid system
-reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?''.
+reaching \textit{mode-id} while satisfying the goal condition
+\textit{formula}?''.
 
 \begin{figure}
   \centering
@@ -77,7 +84,7 @@ reaching \textit{mode-id} while satisfying the goal condition \textit{formula}?'
 [0, 3] time;
 {   mode 1;
     invt: (v <= 0);  (x >= 0);
-    flow: d/dt[x] = v;
+   flow: d/dt[x] = v;
           d/dt[v] = -g - (D * v ^ 2);
     jump: (x = 0) ==> @2 (and (x' = x) (v' = - K * v)); }
  {  mode 2;
@@ -105,26 +112,23 @@ Figure~\ref{fig:bouncing-ball-drh} shows a canonical example of hybrid
 systems, an inelastic bouncing ball with air resistance, in \drh{}
 format.
 
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: "main"
-%%% End:
 \subsection{Command Line Options}
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm, fontsize=\scriptsize]
-usage: /home/soonhok/work/dreal/bin/dReach options <*.drh> <options to dReal>
 
-dReach: Bounded Model Checking for for Nonlinear Hybrid Systems
+\begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm, fontsize=\scriptsize]
+  usage: /home/soonhok/work/dreal/bin/dReach options <*.drh> <options to dReal>
 
-OPTIONS:
-   -k   unrolling steps  (default: 3)
-   -b   use BMC heuristic with disjunctive path encoding
-   -r   -b and filter unreachable modes from SMT encoding
-   -e   -r and filter continuous variables from SMT encoding
-   -d   disjunctive path encoding
+  dReach: Bounded Model Checking for for Nonlinear Hybrid Systems
 
-EXAMPLE:
+  OPTIONS:
+  -k   unrolling steps  (default: 3)
+  -b   use BMC heuristic with disjunctive path encoding
+  -r   -b and filter unreachable modes from SMT encoding
+  -e   -r and filter continuous variables from SMT encoding
+  -d   disjunctive path encoding
 
-   dReach -k 10 bouncing_ball.drh --verbose --precision=0.001 --visualize
+  EXAMPLE:
+
+  dReach -k 10 bouncing_ball.drh --verbose --precision=0.001 --visualize
 
 \end{Verbatim}
 

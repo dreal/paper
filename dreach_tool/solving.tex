@@ -1,6 +1,6 @@
 \section{Solving Techniques}
 
-We describe the underlying techniques of \dReach{}. 
+We describe the underlying techniques of \dReach{}.
 
 \subsection{Bounded $\delta$-reachability}\label{sec:delta-reachability}
 Let $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ be a hybrid
@@ -88,14 +88,11 @@ above constraint as
 Note that we do not include a variable in $\vec{x}^t$ such as
 \texttt{x\_t\_n} because it can be inferred from the given time
 \texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
-
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
   numbers=left, fontsize=\scriptsize]
 (set-logic QF_NRA_ODE)
-(declare-fun x () Real)
-(declare-fun v () Real)
 (declare-fun x_0_0 () Real) ...
 (declare-fun v_0_t () Real) ...
 (declare-fun time_0 () Real) ...
@@ -106,7 +103,6 @@ Note that we do not include a variable in $\vec{x}^t$ such as
 (assert (<= 0.0 x_0_0)) ...
 (assert (<= v_10_t 18.0))
 (assert (<= 0.0 time_0))
-(assert (<= time_0 3.0)) ...
 (assert (and (and (= v_0_0 0.0) (>= x_0_0 5.0)) (= mode_0 1.0) (=
 [x_0_t v_0_t] (integral 0. time_0 [x_0_0 v_0_0] flow_1)) (= mode_0
 1.0) (forall_t 1.0 [0.0 time_0] (<= v_0_t 0.0)) (<= v_0_t 0.0) (<=
@@ -121,7 +117,6 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
   of bouncing ball ($k = 3$) }
   \label{fig:bouncing-ball-smt2}
 \end{figure}
-
 \paragraph{forall\_t} To encode mode invariants in hybrid systems, we
 need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
 is a restricted form of $\exists\forall$ formula where the universal
