@@ -1,0 +1,69 @@
+\section{Experimental results for additional benchmarks}\label{apndx:exp}
+\begin{center}
+%\begin{sidewaystable}[hp]
+\begin{table*}[ht]
+\label{table:exp}
+\captionsetup{font=scriptsize}
+\centering
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+Benchmark & \#Ms & K & \#ODEs & \#Vs & \#RVs & $\delta$ & Est\_P & \#S\_S & \#T\_S & A\_T(s) & T\_T(s) \\ \hline
+BBK1 & 1 & 1 & 2 & 14 & 3 & 0.001 & 0.754 & 5372 & 7126 & 0.086 & 612.836 \\ \hline
+BBK5 & 1 & 5 & 2 & 38 & 3 & 0.001 & 0.059 & 209 & 3628 & 0.253 & 917.884 \\ \hline
+BBwDv1 & 2 & 2 & 4 & 20 & 4 & 0.001 & 0.208 & 2206 & 10919 & 0.080 & 873.522 \\ \hline
+BBwDv2K2 & 2 & 2 & 4 & 20 & 3 & 0.001 & 0.845 & 7330 & 8669 & 0.209 & 1811.821 \\ \hline
+BBwDv2K8 & 2 & 8 & 4 & 56 & 3 & 0.001 & 0.207 & 2259 & 10901 & 0.858 & 9353.058 \\ \hline
+Tld & 2 & 7 & 2 & 33 & 4 & 0.001 & 0.996 & 227 & 227 & 0.213 & 48.351 \\ \hline
+Ted & 2 & 7 & 4 & 50 & 4 & 0.001 & 0.996 & 227 & 227 & 12.839 & 2914.448 \\ \hline
+DTldK3 & 2 & 3 & 4 & 26 & 2 & 0.001 & 0.996 & 227 & 227 & 0.382 & 86.714 \\ \hline
+DTldK5 & 2 & 5 & 4 & 38 & 2 & 0.001 & 0.161 & 1442 & 8961 & 0.280 & 2509.078 \\ \hline
+W4mv1 & 4 & 3 & 8 & 26 & 6 & 0.001 & 0.381 & 5953 & 15639 & 0.238 & 3722.082 \\ \hline
+W4mv2K3 & 4 & 3 & 8 & 26 & 6 & 0.001 & 0.996 & 227 & 227 & 0.673 & 152.771 \\ \hline
+W4mv2K7 & 4 & 7 & 8 & 50 & 6 & 0.001 & 0.004 & 0 & 227 & 0.120 & 27.240 \\ \hline
+DWK1 & 2 & 1 & 4 & 14 & 5 & 0.001 & 0.996 & 227 & 227 & 0.171 & 38.817 \\ \hline
+DWK3 & 2 & 3 & 4 & 26 & 5 & 0.001 & 0.996 & 227 & 227 & 0.215 & 48.806 \\ \hline
+DWK9 & 2 & 9 & 4 & 62 & 5 & 0.001 & 0.996 & 227 & 227 & 5.144 & 1167.688 \\ \hline
+Que & 3 & 2 & 3 & 13 & 4 & 0.001 & 0.228 & 2662 & 11677 & 0.095 & 1109.315 \\ \hline
+3dOsc & 3 & 2 & 18 & 48 & 2 & 0.001 & 0.996 & 227 & 227 & 8.273 & 1877.969 \\ \hline
+QuadC & 1 & 0 & 14 & 44 & 6 & 0.001 & 0.996 & 227 & 227 & 825.641 & 187420.507 \\ \hline
+ExPHA01 & 2 & 2 & 4 & 20 & 2 & 0.001 & 0.524 & 345 & 658 & 5.01 & 3295.82 \\ \hline
+ExPHA02 &  2  &  3  & 2  & 17 & 1  &  0.001 &  0.900  & 5361 & 5953  & 0.0004   & 2.35  \\ \hline
+KRk5 & 6   &  5  & 84  &194  & 2  &  0.001 &  0.544 & 8946   & 16457     &  0.122  & 2015.64  \\ \hline
+KRk6 & 8   &  6  &112   &224  &  6 &  0.001 &  0.246  & 2032   & 8263     & 1.385   & 11444.22  \\ \hline
+KRk7 & 10   &  7  & 150  &271  & 6  &  0.001 & 0.096 & 558   & 5795     & 16.275   & 94311.18  \\ \hline
+KRk8 &  7  &  8  & 105  &303  & 6  &  0.001 &   0.004       &  0  & 227     & 0.003   & 0.58  \\ \hline
+KRk9 &  9  &  9  & 135  & 335 & 6  &  0.001 &   0.004       & 0   & 227     & 0.015   &3.43   \\ \hline
+KRk10 & 11   &  10  & 165  & 367 & 6  &  0.001 &  0.004        &0   &  227    & 0.026   &  5.92 \\ \hline
+\end{tabular}
+\caption {\#Ms = number of modes, K indicates the unfolding steps, \#ODEs = number of ODEs in the model, \#Vs = number of total variables in the unfolded formulae, \#RVs = number of random variables in the model, $\delta$ = precision used in {\it dReach}, \#S\_S = number of $\delta$-sat samples , \#T\_S = total number of samples, Est\_P = estimated probability of the property,  A\_T(s) = average CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.}
+\label{table:additonalexp}
+\end{table*}
+%\end{sidewaystable}
+\end{center}
+
+\begin{table*}[th!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $t_{lighton}$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline
+    $t_{tot}$ & 16  & 17.2     &  18.5   & 20   & 21.3 & 22.7 & 23.5 & 24.1 & 25 & 30    \\ \hline
+    \end{tabular}
+    \caption{The relation between the time to turn on the light after adding IPTG and the total time to kill bacteria cells ($k=5$). }
+    \label{table:kr02}
+\end{table*}
+
+\begin{table*}[th!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    $t_{lightoff1}$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline
+    $kill bacteria cells$ & Failed  & Failed    &  Failed   & Succ   & Succ & Succ & Succ & Succ & Succ & Succ    \\ \hline
+    \end{tabular}
+    \caption{The impact of the time duration that the cells are exposed to light ($k=6$).}
+    \label{table:kr03}
+\end{table*}
+
+The table \ref{table:addtionalexp} shows the results of experiments. To further demonstrate the feasibility of {\it SReach}, these experiments were conducted with the sequential version of {\it SReach} on a machine with 2.9GHz Intel Core i7 processor and 8GB RAM, running OS X 10.9.2. In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian sequential estimation with $0.01$ half-interval width, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$). In the following table, BB refers to the bouncing ball models, Tld the thermostat model with linear temperature decrease, Ted the thermostat model with exponential decrease, DT the dual thermostat models, W the watertank models, DW the dual watertank models, Que the model for queuing system which has both nonlinear functions and nondeterministic jumps, 3dOsc the model for 3d oscillator, and QuadC the model for quadcopter stabilization control. Following these hybrid systems with parametric uncertainty, we also consider two example PHAs - ExPHA01and EXPHA02, and PHAs with additional randomness - KR our killerred models. Note that, \#Ms = number of modes, K indicates the unfolding steps, \#ODEs = number of ODEs in the model, \#Vs = number of total variables in the unfolded formulae, \#RVs = number of random variables in the model, $\delta$ = precision used in {\it dReach}, \#S\_S = number of $\delta$-sat samples, \#T\_S = total number of samples, Est\_P = estimated probability of the property, A\_T(s) = average CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.
+
