@@ -62,7 +62,7 @@ and the jump and reset conditions with complex Boolean combinations of nonlinear
 which can be directly solved under certain restrictions on the invariants.
 
 2. Property-guided search. \dReach{} maintains logical encodings, whose size is linear in the size of the inputs, of the reachable states of
-a hybrid system. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
+a hybrid system~\cite{DBLP:journals/corr/GaoKCC14}. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
 This avoids the usual state explosion problem in reachable set computation, because the full set of states does not need to be explicitly stored. This change
 is analogous to the difference between SAT-based model checking and BDD-based symbolic model checking.
 
