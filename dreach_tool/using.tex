@@ -4,7 +4,7 @@
 \subsection{Input Format}\label{sec:input-format}
 The input format for describing hybrid systems and reachability properties consists of five
 sections: macro definitions, variable declarations, mode definitions,
-and initial condition, and goals. 
+and initial condition, and goals.
 
 \noindent$\bullet$
 In macro definitions, we allows users to define macros in C
@@ -12,7 +12,7 @@ preprocessor (\texttt{cpp}) style which can be used in the following
 sections. Macro expansions occur before the other parts are processed.
 
 \noindent$\bullet$
-	A variable declaration specifies a real variable, $var$ and its domain
+        A variable declaration specifies a real variable, $var$ and its domain
 $[l, u]$ which is in Real interval $\mathbb{IR}$. \drh{} requires a
 special declaration for \textit{time} variable, to specify the
 upperbound of time duration in the analysis of bounded
@@ -38,28 +38,6 @@ reachability question: ``Is there a trajectory of a hybrid system
 reaching \textit{mode-id} while satisfying the goal condition
 \textit{formula}?''.
 
-Here is the syntax grammar of \drh{}:
-\begin{align*}
-  % drh
-  \mathit{drh} \ := \ & \mathit{macro\_def}^* \
-  \mathit{variable\_decl}^+ \ \mathit{mode\_def}^+ \  \mathit{initial\_cond} \  \mathit{goal}^+\\
-  % variable-decl
-  \mathit{macro\_decl} \ := \ &  \texttt{\#define} \ \mathit{var} \ (\mathit{expr} \, | \, \mathit{formula})\\
-  % variable-decl
-  \mathit{variable\_decl} \ := \ &  \texttt{[} \mathit{l} \texttt{,} \ \mathit{u} \texttt{]} \ \mathit{var} \texttt{;}\\
-  % variable-decl
-  \mathit{mode\_def} \ := \ & \texttt{\{}
-  \texttt{mode} \
-  \mathit{id}\texttt{;} \quad
-  \texttt{invt}:(\mathit{formula} \texttt{;})^+ \ \ \
-  \texttt{flow}:\mathit{ode}^+ \ \ \ \texttt{jump}:\mathit{jump}^+ \texttt{\}}\\
-  \mathit{ode} \ := \ & \texttt{d/dt[}\mathit{x}\texttt{]=}\mathit{exp}\\
-  \mathit{jump} \ := \ & \mathit{formula} \ \texttt{==>} \ \texttt{@}\mathit{n} \ \mathit{formula}\\
-  \mathit{initial\_cond} \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}\\
-  \mathit{goal}              \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}
-\end{align*}
-Note that we use the standard definitions for $\mathit{formlua}$ and
-$\mathit{expr}$ here.
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,

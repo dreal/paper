@@ -2,13 +2,36 @@
 \dReach{} is an open source project under GPL-3 license. We bundled
 \dReal{} and \dReach{} together and host them at
 \url{http://dreal.cs.cmu.edu}. The BMC encoder module is written in
-OCaml and uses OCaml Batteries library. At the release page of dReach
-webpage, we host pre-compiled static-binaries for Linux and OS X. It
-does not require any compilation to use \dReach{} in those platforms.
-For Windows, we provide detailed instructions to build \dReach{} and
-\dReal{}.
+OCaml and uses OCaml Batteries library. At the release
+page\footnote{https://github.com/dreal/dreal/releases}, we host
+pre-compiled static-binaries for Linux and OS X. It does not require
+any compilation to use \dReach{} in those platforms. For Windows, we
+provide detailed instructions to build \dReach{} and \dReal{}.
 
-\subsection*{A2. An Example of Encoded SMT2 Formula}
+\subsection*{A2. Syntax Grammar of \drh{}}
+\begin{align*}
+  % drh
+  \mathit{drh} \ := \ & \mathit{macro\_def}^* \
+  \mathit{variable\_decl}^+ \ \mathit{mode\_def}^+ \  \mathit{initial\_cond} \  \mathit{goal}^+\\
+  % variable-decl
+  \mathit{macro\_decl} \ := \ &  \texttt{\#define} \ \mathit{var} \ (\mathit{expr} \, | \, \mathit{formula})\\
+  % variable-decl
+  \mathit{variable\_decl} \ := \ &  \texttt{[} \mathit{l} \texttt{,} \ \mathit{u} \texttt{]} \ \mathit{var} \texttt{;}\\
+  % variable-decl
+  \mathit{mode\_def} \ := \ & \texttt{\{}
+  \texttt{mode} \
+  \mathit{id}\texttt{;} \quad
+  \texttt{invt}:(\mathit{formula} \texttt{;})^+ \ \ \
+  \texttt{flow}:\mathit{ode}^+ \ \ \ \texttt{jump}:\mathit{jump}^+ \texttt{\}}\\
+  \mathit{ode} \ := \ & \texttt{d/dt[}\mathit{x}\texttt{]=}\mathit{exp}\\
+  \mathit{jump} \ := \ & \mathit{formula} \ \texttt{==>} \ \texttt{@}\mathit{n} \ \mathit{formula}\\
+  \mathit{initial\_cond} \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}\\
+  \mathit{goal}              \ := \ & \texttt{@}\mathit{mode\_id} \ \mathit{formula}\texttt{;}
+\end{align*}
+Note that we use the standard definitions for $\mathit{formlua}$ and
+$\mathit{expr}$ here.
+
+\subsection*{A3. An Example of Encoded SMT2 Formula}
 
 \paragraph{Example encoding} The bounded reachability problem of a
 bouncing ball example (when $k = 3$) is encoded into the following
@@ -47,7 +70,7 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
 %   \label{fig:viz}
 % \end{figure}
 
-\subsection{Experiments}\label{sec:exp}
+\subsection*{A4. Experiments}\label{sec:exp}
 
 % Our tool \dReach{} implements the techniques presented in the
 % paper. The tool is built on several existing packages,including {\sf
@@ -163,7 +186,7 @@ The exponential term on the right-hand side of the ODE is the sigmoid function, 
 \frac{\mathrm{d}x}{\mathrm{d}t} &=& {xp}, \frac{\mathrm{d}y}{\mathrm{d}t} = {yp}, \frac{\mathrm{d}z}{\mathrm{d}t} = {zp}
 \end{eqnarray*}
 
-\subsection*{A4. Bounded $\delta$-reachability}\label{sec:delta-reachability}
+\subsection*{A5. Bounded $\delta$-reachability}\label{sec:delta-reachability}
 Let $H = \langle X, Q, \flow, \jump, \inv, \init\rangle$ be a hybrid
 system as standardly defined. We use first-order formulae over the
 real numbers to represent $H$, by writing $$H = \langle X, Q,
