@@ -47,7 +47,7 @@ handling more general properties like ....
 
 \textbf{TO BE WRITTEN}
 
-\newpage
+
 
 
 %%%
@@ -75,10 +75,12 @@ we refer to \cite{ftscs-journal,mr-pals-journal,pals-tcs} for details.
 
 Distributed hybrid systems for avionics have been much studied
 in the context of collision avoidance maneuvers for a set of airplanes
-(e.g., see \cite{loos-hscc13} and the references therein).
-However, we are not aware of hybrid system models for a turning 
-controller of an airplane to move the ailerons and rudder.
-Such a coordinated turn is essential for fly-by-wire control systems,
+(e.g., see \cite{loos-hscc13} for an overview).
+However, we are not aware of other formal hybrid system models 
+for a turning controller of an airplane to move the ailerons and rudder
+in a synchronous way.
+Such a coordinated turn of an airplane 
+is essential for modern fly-by-wire control systems,
 and is an elemental topic in aeronautics \cite{anderson2005introduction}.
 
 
@@ -89,7 +91,7 @@ if necessary?}
 
 
 
-\newpage
+
 
 
 
@@ -381,7 +383,7 @@ iff:
 \subsection{Delta-Complete SMT}
 
 \textbf{Sean, please write a brief overview of dReal}
-\newpage
+
 
 
 %%%%
@@ -1053,7 +1055,9 @@ then  the process can detect the violation and generate a counterexample.
 
 
 
-
+\textbf{Need to consider time-bounded reachability as well!: in a certain time, 
+the plane will reach the goal angle, which can be checkable by finding
+a path that always violate the property during time bound.}
 
 
 
@@ -1064,13 +1068,15 @@ then  the process can detect the violation and generate a counterexample.
 \subsection{Checking Satisfiability}
 
 \textbf{Sean, please briefly write something about the new implementation}
-\newpage
+
 
 
 
 %%%%
 %%%%
 \section{Evaluations}
+
+We have performed 
 
 %%%
 \subsection{Symbolic Analysis}
@@ -1079,9 +1085,9 @@ then  the process can detect the violation and generate a counterexample.
 \subsection{Concrete Analysis}
 
 %%%
-\subsection{Limitations}
+\subsection{Limitations and Future Work}
 
-liveness properties
+general temporal properties
 
 continuous invariants $\forall \beta(t) < \epsilon$
 
