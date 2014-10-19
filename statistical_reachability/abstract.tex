@@ -1,36 +1,9 @@
-We present a novel approach for solving the probabilistic bounded reachability problem of 
-hybrid systems with parameter uncertainty. Standard approaches to this problem require 
-numerical solutions for large optimization problems, and become unfeasible for systems 
-involving nonlinear dynamics over the reals. Our approach combines randomized 
-sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
-and statistical tests. We utilize $\delta-$complete decision procedures 
-to solve reachability analysis in a sound way, i.e., we always decide correctly if, for a given
-combination of parameters, the system actually reaches the unsafe region.
-Compared to standard simulation-based analysis methods, our approach supports 
+In this paper, we present a novel tool {\it SReach}, which solves the probabilistic bounded reachability problems for two classes of models of stochastic hybrid systems. The first one is the (nonlinear) hybrid automata with parametric uncertainty. The second one is probabilistic hybrid automata with additional randomness of both transition probabilities and variable resets. Standard approaches to this kind of problems for linear hybrid systems require numerical solutions for large optimization problems, and become infeasible for systems involving both nonlinear dynamics over the reals and stochastics. Our approach encodes stochastic information by using a set of introduced random variables, and combines the randomized sampling of these random variables, an SMT-based bounded reachability analysis, 
+and statistical tests. {\it SReach} utilizes $\delta$-complete decision procedures 
+to solve reachability problems in a sound way, i.e., it always decides correctly if, for a given
+assignment to all random variables, the system actually reaches the unsafe region.
+Compared to standard simulation-based methods, our approach supports 
 non-deterministic branching, increases the coverage of simulation, and avoids the
 zero-crossing problem. We demonstrate that our method is feasible for general
-hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to
-various nonlinear hybrid systems with parametric uncertainty.
-
-\hide{
-We present a novel approach that combines Satisfiability Modulo Theories (SMT) and 
-statistical testing to solve the probabilistic bounded reachability problem of 
-hybrid systems with parameter uncertainty. That is, we want to find out whether 
-a hybrid system with probabilistic system parameters reaches an unsafe region of the
-state space within a finite number of steps with a probability greater (or less) than a 
-fixed threshold. Standard approaches to this problem require numerical solutions for 
-large optimization problems, and become unfeasible for systems involving nonlinear dynamics
-over the reals. Our approach solves the reachability problem by combining randomized 
-sampling of probabilistic system parameters, SMT-based bounded reachability analysis, 
-and statistical tests. In particular, we utilize $\delta-$complete decision procedures 
-to solve reachability analysis in a sound way, i.e., we always decide correctly if, for a given
-combination of parameters, the system actually reaches the unsafe region (in the opposite case 
-we may generate false positives, but this can be controlled by a precision parameter $\delta>0$).
-Compared to other simulation-based analysis methods, our approach supports 
-non-deterministic branching, increases the coverage of simulation, and avoids the
-zero-crossing problem. We demonstrate that our method is feasible for general
-hybrid systems with parametric uncertainty by applying the implemented tool {\bf SReach} to
-a wide range of nonlinear hybrid systems.}
-%to two representative examples - the prostate cancer treatment control and the cardiac system, 
-%and further through applications to additional benchmarks.
-\vspace{-.7cm}
+hybrid systems with parametric uncertainty by applying {\it SReach} to
+various nonlinear hybrid systems with parametric uncertainty, and for probabilistic hybrid automata with the help of our synthesized  Killerred biological model.
