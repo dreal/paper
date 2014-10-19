@@ -14,18 +14,17 @@ by systems of ordinary differential equations. We extend SMT-LIB with a command
 \texttt{define-ode} to define such systems. For instance, we use $\texttt{define-ode}$ as follows to
 assign a name $\mathrm{flow_1}$ to a group of ODE,
 $\frac{\mathrm{d}x}{\mathrm{d}t} = v$ and
-$\frac{\mathrm{d}v}{\mathrm{d}t} = -9.8$.
+$\frac{\mathrm{d}v}{\mathrm{d}t} = -x^2$.
 \[
-\texttt{(define-ode flow\_1 ((= d/dt[x] v) (= d/dt[v] -9.8)))}
+\texttt{(define-ode flow ((= d/dt[x] v) (= d/dt[v] -x^2)))}
 \]
 We then allow integration terms in the formula. We view the solution of system of differential equations 
-as a constraint between the initial-state variables, time duration, and the end-state variables. We can then naturally write
+as a constraint between the initial-state variables, time duration, and the end-state variables. We can then write
 \[
-\texttt{(integral 0 t [x\_0\_0 x\_0\_1 ... x\_0\_n] flow\_i)}.
+[x\_0\_t \cdots x\_n\_t]\texttt{(integral 0 t [x\_0\_0 ... x\_n\_0] flow\_i)}.
 \]
-Note that we do not include a variable in $\vec{x}^t$ such as
-\texttt{x\_t\_n} because it can be inferred from the given time
-\texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
+to represent 
+$\vec x = \vec x_0 + \int_0^t flow(\vec x(s))ds$. Note that we do not need to explicitly mention $\vec x(s)$ as a function in the encoding, which can be inferred by the solver. 
 
 \paragraph{Universal quantification for mode invariant constriants.} To encode mode invariants in hybrid systems, we
 need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
