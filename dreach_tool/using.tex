@@ -100,21 +100,17 @@ dReach <options> <drh file>
 \end{Verbatim}
 It has the following options:
 \begin{itemize}
-\item If \texttt{-k <N>} is used, set the unrolling bound $k$ as $N$
-  (Default: 3).
-\item If \texttt{--precision <p>} is used: use precision $p$ instead of
-  the default value, $0.001$.
-\item If \texttt{--visualize} is set, \dReach{} generate extra
-  visualization data in \texttt{json} format.
+\item If \texttt{-k <N>} is used, set the unrolling bound $k$ as $N$ (Default: 3).
+\item If \texttt{--precision <p>} is used: use precision $p$ (Default: $0.001$).
+\item If \texttt{--visualize} is set, \dReach{} generate extra visualization data.
 \end{itemize}
 We have a web-based visualization toolkit\footnote{The detailed
   instructions are available at
   \url{https://github.com/dreal/dreal/blob/master/doc/ode-visualization.md}.}
-which takes the generated \texttt{json} data file and shows the
+which processes the generated visualization data and shows the
 counterexample trajectory. It provides a way to navigate and
 zoom-in/out trajectories which helps understand and debug the target
-hybrid system better. Figure~\ref{fig:viz} is a screenshot of the
-visualization for a cardiac-cell model.
+hybrid system better.
 
 %%% Local Variables:
 %%% mode: latex
