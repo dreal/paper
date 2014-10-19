@@ -54,26 +54,28 @@ Apart from solving $\delta$-reachability, the following key features of \dReach{
 distinguish it from other existing tools in this domain~\cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,DBLP:conf/hybrid/Frehse05,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12}.
 %insert explanations for each item.
 
-1. Expressiveness. \dReach{} uses a formal grammar for hybrid systems defined by first-order
+1. Expressiveness. \dReach{} allows the user to describe hybrid systems using first-order
 logic formulas over real numbers with a wide range of nonlinear functions. This allows
 the user to specify the continuous flows using highly nonlinear differential equations,
 and the jump and reset conditions with complex Boolean combinations of nonlinear constraints.
 \dReach{} also faithfully translates mode invariants into $\exists\forall$ logic formulas,
 which can be directly solved under certain restrictions on the invariants.
 
-2. Property-guided search. \dReach{} maintains logical encodings of the reachable states of
-a hybrid system, whose size is linear in the size of the input. During solving, \dReach{} searches for concrete
-counterexamples to faulsify the reachability properties. This avoids the usual state explosion problem
-in reachable set computation, because the full set of states does not need to be explicitly stored. This change
+2. Property-guided search. \dReach{} maintains logical encodings, whose size is linear in the size of the inputs, of the reachable states of
+a hybrid system. The tool searches for concrete counterexamples to faulsify the reachability properties, instead of overapproximating the full reachable states. 
+This avoids the usual state explosion problem in reachable set computation, because the full set of states does not need to be explicitly stored. This change
 is analogous to the difference between SAT-based model checking and BDD-based symbolic model checking.
 
 3. Tight integration of symbolic reasoning and numerical solving. \dReach{} delegates the
 reasoning on discrete mode changes to SAT solvers, and uses numerlcal constraint solving to handle nonlinear dynamics.
 As a result, it can combine the full power of both symbolic reasoning and numerical analysis algorithms. In particular,
 all existing tools for reachable set computation can be easily plugged-in as engines for solving
-the continuous part of the dynamics.
+the continuous part of the dynamics, while logic reasoning tools can overcome the difficulty 
+in handling complex mode transitions.
 
-The paper is structured as follows.
+The paper is structured as follows. We describe the system architechture in Section 2, 
+and give some details about the logical encoding in the tool in Section 3. 
+We then explain the input format and usage in Section 4. More details and examples are given in the Appendix. 
 
 %Realistic hybrid systems involves nonlinear ODEs with transcendental
 %functions. \dReach{} allows users to specify a hybrid system in a
