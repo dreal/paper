@@ -6,14 +6,20 @@ octa-core Intel Core i7-2600 processor and 16GB RAM, running 64-bit
 Ubuntu 12.04LTS. Table~\ref{tbl:exp} is a summary of the running time
 of the tool on various hybrid system models.
 
-\paragraph{Atrial Fibrillation.} We studied the Atrial Fibrillation model as developed in~\cite{DBLP:conf/cav/GrosuBFGGSB11}. The model has four discrete control locations, four state variables, and nonlinear ODEs. A typical set of ODEs in the model is:
+\paragraph{Atrial Fibrillation.} We studied the Atrial Fibrillation
+model as developed in~\cite{DBLP:conf/cav/GrosuBFGGSB11}.
+The model
+has four discrete control locations, four state variables, and
+nonlinear ODEs. A typical set of ODEs in the model is:
 \begin{eqnarray*}
 \frac{du}{dt} &=& e + (u-\theta_v)(u_u-u ) v g_{fi} + wsg_{si}-g_{so}(u)\\
 \frac{ds}{dt} &=& \displaystyle\frac{g_{s2}}{(1+\exp(-2k(u-us)))} -  g_{s2}s\\
 \frac{dv}{dt} &=& -g_v^+\cdot v \hspace{1cm} \frac{dw}{dt} = -g_w^+\cdot w
 \end{eqnarray*}
 The exponential term on the right-hand side of the ODE is the sigmoid function, which often appears in modelling biological switches.
-\paragraph{Prostate Cancer Treatment.} The Prostate Cancer Treatment model~\cite{bing} exhibits more nonlinear ODEs. The reachability questions are
+\paragraph{Prostate Cancer Treatment.} The Prostate Cancer Treatment
+model~\cite{CMSB14} exhibits more nonlinear ODEs. The reachability
+questions are
 \begin{eqnarray*}
 \frac{dx}{dt} &=& (\alpha_x
 (k_1+(1-k_1)\frac{z}{z+k_2}-\beta_x( (1-k_3)\frac{z}{z+k_4}+k_3)) - m_1(1-\frac{z}{z_0}))x + c_1 x\\
