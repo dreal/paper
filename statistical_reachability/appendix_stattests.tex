@@ -23,3 +23,7 @@ computes a value $p'$ such that $|p' \; - \; p| \le \delta'$ with probability at
 
 \textit{Bayesian Interval Estimation with Beta prior} \cite{zuliani2010bayesian}. This method estimates $p$, the unknown probability that a random sampled model satisfies a specified reachability property. 
 The estimate will be in the form of a confidence interval, containing $p$ with an arbitrary high probability.  \cite{zuliani2010bayesian} assumes that the unknown $p$ is given by a random variable, whose density is called the prior density, and focuses on Beta priors. %It has been showed that, with this Bayesian interval estimation method, the probability of giving a wrong answer is arbitrarily small, and speed of obtaining an answer is higher than the sequential hypothesis testing.
+
+\textit{Direct sampling}. Given $N$ as the number of samples to be sampled, the direct sampling method estimates the mean of $p$ of a (bounded) random variable. According to the central limit thoerem \cite{durrett2010probability}, the error $\epsilon$ with a confidence $c$ between the real probability $p$ and the estimated $\hat{p}$ is bounded: \\
+$\epsilon  =  \phi^{-1}\left ( \frac{c + 1}{2} \right ) \sqrt{\frac{p(1-p)}{N}}$\\
+where $\phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-x}^{x} e^{-t^2 / 2}dt$. That is, as $N$ goes to $\infty$, the estimated probability approaches to the real one.

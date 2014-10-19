@@ -1,0 +1,73 @@
+\section{Experiments}
+%\vspace{-.1cm}
+Our method is implemented in the open-source tool {\it SReach} (\url{https://github.com/dreal/SReach}), which has a sequential version and a paralleled one. See Appendix \ref{apndx:usage} for its usage. All models for the following case studies and additional benchmarks can be found on the tool website. All experiments were conducted on a server with 2* AMD Opteron(tm) Processor 6172 and 32GB RAM, running on Ubuntu 14.04.1 LTS. 12 cores were used. In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian sequential estimation with $0.01$ as the estimation error bound, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$).
+
+{\bf\noindent Prostate cancer treatment.}
+%\textit{Model Description}.
+The first model is a nonlinear hybrid automaton with parametric uncertainty. We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The IAS therapy switches between  treatment-on, and treatment-off with respect to the serum level thresholds of prostate-specific antigen (PSA) - $r_0$ and $r_1$. As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we modified the model by taking the parametric variation caused by the personalized differences into account. In details, according to the clinic data from hundreds of patients \cite{bruchovsky2007locally}, we replaced 6 system parameters with random variables with appropriate (continuous) distributions, including $\alpha_x$ (proliferation rate of AD cells), $\alpha_y$ (proliferation rate of AI cells), $\beta_x$ (apoptosis rate of AD cells), $\beta_y$ (apoptosis rate of AI cells), $m_1$ (mutation rate from AD to AI cells), and $z_0$ (normal androgen level). To describe the variations due to individual difference, we assigned $\alpha_x$ to be $U(0.0193, 0.0214)$, $\alpha_y$ to be $U(0.0230, 0.0254)$, $\beta_x$ to be $U(0.0072, 0.0079)$, $\beta_y$ to be $U(0.0160, 0.0176)$, $m_1$ to be $U(0.0000475, 0.0000525) $, and $z_0$ to be $N(30.0, 0.001)$, as shown in Table \ref{table:prostate}.
+We used {\it SReach} to estimate the probabilities of the model preventing the relapse of the prostate cancer with three distinct pairs of treatment thresholds (\ie, combinations of $r_0$ and $r_1$).  In the experiments, we chose 2 as the unfolding steps. For each sample generated, {\bf SReach} dealt with $41$ variables, and $10$ ODEs. As shown in Table \ref{table:prostate}, the model with thresholds $r_0 = 10$, and $r_1 = 15$ has the highest probability approaching to 1, indicating that these thresholds may be considered for the general treatment. 
+%\vspace{-.5cm}
+\begin{table}[th!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|p{1.1cm} < {\centering}|p{0.65cm} < {\centering}|p{0.65cm} < {\centering}|p{0.65cm} < {\centering}|c|c|c|c|c|}
+    \hline
+    $(r_0,r_1)$ & Est\_P & \#S\_S & \#T\_S & Avg\_T(s) & Tot\_T(s) \\ \hline
+    (5, 10) & 0.496   & 8226      & 16584    & 0.596   & 9892     \\ \hline
+    (7, 11) & 0.994  & 335   & 336   & 54.307 & 18247     \\ \hline
+    (10, 15) & 0.996  & 240    & 240    & 506.5   & 121560   \\ \hline
+    \end{tabular}
+    \caption{Results for the prostate cancer treatment model. \#S\_S = number of $\delta$-sat samples, 
+\#T\_S = total number of samples, $r_0$ = lower threshold of the serum PSA level, $r_1$ = upper threshold, 
+Est\_P = estimated probability of the property,  Avg\_T(s) = average CPU time of each sample in seconds, and Tot\_T(s) = total CPU time for all samples in seconds.}
+    \label{table:prostate}
+\end{table}
+\vspace{-.5cm}
+
+\begin{table}[h!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|p{1.3cm} < {\centering}|p{1cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|}
+    \hline
+    EPI\_TO1            &EPI\_TO2         &\#S\_S & \#T\_S & Est\_P &  A\_T(s) & T\_T(s) \\ \hline
+    U(6.1e-3, 7e-3)    & 6              & 240       & 240      & 0.996     & 0.270   & 64.80     \\ \hline
+    U(5.5e-3, 5.9e-3)   & 6              & 0         & 240      & 0.004     & 0.042  & 10.08       \\ \hline
+    400               & U(0.131, 6)    & 240      & 240      & 0.996     & 0.231  & 55.36      \\ \hline
+    400               & U(0.1, 0.129)    & 0         & 240      & 0.004     & 0.038   & 9.15     \\ \hline
+    N(400, 1e-4)      & N(6, 1e-4)     & 240       & 240      & 0.996     & 0.091  & 21.87      \\ \hline
+    N(5.5e-3, 10e-6) & N(0.11, 10e-5) & 0         & 240      & 0.004     & 0.037  & 8.90      \\ \hline
+    \end{tabular}
+    \caption {Results for the atrial fibrillation model. \#RVs = number of random variables in the model, \#S\_S = number of $\delta$-sat samples, 
+\#T\_S = total number of samples, Est\_P = estimated probability of property,  A\_T(s) = average 
+CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.}
+    \label{table:cardiac}
+\end{table}
+{\bf\noindent Atrial Fibrillation.} The minimum resistor model (MRM) reproduces experimentally measured characteristics 
+of human ventricular cell dynamics \cite{bueno2008minimal}. 
+The MRM reduces the complexity of existing models by representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. With this application, we will show that {\bf SReach} can also be adopted to identify appropriate ranges and distributions for model parameters, \ie, parameter estimation. To illustrate the way that {\bf SReach} is used to conduct parameter estimation, we chose two system parameters - $EPI\_TO1$, and $EPI\_TO2$, and varied their distributions to see with which distributions for these two system parameters, the model can present the desired pattern. The model has 4 modes. In the experiments, we chose $3$ as the unfolding steps. For each sample generated, {\it SReach} dealt with $62$ variables, and $24$ ODEs. As in the Table \ref{table:cardiac}, when $EPI\_TO1$ is either close to $400$, or between $0.0061$ and $0.007$, and $EPI\_TO2$ is close to $6$, the model can satisfy the given bounded reachability property with a probability very close to $1$. 
+%\vspace{-.5cm}
+\vspace{-.1cm}
+{\bf Synthesized Killerred Model.} Due to the widespread misuse and overuse of antibiotics, drug resistant bacteria now pose significant risks to health, agriculture and the environment. An alternative to conventional antibiotics is phage-based therapy. Our approach to antibiotic resistance is to engineer a temperate phage, Lambda ($\lambda$), with light-activated production of superoxide. We incorporated the Killerred protein which has been shown to be phototoxic and be able to provide another level of controlled bacteria killing \cite{natasa2014killerred}. A probabilistic hybrid automaton for this synthesized Killerred model, as shown in Figure \ref{fig:killerred} in Appendix \ref{apndx:model}, has been constructed. Considering individual differences of bacteria cells and distinct experimental environments, additional randomness on transition probabilities are also considered. {\it SReach} was first used to validate this model by estimating the probabilities of killing bacteria cells (reaching mode $11$) with different $k$s, as shown in \ref{table:kr01}. We noticed that the probabilities of paths going through mode $6$ to the mode of killing cells are closing to $0$. To exclude the effect from the sampling of rare events, we increased the probability entering mode $6$. After this modification, the corresponding probabilities estimated by {\it SReach} are still approaching to $0$. Then, we concluded that it is infeasible for this model to enter mode $6$. {\it SReach} was also used to figure out the relation between the time to turn on the light after adding IPTG and the total time to kill bacteria cells (see \ref{table:kr02} in Appendix \ref{apndx:exp}), the lower bound for the duration of exposure to light is $3$ (see \ref{table:kr03} in Appendix \ref{apndx:exp}), the time to remove IPTG is not sensitive considering whether bacteria cells will be killed, and the upper bound of $SOX_thres$ (the necessary concentration of SOX to kill bacteria cells) is $0.6667$. All these findings has been returned back to biologists for further checking.
+
+\begin{table}[th!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|p{1.1cm} < {\centering}|p{0.65cm} < {\centering}|p{0.65cm} < {\centering}|p{0.65cm} < {\centering}|c|c|c|c|c|}
+    \hline
+    $k$ & Est\_P & \#S\_S & \#T\_S & Avg\_T(s) & Tot\_T(s) \\ \hline
+    5 &  0.544  & 8951     &  16452   & 0.074   & 1219.38     \\ \hline
+    6 & 0.247  & 3045   & 12336   & 0.969 & 11957.12     \\ \hline
+    7 & 0.096  & 559    & 5808    & 5.470   & 31770.36   \\ \hline
+    8 & 0.004  & 0      & 240    & 0.004  & 0.88     \\ \hline
+    9 & 0.004  & 0   & 240   & 0.012 & 2.97     \\ \hline
+    10 & 0.004  & 0    & 240    & 0.013   & 3.18   \\ \hline
+    \end{tabular}
+    \caption{Results for the killerred model. \#S\_S = number of $\delta$-sat samples, 
+\#T\_S = total number of samples, $r_0$ = lower threshold of the serum PSA level, $r_1$ = upper threshold, 
+Est\_P = estimated probability of the property,  Avg\_T(s) = average CPU time of each sample in seconds, and Tot\_T(s) = total CPU time for all samples in seconds.}
+    \label{table:kr01}
+\end{table}
+\vspace{-.2cm}
+
+
+{\bf Additional benchmarks.} To further demonstrate the feasibility of {\bf SReach}, we also applied it to the additional benchmarks including hybrid systems with parametric uncertainty, PHAs, and PHAs with additional randomness. Appendix \ref{apndx:exp} shows the results of experiments. Moreover, the detailed description of some of these benchmarks and above case studies in Appendix \ref{apndx:model} demonstrates their highly nonlinear characteristics.
