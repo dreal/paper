@@ -1,5 +1,15 @@
 \section{System Description}\label{sec:system}
-\begin{figure}
+The system architecture of \dReach{} is given in Figure~\ref{sec:system}. We ask the user to provide the following input file and two parameters:
+\begin{itemize}
+\item The input file specifies the hybrid system, the reachability
+  properties in question, and some time bounds on the continuous flow in each mode. 
+  The grammar described in
+  Section~\ref{sec:input-format}.
+\item A bound on the number of mode changes.
+\item A numerical error bound $\delta$, as explained in Section~\ref{sec:delta-reachability} in the Appendix.
+\end{itemize}
+From these inputs, \dReach{} generates a logical encoding that involves existential quatification and universal quantification on the time variables. The logical encoding is compact, always linear in the size of the inputs. The tool then makes iterative calls to the underlying solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13} to decide the reachability properties. When the answer is {\sf $\delta$-reachable}, \dReach{} generates a counterexampel and its visualization. When the answer is {\sf unreachable}, no numerical error is invovled and a (partial, for now) logical proof of unsatisfiability can be provided~\cite{}. 
+\begin{figure}[!h]
   \centering
   \includegraphics[width=\textwidth]{images/dreach_archi}
   \caption{Architecture of \dReach{}: It consists of an bounded
@@ -10,17 +20,8 @@
     problem using a solving framework that combines DPLL(T), Interval Constraint Propagation, and reliable (interval-based) numerical integration.
   }\label{fig:system-description}
 \end{figure}
-\dReach{} asks the user to provide one input file and two parameters as follows:
-\begin{itemize}
-\item The input file that describes the hybrid system and reachability
-  properties in question, with a grammar described in
-  Section~\ref{sec:input-format}.
-\item A bound on the number of mode changes.
-\item A numerical error bound $\delta$, as explained in Section~\ref{sec:delta-reachability}.
-\end{itemize}
 
-The tool uses a concise logical encoding that generates a logic formula, which involves existential quatification as well as universal quantification on the time variables. The encoding is compact, always linear in the size of the input file and the number of mode changes. It then makes iterative calls to the underlying solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13} to decide the reachability properties, and generate a visualization of the counterexample if one can be found. Figure~\ref{fig:system-description} illustrates the architecture of
-\dReach{}.
+
 
 %%% Local Variables:
 %%% mode: latex
