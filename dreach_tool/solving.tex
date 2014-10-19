@@ -41,7 +41,7 @@ regarded as unsafe indeed.
 
 \subsection{Encoding Reachability}
 
-In our work~\cite{DBLP:journals/corr/GaoKCC14} already studied
+In our work~\cite{DBLP:journals/corr/GaoKCC14}, we already studied
 logic encodings of bounded reachability problems of hybrid
 systems. The encoding scheme is based on the standard bounded model
 checking while non-trivial mode invariants and systems with
@@ -88,10 +88,19 @@ above constraint as
 Note that we do not include a variable in $\vec{x}^t$ such as
 \texttt{x\_t\_n} because it can be inferred from the given time
 \texttt{t} and $\vec{x}^0$ variables (such as \texttt{x\_0\_n}).
-\begin{figure}
-  \centering
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
-  numbers=left, fontsize=\scriptsize]
+\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
+need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
+is a restricted form of $\exists\forall$ formula where the universal
+quantifications are limited to the time variables. In \drh{}, we
+introduce a new keyword $\texttt{forall\_t}$ to encode
+$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
+invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
+  time\_i] f)}.
+
+\paragraph{Example encoding} The bounded reachability problem of a
+bouncing ball example (when $k = 3$) is encoded into the following
+shortened SMT2 formula.
+\begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,  numbers=left, fontsize=\scriptsize]
 (set-logic QF_NRA_ODE)
 (declare-fun x_0_0 () Real) ...
 (declare-fun v_0_t () Real) ...
@@ -113,20 +122,10 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
 0.0)) (>= x_10_t 0.0) (>= x_10_0 0.0) (= mode_10 1.0) (>= x_10_t
 0.45))) (check-sat) (exit)
 \end{Verbatim}
-\caption{An example of SMT2 encoding: the bounded reachability problem
-  of bouncing ball ($k = 3$) }
-  \label{fig:bouncing-ball-smt2}
-\end{figure}
-\paragraph{forall\_t} To encode mode invariants in hybrid systems, we
-need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
-is a restricted form of $\exists\forall$ formula where the universal
-quantifications are limited to the time variables. In \drh{}, we
-introduce a new keyword $\texttt{forall\_t}$ to encode
-$\exists\forall^t$ formulas. Given a time bound $[0, time_i]$, mode
-invariant f at mode $n$ is encoded into \texttt{(forall\_t n [0
-  time\_i] f)}.
 
 \subsection{Solving the SMT Formulas}
+
+% TODO: ?
 
 %%% Local Variables:
 %%% mode: latex
