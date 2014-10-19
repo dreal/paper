@@ -15,16 +15,16 @@ by systems of ordinary differential equations. We extend SMT-LIB with a command
 assign a name $\mathrm{flow_1}$ to a group of ODE,
 $\frac{\mathrm{d}x}{\mathrm{d}t} = v$ and
 $\frac{\mathrm{d}v}{\mathrm{d}t} = -x^2$.
-\[
-\mathtt{(define-ode flow ((= d/dt[x] v) (= d/dt[v] -x^2)))}
-\]
+\begin{Verbatim}[fontfamily=courier, fontsize=\small]
+(define-ode flow ((= d/dt[x] v) (= d/dt[v] -x^2)))
+\end{Verbatim}
 We then allow integration terms in the formula. We view the solution of system of differential equations
 as a constraint between the initial-state variables, time duration, and the end-state variables. We can then write
-\[
-[x\_0\_t \cdots x\_n\_t]\texttt{(integral 0 t [x\_0\_0 ... x\_n\_0] flow\_i)}.
-\]
+\begin{Verbatim}[fontfamily=courier, fontsize=\small]
+(integral 0 t [x_0_0 ... x_n_0] flow_i).
+\end{Verbatim}
 to represent
-$\vec x = \vec x_0 + \int_0^t flow(\vec x(s))ds$. Note that we do not need to explicitly mention $\vec x(s)$ as a function in the encoding, which can be inferred by the solver.
+$\vec x = \vec x_0 + \int_0^t flow_i(\vec x(s))\mathrm{d}s$. Note that we do not need to explicitly mention $\vec x(s)$ as a function in the encoding, which can be inferred by the solver.
 
 \paragraph{Universal quantification for mode invariant constriants.} To encode mode invariants in hybrid systems, we
 need $\exists\forall^t$-formulas~\cite{DBLP:conf/fmcad/GaoKC13} which
