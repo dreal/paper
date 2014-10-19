@@ -6,7 +6,7 @@ The input format for describing hybrid systems and reachability properties consi
 sections: macro definitions, variable declarations, mode definitions,
 and initial condition, and goals. We focus on intuitive explanations here, and the formal grammar is
 given in the Appendix. Figure~\ref{fig:bouncing-ball-drh} shows how to describe a small
-example hybrid system, an inelastic bouncing ball with air resistance. 
+example hybrid system, an inelastic bouncing ball with air resistance.
 
 $\bullet$
 In macro definitions, we allows users to define macros in C
@@ -14,9 +14,9 @@ preprocessor (\texttt{cpp}) style which can be used in the following
 sections. Macro expansions occur before the other parts are processed.
 
 $\bullet$
-        A variable declaration specifies a real variable and its domain in a real interval. 
-	\dReach{} requires special declaration for \textit{time} variable, to specify the
-	upperbound of time duration.
+        A variable declaration specifies a real variable and its domain in a real interval.
+        \dReach{} requires special declaration for \textit{time} variable, to specify the
+        upperbound of time duration.
 
 $\bullet$ A mode definition consists of mode id, mode invariant, flow, and jump.
 \textit{id} is a unique positive interger assigned to a mode. An
@@ -58,7 +58,7 @@ goal: @1 (and (x >= 0.45));
   4 - 7 and 8 - 11, we define two modes -- the falling and the
   bouncing-back modes respectively. At line 12, we specify
   that this hybrid system starts at mode 1 (\texttt{@1}) with initial
-  condition satisfying $x \ge 5 \land v = 0$. At line 23, it
+  condition satisfying $x \ge 5 \land v = 0$. At line 13, it
   is asking whether we can have a trajectory ending at mode 1
   (\texttt{@1}) while the height of the ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
@@ -72,8 +72,8 @@ dReach <options> <drh file>
 It has the following options:
 \begin{itemize}
 \item If \texttt{-k <N>} is used, set the unrolling bound $k$ as $N$ (Default: 3).
-\item If \texttt{--precision <p>} is used: use precision $p$ (Default: $0.001$).
-\item If \texttt{--visualize} is set, \dReach{} generate extra visualization data.
+\item If \texttt{--precision <p>} is used, use precision $p$ (Default: $0.001$).
+\item If \texttt{--visualize} is set, \dReach{} generates extra visualization data.
 \end{itemize}
 We have a web-based visualization toolkit\footnote{The detailed
   instructions are available at

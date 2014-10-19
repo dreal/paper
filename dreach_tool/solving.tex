@@ -21,7 +21,7 @@ $\frac{\mathrm{d}v}{\mathrm{d}t} = -x^2$.
 We then allow integration terms in the formula. We view the solution of system of differential equations
 as a constraint between the initial-state variables, time duration, and the end-state variables. We can then write
 \begin{Verbatim}[fontfamily=courier, fontsize=\small]
-(integral 0 t [x_0_0 ... x_n_0] flow_i).
+(integral 0 t [x_0_0 ... x_n_0] flow_i),
 \end{Verbatim}
 to represent
 $\vec x = \vec x_0 + \int_0^t flow_i(\vec x(s))\mathrm{d}s$. Note that we do not need to explicitly mention $\vec x(s)$ as a function in the encoding, which can be inferred by the solver.
