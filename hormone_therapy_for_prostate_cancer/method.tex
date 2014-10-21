@@ -1,4 +1,22 @@
-\section{$\delta$-Decisions for Hybrid Models}
+%\section{$\delta$-Decisions for Hybrid Models}
+\section{Delta-Reachability Analysis}
+%\section{Preliminaries}
+
+%In this section, we present some $\delta$-reachability analysis techniques we have developed for hybrid models in systems biology. 
+
+%These techniques are 
+
+%liu14cmsb
+
+%\subsection{Delta-decisions for hybrid models}
+
+%todo
+% - what is $\delta$ decision
+% - how to analyze hybrid system
+% - what kind of questions can be answered
+%
+%
+
 We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, 
 which allows the use of a wide range of real functions including nonlinear ODEs. 
 We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize 
@@ -32,6 +50,8 @@ Now we state the encoding for hybrid models. Recall that hybrid automata general
 automata by permitting continuous-time evolution (or {\em flow}) in each discrete state (or {\em mode}). 
 Also, in each mode an {\em invariant} must be satisfied by the flow, and mode switches are controlled
 by {\em jump} conditions.
+
+
 \begin{definition}[$\lrf$-Representations of Hybrid Automata]\label{lrf-definition}
 A hybrid automaton in $\lrf$-representation is a tuple
 \begin{multline*}
@@ -40,33 +60,35 @@ H = \langle X, Q, \{{\flow}_q(\vec x, \vec y, t): q\in Q\},\{\inv_q(\vec x): q\i
 \end{multline*}
 where $X\subseteq \mathbb{R}^n$ for some $n\in \mathbb{N}$, $Q=\{q_1,...,q_m\}$ is a finite set of modes, and the other components are finite sets of quantifier-free $\lrf$-formulas.
 \end{definition}
-\begin{example}[Nonlinear Bouncing Ball]
-The bouncing ball is a standard hybrid system model. It can be $\lrf$-represented in the following way:
-\begin{itemize}
-\item $X = \mathbb{R}^2$ and $Q = \{q_u, q_d\}$. We use $q_u$ to represent bounce-back mode and $q_d$ the falling mode.
-\item $\flow = \{\flow_{q_u}(x_0, v_0, x_t, v_t, t), \flow_{q_d}(x_0, v_0, x_t, v_t, t)\}$. We use $x$ to denote the height of the ball and $v$ its velocity. Instead of using time derivatives, we can directly write the flows as integrals over time, using $\lrf$-formulas:
-\begin{itemize}
-\item $\flow_{q_u}(x_0, v_0, x_t, v_t, t)$ defines the dynamics in the bounce-back phase:
-$$(x_t = x_0 + \int_0^{t} v(s) ds) \wedge (v_t = v_0 + \int_0^t g(1-\beta v(s)^2) ds)$$
-\item $\flow_{q_d}(x_0, v_0, x_t, v_t, t)$ defines the dynamics in the falling phase:
-$$(x_t = x_0 + \int_0^{t} v(s) ds) \wedge (v_t = v_0 + \int_0^t g(1+\beta v(s)^2) ds)$$
-\end{itemize}where
-$\beta$ is a constant. Again, note that the integration terms define Type 2 computable functions.
-\item $\jump = \{\jump_{q_u \rightarrow q_d} (x, v, x', v'), \jump_{q_d \rightarrow q_u} (x, v, x', v')\}$ where
-\begin{itemize}
-\item $\jump_{q_u \rightarrow q_d} (x, v, x', v')$ is $(v= 0 \wedge x' = x \wedge v' = v)$.
-\item $\jump_{q_d \rightarrow q_u} (x, v, x', v')$ is $(x= 0 \wedge v' = \alpha v\wedge x'=x)$,  for some constant $\alpha$.
-\end{itemize}
-\item $\init_{q_d}$ is $(x=10 \wedge v=0)$ and $\init_{q_u}$ is $\bot$.
-\item $\inv_{q_d}$ is $(x>=0 \wedge v>=0)$ and $\inv_{q_u}$ is $(x>=0 \wedge v<=0)$.
-\end{itemize}
-\end{example}
+
+%\begin{example}[Nonlinear Bouncing Ball]
+%The bouncing ball is a standard hybrid system model. It can be $\lrf$-represented in the following way:
+%\begin{itemize}
+%\item $X = \mathbb{R}^2$ and $Q = \{q_u, q_d\}$. We use $q_u$ to represent bounce-back mode and $q_d$ the falling mode.
+%\item $\flow = \{\flow_{q_u}(x_0, v_0, x_t, v_t, t), \flow_{q_d}(x_0, v_0, x_t, v_t, t)\}$. We use $x$ to denote the height of the ball and $v$ its velocity. Instead of using time derivatives, we can directly write the flows as integrals over time, using $\lrf$-formulas:
+%\begin{itemize}
+%\item $\flow_{q_u}(x_0, v_0, x_t, v_t, t)$ defines the dynamics in the bounce-back phase:
+%$$(x_t = x_0 + \int_0^{t} v(s) ds) \wedge (v_t = v_0 + \int_0^t g(1-\beta v(s)^2) ds)$$
+%\item $\flow_{q_d}(x_0, v_0, x_t, v_t, t)$ defines the dynamics in the falling phase:
+%$$(x_t = x_0 + \int_0^{t} v(s) ds) \wedge (v_t = v_0 + \int_0^t g(1+\beta v(s)^2) ds)$$
+%\end{itemize}where
+%$\beta$ is a constant. Again, note that the integration terms define Type 2 computable functions.
+%\item $\jump = \{\jump_{q_u \rightarrow q_d} (x, v, x', v'), \jump_{q_d \rightarrow q_u} (x, v, x', v')\}$ where
+%\begin{itemize}
+%\item $\jump_{q_u \rightarrow q_d} (x, v, x', v')$ is $(v= 0 \wedge x' = x \wedge v' = v)$.
+%\item $\jump_{q_d \rightarrow q_u} (x, v, x', v')$ is $(x= 0 \wedge v' = \alpha v\wedge x'=x)$,  for some constant $\alpha$.
+%\end{itemize}
+%\item $\init_{q_d}$ is $(x=10 \wedge v=0)$ and $\init_{q_u}$ is $\bot$.
+%\item $\inv_{q_d}$ is $(x>=0 \wedge v>=0)$ and $\inv_{q_u}$ is $(x>=0 \wedge v<=0)$.
+%\end{itemize}
+%\end{example}
 
 We now show the encoding of bounded reachability, which is used for encoding the parameter synthesis
 problem. We want to decide whether a given 
 hybrid system reaches a particular region of its state space after following a (bounded) number
 of discrete transitions, \ie, jumps. First, we need to define auxiliary formulas used
 for ensuring that a particular mode is picked at a certain step.
+
 \begin{definition}
 Let $Q = \{q_1,...,q_m\}$ be a set of modes. For any $q\in Q$, and $i\in\mathbb{N}$, use  $b_{q}^i$ to represent a Boolean variable. We now define
 $$\enforce_Q(q,i) = b^i_{q} \wedge \bigwedge_{p\in Q\setminus\{q\}}\neg b^{i}_{p}$$
@@ -76,15 +98,16 @@ We omit the subscript $Q$ when the context is clear.\end{definition}
 We can now define the following formula that checks whether a {\em goal} region of the automaton
 state space is reachable after exactly $k$ discrete transitions. We first state 
 the simpler case of a hybrid system without invariants.
+
 \begin{definition}[$k$-Step Reachability, Invariant-Free Case]
 Suppose $H$ is an invariant-free hybrid automaton, $U$ a subset of its state space represented by $\goal$,
 and $M>0$. The formula $\reach_{H,U}(k,M)$ is defined as:
 \begin{eqnarray*}
 %\reach^{k,M}(H,U) &:=&
 & &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t\exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
-& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\Big)\\%\wedge (b_{q_i}\wedge \bigwedge_{q\neq q_i} \neg b_{q})
+& &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\Big)\\
 \wedge & & \bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec x_{i}^t, \vec x_{i+1})\wedge \enforce(q,q',i)\\
-& & \hspace{4.5cm}\wedge\flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q',i+1)\Big)\bigg)\\
+& & \wedge\flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q',i+1)\Big)\bigg)\\
 \wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k))
 \end{eqnarray*}
 where $\exists^X x$ is a shorthand for $\exists x\in X$.
@@ -98,17 +121,19 @@ Suppose $H$ contains invariants, and $U$ is a subset of the state space represen
 \begin{eqnarray*}
 & &\exists^X \vec x_{0} \exists^X\vec x_{0}^t\cdots \exists^X \vec x_{k}\exists^X\vec x_{k}^t \exists^{[0,M]}t_0\cdots \exists^{[0,M]}t_k.\\
 & &\bigvee_{q\in Q} \Big(\init_{q}(\vec x_{0})\wedge \flow_{q}(\vec x_{0}, \vec x_{0}^t, t_0)\wedge \enforce(q,0)\\
-& &\hspace{5cm} \wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q}(\vec x_{0}, \vec x, t)\rightarrow \inv_{q}(\vec x))\Big) \\
+& &\hspace{0cm} \wedge \forall^{[0,t_0]}t\forall^X\vec x\;(\flow_{q}(\vec x_{0}, \vec x, t)\rightarrow \inv_{q}(\vec x))\Big) \\
 \wedge & &\bigwedge_{i=0}^{k-1}\bigg( \bigvee_{q, q'\in Q} \Big(\jump_{q\rightarrow q'}(\vec
-x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\wedge \enforce(q,q',i)\\
-& & \hspace{1.5cm}\wedge\enforce(q',i+1)\wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
+x_{i}^t, \vec x_{i+1})\wedge \flow_{q'}(\vec x_{i+1}, \vec x_{i+1}^t, t_{i+1})\\
+& & \wedge \enforce(q,q',i)  \wedge\enforce(q',i+1)\\
+& & \wedge \forall^{[0,t_{i+1}]}t\forall^X\vec x\;(\flow_{q'}(\vec x_{i+1}, \vec x,
 t)\rightarrow \inv_{q'}(\vec x)) )\Big)\bigg)\\
 \wedge & &\bigvee_{q\in Q} (\goal_q(\vec x_{k}^t)\wedge \enforce(q,k)).
 \end{eqnarray*}
 \end{definition}
+
 The extra universal quantifier for each continuous flow expresses the requirement that for all the time points between the initial and ending time point ($t\in[0,t_i+1]$) in a flow, the continuous variables $\vec x$ must take values that satisfy the invariant conditions $\inv_q(\vec x)$.
 
-\paragraph{Parameter Identification.}
+%\paragraph{Parameter Identification}
 The parameter identification problem we tackle is basically a $k$-step reachability question: Is there a parameter
 combination for which the model reaches the goal region in $k$ steps? If none exists, then the model is 
 {\em unfeasible}. Otherwise, a witness (\ie, a value for each parameter) is returned. Note that because we ask for
