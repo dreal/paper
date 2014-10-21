@@ -1,6 +1,6 @@
 \section{Models for Stochastic Hybrid Systems}
 Before discussing the details of the {\it SReach} algorithm, we first define the two types of formalism that {\it SReach} considers in detail. The first class is GHAs with parametric uncertainty. We follow the definition of GHAs in \cite{henzinger2000theory}, and extend it to consider probabilistic parameters in the following way.
-\vspace{-.4cm}
+\vspace{-.8cm}
 \begin{definition}
 \label{def:ha_para}
 {\rm(Hybrid Automata with Parametric Uncertainty)} A hybrid automaton with probabilistic parameters is a tuple $H_p = \langle (Q, E), \;V, \;RV, \; \mathsf{Init},\; \mathsf{Flow}, \; \mathsf{Inv}, \; \mathsf{Jump}, \; \Sigma \rangle$, where
@@ -43,7 +43,8 @@ where $g$ is a predicate representing a transition guard with free variables fro
 and the $p_i$'s satisfy $\sum_{i=1}^m p_i =1$, and $u_i$ is the corresponding transition function for the $i$th probabilistic choice, whose free variables are from $V \cup V' \cup RV$.
 \end{itemize}
 \end{definition}
-To illustrate the additional randomness allowed on transition probabilities and variable resets, an example probabilistic guarded command can be $x \geq 5 \; \rightarrow \; p_1:(x' = sin(x) + (1-p_1):(x' = p_x))$, where $x$ is a system variable, $p_1 \sim  U(0.2, 0.9)$, and $p_x  \sim  B(0.85)$. This means that, the probability to choose the first transition is not a fixed value, but a random variable obeying to an Uniform distribution. Also, after taking the second transition, $x$ can be assigned to either $1$ with probability $0.85$, or $0$ with $0.15$. In general, for an individual probabilistic guarded command, the transition probabilities can be expressed by equations of one or more novel random variables, as long as values of all transtion probabilities are within $[0, 1]$, and their sum is $1$. Currently, the four primary arithmetic operations are supported. Note that, to preserve the Markov property, only unused random variables can be adopted, so that no dependence between the current probabilistic jump and previous transitions will be introduced. 
+\vspace{-.4cm}
+To illustrate the additional randomness allowed on transition probabilities and variable resets, an example probabilistic guarded command can be $x \geq 5 \; \rightarrow \; p_1:(x' = sin(x) + (1-p_1):(x' = p_x))$, where $x$ is a system variable, $p_1 \sim  U(0.2, 0.9)$ (an Uniform distribution), and $p_x  \sim  B(0.85)$ (a Bernoulli distribution). This means that, the probability to choose the first transition is not a fixed value, but a random variable obeying to an Uniform distribution. Also, after taking the second transition, $x$ can be assigned to either $1$ with probability $0.85$, or $0$ with $0.15$. In general, for an individual probabilistic guarded command, the transition probabilities can be expressed by equations of one or more novel random variables, as long as values of all transition probabilities are within $[0, 1]$, and their sum is $1$. Currently, the four primary arithmetic operations are supported. Note that, to preserve the Markov property, only unused random variables can be adopted, so that no dependence between the current probabilistic jump and previous transitions will be introduced. 
 
 
 
