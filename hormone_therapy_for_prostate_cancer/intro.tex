@@ -1,23 +1,27 @@
 \section{Introduction}
 Prostate cancer is the second leading cause of cancer-related deaths among men in United States \citep{cancerstat}. Hormone therapy in the form of androgen deprivation has been a cornerstone of the management of advanced prostate cancer for several decades. However, controversy remains regarding its optimal application \citep{nru}. Continuous androgen suppression (CAS) therapy has many side effects including anemia, osteoporosis, impotence, etc. Further, most patients experience a relapse after a median duration of 18-24 months of CAS treatment, due to the proliferation of castration resistant cancer cells (CRCs).
 
-In order to reduce side effects of CAS and to delay the time to relapse, intermittent androgen suppression (IAS) was proposed to limit the duration of androgen-poor conditions and avoid emergence of AI cells \citep{bruchovsky95}. In particular, IAS therapy switches between on-treatment and off-treatment modes by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA):
+In order to reduce side effects of CAS and to delay the time to relapse, intermittent androgen suppression (IAS) was proposed to limit the duration of androgen-poor conditions and avoid emergence of CRCs \citep{bruchovsky95}. In particular, IAS therapy switches between on-treatment and off-treatment modes by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA):
 
 -- When the PSA level decreases and reaches a lower threshold value $r_0$, androgen suppression is suspended.
 
 -- When the PSA level increases and reaches a upper threshold value $r_1$, androgen suppression is resumed by the administration of medical agents.
 
-Recent clinical phase II and III trials confirm that IAS has significant advantages in terms of quality of life and cost. However, with respect to time to relapse and cancer-specific survival, the clinical trials suggest that to what extent IAS is superior to CAS depends on the individual patient and the on- and off-treatment scheme \citep{bruchovsky06,bruchovsky07,book13}. Thus, a crucial unsolved problem is how to design a personalized treatment scheme for each individual to achieve maximum therapeutic efficacy.
+Recent clinical phase II and III trials confirmed that IAS has significant advantages in terms of quality of life and cost \cite{bruchovsky06,bruchovsky07}. However, with respect to time to relapse and cancer-specific survival, the clinical trials suggested that to what extent IAS is superior to CAS depends on the individual patient and the on- and off-treatment scheme \citep{bruchovsky06,bruchovsky07,book13}. Thus, a crucial unsolved problem is how to design a personalized treatment scheme for each individual to achieve maximum therapeutic efficacy.
 
-To answer this question, mathematical models have been developed to study the dynamics of prostate cancer under androgen suppression \citep{jackson04,ideta08, hirata10,pnas11}. Recently, attempts have been made to computationally classify patients and obtain the optimal treatment scheme \citep{chaos10,suzuki10}. However, these results relied on simplifying nonlinear hybrid dynamical systems to more manageable versions such as piecewise linear models \citep{chaos10} and piecewise affine systems \citep{suzuki10}, which compromises the validity of the models. In this paper, we construct a nonlinear hybrid model to describe the prostate cancer progression dynamics under IAS thereapy. Our model extends the models previously proposed by \citep{jackson04,ideta08}. We use $\delta$-reachability analysis to obtain the following results:
+To answer this question, mathematical models have been developed to study the dynamics of prostate cancer under androgen suppression \citep{jackson04a,jackson04b,ideta08,hirata10,pnas11,portz12}. Recently, attempts have been made to computationally classify patients and obtain the optimal treatment scheme \citep{chaos10,suzuki10}. However, these results relied on simplifying nonlinear hybrid dynamical systems to more manageable versions such as piecewise linear models \citep{chaos10} and piecewise affine systems \citep{suzuki10}, which compromises the validity of the models. In this paper, we construct a nonlinear hybrid model to describe the prostate cancer progression dynamics under IAS thereapy. Our model extends the models previously proposed in \citep{jackson04a,jackson04b,ideta08}. We use $\delta$-reachability analysis to obtain the following results:
 
--- First, we show that our model is in good agreement with the published clinical data in literature \cite{ bruchovsky06,bruchovsky07}. %the sentence is weak. Add more explanations as well. 
+-- First, we show that our model is in good agreement with the published clinical data in literature \cite{ bruchovsky06,bruchovsky07}. It can depict the dynamical changes of proliferation rates induced by perturbing androgen levels that are difficult for previous models (e.g. \cite{ideta08}) to capture. It also addresses the variability in individual patients and is able to accurately reproduce the datasets of different patients.  
+ %the sentence is weak. Add more explanations as well. 
 
--- Second, we obtain interesting insights on cancer cell proliferation dynamics through analysis of the nonlinear model. %explanation
+-- Second, we obtain interesting insights on CRC proliferation dynamics through analysis of the nonlinear model. Our results support the hypothesis that the physiological level of androgen might reduce CRCs \cite{ideta08}, while rule out other hypotheses, for instance, CRCs proliferates at a constant rate \cite{portz12}. 
+%explanation
 
--- Third, we propose a computational framework for identifying patient-specific IAS schedules for avoidiing or postponing the potential cancer relapse. Specifically, we obtain personalized model parameters by fitting to the clinical data in order to characterize individual patients. We then use $\delta$-decision produces and bounded model checking to predict therapeutic strategies. 
+-- Third, we propose a computational framework for identifying patient-specific IAS schedules for postponing the potential cancer relapse. Specifically, we obtain personalized model parameters by fitting to the clinical data in order to characterize individual patients. We then use $\delta$-decision produces and bounded model checking to predict therapeutic strategies. 
 
-We conclude that ...
+% We conclude that ...
+By this case study, we conclude that $\delta$-reachability analysis is potent in tackling systems biology problems, and could contribute to the development of personalized cancer therapies.
+% Bing: this sounds like conclusion 
 
 %\paragraph{Releated work}
 
