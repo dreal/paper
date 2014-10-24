@@ -1,8 +1,32 @@
 \section{Experiments}
 %\vspace{-.1cm}
-Our method is implemented in the open-source tool {\it SReach} (\url{https://github.com/dreal/SReach}). Both a sequential version and a parallel one has been implemented. See Appendix \ref{apndx:usage} for information on using {\it SReach}. All models for the following case studies and additional benchmarks can be found on the tool website. All experiments were conducted on a server with 2* AMD Opteron(tm) Processor 6172 (24 cores) and 32GB RAM, running on Ubuntu 14.04.1 LTS. Twelve cores were used. In our experiments we used $0.001$ as the precision for the $\delta$-decision problem; and Bayesian interval sequential estimation with $0.01$ as half-interval width, coverage probability $0.99$, and uniform prior ($\alpha = \beta = 1$).
+Our method is implemented in the open-source tool {\it SReach} (\url{https://github.com/dreal/SReach}). Both a sequential version and a parallel one have been implemented. See Appendix \ref{apndx:usage} for information on using {\it SReach}. All models for the following case studies and additional benchmarks can be found on the tool website. All experiments were conducted on a server with 2* AMD Opteron(tm) Processor 6172 (24 cores) and 32GB RAM, running on Ubuntu 14.04.1 LTS. 12 cores were used. In our experiments we used $0.001$ as the precision for the $\delta$-decision problem, and Bayesian sequential estimation with $0.01$ as the estimation error bound, coverage probability $0.99$, and a uniform prior ($\alpha = \beta = 1$).
 
+\vspace{-.1cm}
+{\bf\noindent Atrial Fibrillation.} The minimum resistor model (MRM) reproduces experimentally measured characteristics of human ventricular cell dynamics \cite{bueno2008minimal}. The MRM reduces the complexity of existing models by representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. After adding parametric uncertainty into the original hybrid model, we show that {\it SReach} can be adapted to estimate parameters for this stochastic model, i.e., identifying appropriate ranges and distributions for model parameters. To illustrate the way in which {\it SReach} is used to conduct parameter estimation, we chose two system parameters - $E\!P\!I\_\!T\!O1$ and $E\!P\!I\_\!T\!O2$, and varied their distributions to see which ones allow the model to present the desired pattern. The model has 4 modes. In the experiments, we chose $3$ as the unfolding depth. For each sample generated, {\it SReach} analyzed systems with $62$ variables, and $24$ ODEs. As in Table \ref{table:cardiac}, when $E\!P\!I\_\!T\!O1$ is either close to $400$, or between $0.0061$ and $0.007$, and $E\!P\!I\_\!T\!O2$ is close to $6$, the model can satisfy the given bounded reachability property with a probability very close to $1$. 
+%\vspace{-.5cm}
 \vspace{-.2cm}
+\begin{table}[h!]
+\captionsetup{font=scriptsize}
+\centering
+    \begin{tabular}{|p{1.3cm} < {\centering}|p{1cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|}
+    \hline
+    \small{EPI\_\!T\!O1}            &\small{EPI\_\!T\!O2}         &\small{\#S\_S} & \small{\#T\_S} & \small{Est\_P} & \small{A\_T(s)} & \small{T\_T(s)} \\ \hline
+    U(6.1e-3, 7e-3)    & 6              & 240       & 240      & 0.996     & 0.270   & 64.80     \\ \hline
+    U(5.5e-3, 5.9e-3)   & 6              & 0         & 240      & 0.004     & 0.042  & 10.08       \\ \hline
+    400               & U(0.131, 6)    & 240      & 240      & 0.996     & 0.231  & 55.36      \\ \hline
+    400               & U(0.1, 0.129)    & 0         & 240      & 0.004     & 0.038   & 9.15     \\ \hline
+    N(400, 1e-4)      & N(6, 1e-4)     & 240       & 240      & 0.996     & 0.091  & 21.87      \\ \hline
+    N(5.5e-3, 10e-6) & N(0.11, 10e-5) & 0         & 240      & 0.004     & 0.037  & 8.90      \\ \hline
+    \end{tabular}
+    \caption {Results for the atrial fibrillation model. \#RVs = number of random variables in the model, \#S\_S = number of $\delta$-sat samples, 
+\#T\_S = total number of samples, Est\_P = estimated maximum posterior probability,  A\_T(s) = average 
+CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.}
+\vspace{-.5cm}
+    \label{table:cardiac}
+\end{table}
+
+
 {\bf\noindent Prostate cancer treatment.}
 %\textit{Model Description}.
 This model is a nonlinear hybrid automaton with parametric uncertainty. We modified the model of the intermittent androgen suppression (IAS) therapy in \cite{tanaka2010mathematical} by adding parametric uncertainty. The IAS therapy switches between  treatment-on, and treatment-off with respect to the serum level thresholds of prostate-specific antigen (PSA), namely $r_0$ and $r_1$. As suggested by the clinical trials \cite{bruchovsky2006final}, an effective IAS therapy highly depends on the individual patient. Thus, we modified the model by taking parametric variation caused by personalized differences into account. In detail, according to clinical data from hundreds of patients \cite{bruchovsky2007locally}, we replaced six system parameters with random variables having appropriate (continuous) distributions, including $\alpha_x$ (the proliferation rate of androgen-dependent (AD) cells), $\alpha_y$ (the proliferation rate of androgen-independent (AI) cells), $\beta_x$ (the apoptosis rate of AD cells), $\beta_y$ (the apoptosis rate of AI cells), $m_1$ (the mutation rate from AD to AI cells), and $z_0$ (the normal androgen level). To describe the variations due to individual differences, we assigned $\alpha_x$ to be $U(0.0193, 0.0214)$, $\alpha_y$ to be $U(0.0230, 0.0254)$, $\beta_x$ to be $U(0.0072, 0.0079)$, $\beta_y$ to be $U(0.0160, 0.0176)$, $m_1$ to be $U(0.0000475, 0.0000525) $, and $z_0$ to be $N(30.0, 0.001)$. We used {\it SReach} to estimate the probabilities of preventing the relapse of prostate cancer with three distinct pairs of treatment thresholds (\ie, combinations of $r_0$ and $r_1$).  In the experiments, we chose $k=2$ as the unfolding depth. For each sample generated, {\it SReach} analyzed systems with $41$ variables, and $10$ ODEs. As shown in Table \ref{table:prostate}, the model with thresholds $r_0 = 10$ and $r_1 = 15$ has a maximum posterior probability that approaches 1, indicating that these thresholds may be considered for the general treatment. 
@@ -22,33 +46,12 @@ This model is a nonlinear hybrid automaton with parametric uncertainty. We modif
 Est\_P = estimated maximum posterior probability,  Avg\_T(s) = average CPU time of each sample in seconds, and Tot\_T(s) = total CPU time for all samples in seconds.}
     \label{table:prostate}
 \end{table}
-\vspace{-.5cm}
+\vspace{-.65cm}
 
-\begin{table}[h!]
-\captionsetup{font=scriptsize}
-\centering
-    \begin{tabular}{|p{1.3cm} < {\centering}|p{1cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|p{0.7cm} < {\centering}|}
-    \hline
-    \small{EPI\_TO1}            &\small{EPI\_TO2}         &\small{\#S\_S} & \small{\#T\_S} & \small{Est\_P} & \small{A\_T(s)} & \small{T\_T(s)} \\ \hline
-    U(6.1e-3, 7e-3)    & 6              & 240       & 240      & 0.996     & 0.270   & 64.80     \\ \hline
-    U(5.5e-3, 5.9e-3)   & 6              & 0         & 240      & 0.004     & 0.042  & 10.08       \\ \hline
-    400               & U(0.131, 6)    & 240      & 240      & 0.996     & 0.231  & 55.36      \\ \hline
-    400               & U(0.1, 0.129)    & 0         & 240      & 0.004     & 0.038   & 9.15     \\ \hline
-    N(400, 1e-4)      & N(6, 1e-4)     & 240       & 240      & 0.996     & 0.091  & 21.87      \\ \hline
-    N(5.5e-3, 10e-6) & N(0.11, 10e-5) & 0         & 240      & 0.004     & 0.037  & 8.90      \\ \hline
-    \end{tabular}
-    \caption {Results for the atrial fibrillation model. \#RVs = number of random variables in the model, \#S\_S = number of $\delta$-sat samples, 
-\#T\_S = total number of samples, Est\_P = estimated maximum posterior probability,  A\_T(s) = average 
-CPU time of each sample in seconds, and T\_T(s) = total CPU time for all samples in seconds.}
-    \label{table:cardiac}
-\end{table}
+
+{\bf Synthesized Killerred Model.} Due to the widespread misuse and overuse of antibiotics, drug resistant bacteria now pose significant risks to health, agriculture and the environment. An alternative to conventional antibiotics is phage-based therapy. Our approach to antibiotic resistance is to engineer a temperate phage, Lambda ($\lambda$), with light-activated production of superoxide (SOX). We incorporated the Killerred protein which has been shown to be phototoxic, and can provide another level of controlled bacteria killing \cite{natasa2014killerred}. A probabilistic hybrid automaton for this synthesized Killerred model, as shown in Figure \ref{fig:killerred} in Appendix \ref{apndx:model}, has been constructed. Considering individual differences of bacterial cells and distinct experimental environments, additional randomness on transition probabilities were considered. {\it SReach} was first used to validate this model by estimating the probabilities of killing bacterial cells with different values for $k$, as shown in Table \ref{table:kr01}. We noticed that the probabilities of paths going through mode $6$ to mode $11$ in Figure \ref{fig:killerred} are close to $0$. To exclude the effect from sampling of rare events, we increased the probability of entering mode $6$. After this modification, the corresponding probabilities estimated by {\it SReach} still approach $0$. We conclude that it is impossible for this model to enter mode $6$. {\it SReach} was also used to (a) find out the relation between the time to turn on the light after adding the molecular biology reagent IPTG and the total time to kill bacterial cells (see Table \ref{table:kr02} in Appendix \ref{apndx:exp}), (b) figure out that the lower bound for the duration of exposure to light is $3$ (see Table \ref{table:kr03} in Appendix \ref{apndx:exp}), (c) find that the time to remove IPTG is not sensitive considering whether bacterial cells will be killed, and (d) estimate that the upper bound of $SOX_{thres}$ (the necessary concentration of SOX to kill bacterial cells) is $0.6667$. All these findings have been reported to biologists for further checking.
+
 \vspace{-.2cm}
-{\bf\noindent Atrial Fibrillation.} The minimum resistor model (MRM) reproduces experimentally measured characteristics of human ventricular cell dynamics \cite{bueno2008minimal}. The MRM reduces the complexity of existing models by representing channel gates of different ions with one fast channel, and two slow gates. However, due to this reduction, for most model parameters, it becomes impossible to obtain their values through measurements. With this application, we show that {\it SReach} can also be adapted to estimate parameters of this nonlinear hybrid model with parametric uncertainty. We identify appropriate ranges and distributions for model parameters. To illustrate the way in which {\it SReach} is used to conduct parameter estimation, we chose two system parameters - $EPI\_TO1$ and $EPI\_TO2$, and varied their distribution to see which one of the two system parameters allows the model to present the desired pattern. The model has 4 modes. In the experiments, we chose $3$ as the unfolding depth. For each sample generated, {\it SReach} analyzed systems with $62$ variables, and $24$ ODEs. As in Table \ref{table:cardiac}, when $EPI\_TO1$ is either close to $400$, or between $0.0061$ and $0.007$, and $EPI\_TO2$ is close to $6$, the model can satisfy the given bounded reachability property with a probability very close to $1$. 
-%\vspace{-.5cm}
-\vspace{-.2cm}
-
-{\bf Synthesized Killerred Model.} Due to the widespread misuse and overuse of antibiotics, drug resistant bacteria now pose significant risks to health, agriculture and the environment. An alternative to conventional antibiotics is phage-based therapy. Our approach to antibiotic resistance is to engineer a temperate phage, Lambda ($\lambda$), with light-activated production of superoxide (SOX). We incorporated the Killerred protein which has been shown to be phototoxic, which can provide another level of controlled bacteria killing \cite{natasa2014killerred}. A probabilistic hybrid automaton for this synthesized Killerred model, as shown in Figure \ref{fig:killerred} in Appendix \ref{apndx:model}, has been constructed. Considering individual differences of bacterial cells and distinct experimental environments, additional randomness on transition probabilities are considered. {\it SReach} was first used to validate this model by estimating the probabilities of killing bacterial cells with different values for $k$, as shown in Table \ref{table:kr01}. We noticed that the probabilities of paths going through mode $6$ to mode $11$ in Figure \ref{fig:killerred} are close to $0$. To avoid sampling of rare events, we increased the probability of entering mode $6$. After this modification, the corresponding probabilities estimated by {\it SReach} still approach $0$. We conclude that it is impossible for this model to enter mode $6$. {\it SReach} was also used to figure out 1) the relation between the time to turn on the light after adding the molecular biology reagent IPTG and the total time to kill bacterial cells (see Table \ref{table:kr02} in Appendix \ref{apndx:exp}), 2) the lower bound for the duration of exposure to light is $3$ (see Table \ref{table:kr03} in Appendix \ref{apndx:exp}), 3) that the time to remove IPTG is not sensitive considering whether bacterial cells will be killed, and 4) that an upper bound for $SOX_{thres}$ (the necessary concentration of SOX to kill bacterial cells) is $0.6667$. All these findings have been reported to biologists for further checking.
-
 \begin{table}[th!]
 \captionsetup{font=scriptsize}
 \centering

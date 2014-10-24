@@ -1,6 +1,6 @@
-\section{The SReach tool}\label{apndx:usage}
+\section{The {\it SReach} tool}\label{apndx:usage}
 \subsection{Input format}
-The inputs to our {\it SReach} tool are descriptions of (stochastic) hybrid automata with random variables (representing the probabilistic system parameters, and probabilistic jumps), and the reachability property to be checked. Following roughly the same format as the above definition of (stochastic) hybrid automata, and adding the declarations of random variables, the description of an automaton is as follows.
+The inputs to our {\it SReach} tool are descriptions of (probabilistic) hybrid automata with random variables (representing the probabilistic system parameters, and probabilistic jumps), and the reachability property to be checked. Following roughly the same format as the above definition of (probabilistic) hybrid automata, and adding the declarations of random variables, the description of an automaton is as follows.
 
 {\bf Preprocessor.} We can use the C language syntax to define constants and macros. 
 
@@ -51,7 +51,7 @@ goal:
 @4	(x>=50);
 \end{lstlisting}
 
-\noindent\textit{Example 2}.  This example demonstrates the format of the input file for a probabilistic hybrid automaton. Note that, unlike the notations of declarations of random variables representing system parameters, declarations of random variables used to express transition probabilities for probabilistic jumps start with a prefix $j$.
+\noindent\textit{Example 2}.  This example demonstrates the format of the input file for a probabilistic hybrid automaton with additional randomness for transition probabilities. Note that, unlike the notations of declarations of random variables representing system parameters and probabilistic transitions, declarations of random variables used to express the addtional randomness for jump probabilities start with a prefix $j$.
 \lstset{basicstyle=\ttfamily\small, numbers=left, breaklines=true }
 \begin{lstlisting}
 jU(0.7, 0.9) pjumprv;
