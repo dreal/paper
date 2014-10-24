@@ -1,7 +1,9 @@
 \newpage
-\section*{Appendix A: $\lrf$-Formulas and $\delta$-Decidability}
+\section*{Appendix}
 
-We will use a logical language over the real numbers that allows arbitrary {\em computable real functions}~\cite{CAbook}. We write $\lrf$ to represent this language. Intuitively, a real function is computable if it can be numerically simulated up to an arbitrary precision. For the purpose of this paper, it suffices to know that almost all the functions that are needed in describing hybrid systems are Type 2 computable, such as polynomials, exponentiation, logarithm, trigonometric functions, and solution functions of Lipschitz-continuous ordinary differential equations.
+\subsection*{$\lrf$-Formulas and $\delta$-Decidability}
+
+We will use a logical language over the real numbers that allows arbitrary {\em computable real functions}. We write $\lrf$ to represent this language. Intuitively, a real function is computable if it can be numerically simulated up to an arbitrary precision. For the purpose of this paper, it suffices to know that almost all the functions that are needed in describing hybrid systems are Type 2 computable, such as polynomials, exponentiation, logarithm, trigonometric functions, and solution functions of Lipschitz-continuous ordinary differential equations.
 
 More formally, $\lrf = \langle \mathcal{F}, > \rangle$ represents the first-order signature over the reals with the set $\mathcal{F}$ of computable real functions, which contains all the functions mentioned above. Note that constants are included as 0-ary functions. $\lrf$-formulas are evaluated in the standard way over the structure $\mathbb{R}_{\mathcal{F}}= \langle \mathbb{R}, \mathcal{F}^{\mathbb{R}}, >^{\mathbb{R}}\rangle$. It is not hard to see that  we can put any $\lrf$-formula in a normal form, such that its atomic formulas are of the form $t(x_1,...,x_n)>0$ or $t(x_1,...,x_n)\geq 0$, with $t(x_1,...,x_n)$ composed of functions in $\mathcal{F}$. To avoid extra preprocessing of formulas, we can explicitly define $\mathcal{L}_{\mathcal{F}}$-formulas as follows.
 
@@ -46,7 +48,9 @@ It is clear that $\varphi\rightarrow\varphi^{\delta}$~(see \cite{gao12b}).
 \end{definition}
 In~\cite{gao12a}, we have proved that the following $\delta$-decision problem is decidable, which is the basis of our framework.
 
-\begin{theorem}[$\delta$-Decidability \cite{gao12a}]\label{delta-decide} Let $\delta\in\mathbb{Q}^+$ be
+\textbf{Theorem 1 $\delta$-Decidability \cite{gao12a}}
+%\begin{theorem}[$\delta$-Decidability \cite{gao12a}]\label{delta-decide} 
+Let $\delta\in\mathbb{Q}^+$ be
 arbitrary. There is an algorithm which, given any bounded $\lrf$-sentence $\varphi$,
 correctly returns one of the following two answers:
 \begin{itemize}
@@ -54,15 +58,17 @@ correctly returns one of the following two answers:
 \item $\mathsf{False}$: $\varphi$ is false.
 \end{itemize}
 When the two cases overlap, either answer is correct.
-\end{theorem}
+%\end{theorem}
 
 The following theorem states the (relative) complexity of the $\delta$-decision problem.
 A bounded $\Sigma_n$ sentence is a bounded $\lrf$-sentence with $n$ alternating quantifier blocks 
 starting with $\exists$. 
 
-\begin{theorem}[Complexity \cite{gao12b}]\label{compmain}
+\textbf{Theorem 2 Complexity \cite{gao12b}}
+%\begin{theorem}[Complexity \cite{gao12b}]\label{compmain}
 Let $S$ be a class of $\lrf$-sentences, such that for any $\varphi$ in $S$, the terms in $\varphi$ are in Type 2 complexity class $\mathsf{C}$. Then, for any $\delta\in \mathbb{Q}^+$, the $\delta$-decision problem for bounded $\Sigma_n$-sentences in $S$ is in $\mathsf{(\Sigma_n^P)^C}$.
-\end{theorem}
+%\end{theorem}
+
 Basically, the theorem says that increasing the number of quantifier alternations will in general increase 
 the complexity of the problem, unless $\mathsf{P}=\mathsf{NP}$ (recall that $\mathsf{\Sigma_0^P}=\mathsf{P}$ 
 and $\mathsf{\Sigma_1^P}=\mathsf{NP}$).
@@ -72,37 +78,7 @@ For more details and results we again point the interested reader to \cite{gao12
 
 
 
-\section*{Appendix B: Delta-Decisions for Hybrid Models}
-
-
-We encode reachability problems of hybrid automata using a first-order language $\lrf$ over the reals, 
-which allows the use of a wide range of real functions including nonlinear ODEs. 
-We then use $\delta$-complete decision procedures to find solutions to these formulas to synthesize 
-parameters. 
-
-\begin{definition}[$\lrf$-Formulas]
-Let $\mathcal{F}$ be a collection of computable real functions. We define:
-\begin{align*}
-t& := x \; | \; f(t(\vec x)), \mbox{ where }f\in \mathcal{F} \mbox{ (constants are 0-ary functions)};\\
-\varphi& := t(\vec x)> 0 \; | \; t(\vec x)\geq 0 \; | \; \varphi\wedge\varphi
-\; | \; \varphi\vee\varphi \; | \; \exists x_i\varphi \; |\; \forall x_i\varphi.
-\end{align*}
-\end{definition}
-By computable real function we mean Type 2 computable, which informally requires that a (real) 
-function can be algorithmically evaluated with arbitrary accuracy. Since in general 
-$\lrf$ formulas are undecidable, the decision problem needs to be relaxed. In particular, for 
-any $\lrf$ formula $\phi$ and any rational $\delta >0$ one can obtain a $\delta$-weakening 
-formula $\phi^\delta$ from $\phi$ by substituting the atoms $t > 0$ with $t > -\delta$ (and
-similarly for $t \geq 0$). Obviously, $\phi$ implies $\phi^\delta$, but not the {\em vice versa}.
-Now, the $\delta$-decision problem is deciding correctly whether:
-\begin{itemize}
-	\item $\phi$ is false ($\mathsf{unsat}$);
-	\item $\phi^\delta$ is true ($\delta$-$\mathsf{sat}$).
-\end{itemize}
-If both cases are true, then either decision is correct. In previous work~\cite{gao12a,gao12b,gao13}
-we presented algorithms ($\delta$-{\em complete} decision procedures) for solving $\delta$-decision 
-problems for $\lrf$ and for ODEs. These algorithms have been implemented in the dReal 
-toolset \cite{dreal}. 
+\subsection*{Delta-Decisions for Hybrid Models}
 
 Now we state the encoding for hybrid models. Recall that hybrid automata generalize finite-state
 automata by permitting continuous-time evolution (or {\em flow}) in each discrete state (or {\em mode}). 

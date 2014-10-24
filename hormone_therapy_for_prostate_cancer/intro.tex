@@ -12,18 +12,12 @@ Recent clinical phase II and III trials confirmed that IAS has significant advan
 To answer this question, mathematical models have been developed to study the dynamics of prostate cancer under androgen suppression \citep{jackson04a,jackson04b,ideta08,hirata10,pnas11,portz12}. Recently, attempts have been made to computationally classify patients and obtain the optimal treatment scheme \citep{chaos10,suzuki10}. However, these results relied on simplifying nonlinear hybrid dynamical systems to more manageable versions such as piecewise linear models \citep{chaos10} and piecewise affine systems \citep{suzuki10}, which compromises the validity of the models. In this paper, we construct a nonlinear hybrid model to describe the prostate cancer progression dynamics under IAS thereapy. Our model extends the models previously proposed in \citep{jackson04a,jackson04b,ideta08}. We use $\delta$-reachability analysis to obtain the following results:
 
 -- First, we show that our model is in good agreement with the published clinical data in literature \cite{ bruchovsky06,bruchovsky07}. It can depict the dynamical changes of proliferation rates induced by perturbing androgen levels that are difficult for previous models (e.g. \cite{ideta08}) to capture. It also addresses the variability in individual patients and is able to accurately reproduce the datasets of different patients.  
- %the sentence is weak. Add more explanations as well. 
 
--- Second, we obtain interesting insights on CRC proliferation dynamics through analysis of the nonlinear model. Our results support the hypothesis that the physiological level of androgen might reduce CRCs \cite{ideta08}, while rule out other hypotheses, for instance, CRCs proliferates at a constant rate \cite{portz12}. 
-%explanation
+-- Second, we obtain interesting insights on CRC proliferation dynamics through analysis of the nonlinear model. Our results support the hypothesis that the physiological level of androgen reduce CRCs \cite{ideta08}, while rule out other hypotheses, for instance, CRCs proliferate at a constant rate \cite{portz12}. 
 
 -- Third, we propose a computational framework for identifying patient-specific IAS schedules for postponing the potential cancer relapse. Specifically, we obtain personalized model parameters by fitting to the clinical data in order to characterize individual patients. We then use $\delta$-decision produces and bounded model checking to predict therapeutic strategies. 
 
-% We conclude that ...
 Through this case study, we aim to highlight the opportunity for solving realistic biomedical problems using formal methods. In particular, methods based on $\delta$-reachability analysis suggest a very promising direction to proceed.  
-% Bing: this sounds like conclusion 
 
-%\paragraph{Releated work}
 
-%\paragraph{Organization}
 The rest of the paper is organized as follows. We describe our model in Section 2 and present preliminaries on $\delta$-reachability analysis in Section 3. In Section 4, we present the biological insights we gained through this case study, as well as the model-predicted treatment schemes for individual patients. In the final section, we summarize the paper and discuss future work.
