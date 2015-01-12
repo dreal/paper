@@ -1,14 +1,11 @@
 \subsection*{A1. How to Install}
 \dReach{} is an open source project under GPL-3 license. We bundled
 \dReal{} and \dReach{} together and host them at
-\url{http://dreal.cs.cmu.edu}. The BMC encoder module is written in
-OCaml and uses OCaml Batteries library. At the release
-page\footnote{\url{https://github.com/dreal/dreal/releases}}, we host
-pre-compiled static-binaries for Linux and OS X. It does not require
-any compilation to use \dReach{} in those platforms. For Windows, we
-provide detailed
-instructions\footnote{\url{https://github.com/dreal/dreal/blob/master/doc/windows-msys2.md}}
-to build \dReach{} and \dReal{}.
+\url{http://dreal.github.io}. The BMC encoder module is written in
+OCaml and uses Oasis and OCaml Batteries library. At the release
+page\footnote{\url{http://dreal.github.io/download}}, we host
+pre-compiled static-binaries for Linux and OS X, which do not require
+any compilation to use \dReach{} in those platforms.
 
 \subsection*{A2. Syntax Grammar of \drh{}}
 \begin{align*}
@@ -124,6 +121,8 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
     \hline
   \end{tabular}
   \caption{\small
+    Summary of the running time of the tool on various hybrid system
+    models:
     \#Mode = Number of modes in the hybrid system,
     \#Depth = Unrolling depth,
     \#ODEs = Number of ODEs in the unrolled formula,
@@ -145,7 +144,7 @@ flow_1)) (= mode_10 1.0) (forall_t 1.0 [0.0 time_10] (<= v_10_t 0.0))
 
 
 All benchmarks and data shown here are also available on the tool
-website\footnote{\url{http://dreal.cs.cmu.edu}}. Due to space limit,
+website\footnote{\url{http://dreal.github.io}}. Due to space limit,
 we only highlight the typical nonlinear differential equations in the
 models. All models are hybrid systems with multiple modes containing
 these equations All experiments were conducted on a machine with a

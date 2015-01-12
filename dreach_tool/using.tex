@@ -8,21 +8,20 @@ and initial condition, and goals. We focus on intuitive explanations here, and t
 given in the Appendix. Figure~\ref{fig:bouncing-ball-drh} shows how to describe a small
 example hybrid system, an inelastic bouncing ball with air resistance.
 
-$\bullet$
-In macro definitions, we allows users to define macros in C
-preprocessor (\texttt{cpp}) style which can be used in the following
+\begin{itemize}
+\item In macro definitions, we allows users to define macros in C
+preprocessor style which can be used in the following
 sections. Macro expansions occur before the other parts are processed.
 
-$\bullet$
-        A variable declaration specifies a real variable and its domain in a real interval.
-        \dReach{} requires special declaration for \textit{time} variable, to specify the
-        upperbound of time duration.
+\item A variable declaration specifies a real variable and its domain
+  in a real interval. \dReach{} requires special declaration for
+  \textit{time} variable, to specify the upperbound of time duration.
 
-$\bullet$ A mode definition consists of mode id, mode invariant, flow, and jump.
+\item A mode definition consists of mode id, mode invariant, flow, and jump.
 \textit{id} is a unique positive interger assigned to a mode. An
 invariant is a conjuction of logic formulae which must always hold in
-a mode. A flow describes a continuous dynamics of a mode by providing
-a set of ordinary differential equations (\textit{ode}s). The first
+a mode. A flow describes the continuous dynamics of a mode by providing
+a set of ODEs. The first
 formula of \textit{jump} is interpreted as a guard, a logic formula
 specifying a condition to make a transition. Note that this allows a
 transition but does not force it. The second argument of
@@ -30,9 +29,10 @@ transition but does not force it. The second argument of
 \textit{reset}, a logic formula connecting the old and new values for
 the transition.
 
-$\bullet$ \textit{initial-condition} specifies the initial mode of a hybrid
+\item \textit{initial-condition} specifies the initial mode of a hybrid
 system and its initial configuration. \textit{goal} shares the same
 syntactic structure of \textit{initial-condition}.
+\end{itemize}
 \begin{figure}
   \centering
   \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
@@ -52,18 +52,18 @@ init: @1 (and (x >= 5) (v = 0));
 goal: @1 (and (x >= 0.45));
 \end{Verbatim}
 \caption{An example of \drh{} format: Inelastic bouncing ball with air
-  resistance. At lines 1 and 2, we define a drag coefficient $D = 0.45$
-  and an elastic coefficient $K = 0.9$ using \texttt{\#define} macros.
-  At line 3, we declare variables $x, g, v,$ and $time$. At lines
-  4 - 7 and 8 - 11, we define two modes -- the falling and the
-  bouncing-back modes respectively. At line 12, we specify
-  that this hybrid system starts at mode 1 (\texttt{@1}) with initial
-  condition satisfying $x \ge 5 \land v = 0$. At line 13, it
-  is asking whether we can have a trajectory ending at mode 1
-  (\texttt{@1}) while the height of the ball is higher than $0.45$.}
+  resistance. Lines 1 and 2 define a drag coefficient $D = 0.45$ and
+  an elastic coefficient $K = 0.9$. At line 3, we declare variables
+  $x, g, v,$ and $time$. At lines 4 - 7 and 8 - 11, we define two
+  modes -- the falling and the bouncing-back modes respectively. At
+  line 12, we specify this hybrid system to start at mode 1
+  (\texttt{@1}) with initial condition satisfying
+  $x \ge 5 \land v = 0$. At line 13, it asks whether we can have
+  a trajectory ending at mode 1 (\texttt{@1}) while the height of the
+  ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
 \end{figure}
-
+\vspace{-1.0em}
 \subsection{Command Line Options}
 \dReach{} follows the standard unix command-line usage:
 \begin{Verbatim}[fontfamily=courier, framesep=1mm, fontsize=\small]
