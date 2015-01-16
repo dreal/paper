@@ -53,17 +53,17 @@ goal: @1 (and (x >= 0.45));
 \end{Verbatim}
 \caption{An example of \drh{} format: Inelastic bouncing ball with air
   resistance. Lines 1 and 2 define a drag coefficient $D = 0.45$ and
-  an elastic coefficient $K = 0.9$. At line 3, we declare variables
+  an elastic coefficient $K = 0.9$. Line 3 declares variables
   $x, g, v,$ and $time$. At lines 4 - 7 and 8 - 11, we define two
   modes -- the falling and the bouncing-back modes respectively. At
-  line 12, we specify this hybrid system to start at mode 1
+  line 12, we specify the hybrid system to start at mode 1
   (\texttt{@1}) with initial condition satisfying
   $x \ge 5 \land v = 0$. At line 13, it asks whether we can have
   a trajectory ending at mode 1 (\texttt{@1}) while the height of the
   ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
 \end{figure}
-\vspace{-1.0em}
+\vspace{-2.6em}
 \subsection{Command Line Options}
 \dReach{} follows the standard unix command-line usage:
 \begin{Verbatim}[fontfamily=courier, framesep=1mm, fontsize=\small]
