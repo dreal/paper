@@ -51,7 +51,8 @@ of nonlinear hybrid systems, even with reasonable complexity bounds~\cite{DBLP:j
 This framework provides the formal correctness guarantees of \dReach{}.
 
 Apart from solving $\delta$-reachability, the following key features of \dReach{}
-distinguish it from other existing tools in this domain~\cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,DBLP:conf/hybrid/Frehse05,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12}.
+distinguish it from other existing tools in this
+domain~\cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,DBLP:conf/hybrid/Frehse05,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12,DBLP:conf/aaai/CimattiMT12}.
 %insert explanations for each item.
 
 1. Expressiveness. \dReach{} allows the user to describe hybrid systems using first-order
@@ -61,8 +62,9 @@ and the jump and reset conditions with complex Boolean combinations of nonlinear
 \dReach{} also faithfully translates mode invariants into $\exists\forall$ logic formulas,
 which can be directly solved under certain restrictions on the invariants.
 
-2. Property-guided search. \dReach{} maintains logical encodings, whose size is linear in the size of the inputs, of the reachable states of
-a hybrid system~\cite{DBLP:journals/corr/GaoKCC14}. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
+2. Property-guided search. \dReach{} maintains logical encodings (the
+same approach as~\cite{DBLP:conf/aaai/CimattiMT12}), whose size is
+linear in the size of the inputs, of the reachable states of a hybrid system~\cite{DBLP:journals/corr/GaoKCC14}. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
 This avoids the usual state explosion problem in reachable set computation, because the full set of states does not need to be explicitly stored. This change
 is analogous to the difference between SAT-based model checking and BDD-based symbolic model checking.
 
