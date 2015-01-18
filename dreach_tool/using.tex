@@ -4,8 +4,9 @@
 \subsection{Input Format}\label{sec:input-format}
 The input format for describing hybrid systems and reachability properties consists of five
 sections: macro definitions, variable declarations, mode definitions,
-and initial condition, and goals. We focus on intuitive explanations here, and the formal grammar is
-given in the Appendix. Figure~\ref{fig:bouncing-ball-drh} shows how to describe a small
+and initial condition, and goals. We focus on intuitive explanations here.
+%, and the formal grammar is given in the Appendix.
+Figure~\ref{fig:bouncing-ball-drh} shows how to describe a small
 example hybrid system, an inelastic bouncing ball with air resistance.
 
 \begin{itemize}
@@ -35,21 +36,20 @@ syntactic structure of \textit{initial-condition}.
 \end{itemize}
 \begin{figure}
   \centering
-  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm,
-  numbers=left, fontsize=\scriptsize]
-#define D 0.45
-#define K 0.9
-[0, 15] x; [9.8] g; [-18, 18] v; [0, 3] time;
-{   mode 1;
-    invt: (v <= 0);  (x >= 0);
-    flow: d/dt[x] = v; d/dt[v] = -g - (D * v ^ 2);
-    jump: (x = 0) ==> @2 (and (x' = x) (v' = - K * v)); }
-{   mode 2;
-    invt: (v >= 0); (x >= 0);
-    flow: d/dt[x] = v; d/dt[v] = -g + (D * v ^ 2);
-    jump: (v = 0) ==> @1 (and (x' = x) (v' = v)); }
-init: @1 (and (x >= 5) (v = 0));
-goal: @1 (and (x >= 0.45));
+  \begin{Verbatim}[fontfamily=courier, frame=single, framesep=1mm, fontsize=\footnotesize]
+ 1   #define D 0.45
+ 2   #define K 0.9
+ 3   [0, 15] x; [9.8] g; [-18, 18] v; [0, 3] time;
+ 4   {   mode 1;
+ 5       invt: (v <= 0);  (x >= 0);
+ 6       flow: d/dt[x] = v; d/dt[v] = -g - (D * v ^ 2);
+ 7       jump: (x = 0) ==> @2 (and (x' = x) (v' = - K * v)); }
+ 8   {   mode 2;
+ 9       invt: (v >= 0); (x >= 0);
+10       flow: d/dt[x] = v; d/dt[v] = -g + (D * v ^ 2);
+11       jump: (v = 0) ==> @1 (and (x' = x) (v' = v)); }
+12   init: @1 (and (x >= 5) (v = 0));
+13   goal: @1 (and (x >= 0.45));
 \end{Verbatim}
 \caption{An example of \drh{} format: Inelastic bouncing ball with air
   resistance. Lines 1 and 2 define a drag coefficient $D = 0.45$ and
@@ -63,7 +63,7 @@ goal: @1 (and (x >= 0.45));
   ball is higher than $0.45$.}
 \label{fig:bouncing-ball-drh}
 \end{figure}
-\vspace{-2.6em}
+\vspace{-1.7em}
 \subsection{Command Line Options}
 \dReach{} follows the standard unix command-line usage:
 \begin{Verbatim}[fontfamily=courier, framesep=1mm, fontsize=\small]
