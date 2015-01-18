@@ -54,27 +54,35 @@ Apart from solving $\delta$-reachability, the following key features of \dReach{
 distinguish it from other existing tools in this
 domain~\cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,DBLP:conf/hybrid/Frehse05,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12,DBLP:conf/aaai/CimattiMT12}.
 %insert explanations for each item.
-
-1. Expressiveness. \dReach{} allows the user to describe hybrid systems using first-order
-logic formulas over real numbers with a wide range of nonlinear functions. This allows
-the user to specify the continuous flows using highly nonlinear differential equations,
-and the jump and reset conditions with complex Boolean combinations of nonlinear constraints.
-\dReach{} also faithfully translates mode invariants into $\exists\forall$ logic formulas,
-which can be directly solved under certain restrictions on the invariants.
-
-2. Property-guided search. \dReach{} maintains logical encodings (the
-same approach as~\cite{DBLP:conf/aaai/CimattiMT12}), whose size is
-linear in the size of the inputs, of the reachable states of a hybrid system~\cite{DBLP:journals/corr/GaoKCC14}. The tool searches for concrete counterexamples to falsify the reachability properties, instead of overapproximating the full reachable states.
-This avoids the usual state explosion problem in reachable set computation, because the full set of states does not need to be explicitly stored. This change
-is analogous to the difference between SAT-based model checking and BDD-based symbolic model checking.
-
-3. Tight integration of symbolic reasoning and numerical solving. \dReach{} delegates the
-reasoning on discrete mode changes to SAT solvers, and uses numerical constraint solving to handle nonlinear dynamics.
-As a result, it can combine the full power of both symbolic reasoning and numerical analysis algorithms. In particular,
-all existing tools for reachable set computation can be easily plugged-in as engines for solving
-the continuous part of the dynamics, while logic reasoning tools can overcome the difficulty
-in handling complex mode transitions.
-
+\begin{enumerate}
+\item Expressiveness. \dReach{} allows the user to describe hybrid
+  systems using first-order logic formulas over real numbers with a
+  wide range of nonlinear functions. This allows the user to specify
+  the continuous flows using highly nonlinear differential equations,
+  and the jump and reset conditions with complex Boolean combinations
+  of nonlinear constraints. \dReach{} also faithfully translates mode
+  invariants into $\exists\forall$ logic formulas, which can be
+  directly solved under certain restrictions on the invariants.
+\item Property-guided search. \dReach{} maintains logical encodings
+  (the same approach as~\cite{DBLP:conf/aaai/CimattiMT12}), whose size
+  is linear in the size of the inputs, of the reachable states of a
+  hybrid system~\cite{DBLP:journals/corr/GaoKCC14}. The tool searches
+  for concrete counterexamples to falsify the reachability properties,
+  instead of overapproximating the full reachable states. This avoids
+  the usual state explosion problem in reachable set computation,
+  because the full set of states does not need to be explicitly
+  stored. This change is analogous to the difference between SAT-based
+  model checking and BDD-based symbolic model checking.
+\item Tight integration of symbolic reasoning and numerical solving.
+  \dReach{} delegates the reasoning on discrete mode changes to SAT
+  solvers, and uses numerical constraint solving to handle nonlinear
+  dynamics. As a result, it can combine the full power of both
+  symbolic reasoning and numerical analysis algorithms. In particular,
+  all existing tools for reachable set computation can be easily
+  plugged-in as engines for solving the continuous part of the
+  dynamics, while logic reasoning tools can overcome the difficulty in
+  handling complex mode transitions.
+\end{enumerate}
 The paper is structured as follows. We describe the system architecture in Section 2,
 and give some details about the logical encoding in the tool in Section 3.
 We then explain the input format and usage in Section 4. %More details and examples are given in the Appendix.

@@ -9,7 +9,7 @@ The system architecture of \dReach{} is given in Figure~\ref{sec:system}. We ask
 \item A numerical error bound $\delta$.%, as explained in Section A5. in the Appendix.
 \end{itemize}
 From these inputs, \dReach{} generates a logical encoding that involves existential quantification and universal quantification on the time variables. The logical encoding is compact, always linear in the size of the inputs. The tool then makes iterative calls to the underlying solver \dReal{}~\cite{DBLP:conf/cade/GaoKC13} to decide the reachability properties. When the answer is {\sf $\delta$-reachable}, \dReach{} generates a counterexample and its visualization. When the answer is {\sf unreachable}, no numerical error is involved and a (partial, for now) logical proof of unsatisfiability can be provided~\cite{SYNASC14}.
-\begin{figure}[!h]
+\begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{images/dreach_archi}
   \caption{Architecture of \dReach{}: It consists of an bounded
