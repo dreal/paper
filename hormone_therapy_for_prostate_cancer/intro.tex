@@ -7,7 +7,7 @@ In order to reduce side effects of CAS and to delay the time to relapse, intermi
 
 -- When the PSA level increases and reaches a upper threshold value $r_1$, androgen suppression is resumed by the administration of medical agents.
 
-Recent clinical phase II and III trials confirmed that IAS has significant advantages in terms of quality of life and cost \cite{bruchovsky06,bruchovsky07}. However, with respect to time to relapse and cancer-specific survival, the clinical trials suggested that to what extent IAS is superior to CAS depends on the individual patient and the on- and off-treatment scheme \citep{bruchovsky06,bruchovsky07,book13}. Thus, a crucial unsolved problem is how to design a personalized treatment scheme for each individual to achieve maximum therapeutic efficacy.
+Recent clinical phase II and III trials confirmed that IAS has significant advantages in terms of quality of life and cost \cite{bruchovsky06,bruchovsky07}. However, with respect to time to relapse and cancer-specific survival, the clinical trials suggested that to what extent IAS is superior to CAS depends on the individual patient and the on- and off-treatment scheme \citep{bruchovsky06,bruchovsky07}. Thus, a crucial unsolved problem is how to design a personalized treatment scheme for each individual to achieve maximum therapeutic efficacy.
 
 To answer this question, mathematical models have been developed to study the dynamics of prostate cancer under androgen suppression \citep{jackson04a,jackson04b,ideta08,hirata10,pnas11,portz12}. Recently, attempts have been made to computationally classify patients and obtain the optimal treatment scheme \citep{chaos10,suzuki10}. However, these results relied on simplifying nonlinear hybrid dynamical systems to more manageable versions such as piecewise linear models \citep{chaos10} and piecewise affine systems \citep{suzuki10}, which compromises the validity of the models. In this paper, we construct a nonlinear hybrid model to describe the prostate cancer progression dynamics under IAS thereapy. Our model extends the models previously proposed in \citep{jackson04a,jackson04b,ideta08}. We use $\delta$-reachability analysis to obtain the following results:
 
@@ -17,7 +17,47 @@ To answer this question, mathematical models have been developed to study the dy
 
 -- Third, we propose a computational framework for identifying patient-specific IAS schedules for postponing the potential cancer relapse. Specifically, we obtain personalized model parameters by fitting to the clinical data in order to characterize individual patients. We then use $\delta$-decision produces and bounded model checking to predict therapeutic strategies. 
 
-Through this case study, we aim to highlight the opportunity for solving realistic biomedical problems using formal methods. In particular, methods based on $\delta$-reachability analysis suggest a very promising direction to proceed.  
+Through this case study, we aim to highlight the opportunity for solving realistic biomedical problems using formal methods. In particular, methods based on $\delta$-reachability analysis suggest a very promising direction to proceed. \\ 
 
+
+%% PLEASE CHECK
+
+\noindent \textit{Related Work.} Hybrid automata have been used to model cancer progression and drug effects \cite{bud14}. Of particular interest in our context are parameter synthesis for nonlinear hybrid automata. Tools such as SpaceEx \cite{spaceex} and Flow\* \cite{flowstar} can answer reachablitiy queries by computing an overappoximation of the reachable sets. However, it is difficult for them to perform parameter synthesis, as they cannot trace back to the parameter values that lead to the reachable region of interest. Rovergene tool \cite{rovergene} deals with parameter synthesis for piecewise affine linear models. Applying it in this case study requires linearization of the underlying nonlinear dynamics \cite{grosu11}. Alternatively, sampling/simulation based tools (e.g. Breach \cite{breach}) can also be used to perform parameter synthesis. Comparing to such tools, our approach explores the parameter space in a more efficient way, and can offers formal guarantees as well.
+
+% Reviewer#4
+%
+%POST-REBUTTAL
+%
+%A couple of comments on "Because of the highly nonlinear dynamics and
+%multiple discrete jumps, the model is out of the scope of other
+%existing hybrid system reachability analysis tools":
+%
+%  - What makes the dynamics "highly" nonlinear? Do you mean that any
+%(piecewise) linearization is going to be very imprecise or require
+%many modes or states? If this is the case, please mention it.
+%Otherwise, with some effort (see work by Grosu, Bartocci et al, e.g.,
+%on automatic approximation of sigmoids) the system can probably be
+%handled by Spaceex and the likes.
+%  - There are tools today that can handle such nonlinear model with
+%formal guarantees, e.g., Flow*. You need to mention it. Nothing in
+%what you present excludes the possibility that they will work as well.
+%  - "multiple" is quite vague. From Fig. 4-5, we see a handful (<=10)
+%of jumps at max. From the nature of these jumps (on-off treatment),
+%it is also quite obvious that the discrete component of this hybrid
+%system is going to be quite trivial (no high frequency jumps, multiple
+%branching, etc).
+%  -  Although I agree that it's good to have formal guarantees when we
+%can, I'm not convinced by your argument against simulation based
+%approaches in this case. If 1000 simulations don't give me a
+%treatment, one can argue that if there exists one, then it is not
+%robust to parameter variations, so it might be undesirable anyway.
+%
+%All in all, I urge you to add a related work (or related tools)
+%section in the final version of the paper, and to be 1) honest about
+%it (there *are* other tools that can be applied to this case study)
+%and 2) precise when you argue why such or such tool   will not work.
+
+% Reviewer#5
+% I am surprised not to find any reference to Bud Mishra's work on hybrid automata based cancer models.
 
 The rest of the paper is organized as follows. We describe our model in Section 2 and present preliminaries on $\delta$-reachability analysis in Section 3. In Section 4, we present the biological insights we gained through this case study, as well as the model-predicted treatment schemes for individual patients. In the final section, we summarize the paper and discuss future work.

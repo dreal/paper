@@ -1,23 +1,32 @@
 \section{A Hybrid Model of Prostate Cancer Progression }\label{sec.model}
 
 In this section, we propose a hybrid automata based model in order to reproduce the clinical observations \cite{bruchovsky06, bruchovsky07} of prostate cancer cell dynamics in response to the IAS therapy. It is known that the proliferation and survival of prostate cancer cells depend on the levels of androgens, specifically testosterone and 5$\alpha$-dihydrotestosterone (DHT).
-Here we consider two distinct subpopulations of prostate cancer cells: hormone sensitive cells (HSCs) and castration resistant cells (CRCs). Androgen deprivation can lead to remarkable decreases of the proliferation and survival rates of HSCs, but also up-regulates the conversion from HSCs to CRCs, which will keep proliferating under low androgen level. Figure \ref{progression} illustrates this cancer progression process and the corresponding hybrid automata model is shown in Figure \ref{pmodel}. 
+Here we consider two distinct subpopulations of prostate cancer cells: hormone sensitive cells (HSCs) and castration resistant cells (CRCs). Androgen deprivation can lead to remarkable decreases of the proliferation and survival rates of HSCs, but also up-regulates the conversion from HSCs to CRCs, which will keep proliferating under low androgen level. %Figure \ref{progression} illustrates this cancer progression process and the corresponding hybrid automata model is shown in Figure \ref{pmodel}. 
+The corresponding hybrid automata model is shown in Figure \ref{pmodel}. 
+
+
+%\begin{figure}[htb]
+%\centering
+%\includegraphics[scale=0.38]{fig-progression}
+%\caption{Prostate cancer progression in response to (a) CAS and (b) IAS treatments.}
+%\label{progression}
+% %\vspace{-0.1cm}
+%\end{figure}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.38]{fig-progression}
-\caption{Prostate cancer progression in response to (a) CAS and (b) IAS treatments.}
-\label{progression}
- %\vspace{-0.1cm}
-\end{figure}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[scale=0.6]{fig-prostate}
+\includegraphics[scale=0.55]{fig-prostate3}
 \caption{A hybrid automaton model for prostate cancer hormone therapy.}
 \label{pmodel}
  \vspace{-0.3cm}
 \end{figure}
+
+
+% Reviewer#1
+% Section 2 describes a 2 modes hybrid automaton, but later Section 4.2 presents a further modified automaton with 3 modes. It might be clearer to have the final version in Section 2 and Figure 2.
+
+% Reviewer#2
+% Figure 2: The dynamics for mode 1 and 2 appear to differ only in dz/dt and also differ depending on the jump direction. This figure could be greatly consolidated and the differences more clearly highlighted.
 
 Our model is based on previous models developed by \cite{jackson04a,jackson04b,ideta08}. It takes into account the population of HSCs, the population of CRCs, as well as the serum androgen concentration, represented as $x(t)$, $y(t)$, and $z(t)$, respectively. In addition, it also includes the serum prostate-specific antigen (PSA) level $v(t)$, which is a commonly used biomarker for assessing the total population of prostate cancer cells. The model has two modes: \textit{on-treatment} mode and \textit{off-treatment} mode. Following \cite{ideta08}, in the off-treatment mode (mode $2$), the androgen concentration is maintained at the normal level $z_0$ by homeostasis. In the on-treatment (mode $1$), the androgen is cleared at a rate $\frac{1}{\tau}$. Further, we also introduce a basal androgen production rate $\mu_z$, in order to reproduce the measured basal testosterone levels in response to androgen suppression \cite{bruchovsky06, bruchovsky07}. 
 
@@ -25,21 +34,21 @@ The net growth rate of $x(t)$ equals to $(prolif_{x}-apop_{x}-conv_{x})\cdot x(t
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.5]{fig-response}
+\includegraphics[scale=0.45]{fig-response}
 \caption{Androgen response curves of (a) Ideta's model and (b) our model.}
 \label{response}
- \vspace{-0.3cm}
+% \vspace{-0.3cm}
 \end{figure}
 
 
 
 The transitions between two modes depends on the values of $v$, ${dv}/{dt}$ and an auxiliary variable $w$, which measures the time taken in a mode. Specifically, for each patient we starts with mode $1$ to apply the treatment. When the PSA level drops to certain threshold $r_0$ or $w$ hits time out threshold $t_{max}$, the treatment will be suspended. When the PSA level is back to threshold $r_1$, the treatment will be resumed. Note that $w$ is associated with a dummy differential equation $\frac{dw}{dt}=1$ (not shown in Figure \ref{pmodel}). Its value will be reset to $0$ when the jump takes place.  
 
-We obtained the parameter values by fitting to patient PSA data reported in \cite{bruchovsky06, bruchovsky07}. Note that the patient-to-patient variability in terms of parameter values is significant. For example, Figure \ref{data} shows that the proliferation rate of Patent\#22 is much lower than the Patent\#1. The descriptions and a set of typical values (i.e. estimated from Patient\#1 data) of model parameters are listed in Table \ref{prostate}.
+We obtained the parameter values by fitting to patient PSA data reported in \cite{bruchovsky06, bruchovsky07}. Note that the patient-to-patient variability in terms of parameter values is significant. For example, Figure \ref{data} shows that the proliferation rate of Patient\#22 is much lower than the Patient\#1. The descriptions and a set of typical values (i.e. estimated from Patient\#1 data) of model parameters are listed in Table \ref{prostate}.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.47]{fig-data}
+\includegraphics[scale=0.45]{fig-data}
 \caption{The clinical data for PSA time serials.}
 \label{data}
  \vspace{-0.3cm}
@@ -71,5 +80,5 @@ $\mu_x$     & 0.05 d$^{-1}$ & HSC basal production\\
 $\mu_z$     & 0.02 d$^{-1}$ & Androgen basal production \\
 \hline
 \end{tabular}
- %\vspace{-0.7cm}
+% \vspace{-0.5cm}
 \end{table}

@@ -13,8 +13,10 @@ The framework of $\delta$-complete decision procedures~\cite{gao12a} aims to sol
 
 \subsection{Parameter identification}
 Further, we have also proposed an encoding scheme which aimed to answer bounded reachability problems of hybrid automata with nontrivial invariants \cite{liu14}. This encoding enabled us to tackle the parameter identification problem by answering a $k$-step reachability question: ``Is there a parameter
-combination for which the model reaches the goal region in $k$ steps?'' Essentially, we describe the set of states of interest (goal region) as a first-order logic formula and perform bounded model checking \cite{BMC} to determine reachability of these states. We then adapt an interval constrains propagation based algorithm to explore the parameter space and identify the sets of resulting parameters. If none exists, then the model is 
-{\em unfeasible}. Otherwise, a witness (\ie, a value for each parameter) is returned. We have developed the dReach tool (\verb#http://dreal.cs.cmu.edu/dreach.html#) that automatically builds reachability formulas from a hybrid model and a goal description. Such formulas are then solved by the $\delta$-complete solver dReal \citep{dreal}.
+combination for which the model reaches the goal region in $k$ steps?'' Essentially, we describe the set of states of interest (goal region) as a first-order logic formula and perform bounded model checking \cite{BMC} to determine reachability of these states. We then adapt an interval constraint propagation based algorithm to explore the parameter space and identify the sets of resulting parameters. If none exist, then the model is 
+{\em unfeasible}. Otherwise, a witness (\ie, a value for each parameter) is returned. We have developed the dReach tool \cite{dreach} (\verb#http://dreal.cs.cmu.edu/dreach.html#) that automatically builds reachability formulas from a hybrid model and a goal description. Such formulas are then solved by the $\delta$-complete solver dReal \citep{dreal}.
 
-For the interested readers, we refer to Appendix and \cite{liu14} for more details on $\delta$-decisions and $\delta$-reachability analysis based parameter identification.
+For the interested readers, we refer to %Appendix (\url{http://www.cs.cmu.edu/~liubing/hscc15/}) and 
+\cite{liu14} for more details on %$\delta$-decisions and 
+$\delta$-reachability analysis based parameter identification.
 

@@ -4,13 +4,13 @@ We have implemented our prostate cancer progression model in the dReach's modeli
 
 \subsection{CRC proliferation dynamics}
 Due to the lack of biomarkers distinguishing HSCs and CRCs \textit{in vivo}, the proliferation kinetics of CRCs in response to androgen is far from known. Three hypotheses, denoted as $H_1$, $H_2$ and $H_3$ have been proposed to describe the androgen-dependent CRC growth \cite{ideta08}, which are discriminated by the value of $d$ in the model, i.e.:
- \vspace{-0.3cm}
+% \vspace{-0.3cm}
 \begin{itemize}
 \item $H_1: d = 0$, the grow of CRCs is independent of $z(t)$;
 \item $H_2: d = 1-\frac{\beta_y}{\alpha_y}$, CRCs cease growing when $z(t)=z_0$;
 \item $H_3: d = 1$, CRCs decrease when $z(t)=z_0$.
 \end{itemize} 
- \vspace{-0.3cm}
+% \vspace{-0.3cm}
 
 The Patient\#1 data presented in Figure 4 shows that with proper treatment schedules, it is possible to avoid his cancer relapse in years. We now show that only $H_3$ agrees with this observation. As the PSA level $v(t)$ reflects the total number of cancer cells and CRCs are responsible for recurrent cancer, we use two invariants: $0 \le v(t) \le 30$ and $0 \le y(t) \le 1$ to specify the property of ``no cancer relapse''. We then carried out $\delta$-reachability analysis to verify whether the invariants hold for each of the model candidates within a bounded time of $365$ days. Here the treatment schedule threshold parameters were provided as ranges: $r_0 \in [0, 7.99]$ (ng ml$^{-1}$) and $r_1 \in [8,15]$ (ng ml$^{-1}$).
 
@@ -19,19 +19,21 @@ The Patient\#1 data presented in Figure 4 shows that with proper treatment sched
 The $\mathsf{unsat}$ answers were returned for $H_1$ and $H_2$ (Run\#1 and Run\#2, Table \ref{runs}), indicating that they will always lead to cancer relapse no matter which 
 %initial androgen concentration 
 treatment schedule 
-was chosen. In contrast, $\delta$-$\mathsf{sat}$ was returned for $H_3$ (Run\#3, Table \ref{runs}). Witness trajectories are shown in Figure \ref{prostate-fig1}), demonstrating that the cancer relapse can be avoided in a bound time as observed experimentally \cite{ bruchovsky06,bruchovsky07}. The rest of the results in this paper were generated using $H_3$.
+was chosen. In contrast, $\delta$-$\mathsf{sat}$ was returned for $H_3$ (Run\#3, Table \ref{runs}). Witness trajectories are shown in Figure \ref{prostate-fig1}), demonstrating that the cancer relapse can be avoided in a bounded time as observed experimentally \cite{ bruchovsky06,bruchovsky07}. The rest of the results in this paper were generated using $H_3$.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.48]{fig-witness}
+\includegraphics[scale=0.45]{fig-witness}
 \caption{The simulated witness trajectories of the $H_3$ model.}
 \label{prostate-fig1}
- %\vspace{-0.7cm}
+\vspace{-0.3cm}
 \end{figure}
 
 \subsection{Androgen-dependent HSC dynamics}
 
 As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jackson04b,ideta08} modeled the androgen-dependent proliferation and apoptosis of HSCs using MML functions, while we use sigmoid functions. Here we show that the MML based approach is unable to reproduce an important dynamical property, but our model could. The patients' data in \cite{ bruchovsky06,bruchovsky07} show that the \textit{half-time} $t_{1/2}$ (i.e. the amount of time required for a quantity to fall to one half of its initial value) of PSA level under androgen suppression is often less than $60$ days. To specify this property, we introduced an auxiliary mode (Mode 3). If $v(t)=v(0)/2$, the system will jump from Mode 1 to Mode 3. Starting with Mode 1 and $20 \le x(0) \le 30$, we checked the reachability of a goal state with $0 \le w \le 60$ for both Ideta's model \cite{ideta08} and our model. The results show that  $\delta$-$\mathsf{sat}$ was returned for our model (Run\#4, Table \ref{runs}), while $\mathsf{unsat}$ was returned for Ideta's model (Run\#5, Table \ref{runs}), suggesting the superiority of sigmoid functions over MML functions in capturing HSC dynamics.
+
+
 
 
 \begin{table}[!th]
@@ -57,15 +59,13 @@ As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jacks
   \end{tabular}
   \caption{\small
   Experimental results.
-    %\#Mode = Number of modes in the hybrid system,
-    %\#Depth = Unrolling depth,
-    %\#ODE = Number of ODEs in the unrolled formula,
-    %Var = number of variables in the unrolled formula,
-    Result = bounded model checking result,
-    Time = CPU time (s),
-    $\delta=10^{-3}$.
+    Result - bounded model checking result,
+    Time - CPU time (s),
+    $\delta=10^{-3}$,
+    Model parameters used in Run\#1-5 are listed in Table 1,  model parameters used in Run\#6-9 are listed in Table 3.
     %Trace = Size of the ODE trajectory
 }\label{runs}
+ \vspace{-0.3cm}
 \end{table}
 %}
 
@@ -76,7 +76,7 @@ As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jacks
 \small
 \begin{tabular}{|c|c|c|c|c|}
 \hline\hline
-Parameter  & Patient\#1 & Patent\#11 & Patient \# 15 & Patient\#26  \\\hline\hline
+Parameter  & Patient\#1 & Patient\#11 & Patient \# 15 & Patient\#26  \\\hline\hline
 $\alpha_x$ & 0.0204 d$^{-1}$ & 0.0204 d$^{-1}$ & 0.0213 d$^{-1}$& 0.0197 d$^{-1}$ \\
 $\alpha_y$ & 0.0242 d$^{-1}$ &  0.0242 d$^{-1}$&  0.0242 d$^{-1}$&  0.0242 d$^{-1}$  \\
 $\beta_x$  & 0.0201 d$^{-1}$ & 0.02 d$^{-1}$ & 0.01 d$^{-1}$& 0.0175 d$^{-1}$ \\
@@ -95,7 +95,7 @@ $\mu_z$     & 0.02 d$^{-1}$ & 0.02 d$^{-1}$  & 0.02 d$^{-1}$ & 0.02 d$^{-1}$  \\
 Scheme     & $r_0=5.2$, $r_1=10.8$ & N.A & $r_0=1.9$, $r_1=8.0$ & $r_0=4.6$, $r_1=10.7$ \\
 \hline\hline
 \end{tabular}
- %\vspace{-0.7cm}
+ \vspace{-0.3cm}
 \end{table*}
 
 
@@ -106,25 +106,31 @@ For example, Figure \ref{patients}(a-c) illustrates the PSA dynamics of $3$ mock
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.45]{fig-mock}
-\caption{Simulated PSA profiles of patients with different parameters. (a) Patient A: $\alpha_y=0.0242$, $\beta_y=0.0168$, $m_1=0.00005$, $z(0)=12$, $r_0=4$, $r_1=10$ (b) Patient B: $\alpha_y=0.0328$, $\beta_y=0.013$, $z(0)=13$, $m_1=0.0001$, $r_0=4$, $r_1=10$ (c) Patient C: $\alpha_y=0.0426$, $\beta_y=0.189$, $m_1=0.00005$, $z(0)=15$, $r_0=4$, $r_1=10$ (d) Patient C: $\alpha_y=0.0426$, $\beta_y=0.189$, $m_1=0.00005$, $z(0)=15$, $r_0=4$, $r_1=10.6$.}
+\includegraphics[scale=0.43]{fig-mock}
+\caption{Simulated PSA profiles of three mock patients with different parameters. (a) Patient A: $\alpha_y=0.0242$, $\beta_y=0.0168$, $m_1=0.00005$, $z(0)=12$, $r_0=4$, $r_1=10$ (b) Patient B: $\alpha_y=0.0328$, $\beta_y=0.013$, $z(0)=13$, $m_1=0.0001$, $r_0=4$, $r_1=10$ (c) Patient C: $\alpha_y=0.0426$, $\beta_y=0.189$, $m_1=0.00005$, $z(0)=15$, $r_0=4$, $r_1=10$ (d) Patient C with $r_0=4$, $r_1=10.6$.}
 \label{patients}
- %\vspace{-0.7cm}
+ \vspace{-0.5cm}
 \end{figure}
 
-Given the parameter values of an particular patient, we can design a treatment scheme, which might help him avoid cancer relapse with bounded time by solving the following parameter identification problem: (i) set the ranges of scheduling parameters as $r_0 \in [0,7.99]$ (nM) and $r_1 \in [8,15]$; (ii) check if $H_3$ can reach the goal state without violating the ``no cancer relapse'' invariants within $1$ year. If $\mathsf{unsat}$ was returned, it means that androgen suppression therapy is not suitable for the patient. The patient has to resort to other kinds of therapeutic interventions. Otherwise, when the $\delta$-$\mathsf{sat}$ answer is returned, a treatment scheme containing feasible values of $r_0$ and $r_1$ will also be returned, which could help preventing or delaying the relapse within bounded time. Note that if $r_0=0$ is returned, it implies that the CAS scheme, instead of IAS scheme, might be more suitable for the patient.
+Given the parameter values of an particular patient, we can design a treatment scheme, which might help him avoid cancer relapse with bounded time by solving the following parameter identification problem: (i) set the ranges of scheduling parameters as $r_0 \in [0,7.99]$ (nM) and $r_1 \in [8,15]$; (ii) check if $H_3$ can reach the goal state without violating the ``no cancer relapse'' invariants within $1$ year. If $\mathsf{unsat}$ was returned, it means that androgen suppression therapy is not suitable for the patient. The patient then has to resort to other kinds of therapeutic interventions. Otherwise, when the $\delta$-$\mathsf{sat}$ answer is returned, a treatment scheme containing feasible values of $r_0$ and $r_1$ will also be returned, which could help in preventing or delaying the relapse within bounded time. Note that if $r_0=0$ is returned, it implies that the CAS scheme, instead of IAS scheme, might be more suitable for the patient.
 
-The personalized parameters of individual patients can be obtained by collectively fitting the available experimental data using global optimization method. %We adapted stochastic ranking evolutionary strategy (SRES) \cite{sres}, a standard global optimization method, to explore the high-dimensional parameter space. 
-%Recent studies \cite{leder14,sorger12} showed that cancer therapy might change the patient state and lead to different therapeutic responses. Thus, we propose an adaptive control based framework. The underlying assumption is that
-%
-We tested our method on real patients data collected by \cite{bruchovsky07}\footnote{Data available at \url{http://www.nicholasbruchovsky.com/clinicalResearch.html}.}. The parameter values for each randomly selected patient were estimated by fitting the model to the PSA time serials data under the IAS therapy using evolutionary strategy search. As an example, Figure \ref{fitting} shows the comparison between model predictions and the experimental data of PSA and androgen levels for Patient\#1, Patient\#11, Patient\#15, and Patient\#26. We then predicted the treatment schemes for the future year using $\delta$-reachability analysis (Run\#6 for Patient\#1, Run\#7 for Patient\#15, Run\#8 for Patient\#26 and Run\#9 for Patient\#11, Table \ref{runs}). The results are summarized in Table \ref{prostate2}. Note that for Patient\#11, $\mathsf{unsat}$ was returned, implying that no suitable treatment schemes were identified. This might be due to the raised population size of CRCs in the late phase of clinical trails. 
+The personalized parameters of individual patients can be obtained by collectively fitting the available experimental data. We tested our method on real patients data collected by \cite{bruchovsky07}\footnote{Data available at \url{http://www.nicholasbruchovsky.com/clinicalResearch.html}.}. The parameter values for each randomly selected patient were estimated by fitting the model to the PSA time serials data under the IAS therapy using an evolutionary strategy search, which is capable of estimating parameters from noisy biological data \cite{moles03}.
+
+As an example, Figure \ref{fitting} shows the comparison between model predictions and the experimental data of PSA and androgen levels for Patient\#1, Patient\#11, Patient\#15, and Patient\#26. We then predicted the treatment schemes for the future year using $\delta$-reachability analysis (Run\#6 for Patient\#1, Run\#7 for Patient\#15, Run\#8 for Patient\#26 and Run\#9 for Patient\#11, Table \ref{runs}). The results are summarized in Table \ref{prostate2}. Note that for Patient\#11, $\mathsf{unsat}$ was returned, implying that no suitable treatment schemes were identified. This might be due to the raised population size of CRCs in the late phase of clinical trails. 
 
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.48]{fig-fitting}
+\includegraphics[scale=0.45]{fig-fitting}
 \caption{Model prediction vs. experimental data.}
 \label{fitting}
-%\vspace{-0.7cm}
+\vspace{-0.5cm}
 \end{figure}
+
+
+% reviewer#4
+% some discussion on the experience of using dReal in this case study would be interesting. For example, is the choice of delta critical ? Why are we observing such variability in the computational times of table 2 ? etc.
+
+% [Bing]: address these in the journal version?
+
 
 
