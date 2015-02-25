@@ -1,5 +1,6 @@
 \section{Introduction}
-Prostate cancer is the second leading cause of cancer-related deaths among men in United States \citep{cancerstat}. Hormone therapy in the form of androgen deprivation has been a cornerstone of the management of advanced prostate cancer for several decades. However, controversy remains regarding its optimal application \citep{nru}. Continuous androgen suppression (CAS) therapy has many side effects including anemia, osteoporosis, impotence, etc. Further, most patients experience a relapse after a median duration of 18-24 months of CAS treatment, due to the proliferation of castration resistant cancer cells (CRCs).
+Prostate cancer is the second leading cause of cancer-related deaths among men in United States. %\citep{cancerstat}. 
+Hormone therapy in the form of androgen deprivation has been a cornerstone of the management of advanced prostate cancer for several decades. However, controversy remains regarding its optimal application \citep{nru}. Continuous androgen suppression (CAS) therapy has many side effects including anemia, osteoporosis, impotence, etc. Further, most patients experience a relapse after a median duration of 18-24 months of CAS treatment, due to the proliferation of castration resistant cancer cells (CRCs).
 
 In order to reduce side effects of CAS and to delay the time to relapse, intermittent androgen suppression (IAS) was proposed to limit the duration of androgen-poor conditions and avoid emergence of CRCs \citep{bruchovsky95}. In particular, IAS therapy switches between on-treatment and off-treatment modes by monitoring the serum level of a tumor marker called prostate-specific antigen (PSA):
 
@@ -22,7 +23,23 @@ Through this case study, we aim to highlight the opportunity for solving realist
 
 %% PLEASE CHECK
 
-\noindent \textit{Related Work.} Hybrid automata have been used to model cancer progression and drug effects \cite{bud14}. Of particular interest in our context are parameter synthesis for nonlinear hybrid automata. Tools such as SpaceEx \cite{spaceex} and Flow\* \cite{flowstar} can answer reachablitiy queries by computing an overappoximation of the reachable sets. However, it is difficult for them to perform parameter synthesis, as they cannot trace back to the parameter values that lead to the reachable region of interest. Rovergene tool \cite{rovergene} deals with parameter synthesis for piecewise affine linear models. Applying it in this case study requires linearization of the underlying nonlinear dynamics \cite{grosu11}. Alternatively, sampling/simulation based tools (e.g. Breach \cite{breach}) can also be used to perform parameter synthesis. Comparing to such tools, our approach explores the parameter space in a more efficient way, and can offers formal guarantees as well.
+%\noindent \textit{Related Work.} Hybrid automata have been used to model cancer progression and drug effects \cite{bud14}. Of particular interest in our context are parameter synthesis for nonlinear hybrid automata. Tools such as SpaceEx \cite{spaceex} and Flow\* \cite{flowstar} can answer reachablitiy queries by computing an overappoximation of the reachable sets. However, it is difficult for them to perform parameter synthesis, as they cannot trace back to the parameter values that lead to the reachable region of interest. Rovergene tool \cite{rovergene} deals with parameter synthesis for piecewise affine linear models. Applying it in this case study requires linearization of the underlying nonlinear dynamics \cite{grosu11}. Alternatively, sampling/simulation based tools (e.g. Breach \cite{breach}) can also be used to perform parameter synthesis. Comparing to such tools, our approach explores the parameter space in a more efficient way, and can offers formal guarantees as well.
+
+\noindent \textit{Related Work.} 
+We perform parameter synthesis, which requires the computation of
+concrete trajectories and parameter values. This can not be done by
+simply computing an over-approximation of the forward reachable set.
+Consequently, reachable set computation tools such as SpaceEx \cite{spaceex} and
+Flow* \cite{flowstar} can not be directly used. There exists various approaches for
+performing parameter synthesis through extra refinement on the
+reachable sets~\cite{DreossiD14,BogomolovMPW14,FrehseJK08},
+but are restricted to dynamics that are much simpler than the models
+we encounter here. On the other hand, other SMT-based methods for
+hybrid systems~\cite{CimattiGMT13,CimattiMT12},
+which can perform parameter synthesis in a similar manner, mostly
+focus on efficient handling of complex discrete transitions but are
+restricted to models with simpler continuous dynamics.
+
 
 % Reviewer#4
 %

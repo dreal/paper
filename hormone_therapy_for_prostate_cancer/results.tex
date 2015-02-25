@@ -3,7 +3,7 @@
 We have implemented our prostate cancer progression model in the dReach's modeling language. The model files are available at \url{http://www.cs.cmu.edu/~liubing/hscc15/}. All the experiments reported below were done using a machine with two Intel Xeon E5-2650 2.00GHz processors and 32GB RAM. The precision $\delta$ was set to $10^{-3}$. 
 
 \subsection{CRC proliferation dynamics}
-Due to the lack of biomarkers distinguishing HSCs and CRCs \textit{in vivo}, the proliferation kinetics of CRCs in response to androgen is far from known. Three hypotheses, denoted as $H_1$, $H_2$ and $H_3$ have been proposed to describe the androgen-dependent CRC growth \cite{ideta08}, which are discriminated by the value of $d$ in the model, i.e.:
+Due to the lack of biomarkers distinguishing HSCs and CRCs \textit{in vivo}, the proliferation kinetics of CRCs in response to androgen is far from known. Three hypotheses, denoted as $H_1$, $H_2$ and $H_3$ have been proposed to describe the androgen-dependent CRC growth \cite{ideta08}, which are discriminated by the value of $d$ in the model, \ie:
 % \vspace{-0.3cm}
 \begin{itemize}
 \item $H_1: d = 0$, the grow of CRCs is independent of $z(t)$;
@@ -21,17 +21,17 @@ The $\mathsf{unsat}$ answers were returned for $H_1$ and $H_2$ (Run\#1 and Run\#
 treatment schedule 
 was chosen. In contrast, $\delta$-$\mathsf{sat}$ was returned for $H_3$ (Run\#3, Table \ref{runs}). Witness trajectories are shown in Figure \ref{prostate-fig1}), demonstrating that the cancer relapse can be avoided in a bounded time as observed experimentally \cite{ bruchovsky06,bruchovsky07}. The rest of the results in this paper were generated using $H_3$.
 
-\begin{figure}[htb]
+\begin{figure}[t]
 \centering
 \includegraphics[scale=0.45]{fig-witness}
 \caption{The simulated witness trajectories of the $H_3$ model.}
 \label{prostate-fig1}
-\vspace{-0.3cm}
+%\vspace{-0.3cm}
 \end{figure}
 
 \subsection{Androgen-dependent HSC dynamics}
 
-As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jackson04b,ideta08} modeled the androgen-dependent proliferation and apoptosis of HSCs using MML functions, while we use sigmoid functions. Here we show that the MML based approach is unable to reproduce an important dynamical property, but our model could. The patients' data in \cite{ bruchovsky06,bruchovsky07} show that the \textit{half-time} $t_{1/2}$ (i.e. the amount of time required for a quantity to fall to one half of its initial value) of PSA level under androgen suppression is often less than $60$ days. To specify this property, we introduced an auxiliary mode (Mode 3). If $v(t)=v(0)/2$, the system will jump from Mode 1 to Mode 3. Starting with Mode 1 and $20 \le x(0) \le 30$, we checked the reachability of a goal state with $0 \le w \le 60$ for both Ideta's model \cite{ideta08} and our model. The results show that  $\delta$-$\mathsf{sat}$ was returned for our model (Run\#4, Table \ref{runs}), while $\mathsf{unsat}$ was returned for Ideta's model (Run\#5, Table \ref{runs}), suggesting the superiority of sigmoid functions over MML functions in capturing HSC dynamics.
+As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jackson04b,ideta08} modeled the androgen-dependent proliferation and apoptosis of HSCs using MML functions, while we use sigmoid functions. Here we show that the MML based approach is unable to reproduce an important dynamical property, but our model could. The patients' data in \cite{ bruchovsky06,bruchovsky07} show that the \textit{half-time} $t_{1/2}$ (\ie~the amount of time required for a quantity to fall to one half of its initial value) of PSA level under androgen suppression is often less than $60$ days. To specify this property, we introduced an auxiliary mode (Mode 3). If $v(t)=v(0)/2$, the system will jump from Mode 1 to Mode 3. Starting with Mode 1 and $20 \le x(0) \le 30$, we checked the reachability of a goal state with $0 \le w \le 60$ for both Ideta's model \cite{ideta08} and our model. The results show that  $\delta$-$\mathsf{sat}$ was returned for our model (Run\#4, Table \ref{runs}), while $\mathsf{unsat}$ was returned for Ideta's model (Run\#5, Table \ref{runs}), suggesting the superiority of sigmoid functions over MML functions in capturing HSC dynamics.
 
 
 
@@ -65,7 +65,7 @@ As mentioned in Section \ref{sec.model}, previous studies \cite{jackson04a,jacks
     Model parameters used in Run\#1-5 are listed in Table 1,  model parameters used in Run\#6-9 are listed in Table 3.
     %Trace = Size of the ODE trajectory
 }\label{runs}
- \vspace{-0.3cm}
+% \vspace{-0.3cm}
 \end{table}
 %}
 
@@ -109,7 +109,7 @@ For example, Figure \ref{patients}(a-c) illustrates the PSA dynamics of $3$ mock
 \includegraphics[scale=0.43]{fig-mock}
 \caption{Simulated PSA profiles of three mock patients with different parameters. (a) Patient A: $\alpha_y=0.0242$, $\beta_y=0.0168$, $m_1=0.00005$, $z(0)=12$, $r_0=4$, $r_1=10$ (b) Patient B: $\alpha_y=0.0328$, $\beta_y=0.013$, $z(0)=13$, $m_1=0.0001$, $r_0=4$, $r_1=10$ (c) Patient C: $\alpha_y=0.0426$, $\beta_y=0.189$, $m_1=0.00005$, $z(0)=15$, $r_0=4$, $r_1=10$ (d) Patient C with $r_0=4$, $r_1=10.6$.}
 \label{patients}
- \vspace{-0.5cm}
+% \vspace{-0.5cm}
 \end{figure}
 
 Given the parameter values of an particular patient, we can design a treatment scheme, which might help him avoid cancer relapse with bounded time by solving the following parameter identification problem: (i) set the ranges of scheduling parameters as $r_0 \in [0,7.99]$ (nM) and $r_1 \in [8,15]$; (ii) check if $H_3$ can reach the goal state without violating the ``no cancer relapse'' invariants within $1$ year. If $\mathsf{unsat}$ was returned, it means that androgen suppression therapy is not suitable for the patient. The patient then has to resort to other kinds of therapeutic interventions. Otherwise, when the $\delta$-$\mathsf{sat}$ answer is returned, a treatment scheme containing feasible values of $r_0$ and $r_1$ will also be returned, which could help in preventing or delaying the relapse within bounded time. Note that if $r_0=0$ is returned, it implies that the CAS scheme, instead of IAS scheme, might be more suitable for the patient.
@@ -123,7 +123,7 @@ As an example, Figure \ref{fitting} shows the comparison between model predictio
 \includegraphics[scale=0.45]{fig-fitting}
 \caption{Model prediction vs. experimental data.}
 \label{fitting}
-\vspace{-0.5cm}
+\vspace{-0.3cm}
 \end{figure}
 
 
