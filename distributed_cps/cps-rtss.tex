@@ -1,0 +1,76 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage[pdftex]{graphicx}
+\usepackage[cmex10]{amsmath}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+
+\usepackage{eqparbox}
+\usepackage[tight,footnotesize]{subfigure}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{dblfloatfix}
+\usepackage{url}
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{nccmath}
+\usepackage{paralist}
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,shapes,calc}
+
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\newcommand{\ite}[3]{\mathbf{if}\ #1\ \mathbf{then}\ #2\ \mathbf{else}\ #3\ \mathbf{fi}}
+\newcommand{\power}[1]{{2^{#1}}}
+\newcommand{\monus}{\:\,\mathtt{monus}\:\,}
+\newcommand{\MA}{\mathcal{M}\!\!\mathcal{A}}
+\newcommand{\AP}{\mathit{A\!P}}
+\newcommand{\abs}{\ensuremath{\mathrm{abs}}}
+\newcommand{\sign}{\ensuremath{\mathrm{sign}}}
+\newcommand{\val}{{\ensuremath{\mathit{val}}}}
+
+\begin{document}
+
+
+\title{Hybrid PALS for Distributed Cyber Physical Systems and Their SMT-Based Analysis}
+
+\author{
+\IEEEauthorblockN{Kyungmin Bae, Soonho Kong}
+\IEEEauthorblockA{Carnegie Mellon University}
+\and
+\IEEEauthorblockN{Sicun Gao}
+\IEEEauthorblockA{MIT CSAIL}
+\and
+\IEEEauthorblockN{Peter Csaba {\"O}lveczky}
+\IEEEauthorblockA{University of Oslo}
+\and
+\IEEEauthorblockN{Edmund M. Clarke}
+\IEEEauthorblockA{Carnegie Mellon University}
+}
+
+\maketitle
+
+\input{abstract}
+\input{intro}
+\input{pals}
+\input{hybrid-pals}
+\input{smt-encoding}
+\input{smt-logic}
+\input{case-studies}
+\input{related}
+\input{concl}
+
+\bibliographystyle{IEEEtran}
+\bibliography{kbae-bib}
+
+\appendix
+\input{app-pals}
+
+\end{document}

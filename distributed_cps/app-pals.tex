@@ -1,0 +1,84 @@
+% !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
+
+
+\section{PALS Definitions}
+\label{sec:pals-defs}
+
+
+
+
+\begin{definition}
+ For a typed machine $M_j = (D_{i_j}, S_j, D_{o_j}, \delta_{M_j})$ with 
+ input set $D_{i_j} = D_{i_{j_1}} \times \cdots \times D_{i_{j_n}}$, an input adaptor
+ $\mathit{adap}(j)=\{\alpha_i: D'_l \rightarrow D_{i_l}\}_{l\in\{1,\ldots, n_j\}}$
+ is a family of functions to give desired input values
+ $(\alpha_1(d_1),\ldots,\alpha_n(d_n))$ %for $M_j$'s input ports 
+ from output $(d_1,\ldots,d_n) \in D_1 \times \cdots \times D_n$ of other machines.  
+\end{definition}
+
+
+\begin{definition}
+A \emph{multirate machine ensemble} is 
+given by
+a tuple
+$\mathcal{E} = (J_S ,  J_F, e, \{M_j\}_{j\in J_S \cup J_F}, E, \mathit{src}, \mathit{rate}, \mathit{adap})$
+with:
+\begin{inparaenum}[(i)]
+	\item $J_S$ a set of slow machine indices;
+	\item $J_F$ a set of fast machine indices ($J_S \cap J_F = \emptyset$);
+	\item $e\not\in J_S \cup J_F$ the environment index;
+ 	\item $\{M_j\}_{j\in J_S \cup J_F}$  a family of typed machines;
+	\item $E=(D^e_i, D^e_o)$ 
+	the \emph{environment} with $D^{e}_i$  the \emph{input set} and 
+	$D^{e}_o$  the \emph{output set};
+	\item $\mathit{src}$  a \emph{wiring diagram} assigning to each input port its source output port, 
+	 so that no connection exists between two ``fast'' machines;
+	\item $\mathit{rate}$ assigning to a fast 
+	machine its \emph{rate};
+	%denoting how many times faster than the slow machines it is; 
+	and
+	\item $\mathit{adap}$ assigning to a machine its \emph{input adaptor}.
+	%for  communication between components with different rates.
+\end{inparaenum}
+\end{definition}
+
+\begin{definition}
+The \emph{synchronous composition}
+of  an ensemble
+$\mathcal{E} = (J_S, J_F, e, \{M_j\}_{j\in J_s \cup J_F}, E, \mathit{src}, \mathit{rate}, \mathit{adap})$
+is the typed machine
+$ M_{\mathcal{E}} = ( D_i^{\mathcal{E}}, S^{\mathcal{E}},D_o^{\mathcal{E}}, \delta_{\mathcal{E}})$
+where:
+\begin{inparaenum}[(i)]
+	\item $D_i^{\mathcal{E}} = D^e_o$ and  $D_o^{\mathcal{E}} = D^e_i$;
+	\item $S^{\mathcal{E}} = (\Pi_{j\in J} S_j) \times (\Pi_{j\in J} D_{OF}^j)$, 
+	where
+	$D^j_{OF}$ stores the ``feedback outputs'' of subcomponents; and
+	\item $ \delta_{\mathcal{E}} \subseteq 
+	(D^{\mathcal{E}}_i\times S^{\mathcal{E}}) \:\times \: (S^{\mathcal{E}} \times D_o^{\mathcal{E}})$
+	``combines''  the  transitions of the subcomponents
+	 into a synchronous step (see \cite{pals-tcs}).
+\end{inparaenum}
+\end{definition}
+
+\begin{definition}
+The transition system for an ensemble $\mathcal{E}$ is a pair 
+$\mathit{ts}(\mathcal{E}) = (S^{\mathcal{E}} \times \mathcal{D}_i^{\mathcal{E}}, \longrightarrow_{\mathcal{E}})$,
+where $(\vec{s}_1,\vec{i}_1) \longrightarrow_{\mathcal{E}} (\vec{s}_2,\vec{i}_2)$
+iff an ensemble in state $\vec{s}$ and with input
+$\vec{i}$ from the environment has a transition to state $\vec{s'}$
+(i.e., $\exists \vec{o}.\; ((\vec{i}, \vec{s}), (\vec{s'}, \vec{o})) \in \delta_{\mathcal{E}}$)
+and the environment can generate output $\vec{i'}$ in the next step.
+\end{definition}
+
+
+\begin{definition}  
+Consider $n$ controlled physical environments
+$E_{M_i} = (C_i, {\vec{x}}_i, \Lambda_i)$
+with $\vec{x}_i =  (x_{i_1}, \ldots,x_{i_{l_i}})$
+for $i = 1,\ldots,n$.
+Given a variable $t$ for time,
+a \emph{time-invariant constraint}
+is a logic formula of the form  
+$(\forall t)\; \psi(\vec{x}_1(t), \vec{x}_2(t), \ldots, \vec{x}_n(t))$.
+\end{definition}

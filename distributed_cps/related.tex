@@ -1,0 +1,61 @@
+% !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
+
+
+\section{Related Work}
+\label{sec:related-work}
+
+%many important advances have been made by
+%various approaches, including \cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,frehse2005phaver,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12,DBLP:conf/aaai/CimattiMT12,platzer2008differential}.
+
+%PALS was originally proposed to reduce the system complexity of 
+%single-rate virtually synchronous distributed real-time systems \cite{pals-rtss09,pals-tcs},
+%and then extended for multirate systems \cite{mr-pals-journal,al2012pattern} and hybrid systems \cite{ftscs-journal,hybrid-pals}.
+
+\textbf{hybrid automata techniques}, not appropriate for hybrid PALS models, 
+since they are basically time triggered models, which are not perfectly synchronized due to clock skews.
+
+SMT-based approach is a relatively new direction for nonlinear hybrid
+system verification, because of the difficulty of handling SMT
+formulas over the reals with nonlinear functions. The research
+direction is initiated in the
+work~\cite{ratschan2007safety}, which uses constraint
+solving algorithms for handling nonlinear reachability problems. Two
+main lines of work that explicitly formulate problems as SMT formulas
+are based on the HySAT/iSAT
+solver~\cite{DBLP:journals/fmsd/FranzleH07,eggers2008sat}
+and the MathSAT
+solver~\cite{DBLP:conf/aaai/CimattiMT12,DBLP:conf/fmcad/CimattiMT12}.
+But efficient encoding of networks of hybrid systems has not been
+investigated in existing work along these lines. 
+%
+On the other hand,
+for reachable set computation, 
+%the work on 
+SpaceEX~\cite{DBLP:conf/cav/FrehseGDCRLRGDM11}
+has involved methods for handling networks restricted to linear/multiaffine hybrid systems,
+and 
+Flow*~\cite{DBLP:conf/cav/ChenAS13} proposed an approach for verifying
+nonlinear hybrid systems using Taylor model flowpipe construction. 
+%
+dReach~\cite{dReach}
+encodes reachability problems of hybrid systems to SMT problems and
+solves them using %a $\delta$-decision procedures, 
+dReal~\cite{dReal}.
+%
+Our approach is different from dReach, 
+since dReach \emph{explicitly} enumerates all mode paths of a hybrid automaton
+to generate many small SMT formulas for these paths.
+
+
+
+Multirate PALS ?? ( Abdullah's work, other synchronizer, virtually synchronization, ...)
+
+Hybrid automata? 
+
+Approximation of hybrid systems?
+
+SMT and \texttt{dReal} ??
+
+$d\mathcal{L}$ and deductive methods ??
+
+

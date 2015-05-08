@@ -1,0 +1,164 @@
+% !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
+
+
+\section{Introduction}
+
+
+%Virtually synchronous CPS, such as airplanes and cars, 
+%are implemented as a network of distributed devices designed in a synchronous way.
+\emph{Virtually synchronous} cyber physical systems (CPS)
+consist of a number of distributed controllers that should logically act together in a synchronous way. 
+The devices may operate at different frequencies, but the communication happens at their hyper-period boundary.
+The devices %in the system 
+may also interact with their % local 
+\emph{physical environment}
+whose continuous dynamics is modeled by ordinary differential equations
+(e.g., avionics, aerospace,  automotive, robotics, etc). 
+The design and analysis of such systems is very hard because of race conditions, clock skews, network delays, and execution times. % in addition to the usual difficulties for non-distributed CPS.
+For this reason, 
+PALS (physically asynchronous, but logically synchronous) 
+\cite{pals-rtss09,mr-pals-journal,pals-tcs,al2012pattern} has been
+developed to reduce the system complexity of a virtually  synchronous CPS,
+provided that the network infrastructure gives \emph{bounds}
+on computation times, network delays, and imprecisions of the local clocks.
+
+
+However, 
+formal analysis of virtually synchronous CPS with continuous dynamics is still very difficult.
+Inputs or parameters of CPS can be any real numbers in a certain bound.
+Different components will read their physical values at possibly different times 
+according to their local clocks. 
+The continuous dynamics of CPS often involves 
+\emph{nonlinear} ordinary differential equations (ODE)
+which may not provide exact solutions in general.
+%Numerical simulations of ODEs cannot verify the correctness of the system.
+Although %the 
+PALS %methodology 
+can greatly reduce the analysis effort 
+caused by distributed real-time systems,
+those difficulties raised by distributed hybrid systems
+cannot be removed without using low-quality approximation on ODEs and local clocks.
+%which prevents to precisely analyze such hybrid systems.
+
+
+
+In this paper we present symbolic techniques using SMT solving to analyze 
+distributed CPS along with PALS.
+Formal analysis problems of distributed CPS, 
+involving nonlinear ODEs and clock skews, 
+are reduced to the satisfaction of SMT formulas over the real numbers and ODEs.
+%
+The satisfaction problem
+(generally undecidable)
+ is decidable up to any given precision $\delta > 0$ \cite{delta-comp,sat-ode}.
+The number $\delta$, provided by the user, 
+is the bound on numerical errors that is tolerable in the analysis.
+By this approach, 
+we can apply state-of-the-art SMT techniques that are %proven to be 
+effective for analyzing \emph{discrete} controllers,
+%combined with $\delta$-complete decision procedures
+while precisely analyzing
+the continuous dynamics of CPS
+in a robust way under IO sampling or timing jitters %numerical perturbations 
+by $\delta$.
+
+
+One obstacle to SMT-based analysis is 
+that it is not scalable for distributed hybrid systems with nonlinear ODEs.
+%The number of physical variables considered is usually less than dozens, 
+%and the temporal bound is typically less than hundreds. 
+We cope with this scalability problem as follows.
+First, the discrete part and the continuous part of the system are encoded as SMT formulas separately, 
+and ODEs are considered \emph{only after} the discrete part of the system is fully analyzed.
+Second, inductive SMT analysis is used to verify safety properties of distributed CPS for unbounded time.
+Third, compositional SMT analysis is used to deal with distributed CPS with an arbitrary number of components. 
+These methods are readily available for distributed CPS by simplifying the analysis problem using the PALS methodology. 
+%Without PALS, finding appropriate inductive or compositional conditions would be very difficult for distributed CPS.
+
+
+
+
+Another  obstacle to this approach is that 
+SMT-based analysis 
+is currently very inefficient
+for \emph{distributed} hybrid systems with nonlinear ODEs. %, and often unfeasible in practice.
+In distributed CPS, 
+physical variables of different components can be ``physically'' correlated to each other.
+For example, if we consider two adjacent rooms with thermostat controllers, the temperature of one room immediately affects the temperature of the other room. %unless they are perfectly insulated.
+The behavior is specified as \emph{coupled} ODEs
+in which variables evolve simultaneously over continuous time.
+%and ODE solving needs to take into account all coupled variables at the same time.
+%Therefore, 
+Existing SMT approaches only use the non-modular encoding
+for such distributed hybrid systems. 
+%
+The size of the SMT formula can be huge,
+and  this leads to the \emph{formula explosion problem}
+that makes such SMT-based analysis practically infeasible.
+
+For this reason, 
+we present a novel SMT framework
+to  effectively encode formal analysis problems
+of distributed hybrid systems with coupled ODEs \emph{in a modular way}.
+%
+For a composition $H_1 \parallel \cdots \parallel H_n$ of $n$ hybrid systems,
+when each component $H_i$ has $m_i$ control modes,
+the size of the SMT formula by the new modular encoding is proportional to $\sum_{i=1}^n k_i$,
+whereas by the previous non-modular encoding the size is proportional to $\prod_i k_i$.
+%
+The key idea is to use uninterpreted real function symbols %and universal quantification
+to logically decompose coupled variables in systems of ODEs in the SMT formula.
+
+We provide an efficient SMT decision procedure for such formulas by the new encoding
+for distributed hybrid systems.
+We show that 
+the satisfaction problems of the new logical theory 
+can be reduced to ones in the standard theory of real numbers \emph{at no cost}.
+%
+We have implemented our new SMT techniques within the \textsf{dReal} SMT solver \cite{dReal},
+and performed experiments on nontrivial distributed CPS.
+%\begin{inparaenum}[(i)]
+%	\item a controller for turning an airplane,
+%	\item a controller for the attitude of a quadrotor UAV,
+%	\item a steam boiler controller,
+%	\item networked water tank controllers,
+%	\item networked thermostat controllers, and
+%	\item an automated highway system.
+%\end{inparaenum}
+The experimental results show that our techniques can dramatically increase 
+the performance of SMT-based analysis for these systems
+that involve multiple control modes and nonlinear ODEs.
+% To the best of our knowledge, modular SMT encoding for 
+%(coupled) nonlinear ODEs and its efficient decision procedure have never been developed for distributed hybrid systems.
+
+%
+
+
+%
+%Using PALS and inductive/compositional analysis, together with PALS, 
+%We have verified safety properties of these systems for unbounded time,
+%and for any number of components for parameterized CPS (iv)--(vi).
+%Such distributed CPS
+%cannot be easily analyzed by other existing %SMT-based 
+%approaches for hybrid systems.
+
+
+The rest of the paper is organized as follows.
+%
+Section~\ref{sec:pals} briefly recalls PALS.
+Section~\ref{sec:hybrid-pals} explains how PALS can be applied to distributed hybrid systems.
+%involving nonlinear ODEs and clock skews. 
+Section~\ref{sec:smt-encoding} shows how PALS models for distributed CPS
+and their analysis problems (such as bounded reachability, inductive, and compositional analysis)
+can be symbolically encoded as logic formulas.
+Section~\ref{sec:smt-logic} presents a new SMT framework that allows 
+modular encoding for distributed hybrid systems. % with coupled ODEs.  
+Section~\ref{sec:case-studies} presents six case studies and their verification 
+using our methods based on PALS and SMT.
+Finally,
+Section~\ref{sec:related-work} explains some related work,
+and 
+Section~\ref{sec:concl} presents some concluding remarks.
+
+
+
