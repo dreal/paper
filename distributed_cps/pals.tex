@@ -54,14 +54,7 @@ is composed of:
 \end{definition}
 
 
-\begin{figure}
-\centering
-\includegraphics[clip=true,trim=0.3cm 0.4cm 0.3cm 0.4cm,width=\columnwidth]{ensemble.pdf}    
-\caption{A multirate ensemble $\mathcal{E}$,
-with $M_1$ and $M_2$ slow machines.
-%and $M_3$, $M_4$, and $M_5$ are fast machines.
-}  \label{fig:ensemble}
-\end{figure}
+
 
 As illustrated in Fig.~\ref{fig:ensemble},
 a collection $\{M_j\}_{j\in J_S\cup J_F}$ of  state machines with different periods 
@@ -71,6 +64,15 @@ The period of a slow machine $s \in J_S$ (with $\mathit{rate}(s) = 1$) is
 a multiple of the period of a fast machine $f \in J_F$ (with $\mathit{rate}(f) > 1$). 
 A \emph{wiring diagram} connects  the input and output ports of the machines or the ensemble $\mathcal{E}$, %the environment,
 where no connection exists between two fast machines.
+
+\begin{figure}
+\centering
+\includegraphics[clip=true,trim=0.3cm 0.4cm 0.3cm 0.4cm,width=\columnwidth]{ensemble.pdf}    
+\caption{A multirate ensemble $\mathcal{E}$,
+with $M_1$ and $M_2$ slow machines.
+%and $M_3$, $M_4$, and $M_5$ are fast machines.
+}  \label{fig:ensemble}
+\end{figure}
 
 In each iteration, all components in $\mathcal{E}$ perform the transitions \emph{in lockstep}.
 A fast machine $f$ is \emph{slowed down} 
