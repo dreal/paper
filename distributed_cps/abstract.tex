@@ -8,19 +8,24 @@ reduce the combinatorial complexity
 caused by the system's concurrency. 
 However, cyber physical systems 
 are often \emph{distributed hybrid systems}
-in which distributed controllers communicate with each other  via a network
+in which distributed controllers communicate with each other via a network
 and govern physical entities with continuous dynamics.
 %
-Although
-formal analysis problems of hybrid systems, involving nonlinear real functions 
-and solutions of ordinary differential equations, can be reduced to SMT problems over the real numbers,
-%up to an arbitrary precision,
-such SMT-based analysis of \emph{distributed} hybrid systems
-are typically unfeasible due to the \emph{formula explosion problem}.
-%leading to large amounts of unnecessary computation.
+This paper presents Hybrid PALS to reduce 
+the design and analysis of virtually synchronous hybrid systems
+to those of the underlying synchronous model,
+and shows a bisimulation equivalence between a synchronous model and a distributed hybrid model. 
 %
-This paper presents new efficient methods for analyzing distributed hybrid systems using SMT.
-We present a novel logical framework to effectively encode distributed hybrid systems as SMT formulas in a modular way, and to allow compositional and inductive analysis together with the PALS methodology.
-The experimental results show that our techniques dramatically increase the performance of SMT analysis
-for nontrivial distributed hybrid systems.
+We explain how various formal analysis problems of hybrid PALS models, 
+such as bounded reachability and inductive analysis,
+can be reduced to SMT solving over the real numbers with nonlinear ordinary differential equations up to an arbitrary precision.
+%
+Since such SMT-based analysis of 
+distributed hybrid systems
+are typically unfeasible due to the \emph{formula explosion problem},
+we also proposes
+ a novel SMT framework to effectively encode distributed hybrid systems in a modular way.
+%The experimental results show that 
+Our techniques greatly increase the performance of SMT analysis
+for nontrivial distributed CPS.
 \end{abstract}

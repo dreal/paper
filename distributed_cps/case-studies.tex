@@ -110,11 +110,11 @@ can be specified as nonlinear differential equations
 \[
 \begin{aligned}
 \dot{\beta} &= Y(\beta,\delta_a,\delta_r) / m V - r + V / g * \cos(\beta) * \sin(\phi)
-&
+\\
 \dot{\phi} &= p
 \\
 \dot{p} &= (c_1 r + c_2 p)\cdot r \cdot \tan(\phi) + c_3 L(\beta,\delta_a,\delta_r) + c_4 N(\beta,\delta_a,\delta_r)
-&
+\\
 \dot{\psi} &= g / V \tan(\phi)
 \\
 \dot{r} &= (c_8 p - c_2 r) \cdot r \cdot \tan(\phi) + c_4 L(\beta,\delta_a,\delta_r) + c_9 N(\beta,\delta_a,\delta_r)
@@ -253,7 +253,7 @@ the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
 \begin{figure}[t]
 \centering
 %
-\begin{minipage}[t]{.5\textwidth}
+\begin{minipage}[t]{.5\columnwidth}
 \centering
 \begin{tikzpicture}[scale=0.8] %baseline=(current bounding box.north)
 %room1
@@ -276,7 +276,7 @@ the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
 \caption{Two interconnected rooms. %  by an open door.
 } \label{fig:adj-rooms}
 \end{minipage}%
-\begin{minipage}[t]{.5\textwidth}
+\begin{minipage}[t]{.5\columnwidth}
 \centering
 \includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.9\columnwidth]{water.pdf}    
 \caption{Two connected water tanks}  \label{fig:water}
@@ -303,10 +303,12 @@ changes according to the differential equations:
 \[
 \begin{aligned}
 \dot{x}_i &= K_i \big(h_i - ((1- \textstyle\sum_{j \in I \setminus \{i\}} k_{i,j}) x_0 + \sum_{j \in I \setminus \{i\}} k_{i,j}  x_j)\big)
-&& \mbox{if}\;\; m_i = m_\texttt{on},
+\\ 
+&\mbox{if}\;\; m_i = m_\texttt{on},
 \\
 \dot{x}_i &= - K_i \big((1- \textstyle\sum_{j \in I \setminus \{i\}} k_{i,j}) x_0 + \sum_{j \in I \setminus \{i\}} k_{i,j}  x_j\big)
-&& \mbox{if}\;\; m_i = m_\texttt{off},
+\\
+& \mbox{if}\;\; m_i = m_\texttt{off},
 \end{aligned}
 \]
 where $K_i, h_i \in \mathbb{R}$ are constants depending on

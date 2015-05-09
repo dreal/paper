@@ -1,25 +1,85 @@
 % !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
 
-\section{Efficient SMT Procedure}
+\section{SMT Solving for Distributed CPS}
 \label{sec:smt-logic}
 
-\textbf{First, explain $\delta$-complete SMT}
-
-A \emph{$\delta$-complete decision procedure} for an SMT formula $\phi$ returns false 
-if $\phi$ is unsatisfiable, and returns true if its %syntactic 
+Various formal analysis problems of distributed CPSs 
+can be encoded as logic formulas over the real numbers and ODEs.
+%and we are interested in using SMT solving 
+%to automatically check the satisfiability of those formulas.
+%
+The satisfiability of those formulas is undecidable for nonlinear hybrid systems  in general,
+but becomes \emph{decidable} %up to any given precision $\delta > 0$ 
+if we take account of robustness properties %of the system 
+under numerical perturbations $\delta > 0$.
+%
+A \emph{$\delta$-complete decision procedure} for a formula $\phi$ returns false 
+if $\phi$ is unsatisfiable, and returns true if its syntactic 
 numerical perturbation of $\phi$ by bound $\delta$ is satisfiable. 
 This is practically very useful since 
 sampling exact values of physical parameters is not possible in reality. 
 
+However, formulas for hybrid PALS models
+may contain ODEs and universal quantification over \emph{uninterpreted real functions},
+%such as  \emph{time-invariant constraints} $(\forall t.\; \psi)$.
+%in order to precisely specify physical interactions between distributed components
+%with clock skews and delays.
+which are not supported by current state-of-the-art SMT solving techniques.
+%
+For example, the ODEs in $E_\mathit{Main}$ %for the main controller 
+in the airplane example
+include uninterpreted function symbols $\delta_L$, $\delta_V$, and $\delta_R$ for control angles.
+The correspondences between  %the angles 
+$(\delta_L, \delta_V, \delta_R)$ 
+and the surface angles $(\alpha_L,\alpha_V,\alpha_R)$ of the subcontrollers
+are given by the time-invariant constraint
+$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
 
-We first recall the theory of the real numbers with real functions.
+
+This section shows how formulas for hybrid PALS models (presented in Section~\ref{sec:smt-encoding})
+can be equivalently encoded as \emph{SMT formulas}
+without the use of universal quantification over uninterpreted real functions.
+For this purpose, we present a new  SMT framework to provide 
+an efficient SMT algorithm
+for  formulas generated from hybrid PALS models.
+
+%\textbf{difficulties for dealing with unint. func. sym.?}
+%
+%A conflict-based 
+%
+%It is not easy to \emph{statically check without} $\delta$-complete decision procedures
+%whether such subformulas of the form $\forall t \in [0,T].\; g(t) = \mathit{flow}_q(\vec{x})(t)$
+%are $\delta$-consistent to each other or not.
+%
+%Even though two real functions
+%$f_1(t)$ and $f_2(t)$ have completely different forms, 
+%their corresponding formulas 
+%can be consistent up to a given precision $\delta > 0$.
+%E.g.,
+%for $f_1(t) = \sqrt{t+1}$ and $f_2(t) = 1 + \frac{1}{2}t - \frac{1}{8}t^2 + \frac{1}{16}x^3$,
+%where $f_2(t)$ is the third order taylor expansion of $\sqrt{t+1}$,
+%the formulas 
+%$\forall t \in [0,T].\; g(t) = f_1(t)$ and  $\forall t \in [0,T].\; g(t) = f_2(t)$
+%are consistent up to precision $\delta = 0.1$ for $T = 0.8$,
+%but not consistent if  $\delta = 0.01$.
+%
+%We need the underlying $\mathcal{T}$-solver
+%to decide their consistency up to $\delta > 0$
+%(e.g., by checking the unsatisfiability of the formula
+%$\exists t \in [0,T].\; f_1(t) \neq f_2(t)$).
+
+
+\subsection{Theory of the Real Numbers with Function Names}
+
+SMT-based techniques for hybrid systems
+normally use the standard SMT theory of the real numbers and computable %(nonlinear) 
+real functions,
+such as polynomials, exponentiation, trigonometric functions,  
+and solutions of Lipschitz-continuous ODEs.
 
 \begin{definition}
-Let $\mathcal{F}$ denote a finite collection of computable real functions,
-such as polynomials, %trigonometric functions,  
-and solutions of %Lipschitz-continuous 
-ODEs.
+For a finite set $\mathcal{F}$ of computable real functions,
 %(real number constants are given as $0$-ary functions).
 %
 $\mathcal{L}_\mathcal{F} = (\mathcal{F}, >)$ denotes the first-order signature over the real numbers
@@ -28,195 +88,195 @@ and $\mathbb{R}_\mathcal{F} = (\mathbb{R}, \mathcal{F}^\mathbb{R}, >^\mathbb{R})
 is the standard structure of the theory of the real numbers.
 \end{definition}
 
-Note that $\delta$-complete SMT problems are the satisfiability of
-$\mathcal{L}_\mathcal{F}$-formulas over $\mathbb{R}_\mathcal{F}$.
 
-\textbf{Second, uninterpreted function symbols not supported for state-of-the-art SMT}
-
-% $\delta$-complete 
-An SMT problem for a hybrid system uses
- the theory of  real numbers with computable real functions
-and ODEs.
-
-Checking the satisfiability of such formulas with uninterpreted real functions
-and universal quantification is generally a nontrivial problem. (not supported)
+Solutions of ODEs are considered as \emph{atomic functions} in $\mathcal{L}_\mathcal{F}$,
+and therefore the structure of ODEs cannot be used for SMT algorithms  in this logic.
+This restrictive syntax makes it difficult to efficiently express logic formulas for hybrid PALS models 
+in $\mathcal{L}_\mathcal{F}$, which typically involve different local physical environments 
+interacting with each other.
+Therefore, we present a new SMT theory,
+by extending $\mathcal{L}_\mathcal{F}$, that allows to express solutions of ODEs in a modular way,
+so that the size of the formula can be much reduced.
 
 
-\textbf{We develop a new SMT logic for efficiently encode and analyze hybrid systems}
+We consider a \emph{two-sorted} first-order logic with sorts $\mathit{Real}$ and $\mathit{Name}$,
+where $\mathit{Real}$ denotes the real numbers,
+and $\mathit{Name}$ denotes \emph{name constants} 
+for unary functions composed of the functions in $\mathcal{F}$.
+For example, given $\{1, +, \times, \sin, x, y\} \subset \mathcal{F}$
+and two name constants $\mathtt{m_1}$ and $\mathtt{m_2}$ of sort $\mathit{Name}$,
+we can have the following \emph{named} real functions:
+\begin{align*}
+\mathtt{m_1}&\qquad
+\sin(x(t)) :\mathit{Real} \to \mathit{Real},
+\\
+\mathtt{m_2}&\qquad
+[y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2.
+\end{align*}
 
-
-This section presents a new logical framework
-to provide an efficient decision procedure for 
-SMT formulas generated by the new encoding.
-
-\textbf{First explain the encoding, and then the formal way}
-
-
-\subsection{Theory of the Real Numbers with Function Names}
-
-
-\textbf{difficulties for dealing with unint. func. sym.?}
-
-A conflict-based 
-
-It is not easy to \emph{statically check without} $\delta$-complete decision procedures
-whether such subformulas of the form $\forall t \in [0,T].\; g(t) = \mathit{flow}_q(\vec{x})(t)$
-are $\delta$-consistent to each other or not.
-
-Even though two real functions
-$f_1(t)$ and $f_2(t)$ have completely different forms, 
-their corresponding formulas 
-can be consistent up to a given precision $\delta > 0$.
-E.g.,
-for $f_1(t) = \sqrt{t+1}$ and $f_2(t) = 1 + \frac{1}{2}t - \frac{1}{8}t^2 + \frac{1}{16}x^3$,
-where $f_2(t)$ is the third order taylor expansion of $\sqrt{t+1}$,
-the formulas 
-$\forall t \in [0,T].\; g(t) = f_1(t)$ and  $\forall t \in [0,T].\; g(t) = f_2(t)$
-are consistent up to precision $\delta = 0.1$ for $T = 0.8$,
-but not consistent if  $\delta = 0.01$.
-
-We need the underlying $\mathcal{T}$-solver
-to decide their consistency up to $\delta > 0$
-(e.g., by checking the unsatisfiability of the formula
-$\exists t \in [0,T].\; f_1(t) \neq f_2(t)$).
-
-
-%
-
-
-
-Instead of directly using extra function symbols and universal quantification,
-we use another logical theory 
-extending the standard theory of the real numbers with computable functions.
-
-Formal analysis of hybrid systems
-can still be encoded as SMT formulas by means of Formulas~(\ref{eq:new-bounded}--\ref{eq:comp-bounded})
-in this theory.
-But universal quantification is not needed anymore,
-and thus it provides simple yet more efficient decision procedures.
-%
-The point is that for parallel compositions of hybrid automata,
-%the full expressive power of extra function symbols and universal quantification is not necessary,
- we only need to indicate which flow corresponds to a given mode of a component.
-
-
-
-
-
-For the new encoding, % in Section~\ref{sec:effective-encoding},
-for each $i$-th step,
-$\mathcal{F}$ also includes \emph{uninterpreted} function symbols
-$\vec{x}_i$ for the variables $X$
-and $g_i$ for extra function symbols.
-%Instead, we consider another theory without using uninterpreted function symbols.
-
-We consider a \emph{two-sorted} first-order logic with sorts $\mathit{Real}$ and $\mathit{Name}$.
-As expected, $\mathit{Real}$ denotes real numbers,
-and $\mathit{Name}$ denotes \emph{name constants} that corresponds to 
-unary real functions composed of the functions in $\mathcal{F}$.
-For example, given $\{1, +, \times, \sin, x, y\} \subset \mathcal{F}$, 
-we can have the real functions
-$\sin(t) :\mathit{Real} \to \mathit{Real}$,
-$x(t) :\mathit{Real} \to \mathit{Real}$,
-and
-$[y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2$.
-Their names can be given by name constants 
-$\texttt{sin}$, $\texttt{flw1}$, and  $\texttt{flw2}$ of sort $\mathit{Name}$.
-%
-A collection of the application operators $\mathit{app}^n : \mathit{Name} \times \mathit{Real} \to \mathit{Real}^n$
-connect a name constant to its underlying function with range $\mathit{Real}^n$, e.g.,
-$\mathit{app}^1(\texttt{sin}, 0) = \sin(0)$,
-$\mathit{app}^1(\texttt{flw1}, 3) = x(3)$,
-and
-$\mathit{app}^2(\texttt{flw2}, u) = 
-[y(u) + 1,z(u)^2]$.
-
-Unlike the previous approach,
-%in this logic 
-we explicitly take into account
-a collection of the integral operators $\mathit{int}^{k_1,\ldots,k_n} : 
-\mathit{Name}^n \times \mathit{Real} \to \mathit{Real}^{\sum_{i=1}^n k_i}$.
+In the new logic,  we take into account
+a collection of \emph{integral operators} 
+$\mathit{int}^{k_1,\ldots,k_n} :  \mathit{Name}^n \times \mathit{Real} \to \mathit{Real}^{\sum_{i=1}^n k_i}$.
 An integral term
-$\mathit{int}^{k_1,\ldots,k_n}(\nu_1,\ldots,\nu_n,t)$
+$\mathit{int}^{k_1,\ldots,k_n}(\nu_1,\ldots,\nu_n,u)$
 takes a list of name constants $\nu_1,\ldots,\nu_n$,
 to respectively denote real functions $f_1,\ldots,f_n$ with ranges $\mathit{Real}^{k_1},\ldots,\mathit{Real}^{k_n}$,
-and time value $t$,
-and returns the value $\int_0^t \, [f_1(t),\ldots,f_n(t)] \,\mathrm{d}t$.  
-These integral operators are very useful for generating SMT formulas
-for parallel compositions of hybrid automata,
-since ODE literals can be constructed in a modular way
-and thus the size of the formula can be much reduced.
+and time value $u$,
+and returns the value $\int_0^u \, [f_1(t),\ldots,f_n(t)] \,\mathrm{d}t$.  
 For example:
-\[
-%\mathit{int}^{2}(\texttt{flw1}, u) 
-%= 
-%\int_0^t 
-%\left[\begin{array}{l}y(u) + 1\\z(u)^2\end{array}\right]
-%\mathrm{d}t,
-%\\
-\mathit{int}^{1,2}(\texttt{flw1},\texttt{flw2}, u) 
-= 
-\int_0^t 
-[x(t),y(u) + 1,z(u)^2]
+\begin{align*}
+\mathit{int}^{2}(\mathtt{m_2}, 1) 
+&\equiv
+\int_0^1
+[y + 1, z^2]
+\mathrm{d}t,
+\\
+\mathit{int}^{1,2}(\mathtt{m_1},\mathtt{m_2}, T) 
+&\equiv
+\int_0^T
+[\sin(x),y + 1,z^2]
 \mathrm{d}t.
+\end{align*}
+
+
+Finally, the new logic 
+includes
+a collection of \emph{application operators} $\mathit{app}^n : \mathit{Name} \times \mathit{Real} \to \mathit{Real}^n$
+that connect a name constant to its underlying function with range $\mathit{Real}^n$, e.g.,
+\[
+\mathit{app}^1(\mathit{m_1}, 3) \equiv \sin(x(3)),
+\quad
+\mathit{app}^2(\mathit{m_2}, u) \equiv [y(u) + 1,z(u)^2].
 \]
+These operators ensure that each name object is really related to a concrete unary real function with domain $\mathbb{R}$.
+ 
+
+
+
+
+
+
 
 \begin{definition}
-Let $\mathcal{N}$ be a  set of name constants,
-and  $\mathcal{O}$ be a set  of new operators %application operators 
-$\mathit{app}^n$
-and %integral operators 
-$\mathit{int}^{k_1,\ldots,k_n}$.
-%
-The first order signature is defined by 
+For a  set $\mathcal{N}$ of name constants
+and a set  $\mathcal{O}$ of operators  $\mathit{app}^n$ and  $\mathit{int}^{k_1,\ldots,k_n}$,
+the first order signature is given by 
 $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}} = (\mathcal{F} \cup \mathcal{N} \cup \mathcal{O}, >)$.
-For a fixed set $N$ of \emph{name objects},
-the first order structure is defined by
+%
+The first order structure is given by
 $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}} 
 = (\mathbb{R} \cup N, \mathcal{F}^\mathbb{R} \cup \mathcal{N}^N \cup \mathcal{O}^{N,\mathbb{R}}, >^\mathbb{R})$
-in which the interpretation $\mathcal{N}^N$ of name constants and 
+for a fixed finite set $N$ of \emph{name objects},
+where the interpretation $\mathcal{N}^N$ of name constants and 
 the interpretation $\mathcal{O}^{N,\mathbb{R}}$ of application and integral operators 
 are given as explained above.
-\end{definition}
-
-Notice that the signature $\mathcal{L}_\mathcal{F}$ is a subsignature of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$,
-and the structure $\mathbb{R}_\mathcal{F}$ for the real numbers 
-is a substructure of $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$.
+%
 The syntax and semantics of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formulas 
 is defined by means of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ and $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$
 in the standard way.
+\end{definition}
+
+%The signature $\mathcal{L}_\mathcal{F}$ is a subsignature of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$,
+%and the structure $\mathbb{R}_\mathcal{F}$ for the real numbers 
+%is a substructure of $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$.
 
 
-Because the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formulas for the new encoding
-only add name constants and existentially quantified name variables,
-their decision procedure %for those formulas
- is simple and need no extra cost.
+The satisfiability problems of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formulas in the new theory 
+$\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$
+can be reduced to ones in the standard theory $\mathbb{R}_\mathcal{F}$ at minimal cost,
+provided that all $\mathit{Name}$ variables %in the formulas 
+are only existentially quantified.
+Consider a $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formula 
+$\exists \vec{n}.\; \psi(\vec{n})$, where 
+$\vec{n}$ are only variables of sort $\mathit{Name}$ %in $\psi(\vec{n})$
+and
+$\psi(\vec{n})$ contains no quantifier for $\vec{n}$.
+Since there are only a finite number of name objects in $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$,
+by using the standard SMT solving for equalities,
+we can enumerate all the \emph{consistent} assignments 
+$\vec{n} = \overrightarrow{\mathit{name}}_1,\ldots,\vec{n} = \overrightarrow{\mathit{name}}_N$ for $\vec{n}$.
+Let $\hat{\psi}_i$ be the formula obtained from $\psi(\vec{n})$
+by replacing each name by its related function according to the $i$-th assignment $\vec{n} = \overrightarrow{\mathit{name}}_i$.
+Then, $\vee_{i=1}^N \hat{\psi}_i$ is an ordinary $\mathcal{L}_\mathcal{F}$ formula
+whose satisfiability can be decided by %existing SMT techniques, such as 
+$\delta$-complete decision procedures.
 
-We can statically add \emph{uniqueness lemmas} of the form
-$\neg (w = \texttt{flow}_q \;\wedge\; w = \texttt{flow}_{q'})$ for any pair of $q \neq q'$,
-and this can significantly reduce the Boolean search space.
-
-We first find a truth assignment for the names, and 
-replace names in ODEs by them
-
-We have a truth assignment that includes only $\mathcal{L}_\mathcal{F}$-terms.
-The satisfiability of such $\mathcal{L}_\mathcal{F}$-assignments
-can then be decided by using $\delta$-decision procedures as usual.
 
 \begin{theorem}
-Some decision procedure?
+The satisfiability of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formulas of the form $\exists \vec{n}.\; \psi(\vec{n})$
+is decidable by  $\delta$-complete SMT solving. 
 \end{theorem}
 
-or exploiting the theory of equalities.
+
+%\begin{figure}
+%\begin{algorithmic}
+%\STATE $V\gets$ AllUnigramsInTraining($D$)
+%\STATE $N\gets$ NumberOfTweets($D$)
+% \FORALL{$c \in C$}
+%  \STATE $N_c \gets$ Number of tweets in Class $c$
+%  \STATE ...
+%  \STATE $Tweets_c \gets $All Tweets in class $c$
+%  \FORALL{$t \in V$}
+%    \STATE $T_ct$ = No. of times term $t$ appeared in $Tweets_c$
+%  \ENDFOR
+%  \FORALL{$t \in V$}
+%    \STATE ...
+%  \ENDFOR
+%\ENDFOR
+%\end{algorithmic}
+%\end{figure}
+
+
+%We first find a truth assignment for the names, and 
+%replace names in ODEs by them
+%We have a truth assignment that includes only $\mathcal{L}_\mathcal{F}$-terms.
+%The satisfiability of such $\mathcal{L}_\mathcal{F}$-assignments
+%can then be decided by using $\delta$-decision procedures as usual.
 
 
 
-\subsection{Encoding}
 
-Equality  constraints, such as $x_1(t) = x_2(t)$, 
- can be removed
-from the formula by replacing equal with equal
-(for example, by replacing each function symbol $x_1$ with  $x_2$).
+
+\subsection{SMT Encoding of Hybrid PALS Models}
+
+We show how hybrid PALS models
+are encoded in the new SMT logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$
+without the use of uninterpreted real functions and universal quantification.
+%
+We restrict our attention to time-invariant constraints with only equality terms,
+such as one for the airplane example,
+since physical correlations for CPS can be expressed using equalities. % in practice.
+Equality  constraints, such as $x_1(t) = x_2(t)$,  can be removed
+from the formula  by replacing one side with another, e.g., by replacing $x_1$ with  $x_2$.
+From now on we assume that time-invariant constraints are already removed from the formula by this process.
+
+
+\textbf{Now here a basic idea: uninterpreted function by name, and universal quantification by equality}
+
+The formula $\phi_{M \restriction E_M}^{T,0}$ for 
+the first step of 
+each environment restriction $M_j \restriction E_{M_j}$ in a hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
+involves the following subformula for sampling time $u_I^j$ and response time $u_R^j$:
+
+
+\begin{align*}
+\forall t \in [0,u_I^j].\;
+\vec{x}_j(t) &= \vec{v}_j + \textstyle\int_0^{t}  F_j(\vec{x}_j,t)\,\mathrm{d}t
+\;\;\wedge
+\\
+\forall t \in [u_I^j,u_R^j].\;
+\vec{x}_j(t) &= \vec{x}_j(u_I) + \textstyle\int_0^{t-u_I}  F_j(\vec{x}_j,t)\,\mathrm{d}t
+\;\;\wedge
+\\
+\forall t \in [u_R^j, T].\;
+\vec{x}_j(t) &= \vec{x}_j(u_R) + \textstyle\int_0^{t-u_R}  F_j(\vec{x}_j,t)\,\mathrm{d}t
+\;\;\wedge
+\\
+u_I^j \in [t_I^j,t_I^j + 2\epsilon]
+&\;\wedge\;
+u_R^j \in [t_R^j,t_R^j + 2\epsilon]
+\end{align*}
+
 
 
 
@@ -234,18 +294,13 @@ The size of the formula is
 $O(k \cdot \prod_{i = 1}^n m_i)$.
 
 
+%
+Therefore, SMT-based analysis for networks of hybrid systems
+can easily suffer from the \emph{formula explosion problem}
+that makes such %SMT-based
+ analysis practically infeasible.
+%even for small networked hybrid systems.
 
-The reason why standard SMT formulas for networks of hybrid automata include so many ODE literals 
-is that the syntax of the underlying logic 
-(i.e., the theory of the real numbers with computable functions)
-is \emph{not} modular  for ODEs. %restrictive
-Since solutions of ODEs %given by integral operators, 
-are considered as \emph{atomic} functions in this logic,
-%any information from 
-the structure of the underlying hybrid automaton 
-cannot be used to express ODE solution functions.
-Our goal is to explicitly take into account the structure of a hybrid automaton
-for SMT-based analysis.
 
 
 
@@ -275,12 +330,6 @@ the ODE literal can be rewritten as the logically equivalent conjunction:
 %
 
 
-%
-Therefore, SMT-based analysis for networks of hybrid systems
-can easily suffer from the \emph{formula explosion problem}
-that makes such %SMT-based
- analysis practically infeasible.
-%even for small networked hybrid systems.
 %
 The above technique 
 is particularly useful for a parallel composition $H_1 \parallel \ldots \parallel H_n$,
@@ -378,7 +427,8 @@ is expressed as the formula:
 \\
 \forall U \in [0,T]\;
 \forall \vec{x}^u \in \val(X).\;
-(\vec{x}_i^u = \vec{x}_i^0 + \mathit{int}^l(w_i, U)) \,\to\, \mathit{inv}(m_i,\vec{x}_i^u),
+(\vec{x}_i^u = \vec{x}_i^0 + \mathit{int}^l(w_i, U)) \\
+\,\to\, \mathit{inv}(m_i,\vec{x}_i^u),
 \end{multlined}
 \]
 and the formula for $k$-step bounded model checking of $H$
@@ -387,13 +437,14 @@ is rewritten as the following formula including equality terms  $w_0 = \texttt{f
 \begin{medsize}
 \begin{alignedat}{2}
 \exists m_0,\ldots,m_k\;
-\exists w_0,\ldots,w_k\;
-\exists \vec{x}_0, \ldots, %\vec{x}_k, \vec{x}_0^t, \ldots, 
+ w_0,\ldots,w_k\;
+ \vec{x}_0, \ldots, %\vec{x}_k, \vec{x}_0^t, \ldots, 
 \vec{x}_k^t \in \val(X)\;
-\exists T_0, \ldots, T_k \in [0,T_{\max}].
+ T_0, \ldots, T_k \in [0,T_{\max}].
 \\
 \mathit{cont}(w_0, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0)
 \,\wedge\,
+\\
 \textstyle
 \bigvee_{q \in Q}
 \big(
@@ -408,6 +459,7 @@ w_0 = \texttt{flow}_q
 \bigwedge_{i = 1}^k 
 \mathit{cont}(w_i,\vec{x}_i^0, \vec{x}_i^t, m_i, T_i)
 \,\wedge\,
+\\
 \bigvee_{q, q' \in Q}
 \left(
 \begin{aligned}
@@ -493,5 +545,12 @@ m_0 = q
 i.e., the $0$-step in Formula~(\ref{eq:bounded}).
 The other cases are similar.
 \end{proof}
+
+
+
+
+
+
+
 
 

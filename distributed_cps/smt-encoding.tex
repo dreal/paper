@@ -70,20 +70,23 @@ including: \begin{inparaenum}[(i)]
 \end{inparaenum}
 
 
-If the continuous dynamics of $\vec{x}$ is specified as a system of ODEs 
-$\frac{\mathrm{d}\vec{x}}{\mathrm{d}t}= F(\vec{x},t)$, then the formula %$\phi_{E_M}(\vec{a},u,\vec{v},\vec{f})$ 
-includes universal quantification over time along with solutions of the ODEs:
+If the continuous dynamics of $\vec{x}$ is specified as a system of ODEs
+$\frac{\mathrm{d}\vec{x}}{\mathrm{d}t}= F_{\vec{a}}(\vec{x},t)$
+for a control command $\vec{a}$, then the formula $\phi_{E_M}$ 
+includes universal quantification over time along with solutions of the ODEs, such as a formula of the form:
 \[
-\forall t.\; (u_0 \leq t \leq u_t) 
-\;\rightarrow\;
-\vec{x}(t) = \vec{v}_M + \int_0^{t-u_0}  F(\vec{x},t)\,\mathrm{d}t.
+\bigvee \mathit{guard}(\vec{a}) \rightarrow
+\big(
+\forall t \in [u_0,u_t].\;
+\vec{x}(t) = \vec{v} + \int_0^{t-u_0}  F_{\vec{a}}(\vec{x},t)\,\mathrm{d}t
+\big)
 \]
 For example, 
 the formula $\phi_{E_M}(\mathit{rate}_M,u_0,u_t,v_M \shortmid \alpha_M)$
 for 
 %an environment 
 $E_M$ of a subcontroller $M$ in the airplane example is given by:
-$\forall t.\, (u_0 \leq t \leq u_t) \rightarrow (\alpha_M(t) = v_M + \int_0^{t-u_0}  \mathit{rate}_M \,\mathrm{d}t)$.
+$\forall t \in [u_0, u_t].\; \alpha_M(t) = v_M + \int_0^{t-u_0}  \mathit{rate}_M \,\mathrm{d}t$.
 %where the surface angle $\alpha_M$ follows the ODE
 %$\frac{\mathrm{d}\alpha_M}{\mathrm{d}t} = \mathit{rate}_M$
 %from the current angle $v_M$ in the time interval $[0,u]$.
@@ -99,20 +102,6 @@ $((\vec{a},u_t-u_0,\vec{v}), \vec{\tau}) \in \Lambda$
 and $\vec{x}(t) = \vec{\tau}(t - u_0)$ for $t \in [u_0, u_t]$.
 \end{definition}
 
-
-%A formula $\phi_{E_M}(\vec{a},u,\vec{v} \shortmid \vec{x})$ specifies 
-%the behavior of $\vec{x}$
-%for the time interval $[0,u]$.
-%We define the ``time-shifted'' formula $\phi_{E_M}^{+u_0}$ 
-%to specify the behavior of $\vec{x}$ for the interval $[u_0, u_0 + u]$.
-%It is  obtained from $\phi_{E_M}$
-%by replacing each occurrence of a term $\vec{x}(t)$
-%by $\vec{x}(t+u_0)$.
-%For example, 
-%(\ref{eq:uq})
-%is transformed into
-%$(\forall t)\; (0 \leq t \leq u) \rightarrow (\vec{x}(t+u_0) = \vec{v}_M 
-%+ \int_0^{t}  F(\vec{x},t)\,\mathrm{d}t$.
 
 For an environment restriction $M \restriction E_M$,
 its formula $\phi_{M \restriction E_M}$ 
@@ -383,17 +372,17 @@ for that round.
 \begin{definition} 
 An inductive analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
 with an inductive condition $\mathit{ind}(\vec{z})$ is expressed by:
-\begin{align*}
-\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t.\;&
+\begin{multline*}
+\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
+\big(\mathit{ind}(\vec{z})  \rightarrow \mathit{safe}(\vec{z},t)\big)
+\\
+\wedge\;
 \big(
 (\mathit{ind}(\vec{z})\;\wedge\;\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}(\vec{i}, \vec{z}\shortmid \vec{z'}, \vec{o}))
 \rightarrow
 \mathit{ind}(\vec{z'})\big)
-\\
-\wedge\;
-&
-\big((\mathit{ind}(\vec{z}) \;\wedge\;   0 \leq t < T )  \rightarrow \mathit{safe}(\vec{z},t)\big).
-\end{align*}
+.
+\end{multline*}
 \end{definition}
 
 We also encode a divide-and-conquer proof
@@ -406,15 +395,15 @@ in such a way
 that $\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)$ implies %the safety property 
 $\mathit{safe}(\vec{z},t)$ for that round.
 %(time variable $t$ is included because of time-invariant constraints).
-This method is very useful for parameterized systems (see Section~\ref{sec:case-studies}).
+%This method is very useful for parameterized systems (see Section~\ref{sec:case-studies}).
 
 
 \begin{definition} A compositional analysis for $\forall t.  \mathit{safe}(\vec{z},t)$
 with I/O conditions $\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)$ and $\mathit{c}_\mathit{out}(\vec{o},\vec{z},t)$
 is expressed by:
-\begin{align*}
-\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t.\;
-\big((\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)  \;\wedge\;   0 \leq t < T) \rightarrow \mathit{safe}(\vec{z},t) \big)
+\begin{multline*}
+\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
+\big(\mathit{c}_\mathit{in}(\vec{i},\vec{z},t) \rightarrow \mathit{safe}(\vec{z},t) \big)
 \phantom{.}
 \\
 \wedge\;
@@ -428,7 +417,7 @@ is expressed by:
 )
 \rightarrow
 \mathit{c}_\mathit{out}(\vec{o},\vec{z'},t)\big).
-\end{align*}
+\end{multline*}
 \end{definition}
 
 The validity of such formulas for inductive or compositional  analysis can also be automatically checked 
