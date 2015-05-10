@@ -92,9 +92,10 @@ is the standard structure of the theory of the real numbers.
 Solutions of ODEs are considered as \emph{atomic functions} in $\mathcal{L}_\mathcal{F}$,
 and therefore the structure of ODEs cannot be used for SMT algorithms  in this logic.
 This restrictive syntax makes it difficult to efficiently express logic formulas for hybrid PALS models 
-in $\mathcal{L}_\mathcal{F}$, which typically involve different local physical environments 
-interacting with each other.
-Therefore, we present a new SMT theory,
+in $\mathcal{L}_\mathcal{F}$. 
+% which typically involve different local physical environments interacting with each other.
+%Therefore, 
+We present a new SMT theory,
 by extending $\mathcal{L}_\mathcal{F}$, that allows to express solutions of ODEs in a modular way,
 so that the size of the formula can be much reduced.
 
@@ -105,33 +106,44 @@ and $\mathit{Name}$ denotes \emph{name constants}
 for unary functions composed of the functions in $\mathcal{F}$.
 For example, given $\{1, +, \times, \sin, x, y\} \subset \mathcal{F}$
 and two name constants $\mathtt{m_1}$ and $\mathtt{m_2}$ of sort $\mathit{Name}$,
-we can have the following \emph{named} real functions:
-\begin{align*}
-\mathtt{m_1}&\qquad
-\sin(x(t)) :\mathit{Real} \to \mathit{Real},
-\\
-\mathtt{m_2}&\qquad
-[y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2.
-\end{align*}
+we can have two \emph{named} real functions:
+$[\mathtt{m_1}]:
+(\sin(x(t)) :\mathit{Real} \to \mathit{Real})$
+and
+$[\mathtt{m_2}]:
+([y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2)$.
+
+
+The new logic 
+includes
+a collection of \emph{application operators} $\mathit{app}^n : \mathit{Name} \times \mathit{Real} \to \mathit{Real}^n$
+that connect a name constant to its underlying function with range $\mathit{Real}^n$, e.g.,
+\[
+\mathit{app}^1(\mathtt{m_1}, 3) \equiv \sin(x(3)),
+\quad
+\mathit{app}^2(\mathtt{m_2}, u) \equiv [y(u) + 1,z(u)^2].
+\]
+%These operators ensure that each name object is really related to a concrete unary real function with domain $\mathbb{R}$.
+ 
 
 In the new logic,  we take into account
 a collection of \emph{integral operators} 
-$\mathit{int}^{k_1,\ldots,k_n} :  \mathit{Name}^n \times \mathit{Real} \to \mathit{Real}^{\sum_{i=1}^n k_i}$.
+$\mathit{int}^{k_1,\ldots,k_n} :  \mathit{Real} \times \mathit{Name}^n  \to \mathit{Real}^{\sum_{i=1}^n k_i}$.
 An integral term
-$\mathit{int}^{k_1,\ldots,k_n}(\nu_1,\ldots,\nu_n,u)$
-takes a list of name constants $\nu_1,\ldots,\nu_n$,
+$\mathit{int}^{k_1,\ldots,k_n}(u,\nu_1,\ldots,\nu_n)$
+takes time value $u$
+and a list of name constants $\nu_1,\ldots,\nu_n$,
 to respectively denote real functions $f_1,\ldots,f_n$ with ranges $\mathit{Real}^{k_1},\ldots,\mathit{Real}^{k_n}$,
-and time value $u$,
 and returns the value $\int_0^u \, [f_1(t),\ldots,f_n(t)] \,\mathrm{d}t$.  
 For example:
 \begin{align*}
-\mathit{int}^{2}(\mathtt{m_2}, 1) 
+\mathit{int}^{2}(1, \mathtt{m_2}) 
 &\equiv
 \int_0^1
 [y + 1, z^2]
 \mathrm{d}t,
 \\
-\mathit{int}^{1,2}(\mathtt{m_1},\mathtt{m_2}, T) 
+\mathit{int}^{1,2}(T,\mathtt{m_1},\mathtt{m_2}) 
 &\equiv
 \int_0^T
 [\sin(x),y + 1,z^2]
@@ -139,17 +151,6 @@ For example:
 \end{align*}
 
 
-Finally, the new logic 
-includes
-a collection of \emph{application operators} $\mathit{app}^n : \mathit{Name} \times \mathit{Real} \to \mathit{Real}^n$
-that connect a name constant to its underlying function with range $\mathit{Real}^n$, e.g.,
-\[
-\mathit{app}^1(\mathit{m_1}, 3) \equiv \sin(x(3)),
-\quad
-\mathit{app}^2(\mathit{m_2}, u) \equiv [y(u) + 1,z(u)^2].
-\]
-These operators ensure that each name object is really related to a concrete unary real function with domain $\mathbb{R}$.
- 
 
 
 
@@ -174,11 +175,12 @@ are given as explained above.
 The syntax and semantics of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formulas 
 is defined by means of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ and $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$
 in the standard way.
+%(The signature $\mathcal{L}_\mathcal{F}$ is a subsignature of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$,
+%and the structure $\mathbb{R}_\mathcal{F}$ for the real numbers 
+%is a substructure of $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$).
 \end{definition}
 
-%The signature $\mathcal{L}_\mathcal{F}$ is a subsignature of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$,
-%and the structure $\mathbb{R}_\mathcal{F}$ for the real numbers 
-%is a substructure of $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$.
+
 
 
 The satisfiability problems of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formulas in the new theory 
@@ -186,20 +188,20 @@ $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$
 can be reduced to ones in the standard theory $\mathbb{R}_\mathcal{F}$ at minimal cost,
 provided that all $\mathit{Name}$ variables %in the formulas 
 are only existentially quantified.
-Consider a $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formula 
+Consider an $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formula 
 $\exists \vec{n}.\; \psi(\vec{n})$, where 
 $\vec{n}$ are only variables of sort $\mathit{Name}$ %in $\psi(\vec{n})$
 and
 $\psi(\vec{n})$ contains no quantifier for $\vec{n}$.
 Since there are only a finite number of name objects in $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$,
 by using the standard SMT solving for equalities,
-we can enumerate all the \emph{consistent} assignments 
+we can enumerate all \emph{consistent} assignments 
 $\vec{n} = \overrightarrow{\mathit{name}}_1,\ldots,\vec{n} = \overrightarrow{\mathit{name}}_N$ for $\vec{n}$.
 Let $\hat{\psi}_i$ be the formula obtained from $\psi(\vec{n})$
 by replacing each name by its related function according to the $i$-th assignment $\vec{n} = \overrightarrow{\mathit{name}}_i$.
 Then, $\vee_{i=1}^N \hat{\psi}_i$ is an ordinary $\mathcal{L}_\mathcal{F}$ formula
 whose satisfiability can be decided by %existing SMT techniques, such as 
-$\delta$-complete decision procedures.
+$\delta$-complete decision procedures. Therefore:
 
 
 \begin{theorem}
@@ -239,313 +241,157 @@ is decidable by  $\delta$-complete SMT solving.
 
 \subsection{SMT Encoding of Hybrid PALS Models}
 
-We show how hybrid PALS models
+
+We now show how hybrid PALS models
 are encoded in the new SMT logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$
 without the use of uninterpreted real functions and universal quantification.
-%
-We restrict our attention to time-invariant constraints with only equality terms,
+The idea is to construct a \emph{global} ODE formula $\phi_{\mathit{ODE}}$
+that defines the combined systems of ODEs for all physical environments
+in $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
+The formula $\phi_{\mathit{ODE}}$ is parameterized by the behaviors of 
+the subcomponents by means of integral operators and \emph{name variables}.
+The behavior of each subcomponent $M_j \restriction E_{M_j}$ is then
+specified in a modular way by assigning to each name variable an appropriate name constant for $M_j \restriction E_{M_j}$.
+
+%First, 
+We restrict our attention to time-invariant constraints \emph{with only equality terms},
 such as one for the airplane example,
-since physical correlations for CPS can be expressed using equalities. % in practice.
+since physical correlations for CPS can be expressed using equality conditions in practice.
 Equality  constraints, such as $x_1(t) = x_2(t)$,  can be removed
 from the formula  by replacing one side with another, e.g., by replacing $x_1$ with  $x_2$.
-From now on we assume that time-invariant constraints are already removed from the formula by this process.
-
-
-\textbf{Now here a basic idea: uninterpreted function by name, and universal quantification by equality}
-
-The formula $\phi_{M \restriction E_M}^{T,0}$ for 
-the first step of 
-each environment restriction $M_j \restriction E_{M_j}$ in a hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
-involves the following subformula for sampling time $u_I^j$ and response time $u_R^j$:
-
-
-\begin{align*}
-\forall t \in [0,u_I^j].\;
-\vec{x}_j(t) &= \vec{v}_j + \textstyle\int_0^{t}  F_j(\vec{x}_j,t)\,\mathrm{d}t
-\;\;\wedge
-\\
-\forall t \in [u_I^j,u_R^j].\;
-\vec{x}_j(t) &= \vec{x}_j(u_I) + \textstyle\int_0^{t-u_I}  F_j(\vec{x}_j,t)\,\mathrm{d}t
-\;\;\wedge
-\\
-\forall t \in [u_R^j, T].\;
-\vec{x}_j(t) &= \vec{x}_j(u_R) + \textstyle\int_0^{t-u_R}  F_j(\vec{x}_j,t)\,\mathrm{d}t
-\;\;\wedge
-\\
-u_I^j \in [t_I^j,t_I^j + 2\epsilon]
-&\;\wedge\;
-u_R^j \in [t_R^j,t_R^j + 2\epsilon]
-\end{align*}
+From now on we assume that time-invariant constraints are already removed from the formula 
+by this process.
 
 
 
+Suppose that 
+the formula $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ for $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
+includes $N$ terms  to obtain a value of some parameter of $E_{M_j}$ of the form $\vec{x_j}(u)$.
+We only need to use ODEs for finding those values %of all such terms
+to determine the satisfiability of $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$.
+A global ODE formula $\phi_{\mathit{ODE}}$
+is defined as a conjunction of $N$ ODEs for such $N$ access timings,
+which include all sampling and response times for each (decelerated) subcomponent in a global round.
+% of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 
-%However, 
-For networks of hybrid systems,
-the standard SMT encoding tends to yield a formula 
-including many ODE literals. 
-For %a network of hybrid systems given by 
-a parallel composition
- $H_1 \parallel \ldots \parallel H_n$, % of several hybrid automata,
-the formula for $k$-step bounded model checking  
-has $N = (k+1) \cdot \prod_{i = 1\ldots n} m_i$ ODE literals,
-where each $H_i$ has $m_i$ modes.
-The size of the formula is 
-$O(k \cdot \prod_{i = 1}^n m_i)$.
-
-
-%
-Therefore, SMT-based analysis for networks of hybrid systems
-can easily suffer from the \emph{formula explosion problem}
-that makes such %SMT-based
- analysis practically infeasible.
-%even for small networked hybrid systems.
-
-
-
-
-The basic idea is to decompose a single ODE literal
-into a conjunction of several literals according to its underlying structure.
-%Logically, this can be achieved by using extra function symbols and universal quantification.
-%
-Consider a $l$-dimensional ODE literal
-$\vec{y}^t = \vec{y}^0 + \textstyle\int_{0}^T \mathit{flow}(\vec{x}) \,\mathrm{d}t$.
-Mathematically,
-a variable $x \in \vec{x}$ in $\mathit{flow}(\vec{x})$ 
-can be considered a unary function $\mathbb{R} \to \mathbb{R}$,
-%
-and thus
-the term $\mathit{flow}(\vec{x})$ can also be considered as a unary function
-$\mathbb{R} \to \mathbb{R}^l$.
-%
-Therefore, 
-using an extra function symbol $g : \mathbb{R} \to \mathbb{R}^l$
-and the state function symbols $\vec{x}(t)$,
-the ODE literal can be rewritten as the logically equivalent conjunction: 
+\begin{definition}
+Let $\vec{t} = \{t_0,t_1,\ldots,t_N\}$ for  $N$ time variables with
+$iT = t_0 \leq t_1 \leq t_2 \leq \cdots \leq t_N = (i+1)T$.
+For name variables $\vec{f} = \{f_j^1,\ldots,f_j^N\}_{j \in J_S \cup J_F}$ and
+global value variables $\vec{g} = \{\vec{g}_0,\ldots,\vec{g}_N\}$,
+$\phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g})$ is the %$\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-
+formula:
 \[
-\vec{y}^t = \vec{y}^0 + \textstyle\int_{0}^T g(t)  \,\mathrm{d}t
-\quad\wedge\quad
-\forall t \in [0,T].\; g(t) = \mathit{flow}(\vec{x})(t).
+\bigwedge_{1 \leq i \leq N}
+(
+\vec{g}_{i} = \vec{g}_{i-1} + 
+\mathit{int}^{\vec{l}}(t_{i} - t_{i-1}, \{f_j^i\}_{j \in J_S \cup J_F})
+),
 \]
-%
+where $f_j^i$ denotes $E_{M_j}$'s behavior during the interval $[t_{i-1},t_i]$,
+$\vec{g}_i$ denotes the values of all the physical parameters of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
+at time $t_i$, and $\vec{l} = \{l_j\}_{j \in J_S \cup J_F}$ denotes the \emph{dimension}
+of each $E_{M_j}$'s physical parameters $\vec{x_j} = (x_j^1,\ldots,x_j^{l_j})$.
+\end{definition}
 
 
-%
-The above technique 
-is particularly useful for a parallel composition $H_1 \parallel \ldots \parallel H_n$,
-since an ODE literal can be decomposed with respect to its components $H_1, \ldots, H_n$.
-%which is not possible in the standard encoding.
-Let $\overrightarrow{\vec{x}} = [\vec{x}_{1},\ldots,\vec{x}_{n}]$ 
-$\overrightarrow{\vec{x}}^t = [\vec{x}_{1}^t,\ldots,\vec{x}_{n}^t]$
-and $\overrightarrow{\vec{x}}^0 = [\vec{x}_{1}^0,\ldots,\vec{x}_{n}^0]$
-denote $n$-vectors of state variable vectors.
-Consider a single \emph{concrete} ODE literal
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[xscale=2.5,yscale=2.4,font=\footnotesize]
+%baseline
+\draw[-latex,thin] (-0.2,0) -- (3.3,0);
+
+\draw[thin] (0.2,0.5) -- (0.2,-0.03) node[below,xshift=-2.2ex,yshift=0.15ex] { $iT = t_0$};
+\draw[thin] (0.45,0.03) -- (0.45,-0.03) node[below] { $t_1$};
+\path (0.65,-0.08) node[below] {\ldots};
+\draw[thin] (1.12,0.03) -- (1.12,-0.03) node[below] { $t_{i+1}$};
+\draw[thin] (1.41,0.03) -- (1.41,-0.03) node[below] { $t_{i+2}$};
+\path (1.65,-0.08) node[below] {\ldots};
+\draw[thin] (1.9,0.03) -- (1.9,-0.03) node[below] { $t_{k-1}$};
+\path (2.35,-0.08) node[below] {\ldots};
+\draw[thin] (2.6,0.5) -- (2.6,-0.03) node[below,xshift=4.7ex,,yshift=0.23ex] { $t_N = (i+1)T$};
+
+\draw[thin] (0.87,0.7) node[above] {$u_0$}-- (0.87,-0.03) node[below] { $t_i$};
+\draw[thin] (2.15,0.7) node[above] {$u_t$} -- (2.15,-0.03) node[below] { $t_{k}$};
+
+\draw[<->,thick] (0.87,0.67) -- node[above] {$F(\vec{x_j},t)$} (2.15,0.67);
+
+\begin{scope}[font=\scriptsize,yshift=-0.1ex]
+\draw[<->,densely dotted] (0.2,0.40) -- node[above] {$f_j^1$} (0.45,0.40) ;
+\draw[<-,densely dotted] (0.45,0.40) -- (0.55,0.40);
+\draw[loosely dotted] (0.55,0.40) -- node[above,yshift=1ex] {\ldots} (0.77,0.40) ;
+\draw[->,densely dotted] (0.77,0.40) -- (0.87,0.40);
+\draw[<->,densely dotted] (0.87,0.40) -- node[above] {$f_j^{i+1}$} (1.12,0.40) ;
+\draw[<->,densely dotted] (1.12,0.40) -- node[above] {$f_j^{i+2}$} (1.41,0.40) ;
+\draw[<-,densely dotted] (1.41,0.40) -- (1.51,0.40);
+\draw[loosely dotted] (1.51,0.40) -- node[above,yshift=1ex] {\ldots} (1.8,0.40) ;
+\draw[->,densely dotted] (1.8,0.40) -- (1.9,0.40);
+\draw[<->,densely dotted] (1.9,0.40) -- node[above] {$f_j^{k}$} (2.15,0.40) ;
+\draw[loosely dotted] (2.15,0.40) -- node[above,yshift=1ex] {\ldots} (2.4,0.40) ;
+\draw[<->,densely dotted] (2.4,0.40) -- node[above] {$f_j^{N}$} (2.6,0.40) ;
+\end{scope}
+\begin{scope}[yshift=0.1ex]
+%\filldraw (0.2,0.19) circle (0.5pt) node[below,xshift=0.8ex] {$\vec{v}$};
+\filldraw (0.87,0.26) circle (0.5pt) node[right,yshift=-1.6ex] {$\vec{x_j}(u_0)$};
+\filldraw (2.15,0.2) circle (0.5pt) node[right,yshift=-1.6ex] {$\vec{x_j}(u_t)$};
+%\filldraw (2.6,0.21) circle (0.5pt) node[below,xshift=1.1ex] {$\vec{v'}$};
+\draw (-0.1,0.1) .. controls (1,0.5) and (2,0) .. (3.2,0.3);
+\end{scope}
+\end{tikzpicture}
+\caption{ODE-free transformation}
+\label{fig:flow-map}
+\end{figure}
+
+
+For any subcomponent $M_j \restriction E_{M_j}$,
+an ODE subformula $\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$ 
+in $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
+is replaced by conditions for name variables $\vec{f}$, time variables $\vec{t}$, and 
+\emph{global} value variables $\vec{g}$,
+as illustrated in Fig.~\ref{fig:flow-map}.
+For example, if $u_0 = t_i$ and $u_t = t_k$ for some $0 \leq i \leq k \leq n$,
+then all the name variables $f_j^l$ for $i \leq l < k$ are equal to 
+the name constant $\mathtt{m}_{F(\vec{x_j},t)}$ for the function $F(\vec{x_j},t)$.
+
+
+\begin{definition}
+For an ODE formula for $M_j \restriction E_{M_j}$ of the form 
+$\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$, 
+if a name constant $\mathtt{m}_{F(\vec{x_j},t)}$ denotes the function $F(\vec{x_j},t)$,
+its \emph{ODE-free} transformation is defined by the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula:
 \[
-\overrightarrow{\vec{x}}^t
-=
-\overrightarrow{\vec{x}}^0
-+
-\int_0^T
-[\mathit{flow}_1(\overrightarrow{\vec{x}}),\ldots,\mathit{flow}_n(\overrightarrow{\vec{x}})]\,\mathrm{d}t.
-\]
-By using $n$ extra function symbols $g_1, \ldots, g_n$ that 
-respectively correspond to $H_1, \ldots, H_n$,
-we have a logically equivalent conjunction 
-\begin{align*}
-\overrightarrow{\vec{x}}^t
-=
-\overrightarrow{\vec{x}}^0
-+
-\int_0^T
-[g_1(t),\ldots,g_n(t)]
-\,\mathrm{d}t
-\;\wedge\;
-\\
-\bigwedge_{i = 1}^n
-\forall t \in [0,T].\,
-g_i(t) = \mathit{flow}_i(\overrightarrow{\vec{x}})(t).
-\end{align*}
-
-
-
-In a way similar to the above,
-%Similarly,
-the composed continuous behavior for duration $T$ 
-with respect to arbitrary flows $\overrightarrow{g} = [g_1,\ldots,g_n]$ 
-in $(q_1,\ldots,q_n) \in Q_1 \times \cdots \times Q_n$ 
-from values $\overrightarrow{\vec{x}}^0$ to $\overrightarrow{\vec{x}}^t$
-is then expressed as the formula:
-\[
-\begin{medsize}
+\bigvee_{0 \leq i \leq k \leq n} 
+\left[
 \begin{aligned}
-\mathit{cont}_{\overrightarrow{g}}(\overrightarrow{\vec{x}}^0, \overrightarrow{\vec{x}}^t,
-\overrightarrow{m}, T)
-\;\equiv\;
-\overrightarrow{\vec{x}}^t
-= 
-\overrightarrow{\vec{x}}^0
-+ 
-\int_{0}^T 
-[g_1(t),\ldots,g_n(t)]
-\,\mathrm{d}t
-\;\wedge\;
+(t_i = u_0) \wedge (t_k = u_t) \wedge \textstyle\bigwedge_{l=i}^{k-1} f^l_j \equiv \mathtt{m}_{F(\vec{x_j},t)}  ) &\wedge
 \\
-\forall U \in [0,T]\;
-\forall \overrightarrow{\vec{x}}^u \in \val(X_1 \cup \cdots \cup X_n).\;
-\\
-\overrightarrow{\vec{x}}^u
- = 
-\overrightarrow{\vec{x}}^0
-+ 
-\int_{0}^U 
-[g_1(t),\ldots,g_n(t)]
-\,\mathrm{d}t 
-\,\to\,
-\mathit{inv}(\overrightarrow{m},\overrightarrow{\vec{x}}^u).
+(\vec{x_j}(u_0) = \pi_j(\vec{g}_i) = \vec{v_j}) \wedge  (\vec{x_j}(u_t) = \pi_j(\vec{g}_k))
 \end{aligned}
-\end{medsize}
+\right],
 \]
+where $\pi_j(\vec{g}_i)$ denotes $E_{M_j}$'s parameter values 
+in the global parameter values $\vec{g}_i$ of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
+\end{definition}
 
-
-
-
-SMT formulas for hybrid systems by the new encoding
-can be rewritten in this logic without using uninterpreted real functions 
-and universal quantification.
-Each extra function symbol $g_i$ is replaced by a name variable $w_i$, and
-each subformula of the form $(\forall t \in [0,T_i].\; g_i(t) = \mathit{flow}_q(\vec{x})(t))$
-is replaced by an equality $w_i = \texttt{flow}_q$,
-where name \emph{constant} $\texttt{flow}_q$ denotes the flow function $\mathit{flow}_q(\vec{x})(t)$.
-For example, 
-the continuous behavior of $H$ with respect to name variable $w_i$
-is expressed as the formula:
-\[
-\begin{multlined}
-\mathit{cont}(w_i, \vec{x}_i^0, \vec{x}_i^t, m_i, T_i) \;\equiv\;
-(\vec{x}_i^t = \vec{x}_i^0 + \mathit{int}^l(w_i, T_i))
-\,\wedge\,
-\\
-\forall U \in [0,T]\;
-\forall \vec{x}^u \in \val(X).\;
-(\vec{x}_i^u = \vec{x}_i^0 + \mathit{int}^l(w_i, U)) \\
-\,\to\, \mathit{inv}(m_i,\vec{x}_i^u),
-\end{multlined}
-\]
-and the formula for $k$-step bounded model checking of $H$
-is rewritten as the following formula including equality terms  $w_0 = \texttt{flow}_q$ and $w_i = \texttt{flow}_{q'}$:
-\[
-\begin{medsize}
-\begin{alignedat}{2}
-\exists m_0,\ldots,m_k\;
- w_0,\ldots,w_k\;
- \vec{x}_0, \ldots, %\vec{x}_k, \vec{x}_0^t, \ldots, 
-\vec{x}_k^t \in \val(X)\;
- T_0, \ldots, T_k \in [0,T_{\max}].
-\\
-\mathit{cont}(w_0, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0)
-\,\wedge\,
-\\
-\textstyle
-\bigvee_{q \in Q}
-\big(
-m_0 = q 
-\,\wedge\,
-\mathit{init}_q(\vec{x}_0^0) 
-\,\wedge\,
-w_0 = \texttt{flow}_q
-\big)
-\,\wedge\,
-\\
-\bigwedge_{i = 1}^k 
-\mathit{cont}(w_i,\vec{x}_i^0, \vec{x}_i^t, m_i, T_i)
-\,\wedge\,
-\\
-\bigvee_{q, q' \in Q}
-\left(
-\begin{aligned}
-m_{i-1} = {q}
-\,\wedge\,
-m_i = {q'}
-\,\wedge\,
-\\
-\mathit{jump}_{q,q'}(\vec{x}_{i-1}^t,\vec{x}_{i}^0)
-\,\wedge\,
-w_i = \texttt{flow}_{q'}
-\end{aligned}
-\right)
-\,\wedge\,
-\neg \mathit{safe}(\vec{x}_k^t)
-\end{alignedat}
-\end{medsize}
-\]
-
-%We can easily see that the above formula has indeed the same meaning as
-% Formula~(\ref{eq:bounded}) for the standard encoding 
-% as follows.
-%(which is also equivalent to Formula~(\ref{eq:new-bounded})).
+Let $\mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$ 
+be the formula
+obtained from $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ 
+by repeatedly performing this ODE-free transformation
+for every ODE subformula.
+Finally, we have the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
+$\exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g}) \wedge \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$,
+which
+includes neither uninterpreted real functions nor universal quantification.
 
 \begin{theorem}
-Formulas~(\ref{eq:new-bounded}--\ref{eq:comp-bounded})
-for formal analysis of hybrid systems rewritten in $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ 
-are equivalent to the corresponding formulas in the standard encoding.% $\mathbb{R}_{\mathcal{F}\cup\mathcal{N}} $
-
-%Each extra function symbol $g_i$ is replaced by a name variable $w_i$, and
-%each subformula of the form $(\forall t \in [0,T_i].\; g_i(t) = \mathit{flow}_q(\vec{x})(t))$
-%is replaced by an equality $w_i = \texttt{flow}_q$,
-
+$\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
+is satisfiable
+iff
+the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
+$\exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{t},\vec{f},\vec{g}) \;\wedge\; \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$
+is satisfiable.
 \end{theorem}
-
-\begin{proof}
-This immediately follows from 
-$\mathbb{R}_\mathcal{F} \subseteq \mathbb{R}_{\mathcal{F}\cup\mathcal{N}}$ and
-the formula rewriting process in Section~\ref{sec:effective-encoding}.
-Consider the above 
-$\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formula for $k$-step bounded model checking.
-For the initial step, by distributing %the term 
-$\mathit{cont}(w_0, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0)$
-over %the disjunction 
-$\bigvee_{q \in Q}
-(m_0 = q 
-\:\wedge\:
-\mathit{init}_q(\vec{x}_0^0) 
-\;\wedge\;
-w_0 = \texttt{flow}_q)$,
-we have the equivalent formula
-$\bigvee_{q \in Q}
-(m_0 = q 
-\:\wedge\:
-\mathit{init}_q(\vec{x}_0^0) 
-\;\wedge\;
-w_0 = \texttt{flow}_q
-\;\wedge\;
-\mathit{cont}(w_0, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0))$.
-By replacing %the variable 
-$w_0$ by $\texttt{flow}_q$, we have
-$\bigvee_{q \in Q}
-(m_0 = q 
-\:\wedge\:
-\mathit{init}_q(\vec{x}_0^0) 
-\;\wedge\;
-\mathit{cont}(\texttt{flow}_q, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0))$.
-%
-Since the integral term $\mathit{int}^l(\texttt{flow}_q, T_0)$
-denotes the function $\int_0^{T_0} \mathit{flow}_q(\vec{x})\,\mathrm{d}t$ of $T_0$,
- $\mathit{cont}(\texttt{flow}_q, \vec{x}_0^0, \vec{x}_0^t, m_0, T_0)$
-is equivalent to $\mathit{cont}_{\vec{x}_0}^q(\vec{x}_0^0, \vec{x}_0^t, T_0)$.
-Therefore,
-the $0$-step formula
-is equivalent to
-$\bigvee_{q \in Q}
-\big(
-m_0 = q 
-\:\wedge\:
-\mathit{init}_q(\vec{x}_0^0) 
-\:\wedge\:
-\mathit{cont}_{\vec{x}_0}^q(\vec{x}_0^0, \vec{x}_0^t, T_0)\big)$,
-i.e., the $0$-step in Formula~(\ref{eq:bounded}).
-The other cases are similar.
-\end{proof}
-
 
 
 
