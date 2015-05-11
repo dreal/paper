@@ -75,8 +75,7 @@ $\frac{\mathrm{d}\vec{x}}{\mathrm{d}t}= F_{\vec{a}}(\vec{x},t)$
 for a control command $\vec{a}$, then the formula $\phi_{E_M}$ 
 includes universal quantification over time along with solutions of the ODEs, such as a formula of the form:
 \[
-\bigvee \mathit{guard}(\vec{a}) \rightarrow
-\big(
+\bigvee \big(\mathit{guard}(\vec{a}) \rightarrow
 \forall t \in [u_0,u_t].\;
 \vec{x}(t) = \vec{v} + \int_0^{t-u_0} \!  F_{\vec{a}}(\vec{x},t)\,\mathrm{d}t
 \big)

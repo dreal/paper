@@ -204,7 +204,7 @@ whose satisfiability can be decided by %existing SMT techniques, such as
 $\delta$-complete decision procedures. Therefore:
 
 
-\begin{theorem}
+\begin{theorem}\label{thm:new-dec}
 The satisfiability of $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ formulas of the form $\exists \vec{n}.\; \psi(\vec{n})$
 is decidable by  $\delta$-complete SMT solving. 
 \end{theorem}
@@ -264,36 +264,38 @@ by this process.
 
 
 
-Suppose that 
-the formula $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ for $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
-includes $N$ terms  to obtain a value of some parameter of $E_{M_j}$ of the form $\vec{x_j}(u)$.
-We only need to use ODEs for finding those values %of all such terms
-to determine the satisfiability of $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$.
+Suppose that %the formula 
+$\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ 
+%for $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
+includes $N$ terms of the form $\vec{x_j}(u)$ to obtain a value of some parameter of $E_{M_j}$.
+%We only need to use ODEs for finding those values %of all such terms
+%to determine the satisfiability of $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$.
 A global ODE formula $\phi_{\mathit{ODE}}$
-is defined as a conjunction of $N$ ODEs for such $N$ access timings,
-which include all sampling and response times for each (decelerated) subcomponent in a global round.
+is defined as a conjunction of $N$ ODEs for these access times
+that include all sampling and response times for each (decelerated) subcomponent in a global round.
 % of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 
 \begin{definition}
-Let $\vec{t} = \{t_0,t_1,\ldots,t_N\}$ for  $N$ time variables with
-$iT = t_0 \leq t_1 \leq t_2 \leq \cdots \leq t_N = (i+1)T$.
-For name variables $\vec{f} = \{f_j^1,\ldots,f_j^N\}_{j \in J_S \cup J_F}$ and
-global value variables $\vec{g} = \{\vec{g}_0,\ldots,\vec{g}_N\}$,
-$\phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g})$ is the %$\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-
-formula:
-\[
-\bigwedge_{1 \leq i \leq N}
-(
-\vec{g}_{i} = \vec{g}_{i-1} + 
-\mathit{int}^{\vec{l}}(t_{i} - t_{i-1}, \{f_j^i\}_{j \in J_S \cup J_F})
-),
-\]
-where $f_j^i$ denotes $E_{M_j}$'s behavior during the interval $[t_{i-1},t_i]$,
-$\vec{g}_i$ denotes the values of all the physical parameters of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$
-at time $t_i$, and $\vec{l} = \{l_j\}_{j \in J_S \cup J_F}$ denotes the \emph{dimension}
-of each $E_{M_j}$'s physical parameters $\vec{x_j} = (x_j^1,\ldots,x_j^{l_j})$.
+Let
+\begin{inparaenum}[(i)]
+	\item $\vec{t} = \{t_0,t_1,\ldots,t_N\}$ be  $N$ \emph{time variables} 
+	with $iT = t_0 \leq t_1 \leq t_2 \leq \cdots \leq t_N = (i+1)T$;
+%
+	\item $\vec{f} = \{f_j^1,\ldots,f_j^N\}_{j \in J_S \cup J_F}$ be \emph{name variables} 
+	denoting $E_{M_j}$'s continuous behaviors during each interval $[t_{i-1},t_i]$;
+%
+	\item $\vec{g} = \{\vec{g}_0,\ldots,\vec{g}_N\}$ be \emph{global value variables}
+	denoting the values of all physical parameters of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ at each time $t_i$; and
+%
+	\item $\vec{l} = \{l_j\}_{j \in J_S \cup J_F}$ denote the \emph{dimension}
+	of each $E_{M_j}$'s parameters $\vec{x_j} = (x_j^1,\ldots,x_j^{l_j})$.
+\end{inparaenum}
+The formula
+$\phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g})$ is: %$\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-
+$\bigwedge_{1 \leq i \leq N}\;
+(\vec{g}_{i} = \vec{g}_{i-1} + 
+\mathit{int}^{\vec{l}}(t_{i} - t_{i-1}, \{f_j^i\}_{j \in J_S \cup J_F}))$.
 \end{definition}
-
 
 
 \begin{figure}
@@ -339,59 +341,85 @@ of each $E_{M_j}$'s physical parameters $\vec{x_j} = (x_j^1,\ldots,x_j^{l_j})$.
 \draw (-0.1,0.1) .. controls (1,0.5) and (2,0) .. (3.2,0.3);
 \end{scope}
 \end{tikzpicture}
-\caption{ODE-free transformation}
+\caption{$\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-transformation for ODEs}
 \label{fig:flow-map}
 \end{figure}
 
 
 For any subcomponent $M_j \restriction E_{M_j}$,
 an ODE subformula $\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$ 
-in $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
-is replaced by conditions for name variables $\vec{f}$, time variables $\vec{t}$, and 
-\emph{global} value variables $\vec{g}$,
-as illustrated in Fig.~\ref{fig:flow-map}.
+%in $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
+is replaced by conditions for variables  $\vec{f}$, $\vec{t}$, and $\vec{g}$.
 For example, if $u_0 = t_i$ and $u_t = t_k$ for some $0 \leq i \leq k \leq n$,
-then all the name variables $f_j^l$ for $i \leq l < k$ are equal to 
-the name constant $\mathtt{m}_{F(\vec{x_j},t)}$ for the function $F(\vec{x_j},t)$.
+then all $f_j^l$ for $i \leq l < k$ 
+%between $t_i$ and $t_k$
+denote
+%are equal to the name constant $\mathtt{m}_{F(\vec{x_j},t)}$ for 
+the function $F(\vec{x_j},t)$,
+as illustrated in Fig.~\ref{fig:flow-map}.
 
 
-\begin{definition}
-For an ODE formula for $M_j \restriction E_{M_j}$ of the form 
-$\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$, 
-if a name constant $\mathtt{m}_{F(\vec{x_j},t)}$ denotes the function $F(\vec{x_j},t)$,
-its \emph{ODE-free} transformation is defined by the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula:
+\begin{definition}\label{def:ode-trans}
+Let  $\pi_j(\vec{g}_i)$ denote $E_{M_j}$'s parameter values 
+in the global values $\vec{g}_i$. % of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
+Consider an ODE formula %for $M_j \restriction E_{M_j}$ 
+of the form 
+$\forall t \in [u_0,u_t].\, \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$.
+If a name constant $\mathtt{m}_{F(\vec{x_j},t)}$ denotes $F(\vec{x_j},t)$,
+its $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula is: % defined by the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula:
 \[
 \bigvee_{0 \leq i \leq k \leq n} 
 \left[
 \begin{aligned}
-(t_i = u_0) \wedge (t_k = u_t) \wedge \textstyle\bigwedge_{l=i}^{k-1} f^l_j \equiv \mathtt{m}_{F(\vec{x_j},t)}  ) &\wedge
+(t_i = u_0) \wedge (t_k = u_t) \wedge \textstyle\bigwedge_{l=i}^{k-1} f^l_j \equiv \mathtt{m}_{F(\vec{x_j},t)}  ) &\;\wedge
 \\
 (\vec{x_j}(u_0) = \pi_j(\vec{g}_i) = \vec{v_j}) \wedge  (\vec{x_j}(u_t) = \pi_j(\vec{g}_k))
 \end{aligned}
-\right],
+\right]
 \]
-where $\pi_j(\vec{g}_i)$ denotes $E_{M_j}$'s parameter values 
-in the global parameter values $\vec{g}_i$ of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 \end{definition}
 
 Let $\mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$ 
 be the formula
 obtained from $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ 
-by repeatedly performing this ODE-free transformation
-for every ODE subformula.
-Finally, we have the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
-$\exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g}) \wedge \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$,
-which
-includes neither uninterpreted real functions nor universal quantification.
+by repeatedly performing the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-transformation
+for each ODE subformula.
+Finally, we obtaine the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
+$\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}
+\equiv
+\exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g}) \wedge \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$
+that includes no uninterpreted real functions and universal quantification.
+Therefore, the  satisfiability of $\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ can be determined by using
+$\delta$-complete SMT (by Theorem~\ref{thm:new-dec}).
+
 
 \begin{theorem}
 $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
 is satisfiable
 iff
-the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
-$\exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{t},\vec{f},\vec{g}) \;\wedge\; \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$
+%the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
+$\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
 is satisfiable.
 \end{theorem}
+
+\begin{proof}[Proof Sketch]
+\begin{inparaenum}
+	\item[$(\Rightarrow)$]
+	If $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ is satisfiable,
+	then there exists a collection $\{\vec{x_j}\}_{j \in J_S \cup J_F}$ of trajectories 
+	for a global round, and we can find the values of $(\vec{f}, \vec{t}, \vec{g})$
+	from the trajectories.
+	\item[$(\Leftarrow)$]
+	If $\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ is satisfiable,
+	then there exist resulting values of $(\vec{f}, \vec{t}, \vec{g})$.
+	Then,
+	by construction, 
+	any ODE subformula
+	$\forall t \in [u_0,u_t].\, \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$ is true
+	iff its transformed formula by Definition~\ref{def:ode-trans} is true,
+	provided that $u_0 = t_i$ and $u_t = t_k$ for some $0 \leq i \leq k \leq n$.
+\end{inparaenum}
+\end{proof}
 
 
 
