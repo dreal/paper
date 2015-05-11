@@ -22,20 +22,22 @@ sampling exact values of physical parameters is not possible in reality.
 
 However, formulas for hybrid PALS models
 may contain ODEs and universal quantification over \emph{uninterpreted real functions},
-%such as  \emph{time-invariant constraints} $(\forall t.\; \psi)$.
+such as 
+$\forall t \in [u_0,u_t].\;
+\vec{x}(t) = \vec{v} + \int_0^{t-u_0} \!  F_{\vec{a}}(\vec{x},t)\,\mathrm{d}t$
+or time-invariant constraints $(\forall t.\; \psi)$,
 %in order to precisely specify physical interactions between distributed components
 %with clock skews and delays.
 which are not supported by current state-of-the-art SMT solving techniques.
-%
-For example, the ODEs in $E_\mathit{Main}$ %for the main controller 
-in the airplane example
-include uninterpreted function symbols $\delta_L$, $\delta_V$, and $\delta_R$ for control angles.
-The correspondences between  %the angles 
-$(\delta_L, \delta_V, \delta_R)$ 
-and the surface angles $(\alpha_L,\alpha_V,\alpha_R)$ of the subcontrollers
-are given by the time-invariant constraint
-$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
 
+%For example, the ODEs in $E_\mathit{Main}$ %for the main controller 
+%in the airplane example
+%include uninterpreted function symbols $\delta_L$, $\delta_V$, and $\delta_R$ for control angles.
+%The correspondences between  %the angles 
+%$(\delta_L, \delta_V, \delta_R)$ 
+%and the surface angles $(\alpha_L,\alpha_V,\alpha_R)$ of the subcontrollers
+%are given by the time-invariant constraint
+%$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
 
 This section shows how formulas for hybrid PALS models (presented in Section~\ref{sec:smt-encoding})
 can be equivalently encoded as \emph{SMT formulas}
@@ -44,14 +46,6 @@ For this purpose, we present a new  SMT framework to provide
 an efficient SMT algorithm
 for  formulas generated from hybrid PALS models.
 
-%\textbf{difficulties for dealing with unint. func. sym.?}
-%
-%A conflict-based 
-%
-%It is not easy to \emph{statically check without} $\delta$-complete decision procedures
-%whether such subformulas of the form $\forall t \in [0,T].\; g(t) = \mathit{flow}_q(\vec{x})(t)$
-%are $\delta$-consistent to each other or not.
-%
 %Even though two real functions
 %$f_1(t)$ and $f_2(t)$ have completely different forms, 
 %their corresponding formulas 
@@ -79,8 +73,8 @@ such as polynomials, exponentiation, trigonometric functions,
 and solutions of Lipschitz-continuous ODEs.
 
 \begin{definition}
-For a finite set $\mathcal{F}$ of computable real functions,
-%(real number constants are given as $0$-ary functions).
+For a finite set $\mathcal{F}$ of computable real functions
+(real number constants as $0$-ary functions),
 %
 $\mathcal{L}_\mathcal{F} = (\mathcal{F}, >)$ denotes the first-order signature over the real numbers
 with the functions in $\mathcal{F}$,
@@ -106,12 +100,14 @@ and $\mathit{Name}$ denotes \emph{name constants}
 for unary functions composed of the functions in $\mathcal{F}$.
 For example, given $\{1, +, \times, \sin, x, y\} \subset \mathcal{F}$
 and two name constants $\mathtt{m_1}$ and $\mathtt{m_2}$ of sort $\mathit{Name}$,
-we can have two \emph{named} real functions:
-$[\mathtt{m_1}]:
-(\sin(x(t)) :\mathit{Real} \to \mathit{Real})$
-and
-$[\mathtt{m_2}]:
-([y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2)$.
+we can have two \emph{named} unary real functions:
+\begin{align*}
+[\mathtt{m_1}]:\qquad&
+\sin(x(t)) :\mathit{Real} \to \mathit{Real}
+\\
+[\mathtt{m_2}]:\qquad&
+[y(t) + 1, z(t)^2] :  \mathit{Real} \to \mathit{Real}^2
+\end{align*}
 
 
 The new logic 
@@ -255,11 +251,12 @@ specified in a modular way by assigning to each name variable an appropriate nam
 
 %First, 
 We restrict our attention to time-invariant constraints \emph{with only equality terms},
-such as one for the airplane example,
+%such as one for the airplane example,
 since physical correlations for CPS can be expressed using equality conditions in practice.
 Equality  constraints, such as $x_1(t) = x_2(t)$,  can be removed
-from the formula  by replacing one side with another, e.g., by replacing $x_1$ with  $x_2$.
-From now on we assume that time-invariant constraints are already removed from the formula 
+from the formula  by replacing one side with another, 
+for example, by replacing each function symbol $x_1$ with  $x_2$.
+From now on we assume that time-invariant \emph{equality} constraints are already removed from the formula 
 by this process.
 
 
@@ -351,7 +348,7 @@ an ODE subformula $\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^
 %in $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
 is replaced by conditions for variables  $\vec{f}$, $\vec{t}$, and $\vec{g}$.
 For example, if $u_0 = t_i$ and $u_t = t_k$ for some $0 \leq i \leq k \leq n$,
-then all $f_j^l$ for $i \leq l < k$ 
+then all $f_j^l$ for $i < l \leq k$ 
 %between $t_i$ and $t_k$
 denote
 %are equal to the name constant $\mathtt{m}_{F(\vec{x_j},t)}$ for 
@@ -371,9 +368,9 @@ its $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula is: % defined by the $\ma
 \bigvee_{0 \leq i \leq k \leq n} 
 \left[
 \begin{aligned}
-(t_i = u_0) \wedge (t_k = u_t) \wedge \textstyle\bigwedge_{l=i}^{k-1} f^l_j \equiv \mathtt{m}_{F(\vec{x_j},t)}  ) &\;\wedge
+(t_i = u_0) \wedge (t_k = u_t) \wedge \textstyle\bigwedge_{l=i+1}^{k} f^l_j \equiv \mathtt{m}_{F(\vec{x_j},t)}  )
 \\
-(\vec{x_j}(u_0) = \pi_j(\vec{g}_i) = \vec{v_j}) \wedge  (\vec{x_j}(u_t) = \pi_j(\vec{g}_k))
+\wedge\; (\vec{x_j}(u_0) = \pi_j(\vec{g}_i) = \vec{v_j}) \wedge  (\vec{x_j}(u_t) = \pi_j(\vec{g}_k))
 \end{aligned}
 \right]
 \]
@@ -383,7 +380,7 @@ Let $\mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$
 be the formula
 obtained from $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ 
 by repeatedly performing the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-transformation
-for each ODE subformula.
+for every ODE subformula.
 Finally, we obtaine the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
 $\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}
 \equiv

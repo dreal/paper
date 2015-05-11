@@ -5,8 +5,8 @@
 \label{sec:smt-encoding}
 
 Thanks to the behavioral equivalence (Theorem~\ref{thm:hybrid-pals}),
-analysis problems of a distributed CPS $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
-are reduced to those on the simpler synchronous model $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
+analysis of a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+is reduced to one on the simpler synchronous model $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 %Directly analyzing such distributed systems is unfeasible in practice
 %due to the combinatorial explosion even for simple discrete systems \cite{pals-tcs}.
 However, it is difficult to analyze $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
@@ -72,7 +72,9 @@ including: \begin{inparaenum}[(i)]
 
 If the continuous dynamics of $\vec{x}$ is specified as a system of ODEs
 $\frac{\mathrm{d}\vec{x}}{\mathrm{d}t}= F_{\vec{a}}(\vec{x},t)$
-for a control command $\vec{a}$, then the formula $\phi_{E_M}$ 
+for a control command $\vec{a}$
+during a time interval $[u_0,u_t]$, 
+then the formula $\phi_{E_M}$ 
 includes universal quantification over time along with solutions of the ODEs, such as a formula of the form:
 \[
 \bigvee \big(\mathit{guard}(\vec{a}) \rightarrow
@@ -80,12 +82,12 @@ includes universal quantification over time along with solutions of the ODEs, su
 \vec{x}(t) = \vec{v} + \int_0^{t-u_0} \!  F_{\vec{a}}(\vec{x},t)\,\mathrm{d}t
 \big)
 \]
-For example, 
-the formula $\phi_{E_M}(\mathit{rate}_M,u_0,u_t,v_M \shortmid \alpha_M)$
-for 
-%an environment 
-$E_M$ of a subcontroller $M$ in the airplane example is given by:
-$\forall t \in [u_0, u_t].\; \alpha_M(t) = v_M + \int_0^{t-u_0}  \mathit{rate}_M \,\mathrm{d}t$.
+%For example, 
+%the formula $\phi_{E_M}(\mathit{rate}_M,u_0,u_t,v_M \shortmid \alpha_M)$
+%for 
+%%an environment 
+%$E_M$ of a subcontroller $M$ in the airplane example is given by:
+%$\forall t \in [u_0, u_t].\; \alpha_M(t) = v_M + \int_0^{t-u_0}  \mathit{rate}_M \,\mathrm{d}t$.
 %where the surface angle $\alpha_M$ follows the ODE
 %$\frac{\mathrm{d}\alpha_M}{\mathrm{d}t} = \mathit{rate}_M$
 %from the current angle $v_M$ in the time interval $[0,u]$.
@@ -307,20 +309,20 @@ Therefore, by  the bisimulation equivalence (Theorem~\ref{thm:hybrid-pals}):
 \begin{theorem}\label{thm:pals-encoding}
 $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ is satisfiable 
 iff for some local clocks, there exists a corresponding \emph{stable transition} in a distributed hybrid system  
-$\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$   for $[iT - \epsilon,(i+1)T - \epsilon]$.
+$\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$   for $[iT - \epsilon,(i+1)T - \epsilon]$.
 \end{theorem}
 
 \subsection{Representing Formal Analysis Problems}
 
 Our goal is to verify safety properties
-of a distributed CPS $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
+of a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
 In general, a safety property of the system can be expressed as a formula of the form 
 $\forall t.  \mathit{safe}(\vec{z},t)$
 with respect to state variables $\vec{z}$ and time variable $t$.
 
 
 For bounded analysis
-to verify %whether $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+to verify %whether $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
 a safety property %$\forall t.  \mathit{safe}(\vec{z},t)$
 up to a given bound $n \in \mathbb{N}$
 (i.e., for the interval $[0,nT - \epsilon]$),
@@ -334,7 +336,7 @@ then the system satisfies the safety property in $[0,nT - \epsilon]$
 
 \begin{definition}
 A bounded analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
-%of $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$ 
+%of $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$ 
 up to $n$ with an initial condition $\mathit{init}(\vec{z})$
 is expressed by:
 \begin{align*}

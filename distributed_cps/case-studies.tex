@@ -1,207 +1,199 @@
 % !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
 %
-\section{Case Studies}
+\section{Case Studies and Experimental Results}
 \label{sec:case-studies}
 
-This section presents
-four case studies for SMT-based analysis of 
-networks of hybrid systems.
-%networked thermostats,
-%networked water tank controllers,
-%and distributed controllers for smoothly turning an airplane.
+This section shows four case studies for SMT-based analysis of 
+distributed CPSs using Hybrid PALS.
+\marginpar{3--6 case studies}
 %
 These case studies involve nontrivial (nonlinear) ODEs,
-because of continuous physical interaction between components.
+because of continuous physical interaction between distributed components.
+We have verified the safety properties of the systems
+using %bounded reachability, 
+inductive and compositional SMT encodings
+for \emph{any possible local clocks} with a given maximal clock skew $\epsilon > 0$.
+
+
 %
-We have implemented our techniques in the dReal SMT solver, and 
-performed formal analysis for these three case studies using the tool.
-%The dReal tool is
-%built on the general DPLL($\mathcal{T}$) framework,
-%with underlying theory solvers for the real numbers and ODEs 
-%based on the ICP (interval constraint propagation) procedure \cite{dreal}.
-%\marginpar{\textbf{Sean, could you write some  implementation details if necessary?}}
+We have implemented the SMT algorithm
+for our new logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ in the dReal SMT solver \cite{dReal}.
 %
-We have compared the performance of  the new encoding
-with the standard encoding,
-and with the existing heuristics used in the dReach tool \cite{dReach},
-which
-\emph{explicitly enumerates} all paths in the mode graph of a hybrid automaton
-and generates many small SMT formulas.
-%
-%We have also compared the performance with the \texttt{flow*} tool \cite{flowstar}.
-All the experiments %in this section
+We have also compared the performance of 
+the new $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-encoding
+with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding  for hybrid PALS models.
+In this comparison,
+we only consider special cases %of the examples 
+with no clock skews ($\epsilon = 0$) 
+due to a lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$.
+
+All the experiments in this section
 were conducted on Intel Xeon 2.0 GHz with 64 GB memory.
 %running 64-bit Ubuntu 12.04.5 LTS.
+The case studies and the experimental evaluation are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
 
-The experimental evaluation is publicly available at the \textsc{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
+
+%To demonstrate the performance benefits obtained by using Multirate PALS, this section compares the execution times and the number of system states explored for model checking the synchronous model and the corresponding distributed asynchronous model. We consider a highly simplified asynchronous model with the following simplifying assumptions:
+
+%To compare the gain of the Multirate-PALS methodology, we also analyzed an asynchronous model of the airplane turning system in Real-Time Maude [16]. In this experiment, we used the simplest possible asynchronous model with perfect clocks, no network delays, and no execution times. For both synchronous and asynchronous models, we used three pilot scenarios with different numbers of nondeterministic environment choices. We have compared the number of reachable states and the execution times up to a certain (model) time bound T. As shown in the following table, such asynchronous models cannot be feasibly model checked due to its enormous state space explosion, whereas the synchronous model can be verified in less than a minute.
 
 
-We have applied our techniques to 
-design and verify two  multirate distributed cyber physical systems:
-a distributed control system for turning an airplane where its effectors located 
-in the airplane's wings (Section~\ref{sec:airplane}),
-and a robotics system with  a conveyer belt and robot arms
-for physically simulating a Turing machine (Section~\ref{sec:turing-machine}).
+
+\subsection{Example: Turning an Airplane}
+\label{sec:ex-airplane}
+
+We consider a multirate distributed CPS
+to control the turning maneuver of an airplane (adapted from \cite{ftscs-journal}).
+%in which a \emph{main controller} directs \emph{subcontrollers} for the ailerons and the rudder in a synchronous way.
 %
-Both systems are  distributed \emph{hybrid} systems
-consisting of \emph{discrete} multirate periodic controllers, interconnected by a wired network,
-and 
-interacting with their \emph{continuous} local environments.
-The systems can provide PALS bounds $\Gamma$;
-%\begin{inparaenum}[(i)]
-%\item 
-in particular, 
-a bound $\epsilon > 0$ on the imprecisions of the local clocks.
-%of the components.
-%\item minimum and maximum message transmission times 	
-%%$0 \leq \mu_{\min} \leq \mu_{\max}$
-%between two different components, 		
-%and
-%\item minimum and maximum execution times 	
-%%$0 \leq \alpha_{\min} \leq \alpha_{\max}$ 
-%to perform transitions of any component.
-%\end{inparaenum}
+To make a turn, an aircraft rolls towards the direction of the turn
+by moving its ailerons (surfaces attached to the end of the wings).
+The rolling causes 
+a yawing moment in the opposite direction, called \emph{adverse yaw},
+countered by using its rudder (a surface attached to the vertical stabilizer).
 %
-Therefore, using Multirate PALS,
-the discrete behavior can be precisely modeled 
-as a multirate synchronous system $\mathcal{E}$.
-However, the continuous behavior
-still depends on the exact values of the local clocks,
-given by clock synchronization mechanisms.
-The local physical environments of different components 
-can be simultaneously correlated to each other,
-which cannot be modeled as network communications in general.
-The hybrid system modeling framework in Section~\ref{sec:env-const}
-was shown to be effective for dealing with these difficulties.
-The bounded model checking method in Section~\ref{sec:formula}
-was applied to verify
-the  given safety properties of the systems,
-with respect to (bounded) real number parameters and inputs,
-by means of \texttt{dReal}-based SMT solving in Section~\ref{sec:formula}.
-
-
-
-
-
-
-\subsection{Turning an Airplane}
-\label{sec:airplane}
-..
-
-(adapted from \cite{ftscs-journal}),
-
-
-We consider a networked control system
-to perform the turning maneuver of an airplane,
-adapted from \cite{ftscs-journal},
-in which a main controller directs subcontrollers for the ailerons and the rudder.
+The \emph{subcontrollers} for the ailerons and the rudder operate at different rates, 
+and the \emph{main controller} orchestrates them to achieve a coordinated turn.
 %
-To make a turn,
-an aircraft rolls %towards the direction of the turn
-by moving its ailerons (surfaces attached to the end of the wings),
-while its rudder (a surface attached to the vertical tail)
-is used to counter adverse yaw
-(a yawing moment %in the opposite direction 
-caused by the rolling).
+Fig.~\ref{fig:airplane-ctrl} illustrates the multirate ensemble $\mathcal{E}$ of our system.
+
+
+\begin{figure}
+\centering
+\tikzstyle{comp}=[draw,thick,rounded corners=4pt,text centered]
+\tikzstyle{env}=[draw,dashed,rounded corners=8pt,text centered]
+\tikzstyle{conn}=[thick,-latex,font=\scriptsize]
+\tikzstyle{envconn}=[very thin,-open triangle 45,font=\scriptsize]
+\begin{tikzpicture}[scale=0.9,every node/.style={transform shape},font=\footnotesize]
+%components
+\node (main) [comp,text width=8ex,minimum height=13ex] {{Main} ($60\, \mathrm{ms}$, $\mathit{rate}$ = $1$)}; 
+\path (main.east) + (16ex,8ex) node (left) [comp,text width=14ex] {{Left aileron} ($15\,\mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
+\path (main.east) + (16ex,1.3ex) node (vert) [comp,text width=14ex] {{Rudder}\\ ($20\, \mathrm{ms}$, $\mathit{rate}$ = $3$)}; 
+\path (main.east |- main.-48) + (16ex,0ex) node (right) [comp,text width=14ex] {{Right aileron} ($15\,\mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
+%comp connections
+\draw [conn,latex-] (main.west |- main.north) + (3ex,0)-- node{ }+(3ex,2ex) node[above] {$\mathit{goal}_\psi$};
+\draw [conn] (main.east |- main.north) + (-3ex,0)-- node{ }+(-3ex,2ex) node[above] {$\psi$};
+\draw[conn] ($(main.48)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_L$} ($(left.west |- left)+(0,0.5ex)$);
+\draw[conn] ($(left.west |- left)+(0,-0.5ex)$) -- node[below,sloped] {$v_L$} ($(main.48)+(0,-0.5ex)$);
+\draw[conn] ($(main.east)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_V$} ($(vert.west |- vert)+(0,0.5ex)$);
+\draw[conn] ($(vert.west |- vert)+(0,-0.5ex)$) -- node[below,sloped] {$v_V$} ($(main.east)+(0,-0.5ex)$);
+\draw[conn] ($(main.-48)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_R$} ($(right.west |- right)+(0,0.5ex)$);
+\draw[conn] ($(right.west |- right)+(0,-0.5ex)$) -- node[below,sloped] {$v_R$} ($(main.-48)+(0,-0.5ex)$);
+%physical envs
+\path (main.west) + (-8ex,0ex) node (main-env) [env,text width=6ex,minimum height=13ex] {$E_\mathit{Main}$}; 
+\path (left.east) + (12ex,0ex) node (left-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Left}$}; 
+\path (vert.east) + (12ex,0ex) node (vert-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Rudder}$}; 
+\path (right.east) + (12ex,0ex) node (right-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Right}$}; 
+%physical env conns
+\draw[envconn] ($(main-env.east)+(0,4.5ex)$) -- node[above] {$\psi$} ($(main.west |- main-env)+(0,4.5ex)$);
+\draw[envconn] (main-env.east) -- node[above] {$\phi$} (main.west);
+\draw[envconn] ($(main-env.east)+(0,-4.5ex)$) -- node[above] {$\beta$} ($(main.west |- main-env)+(0,-4.5ex)$);
+\draw[envconn] ($(left.east |- left-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_L$} ($(left-env.west |- left-env)+(0,0.5ex)$);
+\draw[envconn] ($(left-env.west |- left-env)+(0,-0.5ex)$) -- node[below] {$\alpha_L$} ($(left.east |- left-env)+(0,-0.5ex)$);
+\draw[envconn] ($(vert.east |- vert-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_\mathit{V}$} ($(vert-env.west |- vert-env)+(0,0.5ex)$);
+\draw[envconn] ($(vert-env.west |- vert-env)+(0,-0.5ex)$) -- node[below] {$\alpha_V$} ($(vert.east |- vert-env)+(0,-0.5ex)$);
+\draw[envconn] ($(right.east |- right-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_\mathit{R}$} ($(right-env.west |- right-env)+(0,0.5ex)$);
+\draw[envconn] ($(right-env.west |- right-env)+(0,-0.5ex)$) -- node[below] {$\alpha_R$} ($(right.east |- right-env)+(0,-0.5ex)$);
+\end{tikzpicture}
+\caption{The distributed controllers for turning an airplane.} \label{fig:airplane-ctrl}
+\end{figure}
+
+
+Each subcontroller $M$ gradually moves its surface towards the goal angle $\mathit{goal}_M$ specified by the main controller $M_\mathit{Main}$.
+For each period, $M$ receives $\mathit{goal}_M$ from $M_\mathit{Main}$,
+determines the moving rate $\mathit{rate}_M$ based on $\mathit{goal}_M$ 
+and the current sampled value $v_M$ of the surface angle $\alpha_M$,
+and sends back $v_M$ to $M_\mathit{Main}$
+(e.g., the new value of $\mathit{rate}_M$ can be given by
+$ \sign(\mathit{goal}_M - v_M) \cdot \min(\abs(\mathit{goal}_M - v_M) / T, \mathit{max}_M)$).
+The continuous dynamics of $\alpha_M$ is specified 
+by the local physical environment $E_M$
+as the ODE $\frac{\mathrm{d}\alpha_M}{\mathrm{d}t} = \mathit{rate}_M$.
+%\footnote{$E_M$ is the controlled physical environment $E_M = (\mathbb{R}, \alpha_M, \Lambda_M)$
+%with $((\mathit{rate}_M,T,v_M),\tau) \in \Lambda_M$ iff 
+%$\tau(t) = v_M + \int_0^t  \mathit{rate}_M \,\mathrm{d}t$ for $t \in [0, T]$.}
+
+The main controller $M_\mathit{Main}$ determines the goal angles for the subcontrollers to make a coordinated turn.
+For each period, $M_\mathit{Main}$ receives a  desired direction $\mathit{goal}_\psi$ %of the airplane 
+(from the pilot)
+and the surface angles $(v_L, v_V, v_R)$ from the subcontrollers, 
+and then sends back the new goal angles $(\mathit{goal}_L,\mathit{goal}_V,\mathit{goal}_R)$,
+%to the subcontrollers,
+based on the current sampled \emph{position} values $(v_\psi, v_\phi, v_\beta)$ 
+of  the direction angle $\psi$, the roll angle $\phi$, and the yaw angle $\beta$.
+
+
+We consider a simple control logic to decide 
+the new goal angles $(\mathit{goal}_L,\mathit{goal}_V,\mathit{goal}_R)$,
+by three control functions \cite{ftscs-journal}:
 %
-The lateral dynamics of an aircraft
-can be specified as nonlinear differential equations
-\cite{stevens2003aircraft}:
-\[
-\begin{aligned}
-\dot{\beta} &= Y(\beta,\delta_a,\delta_r) / m V - r + V / g * \cos(\beta) * \sin(\phi)
-\\
-\dot{\phi} &= p
-\\
-\dot{p} &= (c_1 r + c_2 p)\cdot r \cdot \tan(\phi) + c_3 L(\beta,\delta_a,\delta_r) + c_4 N(\beta,\delta_a,\delta_r)
-\\
-\dot{\psi} &= g / V \tan(\phi)
-\\
-\dot{r} &= (c_8 p - c_2 r) \cdot r \cdot \tan(\phi) + c_4 L(\beta,\delta_a,\delta_r) + c_9 N(\beta,\delta_a,\delta_r)
-\end{aligned}
-\]
-with:
 \begin{inparaenum}[(i)]
-	\item  state variables $\beta$ for the yaw angle, 
-        $p$ for the rolling moment,
-        $r$ for the yawing moment,
-        $\phi$ for the roll angle, 
-        and $\psi$ for the direction,
-	\item control variables $\delta_a$ for the angle of the ailerons,
-	and $\delta_r$ for the angle of the rudder,
+	\item $f_\phi(v_\phi, v_\psi, \mathit{goal}_\psi)$
+		returns the goal roll angle $\mathit{goal}_\phi$,
+		%based on the sampled roll angle $v_\phi$, the sampled direction $v_\psi$, 
+		%and the goal direction $\mathit{goal}_\psi$;
+	\item $f_{R}(v_\phi, \mathit{goal}_\phi)$ returns the goal angle $\mathit{goal}_R$ for the right aileron
+	(where the goal angle $\mathit{goal}_L$ for the left aileron is the opposite angle $- \mathit{goal}_R$);
+	%the left aileron angle is %always  exactly opposite to the right aileron angle); 
 	and
-	\item 
-	linear functions  
-	$Y(\beta,\delta_a,\delta_r)$, $L(\beta,\delta_a,\delta_r)$, and $N(\beta,\delta_a,\delta_r)$
-	to denote 
-	side force, rolling moment, and yawing moment of the airplane.
-%	\item constants $V$ for the airplane's velocity,
-%		$g$ for the standard gravity, 
-%		and 
-%		$Y_\beta, Y_{\delta_r}, 
-%		L_\beta, L_p, L_r, L_{\delta_a}, L_{\delta_r},
-%		N_\beta, N_p, N_r, N_{\delta_a}, N_{\delta_r}$
-%		determined by the shape and status of the airplane.
+	\item $f_V(v_\beta)$ returns the goal rudder angle $\mathit{goal}_V$.
+	%based on the sampled yaw angle $v_\beta$. % (the goal yaw angle is $0^\circ$).
 \end{inparaenum}
+For example, for $h = 0.32 \cdot (\mathit{g}_\psi - d)$:
+\begin{align*}
+f_\phi(l, d, \mathit{g}_\psi) &= 
+l + \sign(h - l) \cdot \min(\abs(h - l),1.5),
+\\
+f_{R}(l, \mathit{g}_\phi) &=
+\sign(\mathit{g}_\phi - l)\cdot \min(0.3 \cdot \abs(\mathit{g}_\phi - l), 45)),
+\\
+f_V(y) &=
+\sign(-y)\cdot \min(0.3 \cdot \abs(y), 30).
+\end{align*}
+
+In the physical environment $E_\mathit{Main}$,
+the lateral dynamics of an aircraft
+can be specified as the following nonlinear ODEs,
+where $p$ is the rolling moment, $r$ is the yawing moment,
+and $Y_{\delta_L,\delta_V,\delta_R,\beta}$, $L_{\delta_L,\delta_V,\delta_R,\beta}$, and $N_{\delta_L,\delta_V,\delta_R,\beta}$
+are (linear) functions of the control angles $(\delta_L,\delta_V,\delta_R)$ 
+%for the ailerons and the rudder
+and $\beta$
+%respectively denoting  the coefficients of side force, rolling moment, and yawing moment.
+\cite{stevens2003aircraft}:
 %
-The main controller has one mode,
-and determines the desired control angles. % for each period.
-The two subcontroller have two modes for moving up or down their surfaces,
-and gradually change the surface angles according to the main controller.
+\begin{align*}
+\dot{\beta} &= Y_{\delta_L,\delta_V,\delta_R,\beta} / m V - r + (V / g) \cos \beta \sin \phi,
+\\
+\dot{\phi} &= p,
+\qquad\qquad\qquad\qquad
+\dot{\psi} = (g / V) \tan \phi,
+\\
+\dot{p} &= (c_1 r + c_2 p) \cdot r  \tan \phi + c_3 L_{\delta_L,\delta_V,\delta_R,\beta} + c_4 N_{\delta_L,\delta_V,\delta_R,\beta},
+\\
+\dot{r} &= (c_8 p - c_2 r)  \cdot r  \tan \phi + c_4 L_{\delta_L,\delta_V,\delta_R,\beta} + c_9 N_{\delta_L,\delta_V,\delta_R,\beta}.
+\end{align*}
 %
-We consider three variants of this model:
-a single-rate nonlinear model
-in which every controller has a $0.5$ period,
-%and involves a shared timer variable $\tau$ with the flow condition $\dot{\tau} = 1$.
-an approximated linear model
-assuming small perturbations given by linear differential equations \cite{allerton2009principles}, and
-a multirate linear model 
-in which
-the aileron controller has a $0.25$ period and the rudder controller has a $0.5/3$ period.
 
 
-%\[
-%\left[\begin{array}{c}
-%\dot{\beta}\\\dot{p}\\\dot{r}\\\dot{\phi}\\\dot{\psi}
-%\end{array}\right]
-%=
-%\left[\begin{array}{ccccc}
-%Y_\beta & 0 & -1 & (g/V) & 0\\
-%L_\beta & L_p & L_r & 0 & 0\\
-%N_\beta & N_p & N_r & 0 & 0\\
-%0 & 1 & 0 & 0 & 0\\
-%0 & 0 & 0 & (g/V) & 0
-%\end{array}\right]
-%\left[\begin{array}{c}
-%{\beta}\\{p}\\{r}\\{\phi}\\{\psi}
-%\end{array}\right]
-%+
-%\left[\begin{array}{cc}
-%0 & Y_{\delta_r}\\
-%L_{\delta_a} & L_{\delta_r}\\
-%N_{\delta_a} & N_{\delta_r}\\
-%0 & 0 \\
-%0 & 0
-%\end{array}\right]
-%\left[\begin{array}{c}
-%\delta_a\\ \delta_r
-%\end{array}\right]
-%\]
+The physical environment $E_\mathit{Main}$ clearly depends on the subcontrollers's physical environments.
+Each control angle $\delta_M$ in  $E_\mathit{Main}$ must be the same as the corresponding surface angle $\alpha_M$.
+Such  immediate physical correlations between the local environments are specified by the time-invariant constraint
+%
+$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
+%
+The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
+along with appropriate  sampling and response timing policies $\Pi$.
+
+The safety property of $\mathcal{E}$ 
+is that 
+the yaw angle $\beta$ is always close to $0^\circ$.
 
 
 
 
-\subsection{Quadrotor Attitude Controller}
-\label{sec:quadrotor}
-..
 
-
-
-
-\subsection{Steam Boiler Controller}
-
-...
 
 \subsection{Networked Water Tank Controllers.}
 
@@ -210,7 +202,7 @@ The water level in each tank is separately controlled by the pump in the tank
 (adapted from \cite{kowalewski1999case,raisch1999approximating}).
 Similarly, each water level depends on the pump's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$
 and the levels of the adjacent tanks.
-The water level $x_i$ of tank $i$ changes according to the differential equations:
+The water level $x_i$ of tank $i$ changes according to the ODEs:
 \[
 \begin{aligned}
 A_i \dot{x}_i &=  (q_i + a \sqrt{2g} \sqrt{x_{i-1}})  - a \sqrt{2g} \sqrt{x_i}
@@ -230,59 +222,33 @@ Every pipe controller synchronously performs its discrete transitions:
 for each second, 
 the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
 
-%We consider the cases of networks of two and three water tanks
-%with the parameters
-%$a = 0.5$,
-%$g = 9.8$,
-%$A_1 = 2$, 
-%$A_2 = 4$, 
-%$A_3 = 3$, 
-%$q_1 = 5$,
-%$q_2 = 3$,
-%$q_3 = 4$,
-%$L_{\min} = L_{\max} = 5$,
-%and the initial condition $\wedge_{i} 4.9 < x_i < 5.1$.
-%We have performed bounded model checking up to $k = 5$
-%for the properties $\mathit{safe} = \wedge_{i} 4.9 < x_i < 5.1$ 
-%and $\mathit{safe} = \wedge_{i} 19 < x_i < 21$.
-%We have performed 
-%inductive analysis 
-%to verify that the property $\mathit{safe} = \wedge_{i} 1 < x_i < 9$
-%holds at the end $\tau > 0.99$ of each period.
-
-
-\begin{figure}[t]
+\begin{figure}
 \centering
-%
-\begin{minipage}[t]{.5\columnwidth}
-\centering
-\begin{tikzpicture}[scale=0.8] %baseline=(current bounding box.north)
-%room1
-\filldraw (0,-0.6) rectangle  + (-0.08,0.6)
-	(0,0) rectangle  + (-3,0.08)
-	(-3,0.08) rectangle  + (-0.08,-2.0)
-	(-3.08,-2.0) rectangle  + (3,0.08)
-	(0,-2.0) rectangle  + (-0.08,0.6);
-\path (-2.5,-1.5) node[draw] { $H_0$};
-\draw[dashed] (0,-0.6) -- (0,-2);
-%room2
-\filldraw (0,0) rectangle  + (3.5,0.08)
-	(3.5,0.08) rectangle  + (-0.08,-2.0)
-	(3.5,-2.0) rectangle  + (-3.5,0.08);
-\path (2.9,-1.5) node[draw] (m2){ $H_1$};
-%door
-\draw (0,-0.6) rectangle +(-0.7,-0.05);
-\draw (-0.7,-0.7) arc (180:270:0.7);
-\end{tikzpicture}
-\caption{Two interconnected rooms. %  by an open door.
-} \label{fig:adj-rooms}
-\end{minipage}%
-\begin{minipage}[t]{.5\columnwidth}
-\centering
-\includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.9\columnwidth]{water.pdf}    
+\includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.6\columnwidth]{water.pdf}    
 \caption{Two connected water tanks}  \label{fig:water}
-\end{minipage}
 \end{figure}
+
+
+
+We consider the cases of networks of two and three water tanks
+with the parameters
+$a = 0.5$,
+$g = 9.8$,
+$A_1 = 2$, 
+$A_2 = 4$, 
+$A_3 = 3$, 
+$q_1 = 5$,
+$q_2 = 3$,
+$q_3 = 4$,
+$L_{\min} = L_{\max} = 5$,
+and the initial condition $\wedge_{i} 4.9 < x_i < 5.1$.
+We have performed bounded model checking up to $k = 5$
+for the properties $\mathit{safe} = \wedge_{i} 4.9 < x_i < 5.1$ 
+and $\mathit{safe} = \wedge_{i} 19 < x_i < 21$.
+We have performed 
+inductive analysis 
+to verify that the property $\mathit{safe} = \wedge_{i} 1 < x_i < 9$
+holds at the end $\tau > 0.99$ of each period.
 
 
 
@@ -300,7 +266,7 @@ The temperature of each room depends on
 the heater's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$  and the temperatures of the other rooms.
 E.g., for three rooms $I = \{0,1,2\}$, 
 the temperature $x_i$ of room $i \in I$
-changes according to the differential equations:
+changes according to the ODEs:
 \[
 \begin{aligned}
 \dot{x}_i &= K_i \big(h_i - ((1- \textstyle\sum_{j \in I \setminus \{i\}} k_{i,j}) x_0 + \sum_{j \in I \setminus \{i\}} k_{i,j}  x_j)\big)
@@ -324,54 +290,66 @@ To keep track of each one-second period,
 every automaton has a \emph{shared} timer variable $\tau$ 
 with the flow condition $\dot{\tau} = 1$.
 
-%We consider the cases of networks of two and three thermostats
-%with the parameters
-%$K_1 = 0.015$, 
-%$K_2 = 0.045$, 
-%$K_3 = 0.03$, 
-%$h_1 = 100$,
-%$h_2 = 200$,
-%$h_3 = 300$,
-%$k_{1,2} = k_{2,1} = 0.01$,
-%$k_{2,3} = k_{3,2} = 0.05$,
-%$k_{1,3} = k_{3,1} = 0.02$,
-%$T_{\min} = T_{\max} = 20$,
-%and the initial condition $\wedge_{i} 19 < x_i < 21$.
-%We have performed bounded model checking up to $k = 5$
-%for $\mathit{safe} = \wedge_{i} 15 < x_i < 25$ 
-%(the reachability of $\neg\mathit{safe}$ unsat)
-%and $\mathit{safe} = \wedge_{i} 19 < x_i < 21$ 
-%(the reachability of $\neg\mathit{safe}$ sat).
-%We have also performed 
-%inductive analysis 
-%to verify that the property $\mathit{safe} = \wedge_{i} 11 < x_i < 29$
-%holds at the end $\tau > 0.99$ of each period.
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=0.8] %baseline=(current bounding box.north)
+%room1
+\filldraw (0,-0.6) rectangle  + (-0.08,0.6)
+	(0,0) rectangle  + (-3,0.08)
+	(-3,0.08) rectangle  + (-0.08,-2.0)
+	(-3.08,-2.0) rectangle  + (3,0.08)
+	(0,-2.0) rectangle  + (-0.08,0.6);
+\path (-2.5,-1.5) node[draw] { $H_0$};
+\draw[dashed] (0,-0.6) -- (0,-2);
+%room2
+\filldraw (0,0) rectangle  + (3.5,0.08)
+	(3.5,0.08) rectangle  + (-0.08,-2.0)
+	(3.5,-2.0) rectangle  + (-3.5,0.08);
+\path (2.9,-1.5) node[draw] (m2){ $H_1$};
+%door
+\draw (0,-0.6) rectangle +(-0.7,-0.05);
+\draw (-0.7,-0.7) arc (180:270:0.7);
+\end{tikzpicture}
+\caption{Two interconnected rooms. %  by an open door.
+} \label{fig:adj-rooms}
+\end{figure}
+
+We consider the cases of networks of two and three thermostats
+with the parameters
+$K_1 = 0.015$, 
+$K_2 = 0.045$, 
+$K_3 = 0.03$, 
+$h_1 = 100$,
+$h_2 = 200$,
+$h_3 = 300$,
+$k_{1,2} = k_{2,1} = 0.01$,
+$k_{2,3} = k_{3,2} = 0.05$,
+$k_{1,3} = k_{3,1} = 0.02$,
+$T_{\min} = T_{\max} = 20$,
+and the initial condition $\wedge_{i} 19 < x_i < 21$.
+We have performed bounded model checking up to $k = 5$
+for $\mathit{safe} = \wedge_{i} 15 < x_i < 25$ 
+(the reachability of $\neg\mathit{safe}$ unsat)
+and $\mathit{safe} = \wedge_{i} 19 < x_i < 21$ 
+(the reachability of $\neg\mathit{safe}$ sat).
+We have also performed 
+inductive analysis 
+to verify that the property $\mathit{safe} = \wedge_{i} 11 < x_i < 29$
+holds at the end $\tau > 0.99$ of each period.
 
 
-%The parallel composition
-%is the hybrid automaton
-%$H_1 \parallel H_2 = (X, Q, \{\alpha\}, \mathit{init}, \mathit{inv}, \mathit{flow}_i, \mathit{jump}_i)$, where:
-%\begin{itemize}
-%	\item $X = \{x_0, x_1, \tau\}$, with the shared timer variable $\tau$,
-%	\item $Q = \{(m_0, m_1) \mid m_0, m_1 \in \{m_\texttt{on}, m_\texttt{off}\}\}$,
-%	\item $\mathit{init} = \{((m_0,m_1), (v_0, v_1, 0)) \in Q \times \mathbb{R}^3 \mid 19 < x_0, x_1 < 21 \}
-%	\item $\mathit{inv}(m_0,m_1) = \{(v_0, v_1, t) \in \mathbb{R}^3 \mid 0 \leq t \leq 1\}$,
-%	\item $(f_0, f_1, f_\tau) \in \mathit{flow}(m_0, m_1)$ iff 
-%	for $i = 0,1$,
-%	$\dot{f_i} = \mathit{flow}_\texttt{on}^i(x_i, x_{1-1})$
-%	if $m_i = m_\texttt{on}$,
-%	$\dot{f_i} = \mathit{flow}_\texttt{off}^i(x_i, x_{1-1})$
-%	if $m_i = m_\texttt{off}$, 
-%	and 	$\dot{f_\tau} = 1$, and
-%	\item $((m_1,m_1), (v_0, v_1, 1)) \xrightarrow{\alpha} ((m_1',m_2'), (v_0, v_1, 0)) \in \mathit{jump}$ 
-%	holds, where
-%	for each $i \in \{0,1\}$,
-%	$m_i' = \ite{v_i \leq 20}{m_\texttt{on}}{m_\texttt{off}}$.
-%\end{itemize}
 
+%\subsection{Quadrotor Attitude Controller}
+%\label{sec:quadrotor}
+%..
 
-\subsection{Automated Highway System}
+%\subsection{Steam Boiler Controller}
+%...
 
+%\subsection{Automated Highway System}
+%...
+
+\subsection{Comparison}
 
 ...
 

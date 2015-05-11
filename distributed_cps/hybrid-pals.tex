@@ -359,9 +359,9 @@ from one state at time $iT - \epsilon$ to another state at time $(i+1)T-\epsilon
 Hybrid PALS maps a hybrid multirate ensemble
 $\mathcal{E}\restriction_{\Pi} E_\mathcal{E}$ with a global period $T$, 
 together with PALS bounds $\Gamma$,  to the distributed hybrid system  
-$\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
+$\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
 Similarly, its  behaviors are the subset of those of the %PALS
-distributed system $\MA(\mathcal{E}, T, \Gamma)$ that can be realized
+distributed system $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ that can be realized
 by the %physical 
 environment $E_\mathcal{E}$
 and satisfy the time-invariant constraints.
@@ -372,12 +372,12 @@ defined for the interval $[iT - \epsilon, (i+1)T-\epsilon]$
 
 The correctness of Hybrid PALS follows from the fact that 
 all physical measurements and physical activation \emph{happen at the same time}
-in both $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$  and $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$ with the \emph{same timing policies} $\Pi$.
+in both $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$  and $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$ with the \emph{same timing policies} $\Pi$.
 %(see Definition~\ref{def:env-res}).
 %
-Recall that stable states of $\MA(\mathcal{E}, T, \Gamma)$ are states at times $iT - \epsilon$.
+Recall that stable states of $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ are states at times $iT - \epsilon$.
 Hence,  big-step ``stable'' transitions are well defined for 
-$\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+$\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
 from $iT - \epsilon$ to $(i+1)T-\epsilon$,
 which are exactly related to single steps of the synchronous composition 
 $M_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}$ (by the same relation $(\sim_\mathit{obi} \,;\, \mathit{sync})$ in Theorem~\ref{thm:mr-pals}).
@@ -388,124 +388,10 @@ Consequently, we have:
 The relation $(\sim_\mathit{obi} \,;\, \mathit{sync})$ 
 is a bisimulation between 
 the transition system by $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
-and the big-step stable transition system induced by $\MA(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
+and the big-step stable transition system induced by $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
 \end{theorem}
 
 
 
 
-
-\subsection{Example: Turning an Airplane}
-
-We consider a distributed hierarchical CPS
-to control the turning maneuver of an airplane (adapted from \cite{ftscs-journal}).
-%in which a \emph{main controller} directs \emph{subcontrollers} for the ailerons and the rudder in a synchronous way.
-%
-To make a turn, an aircraft rolls towards the direction of the turn
-by moving its ailerons (surfaces attached to the end of the wings).
-The rolling causes 
-a yawing moment in the opposite direction, called \emph{adverse yaw},
-countered by using its rudder (a surface attached to the vertical stabilizer).
-%
-The \emph{subcontrollers} for the ailerons and the rudder operate at different rates, 
-and the \emph{main controller} orchestrates them to achieve a coordinated turn.
-
-
-
-\begin{figure}
-\centering
-\tikzstyle{comp}=[draw,thick,rounded corners=4pt,text centered]
-\tikzstyle{env}=[draw,dashed,rounded corners=8pt,text centered]
-\tikzstyle{conn}=[thick,-latex,font=\scriptsize]
-\tikzstyle{envconn}=[very thin,-open triangle 45,font=\scriptsize]
-\begin{tikzpicture}[scale=0.9,every node/.style={transform shape},font=\footnotesize]
-%components
-\node (main) [comp,text width=8ex,minimum height=13ex] {{Main} ($60\, \mathrm{ms}$, $\mathit{rate}$ = $1$)}; 
-\path (main.east) + (16ex,8ex) node (left) [comp,text width=14ex] {{Left aileron} ($15\,\mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
-\path (main.east) + (16ex,1.3ex) node (vert) [comp,text width=14ex] {{Rudder}\\ ($20\, \mathrm{ms}$, $\mathit{rate}$ = $3$)}; 
-\path (main.east |- main.-48) + (16ex,0ex) node (right) [comp,text width=14ex] {{Right aileron} ($15\,\mathrm{ms}$, $\mathit{rate}$ = $4$)}; 
-%comp connections
-\draw [conn,latex-] (main.west |- main.north) + (3ex,0)-- node{ }+(3ex,2ex) node[above] {$\mathit{goal}_\psi$};
-\draw [conn] (main.east |- main.north) + (-3ex,0)-- node{ }+(-3ex,2ex) node[above] {$\psi$};
-\draw[conn] ($(main.48)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_L$} ($(left.west |- left)+(0,0.5ex)$);
-\draw[conn] ($(left.west |- left)+(0,-0.5ex)$) -- node[below,sloped] {$v_L$} ($(main.48)+(0,-0.5ex)$);
-\draw[conn] ($(main.east)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_V$} ($(vert.west |- vert)+(0,0.5ex)$);
-\draw[conn] ($(vert.west |- vert)+(0,-0.5ex)$) -- node[below,sloped] {$v_V$} ($(main.east)+(0,-0.5ex)$);
-\draw[conn] ($(main.-48)+(0,0.5ex)$) -- node[above,sloped] {$\mathit{goal}_R$} ($(right.west |- right)+(0,0.5ex)$);
-\draw[conn] ($(right.west |- right)+(0,-0.5ex)$) -- node[below,sloped] {$v_R$} ($(main.-48)+(0,-0.5ex)$);
-%physical envs
-\path (main.west) + (-8ex,0ex) node (main-env) [env,text width=6ex,minimum height=13ex] {$E_\mathit{Main}$}; 
-\path (left.east) + (12ex,0ex) node (left-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Left}$}; 
-\path (vert.east) + (12ex,0ex) node (vert-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Rudder}$}; 
-\path (right.east) + (12ex,0ex) node (right-env) [env,text width=7ex,minimum height=5ex] {$E_\mathit{Right}$}; 
-%physical env conns
-\draw[envconn] ($(main-env.east)+(0,4.5ex)$) -- node[above] {$\psi$} ($(main.west |- main-env)+(0,4.5ex)$);
-\draw[envconn] (main-env.east) -- node[above] {$\phi$} (main.west);
-\draw[envconn] ($(main-env.east)+(0,-4.5ex)$) -- node[above] {$\beta$} ($(main.west |- main-env)+(0,-4.5ex)$);
-\draw[envconn] ($(left.east |- left-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_L$} ($(left-env.west |- left-env)+(0,0.5ex)$);
-\draw[envconn] ($(left-env.west |- left-env)+(0,-0.5ex)$) -- node[below] {$\alpha_L$} ($(left.east |- left-env)+(0,-0.5ex)$);
-\draw[envconn] ($(vert.east |- vert-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_\mathit{V}$} ($(vert-env.west |- vert-env)+(0,0.5ex)$);
-\draw[envconn] ($(vert-env.west |- vert-env)+(0,-0.5ex)$) -- node[below] {$\alpha_V$} ($(vert.east |- vert-env)+(0,-0.5ex)$);
-\draw[envconn] ($(right.east |- right-env)+(0,0.5ex)$) -- node[above] {$\mathit{rate}_\mathit{R}$} ($(right-env.west |- right-env)+(0,0.5ex)$);
-\draw[envconn] ($(right-env.west |- right-env)+(0,-0.5ex)$) -- node[below] {$\alpha_R$} ($(right.east |- right-env)+(0,-0.5ex)$);
-\end{tikzpicture}
-\caption{The distributed controllers for turning an airplane.} \label{fig:airplane-ctrl}
-\end{figure}
-
-
-Fig.~\ref{fig:airplane-ctrl} illustrates the multirate ensemble $\mathcal{E}$ of our system.
-Each subcontroller $M$ gradually moves its surface towards the goal angle $\mathit{goal}_M$ specified by the main controller $M_\mathit{Main}$.
-For each period, $M$ receives $\mathit{goal}_M$ from $M_\mathit{Main}$,
-determines the moving rate $\mathit{rate}_M$ based on $\mathit{goal}_M$ 
-and the current sampled value $v_M$ of the surface angle $\alpha_M$,
-and sends back $v_M$ to $M_\mathit{Main}$.
-The continuous dynamics of $\alpha_M$ is given 
-by the local physical environment $E_M$
-as the ODE $\frac{\mathrm{d}\alpha_M}{\mathrm{d}t} = \mathit{rate}_M$.
-%\footnote{$E_M$ is the controlled physical environment $E_M = (\mathbb{R}, \alpha_M, \Lambda_M)$
-%with $((\mathit{rate}_M,T,v_M),\tau) \in \Lambda_M$ iff 
-%$\tau(t) = v_M + \int_0^t  \mathit{rate}_M \,\mathrm{d}t$ for $t \in [0, T]$.
-%}
-
-The main controller $M_\mathit{Main}$ determines the goal angles for the subcontrollers to make a coordinated turn.
-For each period, $M_\mathit{Main}$ receives a  desired direction $\mathit{goal}_\psi$ %of the airplane 
-(from the pilot)
-and the surface angles $(v_L, v_V, v_R)$ from the subcontrollers, 
-and then sends back the new goal angles $(\mathit{goal}_L,\mathit{goal}_V,\mathit{goal}_R)$,
-%to the subcontrollers,
-based on the current sampled values of  the direction angle $\psi$, the roll angle $\phi$, and the yaw angle $\beta$.
-
-In the physical environment $E_\mathit{Main}$,
-the lateral dynamics of an aircraft
-can be specified as the following nonlinear ODEs,
-where $p$ is the rolling moment, $r$ is the yawing moment,
-and $Y_{\delta_L,\delta_V,\delta_R,\beta}$, $L_{\delta_L,\delta_V,\delta_R,\beta}$, and $N_{\delta_L,\delta_V,\delta_R,\beta}$
-are (linear) functions of the control angles $(\delta_L,\delta_V,\delta_R)$ 
-%for the ailerons and the rudder
-and $\beta$
-%respectively denoting  the coefficients of side force, rolling moment, and yawing moment.
-\cite{stevens2003aircraft}:
-%
-\begin{align*}
-\dot{\beta} &= Y_{\delta_L,\delta_V,\delta_R,\beta} / m V - r + (V / g) \cos \beta \sin \phi,
-\\
-\dot{\phi} &= p,
-\qquad\qquad\qquad\qquad
-\dot{\psi} = (g / V) \tan \phi,
-\\
-\dot{p} &= (c_1 r + c_2 p) \cdot r  \tan \phi + c_3 L_{\delta_L,\delta_V,\delta_R,\beta} + c_4 N_{\delta_L,\delta_V,\delta_R,\beta},
-\\
-\dot{r} &= (c_8 p - c_2 r)  \cdot r  \tan \phi + c_4 L_{\delta_L,\delta_V,\delta_R,\beta} + c_9 N_{\delta_L,\delta_V,\delta_R,\beta}.
-\end{align*}
-%
-
-
-The physical environment $E_\mathit{Main}$ clearly depends on the subcontrollers's physical environments.
-Each control angle $\delta_M$ in  $E_\mathit{Main}$ must be the same as the corresponding surface angle $\alpha_M$.
-Such  immediate physical correlations between the local environments are specified by the time-invariant constraint
-%
-$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
-%
-The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
-along with appropriate  sampling and response timing policies $\Pi$.
 
