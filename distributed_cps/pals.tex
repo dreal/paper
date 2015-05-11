@@ -112,12 +112,12 @@ is the machine given by the outer box.
 \subsection{PALS Distributed  Real-Time Models}
 \label{pals-dist}
 
-Each component in the  distributed model $\MA(\mathcal{E}, T, \Gamma)$
+Each component in the  distributed model $\mathcal{MA}(\mathcal{E}, T, \Gamma)$
 is composed of a machine in $\mathcal{E}$ and \emph{wrappers} around it, as illustrated in Fig.~\ref{fig:wrappers}.
 %The outermost wrapper  is  the PALS wrapper, which encloses an input adaptor wrapper, 
 %which  encloses either a (slow) machine or a $k$-machine wrapper, 
 %which encloses a  (fast) machine. 
-In $\MA(\mathcal{E}, T, \Gamma)$,
+In $\mathcal{MA}(\mathcal{E}, T, \Gamma)$,
 an innermost machine performs at its own rate according to its local clock
 that deviates by less than $\epsilon$ from the global  clock.
 At the beginning of its periods, it reads its input from the layer above, 
@@ -169,7 +169,7 @@ at each fast period $T/ k$, and
 
 
 
-A fast machine $M_f$ %in $\MA(\mathcal{E}, T, \Gamma)$ 
+A fast machine $M_f$ %in $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ 
 may \emph{not} be able to finish 
 all of its $k$ internal transitions in a global  round
  \emph{before} the outputs must be sent to arrive before %the beginning of 
@@ -218,7 +218,7 @@ $v_{k'+1}, \ldots, v_k$ in a $k$-tuple $(v_1, \ldots,  v_k)$.
 \draw [very thick] (5.7, 0.05) -- (6.0, 0.05); \draw (5.75, -0.1) --(5.75, 0.2);
 
 \end{tikzpicture}
-\caption{Timeline for $\MA(\mathcal{E}, T, \Gamma)$ ($k=4$ and $k' = 3$).
+\caption{Timeline for $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ ($k=4$ and $k' = 3$).
 Diagonal arrows denote network transmission and short horizontal lines denote the execution.
 The dotted arrow illustrates that the outputs can arrive after the beginning of the next round 
 %for the slow component 
@@ -231,19 +231,19 @@ if the fast machine waits until all its transitions are finished.
 
 \subsection{Relating the Synchronous and Distributed Models}
 
-In a distributed real-time model $\MA(\mathcal{E}, T, \Gamma)$,
+In a distributed real-time model $\mathcal{MA}(\mathcal{E}, T, \Gamma)$,
 network transmission can happen only in between  $(iT+\epsilon, (i+1)T-\epsilon)$
 for each $i$-th period, as depicted in Fig.~\ref{fig:mr-timeline}.
 Therefore, at each time $iT - \epsilon$, all the input buffers of the PALS wrappers are full, 
 and all the other input and output buffers are empty.
-A \emph{stable state} of the distributed model $\MA(\mathcal{E}, T, \Gamma)$
+A \emph{stable state} of the distributed model $\mathcal{MA}(\mathcal{E}, T, \Gamma)$
 is a snapshot of the system at each time $iT - \epsilon$,
-just before the components in $\MA(\mathcal{E}, T, \Gamma)$ 
+just before the components in $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ 
 start performing local machine transitions \cite{pals-tcs}.
 
 
 
-\emph{Big-step} transitions are defined between two stable states of $\MA(\mathcal{E}, T, \Gamma)$,
+\emph{Big-step} transitions are defined between two stable states of $\mathcal{MA}(\mathcal{E}, T, \Gamma)$,
 and they are related to single steps of the synchronous composition $M_{\mathcal{E}}$.
 %
 There exists a function $\mathit{sync}$ 
@@ -259,7 +259,7 @@ distinguished by input adaptors.
 The relation $(\sim_\mathit{obi} \,;\, \mathit{sync})$ 
 is a bisimulation between 
 the transition system induced by $M_{\mathcal{E}}$
-and the big-step stable transition system induced by $\MA(\mathcal{E}, T, \Gamma)$.
+and the big-step stable transition system induced by $\mathcal{MA}(\mathcal{E}, T, \Gamma)$.
 \end{theorem}
 
 
