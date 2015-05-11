@@ -3,4 +3,8 @@
 \section{Concluding Remarks}
 \label{sec:concl}
 
-..
+We have presented Hybrid PALS to reduce the system complexity of distributed cyber-physical systems,
+shows a bisimulation equivalence relating a distributed hybrid PALS model and its underlying synchronous model. 
+We have shown that formal analysis problems of hybrid PALS models can be effectively expressed as SMT formulas.
+We have presented an extended logical theory for distributed hybrid systems and provided an SMT decision procedure that involves no extra cost.
+We have implemented these techniques in the dReal SMT solver. Our experiments have shown that our techniques dramatically increase the performance of SMT analysis for distributed hybrid systems with multiple control modes and nonlinear ODEs up to precision $\delta$.

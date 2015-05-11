@@ -11,8 +11,9 @@
 %single-rate virtually synchronous distributed real-time systems \cite{pals-rtss09,pals-tcs},
 %and then extended for multirate systems \cite{mr-pals-journal,al2012pattern} and hybrid systems \cite{ftscs-journal,hybrid-pals}.
 
-\textbf{hybrid automata techniques}, not appropriate for hybrid PALS models, 
-since they are basically time triggered models, which are not perfectly synchronized due to clock skews.
+Hybrid automata techniques are not appropriate for hybrid PALS models.
+Hybrid PALS models are basically time triggered models, which are not perfectly synchronized due to clock skews,
+whereas composing hybrid automata requires perfect synchronization of several events.
 
 SMT-based approach is a relatively new direction for nonlinear hybrid
 system verification, because of the difficulty of handling SMT
@@ -27,7 +28,7 @@ and the MathSAT
 solver~\cite{DBLP:conf/aaai/CimattiMT12,DBLP:conf/fmcad/CimattiMT12}.
 But efficient encoding of networks of hybrid systems has not been
 investigated in existing work along these lines. 
-%
+
 On the other hand,
 for reachable set computation, 
 %the work on 
@@ -48,14 +49,7 @@ to generate many small SMT formulas for these paths.
 
 
 
-Multirate PALS ?? ( Abdullah's work, other synchronizer, virtually synchronization, ...)
-
-Hybrid automata? 
-
-Approximation of hybrid systems?
-
-SMT and \texttt{dReal} ??
-
-$d\mathcal{L}$ and deductive methods ??
+%Multirate PALS ?? ( Abdullah's work, other synchronizer, virtually synchronization, ...)
+%SMT and \texttt{dReal} ??
 
 
