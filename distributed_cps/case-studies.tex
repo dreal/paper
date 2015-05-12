@@ -140,16 +140,16 @@ by three control functions \cite{ftscs-journal}:
 	\item $f_V(v_\beta)$ returns the goal rudder angle $\mathit{goal}_V$.
 	%based on the sampled yaw angle $v_\beta$. % (the goal yaw angle is $0^\circ$).
 \end{inparaenum}
-For example, for $h = 0.32 \cdot (\mathit{g}_\psi - d)$:
+For example, for $h = 0.32  (\mathit{g}_\psi - v_\psi)$:
 \begin{align*}
-f_\phi(l, d, \mathit{g}_\psi) &= 
-l + \sign(h - l) \cdot \min(\abs(h - l),1.5),
+f_\phi(v_\phi, v_\psi, g_\psi) &= 
+v_\phi + \sign(h - v_\phi) \cdot \min(\abs(h - v_\phi),1.5)
 \\
-f_{R}(l, \mathit{g}_\phi) &=
-\sign(\mathit{g}_\phi - l)\cdot \min(0.3 \cdot \abs(\mathit{g}_\phi - l), 45)),
+f_{R}(v_\phi, g_\phi) &=
+\sign(\mathit{g}_\phi - v_\phi)\cdot \min(0.3 \,\abs(\mathit{g}_\phi - v_\phi), 45))
 \\
-f_V(y) &=
-\sign(-y)\cdot \min(0.3 \cdot \abs(y), 30).
+f_V(v_\beta) &=
+\sign(-v_\beta)\cdot \min(0.3  \,\abs(v_\beta), 30).
 \end{align*}
 
 In the physical environment $E_\mathit{Main}$,
@@ -179,19 +179,43 @@ and $\beta$
 
 The physical environment $E_\mathit{Main}$ clearly depends on the subcontrollers's physical environments.
 Each control angle $\delta_M$ in  $E_\mathit{Main}$ must be the same as the corresponding surface angle $\alpha_M$.
-Such  immediate physical correlations between the local environments are specified by the time-invariant constraint
 %
-$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
+Such  immediate physical correlations between the local %physical 
+environments are specified by the time-invariant constraint
 %
+\[\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t)).
+\]
+Notice that the main controller and the subcontrollers have \emph{different periods with local clock skews},
+the ODEs of the subcontrollers cannot be directly ``plugged'' into $E_\mathit{Main}$.
 The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
 along with appropriate  sampling and response timing policies $\Pi$.
 
 The safety property of $\mathcal{E}$ 
-is that 
-the yaw angle $\beta$ is always close to $0^\circ$.
-
-
-
+is that the yaw angle $\beta$ is always close to $0$ (e.g., $\forall t.\; \beta(t) < 0.1$).
+In the analysis,
+we assume that the maximal clock skew is $\epsilon = 0.1\,\mathrm{ms}$,
+the sampling time $t_I$ is $1\,\mathrm{ms}$ for every controller,
+and the response time $t_R$ is always $10\,\mathrm{ms}$ for the main controller
+and $3\,\mathrm{ms}$ for the subcontrollers.
+To verify the safety property $\forall t.\; \beta(t) < 0.1$ (without any time bound), 
+we consider the simple inductive condition $\Psi(\vec{z})$ with $\vec{z} = (\beta,\psi,p,r)$:
+\[
+|\beta| < 0.1
+\;\wedge\;
+|\psi| < 0.8
+\;\wedge\;
+|p| < 1
+\;\wedge\;
+|r| < 1.
+\]
+We have proved that $(\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'})) \rightarrow \Psi(\vec{z'})$
+and  $\Psi(\vec{z}) \rightarrow (\forall t \in [0,T].\; \beta(t) < 0.1)$ hold
+using \textsf{dReach} by checking the unsatisfiability of their negated formulas.%
+\footnote{That is,
+ $\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'}) \wedge \neg \Psi(\vec{z'})$ and $\Psi(\vec{z}) \wedge \beta(t) \geq 0.1$.}
+ \marginpar{TO BE DONE}
+As a consequence, the safety property $\forall t.\; \beta(t) < 0.1$
+holds from any initial state satisfying $\Psi(\vec{z})$ for any local clocks.
 
 
 
@@ -216,10 +240,8 @@ where $A_i, q_i, a $ are constants determined by the size of the tank, the power
 and the width of the pipe,
 and $g$ is the standard gravity constant ($x_0 = 0$ for the leftmost tank $1$).
 %
-There is also a shared timer variable $\tau$ 
-with the flow condition $\dot{\tau} = 1$.
-Every pipe controller synchronously performs its discrete transitions:
-for each second, 
+Every pipe controller performs its discrete transitions according to its local clock:
+for each period, 
 the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
 
 \begin{figure}
@@ -337,7 +359,9 @@ inductive analysis
 to verify that the property $\mathit{safe} = \wedge_{i} 11 < x_i < 29$
 holds at the end $\tau > 0.99$ of each period.
 
+\subsection{Automated Highway System}
 
+...
 
 %\subsection{Quadrotor Attitude Controller}
 %\label{sec:quadrotor}
@@ -346,8 +370,7 @@ holds at the end $\tau > 0.99$ of each period.
 %\subsection{Steam Boiler Controller}
 %...
 
-%\subsection{Automated Highway System}
-%...
+
 
 \subsection{Comparison}
 
