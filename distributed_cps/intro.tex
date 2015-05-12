@@ -3,159 +3,309 @@
 
 \section{Introduction}
 
-
-%Virtually synchronous CPS, such as airplanes and cars, 
-%are implemented as a network of distributed devices designed in a synchronous way.
-\emph{Virtually synchronous} cyber physical systems (CPS)
-consist of a number of distributed controllers that should logically act together in a synchronous way. 
-The devices may operate at different frequencies, but the communication happens at their hyper-period boundary
-(e.g., avionics, aerospace,  automotive, robotics, etc). 
-The design and analysis of such systems is very hard because of race conditions, clock skews, network delays, and execution times. % in addition to the usual difficulties for non-distributed CPS.
-For this reason, 
-the PALS (physically asynchronous logically synchronous) methodology
+%% Paragraph 1
+\emph{Virtually synchronous} distributed real-time systems consist of
+a number of \emph{distributed} controllers that should logically
+behave in a synchronous way. [[The devices may operate at different
+frequencies, but  communication happens at their hyper-period
+boundary.]] Designing and analyzing  such systems is very hard because
+of race conditions, clock skews, network delays, execution times, and
+the state space explosion caused by the interleavings. To overcome
+these problems, 
+the \emph{PALS} (physically asynchronous logically synchronous) methodology
 \cite{pals-rtss09,mr-pals-journal,pals-tcs,al2012pattern} has been
-developed to reduce the system complexity of a virtually  synchronous CPS,
-provided that the network infrastructure gives \emph{performance bounds}
+developed to reduce the design and verification of a virtually
+synchronous distributed real-time system to the much simpler task  of designing and
+verifying the underlying \emph{synchronous} models,
+provided that the  infrastructure can guarantee bounds
 on computation times, network delays, and imprecisions of the local clocks.
 
+
+
+
+% %OLD paragraph 1:
+% %Virtually synchronous CPS, such as airplanes and cars, 
+% %are implemented as a network of distributed devices designed in a synchronous way.
+% \emph{Virtually synchronous} cyber physical systems (CPS)
+% consist of a number of distributed controllers that should logically act together in a synchronous way. 
+% The devices may operate at different frequencies, but the communication happens at their hyper-period boundary
+% (e.g., avionics, aerospace,  automotive, robotics, etc). 
+% The design and analysis of such systems is very hard because of race conditions, clock skews, network delays, and execution times. % in addition to the usual difficulties for non-distributed CPS.
+% For this reason, 
+% the PALS (physically asynchronous logically synchronous) methodology
+% \cite{pals-rtss09,mr-pals-journal,pals-tcs,al2012pattern} has been
+% developed to reduce the system complexity of a virtually  synchronous CPS,
+% provided that the network infrastructure gives \emph{performance bounds}
+% on computation times, network delays, and imprecisions of the local clocks.
+
+
+%% New paragraph 2:
 In this paper
-we present \emph{Hybrid PALS} that extends the PALS methodology 
-to virtually synchronous CPS given by \emph{distributed hybrid systems}.
-The devices also interact with their local \emph{physical environments},
-with continuous dynamics specified by using ordinary differential equations (ODE).
-We show that there exists a \emph{bisimulation equivalence} relating
+we present \emph{Hybrid PALS} that extends  PALS 
+to the important class of virtually synchronous \emph{cyber-physical
+  systems} (CPSs)---where controllers also interact with their local \emph{physical environments},
+whose \emph{continuous dynamics} can be  specified by using ordinary
+differential equations (ODE)---which includes avionics, automotive, robotics, and medical systems. 
+We prove a \emph{bisimulation equivalence} relating
 distributed hybrid systems and their underlying synchronous models.
-This means that the design and analysis of distributed hybrid systems
-can be reduced to  those of the synchronous models.
+%This means that the design and analysis of distributed hybrid systems
+%can be reduced to  those of the synchronous models.
 %
-Hybrid PALS was first proposed in \cite{hybrid-pals}, but 
-the work imposes strong stringent conditions on sampling and response timings
-of sensors and actuators. Moreover, \cite{hybrid-pals} does not show
-a bisimulation equivalence (but only a trace equivalence). % between a synchronous model and a distributed hybrid model. 
+The initial steps towards a hybrid extension of PALS were taken
+in~\cite{hybrid-pals}. However, 
+that work imposes strong  conditions on sampling and response times
+of sensors and actuators, and, furthermore,  does not give 
+a bisimulation equivalence. % (but only a trace equivalence). % between a synchronous model and a distributed hybrid model. 
 
 
 
+% %% OLD paragraph 2:
+% In this paper
+% we present \emph{Hybrid PALS} that extends the PALS methodology 
+% to virtually synchronous CPS given by \emph{distributed hybrid systems}.
+% The devices also interact with their local \emph{physical environments},
+% with continuous dynamics specified by using ordinary differential equations (ODE).
+% We show that there exists a \emph{bisimulation equivalence} relating
+% distributed hybrid systems and their underlying synchronous models.
+% This means that the design and analysis of distributed hybrid systems
+% can be reduced to  those of the synchronous models.
+% %
+% Hybrid PALS was first proposed in \cite{hybrid-pals}, but 
+% the work imposes strong stringent conditions on sampling and response timings
+% of sensors and actuators. Moreover, \cite{hybrid-pals} does not show
+% a bisimulation equivalence (but only a trace equivalence). % between a synchronous model and a distributed hybrid model. 
 
-However, 
-formal analysis of virtually synchronous CPS with continuous dynamics is still very difficult.
-Inputs or parameters of CPS can be any real numbers in a certain bound.
-Different components will read their physical values at possibly different times 
-according to their local clocks. 
-The continuous dynamics of CPS often involves 
+
+%% NEW paragraph 3:
+Verifying the synchronous Hybrid PALS models is still challenging:
+inputs and parameter values can be any real number in certain
+intervals; different components  read their physical values and give
+actuator commands at  different times 
+because of  local clock skews, and these timings cannot be abstracted
+away; and the continuous dynamics  often involves 
 \emph{nonlinear} ODEs
-which may not provide exact solutions in general.
+which in general may not have exact solutions.
 %Numerical simulations of ODEs cannot verify the correctness of the system.
-Although the 
-PALS methodology 
-can greatly reduce the analysis effort 
-caused by distributed real-time systems,
-the difficulties raised by distributed hybrid systems
-cannot be removed without using low-quality approximation on ODEs and local clocks.
+% Although the 
+% PALS methodology 
+% can greatly reduce the analysis effort 
+% caused by distributed real-time systems,
+% the difficulties raised by distributed hybrid systems
+% cannot be removed without using low-quality approximation on ODEs and local clocks.
 %which prevents to precisely analyze such hybrid systems.
 
 
 
-We present symbolic techniques using SMT solving to analyze 
-distributed CPS along with PALS.
-%An SMT (satisfiability modulo theories) problem is to check the satisfiability of first-order formulas with respect to certain decidable logical theories
-Formal analysis problems of distributed CPS, 
-involving nonlinear ODEs and clock skews, 
-are reduced to the satisfaction of SMT formulas over the real numbers and ODEs.
-%
-The satisfiability problem
-(generally undecidable)
- is decidable up to any given precision $\delta > 0$ \cite{delta-comp,sat-ode}.
-The number $\delta$, provided by the user, 
-is the bound on numerical errors that is tolerable in the analysis.
-By this approach, 
-we can apply state-of-the-art SMT techniques that are %proven to be 
+% %%OLD paragraph 3:
+% However, 
+% formal analysis of virtually synchronous CPS with continuous dynamics is still very difficult.
+% Inputs or parameters of CPS can be any real numbers in a certain bound.
+% Different components will read their physical values at possibly different times 
+% according to their local clocks. 
+% The continuous dynamics of CPS often involves 
+% \emph{nonlinear} ODEs
+% which may not provide exact solutions in general.
+% %Numerical simulations of ODEs cannot verify the correctness of the system.
+% Although the 
+% PALS methodology 
+% can greatly reduce the analysis effort 
+% caused by distributed real-time systems,
+% the difficulties raised by distributed hybrid systems
+% cannot be removed without using low-quality approximation on ODEs and local clocks.
+% %which prevents to precisely analyze such hybrid systems.
+
+%%% Polished paragraph 4:
+This paper presents SMT solving techniques to address the challenges
+of analyzing Hybrid PALS models of CPSs, where the formal analysis of
+a distributed CPS involving ODEs and clock skews is reduced to
+checking the satisfiability of SMT formulas over real numbers and ODEs.
+This  satisfiability problem
+ is decidable up to any user-given precision $\delta > 0$ \cite{delta-comp,sat-ode}.
+%The number $\delta$, provided by the user, 
+%is the bound on numerical errors that is tolerable in the analysis.
+[[In this way, 
+we can apply state-of-the-art SMT solving techniques that are %proven to be 
 effective for analyzing \emph{discrete} controllers,
 %combined with $\delta$-complete decision procedures
-while precisely analyzing
-the continuous dynamics of CPS
-in a robust way under I/O sampling or timing jitters %numerical perturbations 
-by $\delta$.
+while  analyzing
+the continuous dynamics of a CPS up to precision $\delta$.]] 
 
 
-One obstacle to SMT-based methods is 
-that it is not scalable for distributed hybrid systems with nonlinear ODEs.
+%%% OLD Paragraph 4
+% We present symbolic techniques using SMT solving to analyze 
+% distributed CPS along with PALS.
+% %An SMT (satisfiability modulo theories) problem is to check the satisfiability of first-order formulas with respect to certain decidable logical theories
+% Formal analysis problems of distributed CPS, 
+% involving nonlinear ODEs and clock skews, 
+% are reduced to the satisfaction of SMT formulas over the real numbers and ODEs.
+% %
+% The satisfiability problem
+% (generally undecidable)
+%  is decidable up to any given precision $\delta > 0$ \cite{delta-comp,sat-ode}.
+% The number $\delta$, provided by the user, 
+% is the bound on numerical errors that is tolerable in the analysis.
+% By this approach, 
+% we can apply state-of-the-art SMT techniques that are %proven to be 
+% effective for analyzing \emph{discrete} controllers,
+% %combined with $\delta$-complete decision procedures
+% while precisely analyzing
+% the continuous dynamics of CPS
+% in a robust way under I/O sampling or timing jitters %numerical perturbations 
+% by $\delta$.
+
+%%% Polished Paragraph 5:
+One problem with  SMT-based methods is 
+that they do not scale well for distributed hybrid systems with nonlinear ODEs.
 %The number of physical variables considered is usually less than dozens, 
 %and the temporal bound is typically less than hundreds. 
 We cope with this scalability problem as follows.
-First, the discrete part and the continuous part of the system are separately encoded in SMT, 
-so that ODEs are considered \emph{only after} the discrete part of the system is fully analyzed.
-Second, inductive SMT analysis, besides bounded reachability, is used to verify safety properties of distributed CPS for unbounded time.
-Third, compositional SMT analysis is used to analysis each part of distributed CPS by a divided-and-conquer approach. % an arbitrary number of components. 
+First, the discrete part and the continuous part of the system are
+encoded separately, 
+so that ODEs are considered \emph{only after} the discrete part of the
+system has been  fully analyzed.
+Second, in addition to bounded reachability analysis, \emph{inductive}
+SMT analysis is used to verify safety properties,  without any time
+bound. 
+Third, compositional SMT analysis is used to analyze each part of a
+distributed CPS by a divided-and-conquer approach. % an arbitrary
+                                % number of components.  
 %These methods are readily available for distributed CPS by simplifying the analysis problem using the PALS methodology. 
 %Without PALS, finding appropriate inductive or compositional conditions would be very difficult for distributed CPS.
 
+%%% OLD paragraph 5:
+% One obstacle to SMT-based methods is 
+% that it is not scalable for distributed hybrid systems with nonlinear ODEs.
+% %The number of physical variables considered is usually less than dozens, 
+% %and the temporal bound is typically less than hundreds. 
+% We cope with this scalability problem as follows.
+% First, the discrete part and the continuous part of the system are separately encoded in SMT, 
+% so that ODEs are considered \emph{only after} the discrete part of the system is fully analyzed.
+% Second, inductive SMT analysis, besides bounded reachability, is used to verify safety properties of distributed CPS for unbounded time.
+% Third, compositional SMT analysis is used to analysis each part of distributed CPS by a divided-and-conquer approach. % an arbitrary number of components. 
+% %These methods are readily available for distributed CPS by simplifying the analysis problem using the PALS methodology. 
+% %Without PALS, finding appropriate inductive or compositional conditions would be very difficult for distributed CPS.
 
 
-
-Another  obstacle %to this approach 
-is that  SMT-based analysis 
-is currently inefficient
-for \emph{distributed} hybrid systems with nonlinear ODEs. 
-In distributed CPS, 
-physical states of different components can be physically correlated to each other.
-For example, if we consider two adjacent rooms with thermostat controllers, the temperature of one room immediately affects the temperature of the other room. %unless they are perfectly insulated.
+%%% Polished Paragraph 6:
+%%Another  obstacle %to this approach 
+%%is that  SMT-based analysis 
+%%is currently inefficient
+%%for \emph{distributed} hybrid systems with nonlinear ODEs. 
+In distributed CPS, the 
+physical states of different components can be  correlated to each other.
+Consider, for example,  two adjacent rooms: the temperature of one room then immediately affects the
+temperature of the other room. %unless they are perfectly insulated. 
 The behavior is specified as \emph{coupled} ODEs
-where variables evolve simultaneously over continuous time.
+where variables evolve simultaneously over  time.
 %and ODE solving needs to take into account all coupled variables at the same time.
 %Therefore, 
-Existing SMT approaches use the non-modular encoding
+Existing SMT approaches use  non-modular encodings
 for such distributed hybrid systems. 
 %
-The size of the SMT formula can be huge,
-and  this leads to the \emph{formula explosion problem}
-that makes such SMT-based analysis practically infeasible.
+The size of the SMT formula can therefore be huge, which 
+ leads to the \emph{formula explosion problem}
+that makes  SMT-based analysis practically infeasible.
 
-For this reason, 
-we present a novel SMT framework
+%%% OLD paragraph 6:
+% Another  obstacle %to this approach 
+% is that  SMT-based analysis 
+% is currently inefficient
+% for \emph{distributed} hybrid systems with nonlinear ODEs. 
+% In distributed CPS, 
+% physical states of different components can be physically correlated to each other.
+% For example, if we consider two adjacent rooms with thermostat controllers, the temperature of one room immediately affects the temperature of the other room. %unless they are perfectly insulated.
+% The behavior is specified as \emph{coupled} ODEs
+% where variables evolve simultaneously over continuous time.
+% %and ODE solving needs to take into account all coupled variables at the same time.
+% %Therefore, 
+% Existing SMT approaches use the non-modular encoding
+% for such distributed hybrid systems. 
+% %
+% The size of the SMT formula can be huge,
+% and  this leads to the \emph{formula explosion problem}
+% that makes such SMT-based analysis practically infeasible.
+
+
+%%% Polished stuff:
+To overcome this problem, we present a new SMT framework
 to  effectively encode formal analysis problems
-of distributed hybrid systems with coupled ODEs \emph{in a modular way}.
+of distributed hybrid systems with coupled ODEs \emph{in a modular
+  way}.
+%%%% You commented out the following sentence. Was there
+%%%% something wrong???  Why not include it??
 %For a composition $H_1 \parallel \cdots \parallel H_n$ of $n$ hybrid systems,
-%when each component $H_i$ has $m_i$ control modes,
+%where each component $H_i$ has $m_i$ control modes,
 %the size of the SMT formula by the new modular encoding is proportional to $\sum_{i=1}^n k_i$,
-%whereas by the previous non-modular encoding the size is proportional to $\prod_i k_i$.
+%whereas by the previous non-modular encoding the size is proportional to $\prod_i k_i$.]
 The key idea is to use equation ``names'' %uninterpreted real function symbols %and universal quantification
 to logically decompose coupled variables in systems of ODEs in the SMT formula.
 %We provide an efficient SMT decision procedure for such formulas by the new encoding
 %for distributed hybrid systems.
-%We show that 
-The satisfaction problems of the new logical theory 
-can be reduced to ones in the standard theory of the real numbers \emph{at no cost}.
+We show that 
+a satisfaction problem in  the new  theory 
+can be reduced to one in the standard theory of the real numbers \emph{at no cost}.
 %
-We have implemented our SMT technique within the \textsf{dReal} SMT solver \cite{dReal}.
-The experimental results show that our techniques can dramatically increase 
+We have implemented our SMT techniques within the \textsf{dReal} SMT
+solver \cite{dReal}.
+We have applied our techniques on a range of advanced CPSs, including
+systems for: turning an airplane, controlling the altitude of a quad-rotor UAV,
+ controlling the water level in a power plant,  networked water tank
+ controllers,  networked thermostat controllers, and
+an automated highway system.
+The experimental results show that these techniques can dramatically increase 
 the performance of SMT-based analysis for nontrivial distributed CPS.
 %that involve multiple control modes and nonlinear ODEs.
 % To the best of our knowledge, modular SMT encoding for 
 %(coupled) nonlinear ODEs and its efficient decision procedure have never been developed for distributed hybrid systems.
 
+%%% OLD paragraph:
+% For this reason, 
+% we present a novel SMT framework
+% to  effectively encode formal analysis problems
+% of distributed hybrid systems with coupled ODEs \emph{in a modular way}.
+% %For a composition $H_1 \parallel \cdots \parallel H_n$ of $n$ hybrid systems,
+% %when each component $H_i$ has $m_i$ control modes,
+% %the size of the SMT formula by the new modular encoding is proportional to $\sum_{i=1}^n k_i$,
+% %whereas by the previous non-modular encoding the size is proportional to $\prod_i k_i$.
+% The key idea is to use equation ``names'' %uninterpreted real function symbols %and universal quantification
+% to logically decompose coupled variables in systems of ODEs in the SMT formula.
+% %We provide an efficient SMT decision procedure for such formulas by the new encoding
+% %for distributed hybrid systems.
+% %We show that 
+% The satisfaction problems of the new logical theory 
+% can be reduced to ones in the standard theory of the real numbers \emph{at no cost}.
+% %
+% We have implemented our SMT technique within the \textsf{dReal} SMT solver \cite{dReal}.
+% The experimental results show that our techniques can dramatically increase 
+% the performance of SMT-based analysis for nontrivial distributed CPS.
+% %that involve multiple control modes and nonlinear ODEs.
+% % To the best of our knowledge, modular SMT encoding for 
+% %(coupled) nonlinear ODEs and its efficient decision procedure have never been developed for distributed hybrid systems.
 
+\textbf{(Peter) I added the applications above from the commented-out
+  list below..}
 
 The rest of the paper is organized as follows.
 %
-Section~\ref{sec:pals} briefly recalls PALS.
-Section~\ref{sec:hybrid-pals} explains how PALS can be applied to distributed hybrid systems.
+Section~\ref{sec:pals} gives a background on  PALS.
+Section~\ref{sec:hybrid-pals} introduces Hybrid PALS.
 %involving nonlinear ODEs and clock skews. 
-Section~\ref{sec:smt-encoding} shows how PALS models for distributed CPS
-and their analysis problems (such as bounded reachability, inductive, and compositional analysis)
-can be symbolically encoded as logic formulas.
-Section~\ref{sec:smt-logic} presents a new SMT framework that allows 
-modular encoding for distributed hybrid systems. % with coupled ODEs.  
-Section~\ref{sec:case-studies} presents case studies and their verification 
-using our methods based on PALS and SMT.
+Section~\ref{sec:smt-encoding} shows how synchronous Hybrid PALS models 
+and their verification problems (such as bounded reachability, inductive, and compositional analysis)
+can be symbolically encoded as logical formulas.
+Section~\ref{sec:smt-logic} presents a new SMT framework supporting
+the 
+modular encoding of  distributed hybrid systems. % with coupled ODEs.  
+Section~\ref{sec:case-studies} gives an overview of the Hybrid PALS verification case studies.
 Finally,
-Section~\ref{sec:related-work} explains some related work,
+Section~\ref{sec:related-work} discusses related work,
 and 
-Section~\ref{sec:concl} presents some concluding remarks.
+Section~\ref{sec:concl} gives some concluding remarks.
 
 % experiments on nontrivial distributed CPS.
 %\begin{inparaenum}[(i)]
 %	\item a controller for turning an airplane,
-%	\item a controller for the attitude of a quadrotor UAV,
+%	\item a controller for the attitude of a quad-rotor UAV,
 %	\item a steam boiler controller,
 %	\item networked water tank controllers,
 %	\item networked thermostat controllers, and
