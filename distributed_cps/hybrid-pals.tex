@@ -177,18 +177,16 @@ $c_M(n) \in (n T - \epsilon, n T + \epsilon)$ for each $n > 0$.
 \draw[dashed] (2.6,0.8) node[above] {$\star$}  -- (2.6,-0.01) node[below] { $(i+1)T - \epsilon$};
 
 \draw[<-,densely dotted,semithick] (0.26,0.27) -- (0.26,0.84) node[above] {$c_M(i)$};
-\draw[<-,densely dotted,semithick] (0.72,0.39) -- (0.72,0.84) node[above] {$c_M(i) + t_I$};
-\draw[<-,densely dotted,semithick] (1.55,0.34) -- (1.55,0.84) node[above] {$c_M(i) + t_R$};
+\draw[<-,densely dotted,semithick] (0.72,0.38) -- (0.72,0.84) node[above] {$c_M(i) + t_I$};
+\draw[<-,densely dotted,semithick] (1.55,0.42) -- (1.55,0.84) node[above] {$c_M(i) + t_R$};
 \end{scope}
 
-\filldraw (0,0.14) circle (0.5pt) node[above,xshift=-1.2ex] {$\vec{v}$};
-\draw (-0.1,0.11) .. controls (0.5,0.3) and (0.9,0.5) .. (1.55,0.3);
-\filldraw (0.26,0.23) circle (0.5pt);
+\filldraw (0,0.15) circle (0.5pt) node[above,xshift=-1.2ex] {$\vec{v}$};
+\filldraw (0.26,0.24) circle (0.5pt);
 \filldraw (0.72,0.35) circle (0.5pt) node[below] {$\vec{v}_I$};
-\filldraw (1.55,0.3) circle (0.5pt) node[below] {$\vec{v}_R$};
-\draw (1.55,0.3) .. controls (2,0.1) and (2.5,0.3) .. (3.2,0.3);
-\filldraw (2.6,0.26) circle (0.5pt) node[below,xshift=1.2ex] {$\vec{v'}$};
-
+\filldraw (1.55,0.39) circle (0.5pt) node[below] {$\vec{v}_R$};
+\filldraw (2.6,0.235) circle (0.5pt) node[below,xshift=1.2ex] {$\vec{v'}$};
+\draw (-0.1,0.11) .. controls (1.6,0.8) and (2.3,0.0) .. (3.2,0.3);
 \end{tikzpicture}
 \caption{Timeline for an environment-restricted controller $M \restriction E_M$
 with a local clock $c_M$, an environment sampling time $t_I$, and an response time $t_R$.}
