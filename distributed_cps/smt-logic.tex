@@ -1,27 +1,38 @@
 % !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
 
-\section{SMT Solving for Distributed CPS}
+\section{SMT Solving for Distributed CPSs}
 \label{sec:smt-logic}
 
-Various formal analysis problems of distributed CPSs 
-can be encoded as logic formulas over the real numbers and ODEs.
-%and we are interested in using SMT solving 
+Section~\ref{sec:smt-encoding} shows that  the verification of
+distributed CPSs 
+can be encoded as logical formulas over the real numbers and ODEs. 
+It would therefore be desirable to use SMT solving to automatically
+check the satisfiability of those formulas. 
+% we are interested in using SMT solving 
 %to automatically check the satisfiability of those formulas.
 %
-The satisfiability of those formulas is undecidable for nonlinear hybrid systems  in general,
+The satisfiability of such  formulas is undecidable for nonlinear hybrid systems  in general,
 but becomes \emph{decidable} %up to any given precision $\delta > 0$ 
+\textbf{KYUNGMIN: (1) the following is not a well-formed
+  (sub)sentence, please modify; (2) it would be nice to very briefly
+  explain ``robustness properties under numerical perturbations'', or
+  just change back to ``up to any given precision $\delta >0$. You decide.}
 if we take account of robustness properties %of the system 
 under numerical perturbations $\delta > 0$.
 %
 A \emph{$\delta$-complete decision procedure} for a formula $\phi$ returns false 
 if $\phi$ is unsatisfiable, and returns true if its syntactic 
-numerical perturbation of $\phi$ by bound $\delta$ is satisfiable. 
-This is practically very useful since 
+numerical perturbation of $\phi$ by bound $\delta$ is
+satisfiable.\footnote{KYUNGMIN: can you VERY BRIEFLY explain what ``if its syntactic 
+numerical perturbation of $\phi$ by bound $\delta$ is
+satisfiable'' means??} 
+This is  very useful in practice, since 
 sampling exact values of physical parameters is not possible in reality. 
 
-However, formulas for hybrid PALS models
-may contain ODEs and universal quantification over \emph{uninterpreted real functions},
+However, formulas encoding Hybrid PALS models
+may contain ODEs and universal quantification over \emph{uninterpreted
+  functions on reals},
 such as 
 $\forall t \in [u_0,u_t].\;
 \vec{x}(t) = \vec{v} + \int_0^{t-u_0} \!  F_{\vec{a}}(\vec{x},t)\,\mathrm{d}t$
@@ -29,7 +40,7 @@ or time-invariant constraints $(\forall t.\; \psi)$,
 %in order to precisely specify physical interactions between distributed components
 %with clock skews and delays.
 which are not supported by current state-of-the-art SMT solving techniques.
-
+%
 %For example, the ODEs in $E_\mathit{Main}$ %for the main controller 
 %in the airplane example
 %include uninterpreted function symbols $\delta_L$, $\delta_V$, and $\delta_R$ for control angles.
@@ -38,13 +49,15 @@ which are not supported by current state-of-the-art SMT solving techniques.
 %and the surface angles $(\alpha_L,\alpha_V,\alpha_R)$ of the subcontrollers
 %are given by the time-invariant constraint
 %$\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t))$.
-
-This section shows how formulas for hybrid PALS models (presented in Section~\ref{sec:smt-encoding})
+%
+This section therefore shows how formulas for hybrid PALS models (presented in Section~\ref{sec:smt-encoding})
 can be equivalently encoded as \emph{SMT formulas}
-without the use of universal quantification over uninterpreted real functions.
+\emph{without}  universal quantification over uninterpreted real functions.
 For this purpose, we present a new  SMT framework to provide 
 an efficient SMT algorithm
-for  formulas generated from hybrid PALS models.
+for  formulas encoding Hybrid PALS verification
+problems.\footnote{KYUNGMIN: is the latter part of this sentence
+  factually correct? I hope so.}
 
 %Even though two real functions
 %$f_1(t)$ and $f_2(t)$ have completely different forms, 
@@ -83,15 +96,15 @@ is the standard structure of the theory of the real numbers.
 \end{definition}
 
 
-Solutions of ODEs are considered as \emph{atomic functions} in $\mathcal{L}_\mathcal{F}$,
+Solutions of ODEs are considered  \emph{atomic functions} in $\mathcal{L}_\mathcal{F}$,
 and therefore the structure of ODEs cannot be used for SMT algorithms  in this logic.
-This restrictive syntax makes it difficult to efficiently express logic formulas for hybrid PALS models 
+This restrictive syntax makes it difficult to efficiently express logical formulas for Hybrid PALS 
 in $\mathcal{L}_\mathcal{F}$. 
 % which typically involve different local physical environments interacting with each other.
 %Therefore, 
-We present a new SMT theory,
+We therefore present a new SMT theory,
 by extending $\mathcal{L}_\mathcal{F}$, that allows to express solutions of ODEs in a modular way,
-so that the size of the formula can be much reduced.
+so that the size of the formula can be significantly reduced.
 
 
 We consider a \emph{two-sorted} first-order logic with sorts $\mathit{Real}$ and $\mathit{Name}$,
@@ -238,9 +251,9 @@ is decidable by  $\delta$-complete SMT solving.
 \subsection{SMT Encoding of Hybrid PALS Models}
 
 
-We now show how hybrid PALS models
-are encoded in the new SMT logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$
-without the use of uninterpreted real functions and universal quantification.
+We now show how Hybrid PALS models
+can be  encoded in the new SMT logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$
+\emph{without}  using uninterpreted real functions and universal quantification.
 The idea is to construct a \emph{global} ODE formula $\phi_{\mathit{ODE}}$
 that defines the combined systems of ODEs for all physical environments
 in $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
@@ -252,12 +265,14 @@ specified in a modular way by assigning to each name variable an appropriate nam
 %First, 
 We restrict our attention to time-invariant constraints \emph{with only equality terms},
 %such as one for the airplane example,
-since physical correlations for CPS can be expressed using equality conditions in practice.
+since physical correlations for CPS in practice typically can be expressed using
+equalities.
 Equality  constraints, such as $x_1(t) = x_2(t)$,  can be removed
-from the formula  by replacing one side with another, 
+from the formula  by replacing one side with the other, 
 for example, by replacing each function symbol $x_1$ with  $x_2$.
-From now on we assume that time-invariant \emph{equality} constraints are already removed from the formula 
-by this process.
+From now on we assume that time-invariant \emph{equality} constraints
+have been  removed from the formula 
+in this way.
 
 
 
@@ -381,13 +396,13 @@ be the formula
 obtained from $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ 
 by repeatedly performing the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-transformation
 for every ODE subformula.
-Finally, we obtaine the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
+Finally, we obtain the $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-formula 
 $\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}
 \equiv
 \exists (\vec{f}, \vec{t}, \vec{g}).\; \phi_{\mathit{ODE}}(\vec{f},\vec{t},\vec{g}) \wedge \mathit{tr}(\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i})$
 that includes no uninterpreted real functions and universal quantification.
 Therefore, the  satisfiability of $\tilde{\phi}_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$ can be determined by using
-$\delta$-complete SMT (by Theorem~\ref{thm:new-dec}).
+$\delta$-complete SMT solving (by Theorem~\ref{thm:new-dec}).
 
 
 \begin{theorem}

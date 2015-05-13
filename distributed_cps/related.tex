@@ -11,15 +11,34 @@
 %single-rate virtually synchronous distributed real-time systems \cite{pals-rtss09,pals-tcs},
 %and then extended for multirate systems \cite{mr-pals-journal,al2012pattern} and hybrid systems \cite{ftscs-journal,hybrid-pals}.
 
-Hybrid automata techniques are not appropriate for hybrid PALS models.
-Hybrid PALS models are basically time triggered models, which are not perfectly synchronized due to clock skews,
-whereas composing hybrid automata requires perfect synchronization of several events.
+%%% Peter: I have no clue what the following section was doing in the
+%%% paper ...
+% Hybrid automata techniques are not appropriate for hybrid PALS models.
+% Hybrid PALS models are basically time triggered models, which are not perfectly synchronized due to clock skews,
+% whereas composing hybrid automata requires perfect synchronization of several events.
 
-SMT-based approach is a relatively new direction for nonlinear hybrid
-system verification, because of the difficulty of handling SMT
-formulas over the reals with nonlinear functions. The research
-direction is initiated in the
-work~\cite{ratschan2007safety}, which uses constraint
+%%% (Peter): I try to add some PALS rel work. 
+PALS~\cite{pals-rtss09,mr-pals-journal,pals-tcs,al2012pattern} targets
+distributed real-time systems, whose absence of continuous behaviors
+means that continuous behaviors and local clocks do not need to be
+taken into account in the synchronous models, which can therefore be
+verified by any explicit-state model checker. In contrast, Hybrid PALS
+synchronous models must take both clock skews and continuous behaviors
+into account and hence cannot be analyzed by explicit-state
+techniques. The first steps to add continuous behaviors to PALS were
+taken in~\cite{hybrid-pals}. The present work presents a more general
+model, where the relative sampling and actuating times are system
+parameters,  and also provides a crucial bisimulation result between
+the 
+synchronous and the distributed model. But the main difference is in the
+verification part. \textbf{Kyungmin, add stuff here!!!}
+
+
+Because of the difficulty of handling SMT
+formulas over the reals with nonlinear functions, 
+SMT-solving-based verification is a fairly new direction for nonlinear hybrid
+systems. The research
+direction is initiated in~\cite{ratschan2007safety}, which uses constraint
 solving algorithms for handling nonlinear reachability problems. Two
 main lines of work that explicitly formulate problems as SMT formulas
 are based on the HySAT/iSAT

@@ -1,27 +1,30 @@
 % !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
 
-\section{Logical Encoding of Hybrid PALS Models}
+\section{Hybrid PALS Models as Logical Formulas}
 \label{sec:smt-encoding}
 
-Thanks to the behavioral equivalence (Theorem~\ref{thm:hybrid-pals}),
-analysis of a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
-is reduced to one on the simpler synchronous model $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
+Theorem~\ref{thm:hybrid-pals} implies that 
+ verifying 
+ a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+amounts to  verifying the much  simpler synchronous model $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 %Directly analyzing such distributed systems is unfeasible in practice
 %due to the combinatorial explosion even for simple discrete systems \cite{pals-tcs}.
-However, it is difficult to analyze $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
-with (nonlinear)  continuous dynamics and skews of the local clocks.
+However, it is still challenging to analyze $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
+with (nonlinear)  continuous dynamics: 
 % (bounded by $\epsilon > 0$).
-The concrete values of local clocks are unknown since the values %of local clocks 
-are determined on-the-fly by  \emph{clock synchronization} mechanisms \cite{pals-rtss09,lynch-book}.
-Numerical simulation can no longer be used for nonlinear dynamics
+The concrete values of the imprecise local clocks are unknown since they  %of local clocks 
+are determined on-the-fly by  \emph{clock synchronization} mechanisms, 
+%\cite{pals-rtss09,lynch-book}, 
+and 
+numerical simulation cannot  be used for nonlinear dynamics
 because numerical errors can be accumulated.
 
-This section explains how analysis problems of 
-$\mathcal{E}\restriction_{\Pi}E_\mathcal{E}$ for \emph{any possible local clock}
-can be symbolically encoded as logic formulas over the real numbers and ODEs.
+This section explains how verification  problems for  
+$\mathcal{E}\restriction_{\Pi}E_\mathcal{E}$, for \emph{all possible local clocks},
+can be  encoded as logical formulas over the real numbers and ODEs.
 The satisfiability of such formulas can then be automatically decided by SMT solving up to a given precision $\delta > 0$
-(see Section~\ref{sec:smt-logic}).
+as shown in Section~\ref{sec:smt-logic}.
 %The idea is to express synchronous transitions in $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
 %as formulas of the form $\phi(\vec{i}, \vec{y} \shortmid \vec{y'}, \vec{o})$, where 
 %\begin{inparaenum}[(i)]
@@ -35,17 +38,18 @@ The satisfiability of such formulas can then be automatically decided by SMT sol
 %and compositional analysis of parameterized systems.
 
 
-\subsection{Representing Environment-Restricted Controllers}
+\subsection{Encoding Environment-Restricted Controllers}
 \label{sec:discrete-encoding}
 
-A controller $M$ is naturally 
-expressed as a logic formula over discrete domain
-of the form $\phi_M(\vec{i}, \vec{y} \shortmid \vec{y'}, \vec{o})$,
-including \emph{variables}
-$\vec{i}$ denoting input, 
-$\vec{y}$ denoting the current state, 
-$\vec{y'}$ denoting the next state, and 
-$\vec{o}$  denoting output.
+A controller $M$ can be 
+expressed as a logical formula %over discrete domain
+%of the form 
+$\phi_M(\vec{i}, \vec{y} \shortmid \vec{y'}, \vec{o})$,
+with variables
+$\vec{i}$, $\vec{y}$, $\vec{y'}$, and $\vec{o}$  denoting,
+respectively,  input, 
+ the current state, 
+ the next state, and output.
 
 \begin{definition}
 For  $M = (D_i,S,D_o,\delta_M)$,
@@ -60,14 +64,13 @@ $\phi_{M}(\vec{d}_i, s \shortmid s',  \vec{d}_o)
 A physical environment $E_M$ is expressed as 
 a formula over the real numbers %and ODEs
 of the form $\phi_{E_M}(\vec{a},u_0,u_t,\vec{v} \shortmid \vec{x})$,
-including: \begin{inparaenum}[(i)]
-	\item \emph{unary function symbols} $\vec{x}$ denoting the trajectories of $E_M$'s physical parameters $\vec{x}$,
-	and
-	\item \emph{variables} $\vec{a}$ denoting control commands, % from its controller $M$, 
-		$u_0$ and $u_t$ respectively denoting 
+with: \emph{unary function symbols} $\vec{x}$ denoting the
+trajectories of $E_M$'s physical parameters $\vec{x}$, and 
+	\emph{variables} $\vec{a}$, $u_0$, $u_t$, and $\vec{v}$
+        denoting, respectively,  control commands, % from its controller $M$, 
+		 the 
 		times at the beginning and the end of the trajectory duration, and 
-		$\vec{v}$ denoting initial values of the trajectories $\vec{x}$ at time $u_0$.
-\end{inparaenum}
+		the  initial values of the trajectories $\vec{x}$ at time $u_0$.
 
 
 If the continuous dynamics of $\vec{x}$ is specified as a system of ODEs
@@ -103,12 +106,11 @@ $((\vec{a},u_t-u_0,\vec{v}), \vec{\tau}) \in \Lambda$
 and $\vec{x}(t) = \vec{\tau}(t - u_0)$ for $t \in [u_0, u_t]$.
 \end{definition}
 
-
-For an environment restriction $M \restriction E_M$,
-its formula $\phi_{M \restriction E_M}$ 
+The encoding $\phi_{M \restriction E_M}$ of the 
+ environment restriction $M \restriction E_M$
 has the form
 $\phi_{M \restriction E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$,
-including variables:
+with variables:
 \begin{inparaenum}[(i)]
 	\item $\vec{i}$ denoting input, 
 	\item $(\vec{y},\vec{v})$ denoting a state  at the beginning of the round 
@@ -118,7 +120,7 @@ including variables:
 	\item $\vec{o}$ denoting output.
 \end{inparaenum}
 %
-Instead of explicitly writing $iT - \epsilon$ and $(i+1)T - \epsilon$  in $\phi_{M \restriction E_M}$,
+Instead of  writing $iT - \epsilon$ and $(i+1)T - \epsilon$  in $\phi_{M \restriction E_M}$,
 we use the ``$\epsilon$-shifted''  time axis for the interval $[iT, (i+1)T]$. %for the formula $\phi_{M \restriction E_M}$.
 %
 %A formula $\phi_{M \restriction E_M}$ 
@@ -138,10 +140,12 @@ within $\phi_{M \restriction E_M}$.
 
 \begin{definition}
 For an environment restriction $M \restriction E_M$
-with the interface projection functions $\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$,
+with  interface % projection functions
+$\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$,
 %the formula 
 $\phi_{M \restriction E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$
-is defined from Definition~\ref{def:env-res} by:
+is defined % from Definition~\ref{def:env-res}
+by:
 \begin{align*}
 \begin{alignedat}{3}
 \exists \vec{a},\vec{a'}, \vec{v}_I, \vec{v}_R, u_I, u_R, t_I, t_R.\;
@@ -194,28 +198,31 @@ for some $c_M$.
 
 
 
-\subsection{Representing Hybrid Ensembles}
+\subsection{Encoding Hybrid Ensembles}
 
 %Recall that 
-A synchronous composition  of %an ensemble 
-$\mathcal{E}$ is a single machine $M_\mathcal{E}$
-in which all machines perform their transitions in lock step.
+The synchronous composition  of an ensemble 
+$\mathcal{E}$ is equivalent to a single machine $M_\mathcal{E}$
+in which all machines perform their transitions in lockstep.
 Each fast machine $f$  performs $k = \mathit{rate}(f)$  internal transitions in one step.
 %
-A formula 
+The encoding
 $\phi_{(M \restriction E_M)^{\times k}}^{T, i}$
-for the $k$-step \emph{deceleration} of an environment restriction 
+of the $k$-step \emph{deceleration} of %an environment restriction 
 $M \restriction E_M$
 is defined by sequentially 
-composing
-$k$ subformulas $\phi_{M \restriction E_M}^{T/k,ik},\ldots,\phi_{M \restriction E_M}^{T/k,(ik+k-1)}$.
-These formulas are respectively related to the $k$ equal \emph{subintervals} $[(ik+n-1)T/k-\epsilon,(ik+n)T/k-\epsilon]$ 
+composing the 
+$k$ formulas $\phi_{M \restriction E_M}^{T/k,ik},\ldots,\phi_{M \restriction E_M}^{T/k,(ik+k-1)}$
+corresponding  to the $k$  \emph{subintervals} $[(ik+n-1)T/k-\epsilon,(ik+n)T/k-\epsilon]$ 
 for $n=1,\ldots,k$.
 
 \begin{definition}
 Given $M \restriction E_M$ and $k \in \mathbb{N}$,
 the formula
-$\phi_{(M \restriction E_M)^{\times k}}^{T, i}(\langle\vec{i_1},\ldots,\vec{i_k}\rangle, \vec{y_0}, \vec{v_0} \shortmid \vec{y}_{k}, \vec{v}_{k}, \langle\vec{o_1},\ldots,\vec{o_k}\rangle)$ is:
+$\phi_{(M \restriction E_M)^{\times k}}^{T,
+  i}(\langle\vec{i_1},\ldots,\vec{i_k}\rangle, \vec{y_0}, \vec{v_0}
+\shortmid \vec{y}_{k}, \vec{v}_{k},
+\langle\vec{o_1},\ldots,\vec{o_k}\rangle)$ is: 
 \[
 %(\exists \vec{y_1},\ldots, \vec{y}_{k-1}, \vec{v_1},\ldots, \vec{v}_{k-1})
 \exists\{\vec{y_n}, \vec{v_n}\}_{n=1}^{k-1}.\,
@@ -223,7 +230,7 @@ $\phi_{(M \restriction E_M)^{\times k}}^{T, i}(\langle\vec{i_1},\ldots,\vec{i_k}
 \]
 \end{definition}
 
-The wiring diagram of $\mathcal{E}$ is expressed by
+The wiring diagram of $\mathcal{E}$ is encoded as
 a conjunction of %appropriate 
 \emph{equalities} between variables denoting input and output ports.
 Each equality corresponds to a connection in $\mathcal{E}$
@@ -231,7 +238,9 @@ Each equality corresponds to a connection in $\mathcal{E}$
 %Since feedback outputs of one machine to itself or another machine 
 %becomes input of their destinations in the next step,
 %we use a separate set of variables for such output ports connected to other machines in $\mathcal{E}$.
-%$\phi_\mathit{wire}$ is a conjunction of equalities, together with the input adaptors of $\{M_j\}_{j\in J_S\cup J_F}$,  given by the wiring diagram of $\mathcal{E}$.
+%$\phi_\mathit{wire}$ is a conjunction of equalities, together with
+%the input adaptors of $\{M_j\}_{j\in J_S\cup J_F}$,  given by the
+%wiring diagram of $\mathcal{E}$. 
 
 
 \begin{definition}
@@ -251,33 +260,31 @@ $\phi_\mathit{wire}$ is the conjunction of the equalities:
 \end{definition}
 
 
-For a hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
-of machines  $\{M_j\}_{j\in J_S\cup J_F}$ and their physical environments $\{E_{M_j}\}_{j\in J_S\cup J_F}$
-($J_S$ denoting slow machines and $J_F$ denoting fast machines),
-its formula has the form
+A hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
+of machines  $\{M_j\}_{j\in J_S\cup J_F}$ with physical environments $\{E_{M_j}\}_{j\in J_S\cup J_F}$
+($J_S$ denoting slow machines and $J_F$ denoting fast machines) is
+encoded as a formula 
 $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
 	\vec{i}, \{\vec{z_j},\vec{f_j}\}_{j\in J_S\cup J_F}
 	\shortmid 
 	\{\vec{z'_j}, \vec{f_j'}\}_{j\in J_S\cup J_F}, \vec{o})$,
 %
-including variables:
-\begin{inparaenum}[(i)]
-	\item $\vec{i}$ denoting input, 
-	\item $\vec{z_j}$ denoting a state of $M_j \restriction E_{M_j}$ at the beginning of the round 
+with variables $\vec{i}$, $\vec{z_j}$, $\vec{f_j}$, $\vec{z_j'}$,
+$\vec{f_j'}$, and $\vec{o}$ denoting, respectively, 
+inputs, the state of $M_j \restriction E_{M_j}$ at the beginning of the round 
 		(at time $iT - \epsilon$),
-	\item $\vec{f_j}$ denoting feedback outputs from the previous round,
-	\item $\vec{z_j'}$ denoting a state of $M_j \restriction E_{M_j}$ at the end of the round 
+feedback outputs from the previous round,
+	the  state of $M_j \restriction E_{M_j}$ at the end of the round 
 		(at time $(i+1)T - \epsilon$), 
-	\item $\vec{f_j'}$ denoting the feedback outputs for the next round,	and 
-	\item $\vec{o}$ denoting output.
-\end{inparaenum}
+the feedback outputs for the next round,	and 
+the output.
 
 
 \begin{definition}
 For a hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$, %of machines 
 %$\{M_j\}_{j\in J_S\cup J_F}$, their physical environments $\{E_{M_j}\}_{j\in J_S \cup J_F}$
 %and the time-invariant constraint $(\forall t.\; \psi)$,
-its formula
+its encoding
 $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
 	\vec{i}, \{\vec{y_j}, \vec{v_j},\vec{\mathit{f}_j}\}_{j\in J_S\cup J_F}
 	\shortmid 
@@ -312,33 +319,33 @@ iff for some local clocks, there exists a corresponding \emph{stable transition}
 $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$   for $[iT - \epsilon,(i+1)T - \epsilon]$.
 \end{theorem}
 
-\subsection{Representing Formal Analysis Problems}
+\subsection{Encoding Verification Problems}
 
 Our goal is to verify safety properties
 of a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$.
 In general, a safety property of the system can be expressed as a formula of the form 
 $\forall t.  \mathit{safe}(\vec{z},t)$
-with respect to state variables $\vec{z}$ and time variable $t$.
+for  state variables $\vec{z}$ and time variable $t$.
 
 
-For bounded analysis
-to verify %whether $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+%For bounded analysis
+To verify %whether $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
 a safety property %$\forall t.  \mathit{safe}(\vec{z},t)$
 up to a given bound $n \in \mathbb{N}$
-(i.e., for the interval $[0,nT - \epsilon]$),
+(i.e., for the time interval $[0,nT - \epsilon]$),
 we encode its \emph{bounded counterexamples}. %of $\forall t.  \mathit{safe}(\vec{z},t)$
 %up to the bound $n$.
-If the formula is unsatisfiable (i.e., no counterexample), 
-then the system satisfies the safety property in $[0,nT - \epsilon]$
-\emph{for any local clocks} by Theorem~\ref{thm:pals-encoding}.
+If the formula is unsatisfiable (i.e., no counterexample exists), 
+then, by Theorem~\ref{thm:pals-encoding},  the system satisfies the safety property in $[0,nT - \epsilon]$
+\emph{for any local clocks}.
 
 
 
 \begin{definition}
-A bounded analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
+The verification problem for $\forall t.  \mathit{safe}(\vec{z},t)$
 %of $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$ 
-up to $n$ with an initial condition $\mathit{init}(\vec{z})$
-is expressed by:
+\emph{up to $n$ rounds} with  initial condition $\mathit{init}(\vec{z})$
+is encoded by:
 \begin{align*}
 \exists \vec{z}_0, \{\vec{z}_k, \vec{i}_k, \vec{o}_k, t_k\}_{k=1}^{n}.\;
 \textstyle\bigwedge_{k=1}^{n}
@@ -361,8 +368,8 @@ is expressed by:
 \end{definition}
 
 
-For unbounded verification of a safety property,
-we encode its inductive proof as logic formulas.
+For \emph{unbounded} verification of a safety property,
+we encode its inductive proof as a logical formula.
 The idea is to find an inductive condition $\mathit{ind}(\vec{z})$ 
 for synchronous transitions
 that corresponds to the beginning of a global round,
@@ -371,8 +378,8 @@ $\mathit{safe}(\vec{z},t)$
 for that round.
 
 \begin{definition} 
-An inductive analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
-with an inductive condition $\mathit{ind}(\vec{z})$ is expressed by:
+The  inductive analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
+with an inductive condition $\mathit{ind}(\vec{z})$ is encoded  by:
 \begin{multline*}
 \forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
 \big(\mathit{ind}(\vec{z})  \rightarrow \mathit{safe}(\vec{z},t)\big)
@@ -399,9 +406,9 @@ $\mathit{safe}(\vec{z},t)$ for that round.
 %This method is very useful for parameterized systems (see Section~\ref{sec:case-studies}).
 
 
-\begin{definition} A compositional analysis for $\forall t.  \mathit{safe}(\vec{z},t)$
+\begin{definition} The compositional analysis for $\forall t.  \mathit{safe}(\vec{z},t)$
 with I/O conditions $\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)$ and $\mathit{c}_\mathit{out}(\vec{o},\vec{z},t)$
-is expressed by:
+is encoded by:
 \begin{multline*}
 \forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
 \big(\mathit{c}_\mathit{in}(\vec{i},\vec{z},t) \rightarrow \mathit{safe}(\vec{z},t) \big)
