@@ -238,11 +238,11 @@ A_i \dot{x}_i &= a \sqrt{2g} \sqrt{x_{i-1}}  - a \sqrt{2g} \sqrt{x_i}
 \]
 where $A_i, q_i, a $ are constants determined by the size of the tank, the power of the pump, 
 and the width of the pipe,
-and $g$ is the standard gravity constant ($x_0 = 0$ for the leftmost tank $1$).
+and $g$ is the standard gravity constant. We set $x_0 = 0$ for the leftmost tank $1$.
 %
-Every pipe controller performs its discrete transitions according to its local clock:
+Every pipe controller performs its transitions according to its local clock:
 for each period $T$, 
-the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
+the pump is on if $x_i \leq L_m$, and off if $x_i > L_M$.
 
 \begin{figure}
 \centering
@@ -251,26 +251,28 @@ the pump is on if $x_i \leq L_{\min}$, and off if $x_i > L_{\max}$.
 \end{figure}
 
 The safety property is that the water level of each tank is in a certain range
-$I = [L_{\min} - \eta, L_{\max} + \eta]$.
+$I = [L_m - \eta, L_M + \eta]$.
 %
 We verify the safety property for an \emph{arbitrary number} of connected water tanks 
 using inductive and compositional analysis.
-For a fixed tank $k$ and a subinterval $I' = [L_{\min} - \eta', L_{\max} + \eta']\subseteq I$
-with $\eta' < \eta$,
-we show that $x_{k} \in I'$ is an inductive condition
-(that is, $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0})
-\rightarrow x_k(T) \in I'$),
-provided  that $x_{k-1} \in I$ always holds. % for its input tank  $k-1$.
-We then show that $x_{k} \in I$
-if $x_{k} \in I'$ at the beginning of each round.
+For a tank $k$ and %a subinterval 
+$I' = [L_m - \eta', L_M + \eta']\subseteq I$ with $\eta' < \eta$,
+provided  that $x_{k-1} \in I$ always holds, % for its input tank  $k-1$.
+we show that $x_{k} \in I'$ is an inductive condition,
+and  $x_{k} \in I$ always holds
+if $x_{k} \in I'$ at the beginning of each round
+(i.e., $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow x_k(T) \in I'$
+and $(x_{k}(0) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow (\forall t \in [0,T].\; x_{k}(t) \in I)$).
+
+
 
 In the analysis, we use the parameters 
-$a = 0.5$, $g = 9.8$, $A = 2$, $q = 4$, $L_{\min} = 8$, $L_{\max} = 10$,
+$a = 0.5$, $g = 9.8$, $A = 2$, $q = 4$, $L_m = 8$, $L_M = 10$,
 $\eta = 3$, $\eta' = 2$, and $T = 1\,\mathrm{s}$.
 %
-For the maximal clock skew is $\epsilon = 3\,\mathrm{ms}$,
-the sampling time is $t_I = 20\,\mathrm{ms}$,
-and the response time $t_R = 10\,\mathrm{ms}$,
+For the maximal clock skew $\epsilon = 3\,\mathrm{ms}$,
+the sampling time $t_I = 20\,\mathrm{ms}$,
+and the response time $t_R = 100\,\mathrm{ms}$,
 we have proved the compositional safety property
  by checking the unsatisfiability of the negated formulas,
  using \textsf{dReal} with precision $\delta = 0.001$.
@@ -293,38 +295,32 @@ where the water level increases for extra $30\,\mathrm{ms}$ and thus $x > 12$ at
 
 \subsection{Networked Thermostat Controllers.}
 
-A thermostat controller  \cite{henzinger2000theory} is installed in each room.
+A classical thermostat controller  \cite{henzinger2000theory} is installed in each room.
 %(where the specification of a single hybrid automaton is adapted from \cite{henzinger2000theory}). 
-A number of rooms are interconnected %by open doors, 
-as depicted in Fig.~\ref{fig:adj-rooms},
-and the temperature of each room is separately controlled by each thermostat
-that turns its heater on and off.
-The temperature of each room depends on
+A number of rooms are interconnected by open doors, 
+as depicted in Fig.~\ref{fig:adj-rooms}.
+The temperature of each room is separately controlled by its thermostat that turns the heater on and off.
+That is, it %The temperature of each room 
+depends on
 the heater's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$  and the temperatures of the other rooms.
-The temperature $x_i$ of room $i \in I$
+The temperature $x_i$ of room $i$
 changes according to the ODEs:
-\[
-\begin{aligned}
-\dot{x}_i &= K_i \big(h_i - ((1- k_{i-1} - k_{i+1}) x_0 + k_{i-1} x_{i-1} + k_{i+1} x_{i+1})\big)
-\\ 
-&\mbox{if}\;\; m_i = m_\texttt{on},
+\begin{align*}
+\dot{x}_i &= K_i (h_i - ((1- 2 c) x_i + c x_{i-1} + c x_{i+1}))
 \\
-\dot{x}_i &= - K_i \big((1- k_{i-1} - k_{i+1}) x_0 + k_{i-1} x_{i-1} + k_{i+1} x_{i+1}\big)
-\\
-& \mbox{if}\;\; m_i = m_\texttt{off},
-\end{aligned}
-\]
+\dot{x}_i &= - K_i ((1- 2 c) x_i + c x_{i-1} + c x_{i+1})
+\end{align*}
+%&\mbox{if}\;\; m_i = m_\texttt{on},
+%& \mbox{if}\;\; m_i = m_\texttt{off},
 where $K_i, h_i \in \mathbb{R}$ are constants depending on
 the size of room $i$ and the heater's power, respectively,
-and $k_{i,j} \in \mathbb{R}$ is determined by the size of the open door between rooms $i$ and $j$.
+and $c \in \mathbb{R}$ is determined by the size of the open door.
 %
-Every thermostat controller synchronously performs its discrete transitions.
-For each second, 
-the heater is turned on if $x_i \leq T_{\min}$,
-and turned off if $x_i > T_{\max}$.
-To keep track of each one-second period,
-every automaton has a \emph{shared} timer variable $\tau$ 
-with the flow condition $\dot{\tau} = 1$.
+Every thermostat controller performs its transitions
+according to its local clock.
+For each period $T$, 
+the heater is turned on if $x_i \leq T_m$,
+and turned off if $x_i > T_M$.
 
 \begin{figure}
 \centering
@@ -357,28 +353,45 @@ with the flow condition $\dot{\tau} = 1$.
 } \label{fig:adj-rooms}
 \end{figure}
 
-We consider the cases of networks of two and three thermostats
-with the parameters
-$K_1 = 0.015$, 
-$K_2 = 0.045$, 
-$K_3 = 0.03$, 
-$h_1 = 100$,
-$h_2 = 200$,
-$h_3 = 300$,
-$k_{1,2} = k_{2,1} = 0.01$,
-$k_{2,3} = k_{3,2} = 0.05$,
-$k_{1,3} = k_{3,1} = 0.02$,
-$T_{\min} = T_{\max} = 20$,
-and the initial condition $\wedge_{i} 19 < x_i < 21$.
-We have performed bounded model checking up to $k = 5$
-for $\mathit{safe} = \wedge_{i} 15 < x_i < 25$ 
-(the reachability of $\neg\mathit{safe}$ unsat)
-and $\mathit{safe} = \wedge_{i} 19 < x_i < 21$ 
-(the reachability of $\neg\mathit{safe}$ sat).
-We have also performed 
-inductive analysis 
-to verify that the property $\mathit{safe} = \wedge_{i} 11 < x_i < 29$
-holds at the end $\tau > 0.99$ of each period.
+The safe property is that the temperature of each room
+is in a certain range $I = [T_m - \eta, T_M + \eta]$.
+Similarly, we verify the safety property $\forall t.\; x_i \in I$
+for an \emph{arbitrary number} of interconnected thermostat controllers
+by inductive and compositional analysis.
+For %a subinterval 
+$I' = [T_m - \eta', T_M + \eta']\subseteq I$,
+provided that both $x_{i-1} \in I$ and $x_{i+1} \in I$ always hold,
+we show that $x_i \in I'$ is an inductive condition,
+and $x_i \in I$ always holds
+if $x_i \in I'$ at the beginning of each round.
+
+
+We consider a network of thermostats with the parameters 
+$K = 0.015$, 
+$h = 100$,
+$c = 0.01$,
+$T_M = 21$, 
+$T_m = 19$,
+$\eta = 3$, $\eta' = 2$,
+and $T = 1\,\mathrm{s}$.
+For the maximal clock skew $\epsilon = 2\,\mathrm{ms}$,
+the sampling time $t_I = 10\,\mathrm{ms}$,
+and the response time $t_R = 200\,\mathrm{ms}$,
+We have proved the safety property for any number of thermostats 
+by checking the unsatisfiability of the negated formulas,
+ using \textsf{dReal} with precision $\delta = 0.001$.
+%
+If $\epsilon = 20\,\mathrm{ms}$,
+then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:thermo-error}.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{thermo-error.png}    
+\caption{The counterexample trajectory when $\epsilon = 20\,\mathrm{ms}$,
+where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at the end of the round.} \label{fig:thermo-error}
+\end{figure}
+
 
 \subsection{Automated Highway System}
 
