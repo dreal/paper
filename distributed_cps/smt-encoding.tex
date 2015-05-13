@@ -106,10 +106,10 @@ $((\vec{a},u_t-u_0,\vec{v}), \vec{\tau}) \in \Lambda$
 and $\vec{x}(t) = \vec{\tau}(t - u_0)$ for $t \in [u_0, u_t]$.
 \end{definition}
 
-The encoding $\phi_{M \restriction E_M}$ of the 
- environment restriction $M \restriction E_M$
+The encoding $\phi_{M \restriction_\pi E_M}$ of the 
+ environment restriction $M \restriction_\pi E_M$
 has the form
-$\phi_{M \restriction E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$,
+$\phi_{M \restriction_\pi E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$,
 with variables:
 \begin{inparaenum}[(i)]
 	\item $\vec{i}$ denoting input, 
@@ -120,10 +120,10 @@ with variables:
 	\item $\vec{o}$ denoting output.
 \end{inparaenum}
 %
-Instead of  writing $iT - \epsilon$ and $(i+1)T - \epsilon$  in $\phi_{M \restriction E_M}$,
-we use the ``$\epsilon$-shifted''  time axis for the interval $[iT, (i+1)T]$. %for the formula $\phi_{M \restriction E_M}$.
+Instead of  writing $iT - \epsilon$ and $(i+1)T - \epsilon$  in $\phi_{M \restriction_\pi E_M}$,
+we use the ``$\epsilon$-shifted''  time axis for the interval $[iT, (i+1)T]$. %for the formula $\phi_{M \restriction_\pi E_M}$.
 %
-%A formula $\phi_{M \restriction E_M}$ 
+%A formula $\phi_{M \restriction_\pi E_M}$ 
 %is basically the direct translation of its formal definition in Definition~\ref{def:env-res}.
 But due to clock skews, 
 the exact values of sampling time $u_I = (c_M(i)+t_I)-(iT-\epsilon)$
@@ -131,7 +131,7 @@ and response time $u_R = (c_M(i)+t_R)-(iT-\epsilon)$ are unpredictable.
 Because $iT - \epsilon < c_M(i) < iT + \epsilon$,
 we represent those times as formulas 
 $t_I < u_I < t_I + 2\epsilon$ and $t_R < u_R < t_R + 2\epsilon$
-within $\phi_{M \restriction E_M}$.
+within $\phi_{M \restriction_\pi E_M}$.
 
 
 
@@ -139,11 +139,11 @@ within $\phi_{M \restriction E_M}$.
 
 
 \begin{definition}
-For an environment restriction $M \restriction E_M$
+For an environment restriction $M \restriction_\pi E_M$
 with  interface % projection functions
-$\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$,
+$\pi$, %=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)
 %the formula 
-$\phi_{M \restriction E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$
+$\phi_{M \restriction_\pi E_M}^{T,i}(\vec{i}, \vec{y}, \vec{v} \shortmid \vec{y'}, \vec{v'}, \vec{o})$
 is defined % from Definition~\ref{def:env-res}
 by:
 \begin{align*}
@@ -189,9 +189,9 @@ t_R = \pi_R(\vec{y},\vec{i})
 Notice that a local clock $c_M$ (and the round number $\pi_T$)
 are abstracted from the formula.
 That is,
-$\phi_{M \restriction E_M}(\vec{i}, s, \vec{v} \shortmid s', \vec{v'}, \vec{o})$
+$\phi_{M \restriction_\pi E_M}(\vec{i}, s, \vec{v} \shortmid s', \vec{v'}, \vec{o})$
 iff
-$( (\vec{i}, (s,\vec{v})), ((s',\vec{v'}), \vec{o}) ) \in \delta_{M \restriction E_M}$
+$( (\vec{i}, (s,\vec{v})), ((s',\vec{v'}), \vec{o}) ) \in \delta_{M \restriction_\pi E_M}$
 for some $c_M$.
 \end{definition}
 
@@ -207,26 +207,26 @@ in which all machines perform their transitions in lockstep.
 Each fast machine $f$  performs $k = \mathit{rate}(f)$  internal transitions in one step.
 %
 The encoding
-$\phi_{(M \restriction E_M)^{\times k}}^{T, i}$
+$\phi_{(M \restriction_\pi E_M)^{\times k}}^{T, i}$
 of the $k$-step \emph{deceleration} of %an environment restriction 
-$M \restriction E_M$
+$M \restriction_\pi E_M$
 is defined by sequentially 
 composing the 
-$k$ formulas $\phi_{M \restriction E_M}^{T/k,ik},\ldots,\phi_{M \restriction E_M}^{T/k,(ik+k-1)}$
+$k$ formulas $\phi_{M \restriction_\pi E_M}^{T/k,ik},\ldots,\phi_{M \restriction_\pi E_M}^{T/k,(ik+k-1)}$
 corresponding  to the $k$  \emph{subintervals} $[(ik+n-1)T/k-\epsilon,(ik+n)T/k-\epsilon]$ 
 for $n=1,\ldots,k$.
 
 \begin{definition}
-Given $M \restriction E_M$ and $k \in \mathbb{N}$,
+Given $M \restriction_\pi E_M$ and $k \in \mathbb{N}$,
 the formula
-$\phi_{(M \restriction E_M)^{\times k}}^{T,
+$\phi_{(M \restriction_\pi E_M)^{\times k}}^{T,
   i}(\langle\vec{i_1},\ldots,\vec{i_k}\rangle, \vec{y_0}, \vec{v_0}
 \shortmid \vec{y}_{k}, \vec{v}_{k},
 \langle\vec{o_1},\ldots,\vec{o_k}\rangle)$ is: 
 \[
 %(\exists \vec{y_1},\ldots, \vec{y}_{k-1}, \vec{v_1},\ldots, \vec{v}_{k-1})
 \exists\{\vec{y_n}, \vec{v_n}\}_{n=1}^{k-1}.\,
-\bigwedge_{n=1}^k \phi_{M \restriction E_M}^{T/k,(ik+n-1)}(\vec{i_n}, \vec{y}_{n-1}, \vec{v}_{n-1} \shortmid \vec{y_{n}}, \vec{v_{n}}, \vec{o}_n)
+\bigwedge_{n=1}^k \phi_{M \restriction_\pi E_M}^{T/k,(ik+n-1)}(\vec{i_n}, \vec{y}_{n-1}, \vec{v}_{n-1} \shortmid \vec{y_{n}}, \vec{v_{n}}, \vec{o}_n)
 \]
 \end{definition}
 
@@ -271,10 +271,10 @@ $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
 %
 with variables $\vec{i}$, $\vec{z_j}$, $\vec{f_j}$, $\vec{z_j'}$,
 $\vec{f_j'}$, and $\vec{o}$ denoting, respectively, 
-inputs, the state of $M_j \restriction E_{M_j}$ at the beginning of the round 
+inputs, the state of $M_j \restriction_{\pi_j} E_{M_j}$ at the beginning of the round 
 		(at time $iT - \epsilon$),
 feedback outputs from the previous round,
-	the  state of $M_j \restriction E_{M_j}$ at the end of the round 
+	the  state of $M_j \restriction_{\pi_j} E_{M_j}$ at the end of the round 
 		(at time $(i+1)T - \epsilon$), 
 the feedback outputs for the next round,	and 
 the output.
@@ -293,12 +293,12 @@ $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
 %(\exists \{\vec{i_j},\vec{o_j}\}_{j\in J_S\cup J_F})\;
 \exists \{\vec{i_j},\vec{o_j}\}_{j\in J_S\cup J_F}.\;
 \textstyle\bigwedge_{s \in J_S}
-\big(\phi_{M_s \restriction E_{M_s}}^{T,i}(\vec{i_s}, \vec{y_s}, \vec{v_s} \shortmid \vec{y'_s}, \vec{v'_s}, \vec{o}_s)\big)
+\big(\phi_{M_s \restriction_{\pi_s} E_{M_s}}^{T,i}(\vec{i_s}, \vec{y_s}, \vec{v_s} \shortmid \vec{y'_s}, \vec{v'_s}, \vec{o}_s)\big)
 \phantom{.}
 \\
 \wedge\;
 \textstyle\bigwedge_{f \in J_F}
-\big(\phi_{(M_f \restriction E_{M_f})^{\times\mathit{rate}(j)}}^{T,i}(\vec{i_f}, \vec{y_f}, \vec{v_f} \shortmid \vec{y'_f}, \vec{v'_f}, \vec{o}_f)\big)
+\big(\phi_{(M_f \restriction_{\pi_f} E_{M_f})^{\times\mathit{rate}(j)}}^{T,i}(\vec{i_f}, \vec{y_f}, \vec{v_f} \shortmid \vec{y'_f}, \vec{v'_f}, \vec{o}_f)\big)
 \phantom{.}
 \\
 \wedge\;

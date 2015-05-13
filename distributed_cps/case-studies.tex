@@ -306,12 +306,12 @@ the heater's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$  and the temperature
 The temperature $x_i$ of room $i$
 changes according to the ODEs:
 \begin{align*}
-\dot{x}_i &= K_i (h_i - ((1- 2 c) x_i + c x_{i-1} + c x_{i+1}))
+\dot{x}_i &= K_i (h_i - ((1- 2 c) x_i + c x_{i-1} + c x_{i+1})) &&\mbox{if}\;\; m_i = m_\texttt{on},
 \\
-\dot{x}_i &= - K_i ((1- 2 c) x_i + c x_{i-1} + c x_{i+1})
+\dot{x}_i &= - K_i ((1- 2 c) x_i + c x_{i-1} + c x_{i+1}) && \mbox{if}\;\; m_i = m_\texttt{off},
 \end{align*}
-%&\mbox{if}\;\; m_i = m_\texttt{on},
-%& \mbox{if}\;\; m_i = m_\texttt{off},
+
+
 where $K_i, h_i \in \mathbb{R}$ are constants depending on
 the size of room $i$ and the heater's power, respectively,
 and $c \in \mathbb{R}$ is determined by the size of the open door.
@@ -332,7 +332,7 @@ and turned off if $x_i > T_M$.
 %room1
 \filldraw (0,0) rectangle  + (-3,0.08)
 	(-3.08,-2.0) rectangle  + (3,0.08);
-\path (-2.3,-1.5) node[draw] { $H_k$};
+\path (-2.3,-1.5) node[draw] { $H_i$};
 %wall
 \filldraw (0,-0.6) rectangle  + (-0.08,0.6)
 	(0,-2.0) rectangle  + (-0.08,0.6);
@@ -343,7 +343,7 @@ and turned off if $x_i > T_M$.
 %room2
 \filldraw (0,0) rectangle  + (3.5,0.08)
 	(3.5,-2.0) rectangle  + (-3.5,0.08);
-\path (2.5,-1.5) node[draw] (m2){ $H_{k+1}$};
+\path (2.5,-1.5) node[draw] (m2){ $H_{i+1}$};
 %right wall
 \filldraw  (3.5,0.08) rectangle  + (-0.08,-0.6)
 	(3.5,-2.0) rectangle  + (-0.08,0.6);

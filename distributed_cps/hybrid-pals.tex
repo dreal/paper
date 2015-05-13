@@ -284,13 +284,15 @@ machine $M$. This interface is given by the following projection functions:
 % Suppose that $M$ has a state space of the form
 % $S\times \mathbb{R}^m$  for $\mathbb{R}^m$ the $m$ physical parameters that $M$ observes.   
 % For $(s,\vec{v}_o) \in S \times \mathbb{R}^m$,
-The \emph{interface} of a controller $M$ is given by the following
-projection functions, where $s\in S$ is a state in $M$: 
+The \emph{interface} of a controller $M$ is given by the %following
+projection functions $\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$, where $s\in S$ is a state in $M$: 
 \begin{inparaenum}[(i)]
         \item $\pi_T(s) \in \mathbb{N}$ a ``round'' number; 
         %(i.e., $\pi_T(s) = i$ means that the next iteration of the system is iteration $i$); 
-        \item $\pi_R(s,\vec{i}) \in \mathbb{R}$ an environment response time;
-        \item $\pi_I(s) \in \mathbb{R}$ an environment sampling time;
+        \item $\pi_R(s,\vec{i}) \in \mathbb{R}$ a %environment 
+        response time;
+        \item $\pi_I(s) \in \mathbb{R}$ a %environment 
+        sampling time;
         and    
         \item $\pi_C(s) \in C$ the control command of $M$  to $E_M$.
 \end{inparaenum}
@@ -301,8 +303,6 @@ $\pi_O(\vec{v}) \in \mathbb{R}^{m}$.
 \end{definition}
 
 The environment restriction of $M$ can then be defined in the expected way:
-\textbf{KYUNGMIN: In principle, this definition is also depend  on $\Pi$; do you want to write that we fix $\Pi$??}
-
 % Given state $(s, \vec{v})$ and input $\vec{i}$,
 % the next state $(s', \vec{v'})$ and output $\vec{o}$ can be constructed %using $M$ and $E_M$
 % by the same process of Fig.~\ref{fig:env-restriction}:
@@ -310,10 +310,10 @@ The environment restriction of $M$ can then be defined in the expected way:
 \begin{definition}
 \label{def:env-res}
 The \emph{environment restriction} of $M$ by $E_M$ 
-is the machine
-$M \restriction E_M = (D_i, S \times \mathbb{R}^l, D_o, \delta_{M \restriction E_M})$,
+with an interface $\pi$ is %the machine
+$M \restriction_\pi E_M = (D_i, S \times \mathbb{R}^l, D_o, \delta_{M \restriction_\pi E_M})$,
 where
-$( (\vec{i}, (s,\vec{v})), ((s',\vec{v'}), \vec{o}) ) \in \delta_{M \restriction E_M}$ holds iff
+$( (\vec{i}, (s,\vec{v})), ((s',\vec{v'}), \vec{o}) ) \in \delta_{M \restriction_\pi E_M}$ holds iff
  $\pi_T(s') = i + 1$ for the round number $i = \pi_T(s)$, and:
 \begin{enumerate}
     \item %(Sampling) 
@@ -390,7 +390,7 @@ The behaviors of a hybrid ensemble  $\mathcal{E} \restriction_{\Pi} E_\mathcal{E
 are  a \emph{subset} of the behaviors of $\mathcal{E}$, namely, the behaviors restricted by 
 the physical environment $E_\mathcal{E}$.
 As mentioned,
-each (decelerated) environment-restricted machine $M_j \restriction E_{M_j}$ defines 
+each (decelerated) environment-restricted machine $M_j \restriction_\pi E_{M_j}$ defines 
 a transition from a state  at time $iT - \epsilon$ to one at time $(i+1)T-\epsilon$ for a global period $T$.
 Therefore, a lock-step composition of such %environment-restricted 
 transitions
@@ -408,7 +408,7 @@ distributed system $\mathcal{MA}(\mathcal{E}, T, \Gamma)$ that can be realized
 by the %physical 
 environment $E_\mathcal{E}$
 and satisfy the time-invariant constraints.
-In particular, big-step transitions of each component $M_j \restriction E_{M_j}$ are
+In particular, big-step transitions of each component $M_j \restriction_\pi E_{M_j}$ are
 defined for the interval $[iT - \epsilon, (i+1)T-\epsilon]$
  as explained in Section~\ref{sec:env-res}.
 

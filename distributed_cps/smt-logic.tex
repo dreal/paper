@@ -13,20 +13,13 @@ check the satisfiability of those formulas.
 %to automatically check the satisfiability of those formulas.
 %
 The satisfiability of such  formulas is undecidable for nonlinear hybrid systems  in general,
-but becomes \emph{decidable} %up to any given precision $\delta > 0$ 
-\textbf{KYUNGMIN: (1) the following is not a well-formed
-  (sub)sentence, please modify; (2) it would be nice to very briefly
-  explain ``robustness properties under numerical perturbations'', or
-  just change back to ``up to any given precision $\delta >0$. You decide.}
-if we take account of robustness properties %of the system 
-under numerical perturbations $\delta > 0$.
+but becomes \emph{decidable} up to any given precision $\delta > 0$ 
 %
 A \emph{$\delta$-complete decision procedure} for a formula $\phi$ returns false 
-if $\phi$ is unsatisfiable, and returns true if its syntactic 
-numerical perturbation of $\phi$ by bound $\delta$ is
-satisfiable.\footnote{KYUNGMIN: can you VERY BRIEFLY explain what ``if its syntactic 
-numerical perturbation of $\phi$ by bound $\delta$ is
-satisfiable'' means??} 
+if $\phi$ is unsatisfiable, and returns true if its \emph{syntactic numerical perturbation} of $\phi$ by bound $\delta$ is
+satisfiable.\footnote{E,g,, if $\psi \equiv (x > 3) \wedge (y = z)$, then 
+its syntactic numerical perturbation by $\delta> 0$
+is $(x - 3 > -\delta) \wedge (y - z \geq -\delta) \wedge (z - y \geq -\delta)$.} 
 This is  very useful in practice, since 
 sampling exact values of physical parameters is not possible in reality. 
 
@@ -55,9 +48,8 @@ can be equivalently encoded as \emph{SMT formulas}
 \emph{without}  universal quantification over uninterpreted real functions.
 For this purpose, we present a new  SMT framework to provide 
 an efficient SMT algorithm
-for  formulas encoding Hybrid PALS verification
-problems.\footnote{KYUNGMIN: is the latter part of this sentence
-  factually correct? I hope so.}
+for  formulas encoding Hybrid PALS verification problems.
+%\footnote{KYUNGMIN: is the latter part of this sentence  factually correct? I hope so.}
 
 %Even though two real functions
 %$f_1(t)$ and $f_2(t)$ have completely different forms, 
@@ -259,8 +251,8 @@ that defines the combined systems of ODEs for all physical environments
 in $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 The formula $\phi_{\mathit{ODE}}$ is parameterized by the behaviors of 
 the subcomponents by means of integral operators and \emph{name variables}.
-The behavior of each subcomponent $M_j \restriction E_{M_j}$ is then
-specified in a modular way by assigning to each name variable an appropriate name constant for $M_j \restriction E_{M_j}$.
+The behavior of each subcomponent $M_j \restriction_{\pi_j} E_{M_j}$ is then
+specified in a modular way by assigning to each name variable an appropriate name constant for $M_j \restriction_{\pi_j} E_{M_j}$.
 
 %First, 
 We restrict our attention to time-invariant constraints \emph{with only equality terms},
@@ -358,7 +350,7 @@ $\bigwedge_{1 \leq i \leq N}\;
 \end{figure}
 
 
-For any subcomponent $M_j \restriction E_{M_j}$,
+For any subcomponent $M_j \restriction_{\pi_j} E_{M_j}$,
 an ODE subformula $\forall t \in [u_0,u_t].\; \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$ 
 %in $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}$
 is replaced by conditions for variables  $\vec{f}$, $\vec{t}$, and $\vec{g}$.
@@ -374,7 +366,7 @@ as illustrated in Fig.~\ref{fig:flow-map}.
 \begin{definition}\label{def:ode-trans}
 Let  $\pi_j(\vec{g}_i)$ denote $E_{M_j}$'s parameter values 
 in the global values $\vec{g}_i$. % of $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
-Consider an ODE formula %for $M_j \restriction E_{M_j}$ 
+Consider an ODE formula %for $M_j \restriction_{\pi_j} E_{M_j}$ 
 of the form 
 $\forall t \in [u_0,u_t].\, \vec{x_j}(t) = \vec{v_j} + \int_0^{t-u_0} \!  F(\vec{x_j},t)\,\mathrm{d}t$.
 If a name constant $\mathtt{m}_{F(\vec{x_j},t)}$ denotes $F(\vec{x_j},t)$,
