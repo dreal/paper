@@ -1,13 +1,27 @@
 % !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
-\section{PALS for Distributed Hybrid Systems}
+\section{Hybrid PALS}
 \label{sec:hybrid-pals}
 
 
+%\textbf{(Peter) Some very important overview text added!}
 
-This section presents \emph{Hybrid PALS} to incorporate physical environments  
-in PALS, introduced in \cite{hybrid-pals}.
-A state of a physical environment %of a machine $M$ 
+This section presents \emph{Hybrid PALS}, which extends PALS to hybrid
+systems.  One main difference between PALS and Hybrid PALS is that
+ the time at which an event takes place does not matter in PALS, as
+long as it happens within a certain time interval. This
+ allows us to relate a distributed
+real-time system to an essentially untimed synchronous model. However,
+in hybrid systems, we cannot abstract from the time at which a
+continuous value is read or  an actuator command is given
+(both of which depend on a node's imprecise local clocks). Therefore,
+the precise times at which these events happen must be included also
+in the \emph{synchronous} Hybrid PALS models to have any possibility
+of a bisimulation between the synchronous model and the distributed
+hybrid system. 
+
+
+In Hybrid PALS, a  state of a physical environment %of a machine $M$ 
 is given by 
 a tuple $\vec{v} = (v_1,\ldots,v_l) \in \mathbb{R}^l$ 
 of its physical parameters $\vec{x} = (x_1, \ldots,x_l)$,
@@ -21,17 +35,21 @@ $\vec{x}$ over time.
 %The continuous dynamics %of the system 
 %is specified by \emph{controlled physical environments} $E$.
 The standard PALS models $\mathcal{E}$ and $\mathcal{MA}(\mathcal{E},T,\Gamma)$ 
-are considered as just nondeterministic models defined for any possible environment behavior.
+are  nondeterministic models defined for \emph{any possible} environment behaviors.
 Then,
 the \emph{environment restrictions} 
-$\mathcal{E} \restriction E$ and $\mathcal{MA}(\mathcal{E},T,\Gamma)\restriction E$
+$\mathcal{E} \restriction E$ and
+$\mathcal{MA}(\mathcal{E},T,\Gamma)\restriction E$
+%introduced in~\cite{hybrid-pals}, 
  define the behavior of the models 
- constrained by a specific physical  environment $E$.
-In this section we also 
-present a bisimulation equivalence 
+ constrained by the physical  environment $E$.  To have any
+ control over when values are read from, and sent to, physical environments, we add in this paper \emph{sampling and
+   response timing policies} to the Hybrid PALS models. 
+We then  
+prove a bisimulation equivalence 
 relating $\mathcal{E}\restriction E$ and $\mathcal{MA}(\mathcal{E}, T,\Gamma)\restriction E$,
 %with respect to physical environments,
-which generalizes the previous trace equivalence result in \cite{hybrid-pals}.
+which generalizes the  trace equivalence result in \cite{hybrid-pals}.
 
 
 
@@ -44,7 +62,7 @@ which generalizes the previous trace equivalence result in \cite{hybrid-pals}.
 %in such a way that a state of  the physical environment at time $t$
 
 
-The physical environment $E_M$
+A (local)  physical environment $E_M$ of machine $M$
 is specified as a   \emph{controlled physical environment}
 that defines every possible trajectory of its physical parameters $\vec{x}$
 for the control commands from $M$.
@@ -56,8 +74,8 @@ as illustrated in Fig.~\ref{fig:physical-transition}
 %(e.g., state $v_1$, command $a$, duration $t_2-t_1$ yields trajectory $\tau_1$).
 
 \begin{definition}
-Let  $\mathcal{T}$ denote the set of all trajectories. 
-%(a trajectory of duration $T$ is a function $\tau : [0,T] \rightarrow \mathbb{R}$).
+Let  $\mathcal{T}$ denote the set of all
+trajectories (a trajectory of duration $T$ is a function $\tau : [0,T] \rightarrow \mathbb{R}$).
 A \emph{controlled physical environment} $E_M = (C, \vec{x}, \Lambda)$ consists of:
 \begin{inparaenum}[(i)]
     \item $C$ a set of \emph{control commands}; %(or ``actuator outputs'') from  $M$;
@@ -113,20 +131,23 @@ A \emph{controlled physical environment} $E_M = (C, \vec{x}, \Lambda)$ consists 
 \end{figure}
 
 
-Several physical environments can be physically correlated to each other,
+Several physical environments may be physically correlated,
 and one %local 
-environment may immediately affect  another environment.
-Such physical correlations are %naturally 
+environment may % immediately
+affect  another environment.
+Such %physical 
+correlations are %naturally 
 expressed as
 \emph{time-invariant constraints} $(\forall t.\, \psi)$ of physical parameters over time $t$.
 %(e.g., some parameter of one physical environment should always 
 %  equal some other  parameter of another physical environment).
-For instance, if %physical 
+For example, if %physical 
 parameter $x_1$ of $E_{M_1}$
-must be equal to parameter $x_2$ of %another environment 
+must be equal to  parameter $x_2$ of %another environment 
 $E_{M_2}$,
-then the time-invariant constraint is expressed as %the formula
-$\forall t.\; x_1(t) = x_2(t)$.
+then the time-invariant constraint is  %the formula
+$\forall t.\; x_1(t) = x_2(t)$.%
+\footnote{Without loss of generality, we assume that different parameter names of different components are all different.}
 %with variable $t$ for time.
 
 
@@ -139,14 +160,11 @@ A controller $M$ is a \emph{nondeterministic} machine
 parameterized by any behavior of its %physical 
 environment $E_M$.
 %
-Since 
-the controller 
+The controller 
 $M$ interacts  with %its physical environment 
 $E_M$
 according to its local clock,
-we take into account the local clock of $M$.
-The local clock %of $M$ 
-may  differ from the global clock by up to  
+which may  differ from global time by up to  
 the maximal clock skew $\epsilon$.
 Let $c_M : \mathbb{N} \to \mathbb{R}_{>0}$ denote a a \emph{periodic local clock} of $M$
 that gives the \emph{global time} at the
@@ -201,23 +219,31 @@ in a PALS distributed model. % $\mathcal{MA}(\mathcal{E},T,\Gamma)$.
 Its $(i+1)$-th period begins  at time $c_M(i) \in (i T - \epsilon, i T + \epsilon)$. 
 % according to its local clock $c_M$.
 As explained in Section~\ref{pals-dist}, $M$ has already received all the inputs $\vec{i}$ %for this round 
-before time $i T - \epsilon$.
-After some sampling time $t_I$ has elapsed,
+before time $i T - \epsilon$.  At this time, $M$ also samples the
+appropriate values of its environment $E_M$. The sampling takes time
+$t_I$, so that 
 the physical state $\vec{v}_I$ of $E_M$ is read at time $c_M(i) + t_I$.
 $M$ executes its transition based on the inputs $\vec{i}$, the %sampled 
-physical state $\vec{v}_I$,  and the %current 
+physical state $\vec{v}_I$,  and the current 
 machine state $s$.
 %
-After the execution finished at time  $c_M(i) + t_R$, 
-its machine state changes to the next one $s'$,
-where $t_R$ denotes the execution time.
+After the execution ends,
+the machine state changes to  $s'$, and the new controller command $a$
+is sent to $E_M$  at time  $c_M(i) + t_R$, %where it is treated immediately.
+where $t_R$ denotes the response time, 
+which equals the transition execution time and the actuator processing time.
 The new outputs $\vec{o}$ from $M$ are delivered to their destination before $(i+1) T - \epsilon$.
+%footnote{KYUNGMIN:  this last sentence is my understanding; is it correct?  We need to
+%  explain clearly exactly when sampling and actuating take place, and  that's what I have tried.}
+
+
+
 
 %We assume that 
 A control command from a controller $M$ depends on $M$'s current 
 machine state.
 In Fig.~\ref{fig:env-restriction}, a current control command $a$ (given by $s$) remains effective 
-until the execution finished at time $c_M(i) + t_R$,
+until the execution ends at time $c_M(i) + t_R$,
 and then a new control command $a'$ (given by $s'$) takes effect.
 A physical environment 
 $E_M$ defines trajectories of its parameters $\vec{x}$:
@@ -232,19 +258,34 @@ a \emph{big step} transition of $M \restriction E_M$ from state $(s, \vec{v})$ w
 to state $(s',\vec{v'})$ with output $\vec{o}$
 is defined for the time interval $[iT - \epsilon, (i+1)T-\epsilon]$ in \emph{distributed PALS models}.
 
-Moreover, $M \restriction E_M$ 
-can be considered as a ``normal'' state machine
-in \emph{synchronous models},
-provided that the timing values (such as $c_M(i)$, $t_I$, and $t_R$)
-as well as control commands are all determined by $M$'s machine states and inputs.
+% Moreover, $M \restriction E_M$ 
+% can be considered as a ``normal'' state machine
+% in \emph{synchronous models},
+% provided that the timing values (such as $c_M(i)$, $t_I$, and $t_R$)
+% as well as control commands are  determined by $M$'s machine states
+% and inputs.\footnote{KYUNGMIN:  This last paragraph seems a little
+%   unmotivated and misplaced here; can it be dropped?  Instead, it
+%   would be MUCH better to informally introduce ``interfaces'' before
+%   giving the definition ...}
+
+A machine $M$ that integrates both a controller and its environment
+should have a state space of the form $S\times \mathbb{R}^m$,  where
+$\mathbb{R}^m$ is the state space of the $m$ physical parameters that
+$M$ observes.   That $M$ has a transition for \emph{any} environment
+values follows directly from the definitions of machines: their
+transition relations are total. To compose such a machine with its
+environment, we must define the ``interface'' between the controller
+part and the ``environment part'' of such an environment-parametric
+machine $M$. This interface is given by the following projection functions:
 
 
 \begin{definition}
 \label{def:env-interface}
-Suppose that $M$ has a state space of the form
-$S\times \mathbb{R}^m$  for $\mathbb{R}^m$ the $m$ physical parameters that $M$ observes.   
-For $(s,\vec{v}_o) \in S \times \mathbb{R}^m$,
-the \emph{interface}  is given by the projection functions:
+% Suppose that $M$ has a state space of the form
+% $S\times \mathbb{R}^m$  for $\mathbb{R}^m$ the $m$ physical parameters that $M$ observes.   
+% For $(s,\vec{v}_o) \in S \times \mathbb{R}^m$,
+The \emph{interface} of a controller $M$ is given by the following
+projection functions, where $s\in S$ is a state in $M$: 
 \begin{inparaenum}[(i)]
         \item $\pi_T(s) \in \mathbb{N}$ a ``round'' number; 
         %(i.e., $\pi_T(s) = i$ means that the next iteration of the system is iteration $i$); 
@@ -259,11 +300,12 @@ is given by the projection function
 $\pi_O(\vec{v}) \in \mathbb{R}^{m}$.
 \end{definition}
 
+The environment restriction of $M$ can then be defined in the expected way:
+\textbf{KYUNGMIN: In principle, this definition is also depend  on $\Pi$; do you want to write that we fix $\Pi$??}
 
-
-Given state $(s, \vec{v})$ and input $\vec{i}$,
-the next state $(s', \vec{v'})$ and output $\vec{o}$ can be constructed %using $M$ and $E_M$
-by the same process of Fig.~\ref{fig:env-restriction}:
+% Given state $(s, \vec{v})$ and input $\vec{i}$,
+% the next state $(s', \vec{v'})$ and output $\vec{o}$ can be constructed %using $M$ and $E_M$
+% by the same process of Fig.~\ref{fig:env-restriction}:
 
 \begin{definition}
 \label{def:env-res}
@@ -306,18 +348,21 @@ projection functions $\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$
 in Definition~\ref{def:env-interface}.
 The continuous dynamics %of a PALS system 
 is ``completely'' decided  
-by the discrete controllers (in $\mathcal{E}$ or $\mathcal{MA}(\mathcal{E},T,\Gamma)$),
-their physical environments, and timing policies.
+by the controllers % (in $\mathcal{E}$ or $\mathcal{MA}(\mathcal{E},T,\Gamma)$),
+their physical environments, and timing policies (including local clocks of controllers). 
+%  \textbf{(Peter)  Are the clock functions also parameters, or are we quantifying over
+%  all local clock skews??}
 
 
-Deciding $\pi$ is one of system design choices. 
-Most generally, values of $\pi$ can vary
-according to states and inputs.
-More realistically, sampling/response timings are fixed 
-to certain numbers to simplify the system complicity.
-For example, in our previous work \cite{hybrid-pals}, $t_I$ is always $0$ 
+Deciding $\pi$ is a design choice. 
+% Most generally, values of $\pi$ can vary
+% according to states and inputs.
+% More realistically, sampling/response timings are fixed 
+% to certain numbers to simplify the system complicity.
+In % our previous work
+\cite{hybrid-pals}, $t_I$ is $0$ 
 (for controllers tightly integrated with its environments)
-and $t_R$ is always ``delayed'' for 
+and $t_R$ is  
 the maximum execution time $\alpha_{\max}$.
 
 
