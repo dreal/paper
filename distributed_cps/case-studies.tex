@@ -14,24 +14,8 @@ We have verified the safety properties of the systems
 using %bounded reachability, 
 inductive and compositional SMT encodings
 for \emph{any possible local clocks} with a given maximal clock skew $\epsilon > 0$.
-
-
 %
-We have implemented the SMT algorithm
-for our new logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ in the dReal SMT solver \cite{dReal}.
-%
-We have also compared the performance of 
-the new $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-encoding
-with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding  for hybrid PALS models.
-In this comparison,
-we only consider special cases %of the examples 
-with no clock skews ($\epsilon = 0$) 
-due to a lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$.
-
-All the experiments in this section
-were conducted on Intel Xeon 2.0 GHz with 64 GB memory.
-%running 64-bit Ubuntu 12.04.5 LTS.
-The case studies and the experimental evaluation are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
+The case studies are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
 
 
 %To demonstrate the performance benefits obtained by using Multirate PALS, this section compares the execution times and the number of system states explored for model checking the synchronous model and the corresponding distributed asynchronous model. We consider a highly simplified asynchronous model with the following simplifying assumptions:
@@ -40,7 +24,7 @@ The case studies and the experimental evaluation are available at the \textsf{dR
 
 
 
-\subsection{Example: Turning an Airplane}
+\subsection{Turning an Airplane}
 \label{sec:ex-airplane}
 
 We consider a multirate distributed CPS
@@ -393,9 +377,9 @@ where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at th
 \end{figure}
 
 
-\subsection{Automated Highway System}
-
-...
+%\subsection{Automated Highway System}
+%
+%...
 
 %\subsection{Quadrotor Attitude Controller}
 %\label{sec:quadrotor}
@@ -406,7 +390,5 @@ where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at th
 
 
 
-\subsection{Experimental Results}
 
-...
 
