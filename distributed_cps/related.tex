@@ -20,15 +20,15 @@ synchronous and the distributed model.
 
 But the main difference is in the verification part. 
 The previous PALS work uses explicit-state model checking based on numerical simulation.
-Obviously, this cannot guarantee the correctness of the system with the (nonlinear) continuous dynamics.
+Obviously, this cannot guarantee the correctness of the system with the continuous dynamics.
 In particular,
 there was no hope to verify the system against all possible local clocks.
 \cite{hybrid-pals} shows that the safety property of two interconnected thermostats
 can be verified using \textsf{dReal}, but did not present SMT techniques for 
 general hybrid PALS models.
 Our work presents SMT encodings for bounded reachability, inductive, and
-compositional analysis of hybrid PALS models,
-besides a new SMT framework.
+compositional analysis, % of hybrid PALS models,
+besides a new SMT framework and more case studies.
 
 Because of the difficulty of handling SMT
 formulas over the reals with nonlinear functions, 
