@@ -4,20 +4,6 @@
 \section{Related Work}
 \label{sec:related-work}
 
-%many important advances have been made by
-%various approaches, including \cite{DBLP:journals/jlp/FranzleTE10,DBLP:conf/cav/FrehseGDCRLRGDM11,DBLP:journals/tac/AlthoffK14,frehse2005phaver,DBLP:conf/icons/HerdeEFT08,DBLP:conf/rtss/ChenAS12,DBLP:conf/aaai/CimattiMT12,platzer2008differential}.
-
-%PALS was originally proposed to reduce the system complexity of 
-%single-rate virtually synchronous distributed real-time systems \cite{pals-rtss09,pals-tcs},
-%and then extended for multirate systems \cite{mr-pals-journal,al2012pattern} and hybrid systems \cite{ftscs-journal,hybrid-pals}.
-
-%%% Peter: I have no clue what the following section was doing in the
-%%% paper ...
-% Hybrid automata techniques are not appropriate for hybrid PALS models.
-% Hybrid PALS models are basically time triggered models, which are not perfectly synchronized due to clock skews,
-% whereas composing hybrid automata requires perfect synchronization of several events.
-
-%%% (Peter): I try to add some PALS rel work. 
 PALS~\cite{pals-rtss09,mr-pals-journal,pals-tcs,al2012pattern} targets
 distributed real-time systems, whose absence of continuous behaviors
 means that continuous behaviors and local clocks do not need to be
@@ -26,13 +12,23 @@ verified by any explicit-state model checker. In contrast, Hybrid PALS
 synchronous models must take both clock skews and continuous behaviors
 into account and hence cannot be analyzed by explicit-state
 techniques. The first steps to add continuous behaviors to PALS were
-taken in~\cite{hybrid-pals}. The present work presents a more general
+taken in~\cite{hybrid-pals}. Our work presents a more general
 model, where the relative sampling and actuating times are system
 parameters,  and also provides a crucial bisimulation result between
 the 
-synchronous and the distributed model. But the main difference is in the
-verification part. \textbf{Kyungmin, add stuff here!!!}
+synchronous and the distributed model. 
 
+But the main difference is in the verification part. 
+The previous PALS work uses explicit-state model checking based on numerical simulation.
+Obviously, this cannot guarantee the correctness of the system with the (nonlinear) continuous dynamics.
+In particular,
+there was no hope to verify the system against all possible local clocks.
+\cite{hybrid-pals} shows that the safety property of two interconnected thermostats
+can be verified using \textsf{dReal}, but did not present SMT techniques for 
+general hybrid PALS models.
+Our work presents SMT encodings for bounded reachability, inductive, and
+compositional analysis of hybrid PALS models,
+besides a new SMT framework.
 
 Because of the difficulty of handling SMT
 formulas over the reals with nonlinear functions, 
@@ -45,30 +41,27 @@ are based on the HySAT/iSAT
 solver~\cite{DBLP:journals/fmsd/FranzleH07,eggers2008sat}
 and the MathSAT
 solver~\cite{DBLP:conf/aaai/CimattiMT12,DBLP:conf/fmcad/CimattiMT12}.
-But efficient encoding of networks of hybrid systems has not been
+But neither efficient encoding of distributed hybrid systems nor 
+inductive and compositional analysis has not been
 investigated in existing work along these lines. 
 
-On the other hand,
-for reachable set computation, 
-%the work on 
-SpaceEX~\cite{DBLP:conf/cav/FrehseGDCRLRGDM11}
-has involved methods for handling networks restricted to linear/multiaffine hybrid systems,
-and 
-Flow*~\cite{DBLP:conf/cav/ChenAS13} proposed an approach for verifying
-nonlinear hybrid systems using Taylor model flowpipe construction. 
-%
-dReach~\cite{dReach}
-encodes reachability problems of hybrid systems to SMT problems and
-solves them using %a $\delta$-decision procedures, 
-dReal~\cite{dReal}.
-%
-Our approach is different from dReach, 
-since dReach \emph{explicitly} enumerates all mode paths of a hybrid automaton
-to generate many small SMT formulas for these paths.
+%On the other hand,
+%for reachable set computation, 
+%%the work on 
+%SpaceEX~\cite{DBLP:conf/cav/FrehseGDCRLRGDM11}
+%has involved methods for handling networks restricted to linear/multiaffine hybrid systems,
+%and 
+%Flow*~\cite{DBLP:conf/cav/ChenAS13} proposed an approach for verifying
+%nonlinear hybrid systems using Taylor model flowpipe construction. 
+%%
+%dReach~\cite{dReach}
+%encodes reachability problems of hybrid systems to SMT problems and
+%solves them using %a $\delta$-decision procedures, 
+%dReal~\cite{dReal}.
+%%
+%Our approach is different from dReach, 
+%since dReach \emph{explicitly} enumerates all mode paths of a hybrid automaton
+%to generate many small SMT formulas for these paths.
 
-
-
-%Multirate PALS ?? ( Abdullah's work, other synchronizer, virtually synchronization, ...)
-%SMT and \texttt{dReal} ??
 
 

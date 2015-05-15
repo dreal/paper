@@ -134,6 +134,16 @@ effective for analyzing \emph{discrete} controllers,
 while  analyzing
 the continuous dynamics %of a CPS 
 up to precision $\delta$.
+%
+%MOVED
+We have applied our techniques on a range of advanced CPSs, including
+systems for turning an airplane.
+%controlling the altitude of a quad-rotor UAV,
+%controlling the water level in a power plant,  
+ networked water tank
+ controllers,  networked thermostat controllers, and
+an automated highway system.
+%
 
 
 %%% OLD Paragraph 4
@@ -253,19 +263,17 @@ can be reduced to one in the standard theory of the real numbers \emph{at no cos
 We have implemented our SMT techniques within the \textsf{dReal} SMT
 solver \cite{dReal}.
 %
-We have applied our techniques on a range of advanced CPSs, including
-systems for turning an airplane.
-%controlling the altitude of a quad-rotor UAV,
-%controlling the water level in a power plant,  
- networked water tank
- controllers,  networked thermostat controllers, and
-an automated highway system.
-%
 The experimental results show that these techniques can dramatically increase 
-the performance of SMT-based analysis for nontrivial distributed CPS.
+the performance of SMT-based analysis for %nontrivial 
+distributed CPS.
 %that involve multiple control modes and nonlinear ODEs.
 % To the best of our knowledge, modular SMT encoding for 
 %(coupled) nonlinear ODEs and its efficient decision procedure have never been developed for distributed hybrid systems.
+%
+%ADDED
+It is worth noting that 
+our methods are orthogonal to reachable set computation tools like SpaceEX~\cite{DBLP:conf/cav/FrehseGDCRLRGDM11}
+and Flow*~\cite{DBLP:conf/cav/ChenAS13}.
 
 %%% OLD paragraph:
 % For this reason, 

@@ -6,7 +6,7 @@
 
 Theorem~\ref{thm:hybrid-pals} implies that 
  verifying 
- a distributed CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
+ a distributed hybrid CPS $\mathcal{MA}(\mathcal{E}, T, \Gamma) \restriction_{\Pi} E_\mathcal{E}$
 amounts to  verifying the much  simpler synchronous model $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$.
 %Directly analyzing such distributed systems is unfeasible in practice
 %due to the combinatorial explosion even for simple discrete systems \cite{pals-tcs}.
@@ -291,7 +291,7 @@ $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
 	\{\vec{y'_j}, \vec{v'_j}, \vec{\mathit{f}_j'}\}_{j\in J_S\cup J_F}, \vec{o})$ is:
 \begin{align*}
 %(\exists \{\vec{i_j},\vec{o_j}\}_{j\in J_S\cup J_F})\;
-\exists \{\vec{i_j},\vec{o_j}\}_{j\in J_S\cup J_F}.\;
+\exists \{\vec{i_j},\vec{o_j}\}_{j\in J_S\cup J_F}.\,
 \textstyle\bigwedge_{s \in J_S}
 \big(\phi_{M_s \restriction_{\pi_s} E_{M_s}}^{T,i}(\vec{i_s}, \vec{y_s}, \vec{v_s} \shortmid \vec{y'_s}, \vec{v'_s}, \vec{o}_s)\big)
 \phantom{.}
@@ -378,17 +378,14 @@ $\mathit{safe}(\vec{z},t)$
 for that round.
 
 \begin{definition} 
-The  inductive analysis problem for $\forall t.  \mathit{safe}(\vec{z},t)$
+The  verification problem for $\forall t. \mathit{safe}(\vec{z},t)$
 with an inductive condition $\mathit{ind}(\vec{z})$ is encoded  by:
 \begin{multline*}
-\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
-\big(\mathit{ind}(\vec{z})  \rightarrow \mathit{safe}(\vec{z},t)\big)
-\\
-\wedge\;
-\big(
+\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}.\;
 (\mathit{ind}(\vec{z})\;\wedge\;\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}(\vec{i}, \vec{z}\shortmid \vec{z'}, \vec{o}))
-\rightarrow
-\mathit{ind}(\vec{z'})\big)
+\\
+\implies
+\mathit{ind}(\vec{z'}) \;\wedge\; t \in [0,T].\,\mathit{safe}(\vec{z},t)
 .
 \end{multline*}
 \end{definition}
@@ -410,12 +407,7 @@ $\mathit{safe}(\vec{z},t)$ for that round.
 with I/O conditions $\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)$ and $\mathit{c}_\mathit{out}(\vec{o},\vec{z},t)$
 is encoded by:
 \begin{multline*}
-\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}, t \in [0,T].\;
-\big(\mathit{c}_\mathit{in}(\vec{i},\vec{z},t) \rightarrow \mathit{safe}(\vec{z},t) \big)
-\phantom{.}
-\\
-\wedge\;
-\big(
+\forall \vec{z}, \vec{z'}, \vec{i}, \vec{o}.\;
 (\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)
 \;\wedge\;
 \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}(
@@ -423,8 +415,9 @@ is encoded by:
 	\shortmid 
 	\vec{z'}, \vec{o})
 )
-\rightarrow
-\mathit{c}_\mathit{out}(\vec{o},\vec{z'},t)\big).
+\\
+\implies
+\mathit{c}_\mathit{out}(\vec{o},\vec{z'},t) \;\wedge\; t \in [0,T].\, \mathit{safe}(\vec{z},t).
 \end{multline*}
 \end{definition}
 
