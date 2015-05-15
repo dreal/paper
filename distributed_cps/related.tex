@@ -18,16 +18,16 @@ parameters,  and also provides a crucial bisimulation result between
 the 
 synchronous and the distributed model. 
 
-But the main difference is in the verification part. 
-The previous PALS work in \cite{mr-pals-journal,ftscs-journal} uses explicit-state model checking, 
+However,  the main difference is in the verification part. 
+Previous PALS work \cite{ftscs-journal} used explicit-state model checking, 
 based on numerical simulation for the continuous dynamics.
-Obviously, this cannot guarantee the correctness of \emph{hybrid} systems.
-In particular,
-there was no hope to verify the system against all possible local clocks.
-\cite{hybrid-pals} shows that the safety property of two interconnected thermostats
-can be verified using \textsf{dReal}, but did not present SMT techniques for 
-general hybrid PALS models.
-Also, the previous work considers only particular sampling and actuating times.
+Obviously, this cannot guarantee the correctness of hybrid systems.
+Furthermore,
+there was no hope of verifying a system for  all possible local clocks.
+The paper \cite{hybrid-pals} shows that two interconnected thermostats
+can be verified using \textsf{dReal}, but does not present any general SMT techniques for 
+Hybrid PALS.
+%Also, the previous work considers only particular sampling and actuating times.
  %
 Our work presents SMT encodings for bounded reachability, inductive, and
 compositional analysis, % of hybrid PALS models,
@@ -44,11 +44,11 @@ are based on the HySAT/iSAT
 solver~\cite{DBLP:journals/fmsd/FranzleH07,eggers2008sat}
 and the MathSAT
 solver~\cite{DBLP:conf/aaai/CimattiMT12,DBLP:conf/fmcad/CimattiMT12}.
-But neither efficient encoding of distributed hybrid systems nor 
-inductive and compositional analysis has not been
+But neither efficient encodings of distributed hybrid systems nor 
+inductive and compositional analysis has  been
 investigated in existing work along these lines. 
 %
-It is worth noting that 
+It is also worth noting that 
 our methods are orthogonal to reachable set computation tools like SpaceEX~\cite{DBLP:conf/cav/FrehseGDCRLRGDM11}
 and Flow*~\cite{DBLP:conf/cav/ChenAS13},
 since they can also be used as ODE solvers for $\delta$-compete SMT (e.g., in \textsf{dReal}).
