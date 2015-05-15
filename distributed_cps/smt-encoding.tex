@@ -261,7 +261,8 @@ $\phi_\mathit{wire}$ is the conjunction of the equalities:
 
 
 A hybrid ensemble $\mathcal{E} \restriction_{\Pi} E_\mathcal{E}$ 
-of machines  $\{M_j\}_{j\in J_S\cup J_F}$ with physical environments $\{E_{M_j}\}_{j\in J_S\cup J_F}$
+of machines  $\{M_j\}_{j\in J_S\cup J_F}$ with %physical 
+environments $\{E_{M_j}\}_{j\in J_S\cup J_F}$
 ($J_S$ denoting slow machines and $J_F$ denoting fast machines) is
 encoded as a formula 
 $\phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(
@@ -403,7 +404,8 @@ $\mathit{safe}(\vec{z},t)$ for that round.
 %This method is very useful for parameterized systems (see Section~\ref{sec:case-studies}).
 
 
-\begin{definition} The compositional analysis for $\forall t.  \mathit{safe}(\vec{z},t)$
+\begin{definition} \label{def:compositional}
+The compositional analysis for $\forall t.  \mathit{safe}(\vec{z},t)$
 with I/O conditions $\mathit{c}_\mathit{in}(\vec{i},\vec{z},t)$ and $\mathit{c}_\mathit{out}(\vec{o},\vec{z},t)$
 is encoded by:
 \begin{multline*}

@@ -28,7 +28,7 @@ of its physical parameters $\vec{x} = (x_1, \ldots,x_l)$,
 and
 the behavior of %the physical parameters 
 $\vec{x}$
-can be modeled using ODEs that specify \emph{trajectories} 
+can be modeled by ODEs that specify \emph{trajectories} 
 $\tau_1, \ldots, \tau_l$ of %the parameters 
 $\vec{x}$ over time.
 %
@@ -36,10 +36,10 @@ $\vec{x}$ over time.
 %is specified by \emph{controlled physical environments} $E$.
 The standard PALS models $\mathcal{E}$ and $\mathcal{MA}(\mathcal{E},T,\Gamma)$ 
 are  nondeterministic models defined for \emph{any possible} environment behaviors.
-Then,
-the \emph{environment restrictions} 
-$\mathcal{E} \restriction E$ and
+The \emph{environment restrictions} 
 $\mathcal{MA}(\mathcal{E},T,\Gamma)\restriction E$
+and
+$\mathcal{E} \restriction E$
 %introduced in~\cite{hybrid-pals}, 
  define the behavior of the models 
  constrained by the physical  environment $E$.  To have any
@@ -62,15 +62,17 @@ which generalizes the  trace equivalence result in \cite{hybrid-pals}.
 %in such a way that a state of  the physical environment at time $t$
 
 
-A (local)  physical environment $E_M$ of machine $M$
+A (local)  %physical 
+environment $E_M$ of machine $M$
 is specified as a   \emph{controlled physical environment}
-that defines every possible trajectory of its physical parameters $\vec{x}$
+that defines every possible trajectory of its physical parameters %$\vec{x}$
 for the control commands from $M$.
 %
 For a state $\vec{v} \in \mathbb{R}^l$, a control command $a$, and a duration $t \in \mathbb{R}$,
-a controlled physical environment $E_M$
+a %controlled 
+physical environment $E_M$
 gives a trajectory $\vec{\tau}$ of its parameters $\vec{x}$ of duration $t$,
-as illustrated in Fig.~\ref{fig:physical-transition}
+as illustrated in Fig.~\ref{fig:physical-transition}.
 %(e.g., state $v_1$, command $a$, duration $t_2-t_1$ yields trajectory $\tau_1$).
 
 \begin{definition}
@@ -95,7 +97,7 @@ A \emph{controlled physical environment} $E_M = (C, \vec{x}, \Lambda)$ consists 
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[xscale=2.5,yscale=2.12,font=\footnotesize]
+\begin{tikzpicture}[xscale=2.5,yscale=1.39,font=\footnotesize]
 %baseline
 \draw[-latex,thin] (-0.1,0) -- (3.2,0);
 \draw[shift={(0,0)},thin,dashed] (0,1.1) -- (0,-0.05) node[below] {\footnotesize $t_0$};
@@ -177,7 +179,7 @@ $c_M(n) \in (n T - \epsilon, n T + \epsilon)$ for each $n > 0$.
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[xscale=2.5,yscale=2.4,font=\footnotesize]
+\begin{tikzpicture}[xscale=2.5,yscale=1.68,font=\footnotesize]
 %baseline
 \draw[-latex,thin] (-0.2,0) -- (3.3,0);
 \draw[-latex,thin] (-0.2,0.8) -- (3.3,0.8);
