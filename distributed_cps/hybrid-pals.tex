@@ -14,15 +14,15 @@ long as it happens within a certain time interval. This
 real-time system to an essentially untimed synchronous model. However,
 in hybrid systems, we cannot abstract from the time at which a
 continuous value is read or  an actuator command is given
-(both of which depend on a node's imprecise local clocks). Therefore,
+(both of which depend on a component's imprecise local clock). Therefore,
 the precise times at which these events happen must be included also
 in the \emph{synchronous} Hybrid PALS models to have any possibility
-of a bisimulation between the synchronous model and the distributed
+of an equivalence between the synchronous model and the distributed
 hybrid system. 
 
 
 In Hybrid PALS, a  state of a physical environment %of a machine $M$ 
-is given by 
+is 
 a tuple $\vec{v} = (v_1,\ldots,v_l) \in \mathbb{R}^l$ 
 of its physical parameters $\vec{x} = (x_1, \ldots,x_l)$,
 and
@@ -234,7 +234,8 @@ the machine state changes to  $s'$, and the new controller command $a$
 is sent to $E_M$  at time  $c_M(i) + t_R$, %where it is treated immediately.
 where $t_R$ denotes the response time, 
 which equals the transition execution time and the actuator processing time.
-The new outputs $\vec{o}$ from $M$ are delivered to their destination before $(i+1) T - \epsilon$.
+The new outputs $\vec{o}$ from $M$ are delivered to their destinations
+before time $(i+1) T - \epsilon$.
 %footnote{KYUNGMIN:  this last sentence is my understanding; is it correct?  We need to
 %  explain clearly exactly when sampling and actuating take place, and  that's what I have tried.}
 
@@ -242,11 +243,12 @@ The new outputs $\vec{o}$ from $M$ are delivered to their destination before $(i
 
 
 %We assume that 
-A control command from a controller $M$ depends on $M$'s current 
-machine state.
-In Fig.~\ref{fig:env-restriction}, a current control command $a$ (given by $s$) remains effective 
+A control command from a controller $M$ depends on $M$'s current  state.
+In Fig.~\ref{fig:env-restriction}, a current control command $a$ % (given by $s$)
+remains effective 
 until the execution ends at time $c_M(i) + t_R$,
-and then a new control command $a'$ (given by $s'$) takes effect.
+and then a new control command $a'$ % (given by $s'$)
+takes effect.
 A physical environment 
 $E_M$ defines trajectories of its parameters $\vec{x}$:
 \begin{inparaenum}[(i)]
@@ -350,20 +352,20 @@ projection functions $\pi=(\pi_T, \pi_R, \pi_I, \pi_C, \pi_O)$
 in Definition~\ref{def:env-interface}.
 The continuous dynamics %of a PALS system 
 is ``completely'' decided  
-by the controllers % (in $\mathcal{E}$ or $\mathcal{MA}(\mathcal{E},T,\Gamma)$),
+by the controllers,  % (in $\mathcal{E}$ or $\mathcal{MA}(\mathcal{E},T,\Gamma)$),
 their physical environments, and timing policies (including local clocks of controllers). 
 %  \textbf{(Peter)  Are the clock functions also parameters, or are we quantifying over
 %  all local clock skews??}
-
-
-Deciding $\pi$ is a design choice. 
+%
+%
+% Deciding $\pi$ is a design choice. 
 % Most generally, values of $\pi$ can vary
 % according to states and inputs.
 % More realistically, sampling/response timings are fixed 
 % to certain numbers to simplify the system complicity.
 In % our previous work
 \cite{hybrid-pals}, $t_I$ is $0$ 
-(for controllers tightly integrated with its environments)
+(for controllers tightly integrated with their environments)
 and $t_R$ is  
 the maximum execution time $\alpha_{\max}$.
 
@@ -394,9 +396,9 @@ the physical environment $E_\mathcal{E}$.
 As mentioned,
 each (decelerated) environment-restricted machine $M_j \restriction_\pi E_{M_j}$ defines 
 a transition from a state  at time $iT - \epsilon$ to one at time $(i+1)T-\epsilon$ for a global period $T$.
-Therefore, a lock-step composition of such %environment-restricted 
+Therefore, a lockstep composition of such %environment-restricted 
 transitions
-\emph{that also satisfy the time-invariant constraints} gives a transition of 
+\emph{that also satisfies the time-invariant constraints} gives a transition of 
 the synchronous composition $M_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}$
 from one state at time $iT - \epsilon$ to another state at time $(i+1)T-\epsilon$.
 

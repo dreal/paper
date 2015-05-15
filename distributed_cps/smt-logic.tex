@@ -12,8 +12,8 @@ check the satisfiability of those formulas.
 % we are interested in using SMT solving 
 %to automatically check the satisfiability of those formulas.
 %
-The satisfiability of such  formulas is undecidable for nonlinear hybrid systems  in general,
-but becomes \emph{decidable} up to any given precision $\delta > 0$ 
+The satisfiability of such  formulas is undecidable for nonlinear hybrid systems,
+but becomes \emph{decidable} up to any given precision $\delta > 0$. 
 %
 A \emph{$\delta$-complete decision procedure} for a formula $\phi$ returns false 
 if $\phi$ is unsatisfiable, and returns true if its \emph{syntactic numerical perturbation} of $\phi$ by bound $\delta$ is
@@ -79,7 +79,7 @@ and solutions of Lipschitz-continuous ODEs.
 
 \begin{definition}
 For a finite set $\mathcal{F}$ of computable real functions
-(real number constants as $0$-ary functions),
+(with real number constants seen as $0$-ary functions),
 %
 $\mathcal{L}_\mathcal{F} = (\mathcal{F}, >)$ denotes the first-order signature over the real numbers
 with the functions in $\mathcal{F}$,
@@ -90,12 +90,12 @@ is the standard structure of the theory of the real numbers.
 
 Solutions of ODEs are considered  \emph{atomic functions} in $\mathcal{L}_\mathcal{F}$,
 and therefore the structure of ODEs cannot be used for SMT algorithms  in this logic.
-This restrictive syntax makes it difficult to efficiently express logical formulas for Hybrid PALS 
+This restrictive syntax makes it difficult to efficiently encode  logical formulas for Hybrid PALS 
 in $\mathcal{L}_\mathcal{F}$. 
 % which typically involve different local physical environments interacting with each other.
 %Therefore, 
 We therefore present a new SMT theory,
-by extending $\mathcal{L}_\mathcal{F}$, that allows to express solutions of ODEs in a modular way,
+by extending $\mathcal{L}_\mathcal{F}$, that allows  to express solutions of ODEs in a modular way,
 so that the size of the formula can be significantly reduced.
 
 
@@ -257,14 +257,14 @@ The behavior of each subcomponent $M_j \restriction_{\pi_j} E_{M_j}$ is then
 specified in a modular way by assigning to each name variable an appropriate name constant for $M_j \restriction_{\pi_j} E_{M_j}$.
 
 %First, 
-We restrict our attention to time-invariant constraints \emph{with only equality terms},
+We restrict our attention to time-invariant constraints with only equality terms,
 %such as one for the airplane example,
 since physical correlations for CPS in practice typically can be expressed using
 equalities.
 Equality  constraints, such as $x_1(t) = x_2(t)$,  can be removed
 from the formula  by replacing one side with the other, 
 for example, by replacing each function symbol $x_1$ with  $x_2$.
-From now on we assume that time-invariant \emph{equality} constraints
+From now on we assume that time-invariant equality constraints
 have been  removed from the formula 
 in this way.
 

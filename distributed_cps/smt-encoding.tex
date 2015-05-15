@@ -61,9 +61,9 @@ $\phi_{M}(\vec{d}_i, s \shortmid s',  \vec{d}_o)
 
 
 
-A physical environment $E_M$ is expressed as 
-a formula over the real numbers %and ODEs
-of the form $\phi_{E_M}(\vec{a},u_0,u_t,\vec{v} \shortmid \vec{x})$,
+A physical environment $E_M$ can be encoded  as 
+a formula $\phi_{E_M}(\vec{a},u_0,u_t,\vec{v} \shortmid \vec{x})$  over the real numbers %and ODEs
+%of the form $\phi_{E_M}(\vec{a},u_0,u_t,\vec{v} \shortmid \vec{x})$,
 with: \emph{unary function symbols} $\vec{x}$ denoting the
 trajectories of $E_M$'s physical parameters $\vec{x}$, and 
 	\emph{variables} $\vec{a}$, $u_0$, $u_t$, and $\vec{v}$
@@ -125,13 +125,13 @@ we use the ``$\epsilon$-shifted''  time axis for the interval $[iT, (i+1)T]$. %f
 %
 %A formula $\phi_{M \restriction_\pi E_M}$ 
 %is basically the direct translation of its formal definition in Definition~\ref{def:env-res}.
-But due to clock skews, 
+Due to clock skews, 
 the exact values of sampling time $u_I = (c_M(i)+t_I)-(iT-\epsilon)$
-and response time $u_R = (c_M(i)+t_R)-(iT-\epsilon)$ are unpredictable. 
+and response time $u_R = (c_M(i)+t_R)-(iT-\epsilon)$ are unknown. 
 Because $iT - \epsilon < c_M(i) < iT + \epsilon$,
 we represent those times as formulas 
 $t_I < u_I < t_I + 2\epsilon$ and $t_R < u_R < t_R + 2\epsilon$
-within $\phi_{M \restriction_\pi E_M}$.
+in $\phi_{M \restriction_\pi E_M}$.
 
 
 
@@ -232,7 +232,7 @@ $\phi_{(M \restriction_\pi E_M)^{\times k}}^{T,
 
 The wiring diagram of $\mathcal{E}$ is encoded as
 a conjunction of %appropriate 
-\emph{equalities} between variables denoting input and output ports.
+equalities between variables denoting input and output ports.
 Each equality corresponds to a connection in $\mathcal{E}$
 (together with an input adaptor for machines with different rates).
 %Since feedback outputs of one machine to itself or another machine 

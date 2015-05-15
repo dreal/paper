@@ -8,7 +8,7 @@ PALS transforms
 into a %\emph{correct-by-construction} 
 distributed real-time system $\mathcal{MA}(\mathit{SD}, T, \Gamma)$
 that satisfies the same temporal logic ($CTL^*$) formulas,
-provided that the underlying network
+provided that the underlying 
 infrastructure guarantees bounds %$\Gamma$ on network delays, execution times,  and clock skews, 
 $\Gamma = (\epsilon, \alpha_{\min}, \alpha_{\max}, \mu_{\min}, \mu_{\max})$
 with
@@ -48,8 +48,9 @@ is composed of:
 	(a value to the $k$-th \emph{input port}  is an element of  $D_{i_k}$), 
 	% for $1 \leq k \leq n$, 
 	\item $S$ a set of states, 
-	\item $D_o =D_{o_1} \times \cdots \times D_{o_m}$ an output set
-	(a value from the $j$-th \emph{output port} is an element of  $D_{o_j}$), and 
+	\item $D_o =D_{o_1} \times \cdots \times D_{o_m}$ an output set,
+	% (a value from the $j$-th \emph{output port} is an element of  $D_{o_j}$)
+        and 
 	% for $1 \leq j \leq m$
 	\item $\delta_M \subseteq (D_i \times S) \times (S \times D_o)$ a total
 	transition relation.
@@ -77,14 +78,15 @@ with $M_1$ and $M_2$ slow machines.
 }  \label{fig:ensemble}
 \end{figure}
 
-In each iteration, all components in $\mathcal{E}$ perform the transitions \emph{in lockstep}.
+In each iteration, all components in $\mathcal{E}$ perform a
+transition each \emph{in lockstep}.
 A fast machine $f$ is \emph{slowed down} 
-and performs $k = \mathit{rate}(f)$ internal transitions  in one global synchronous step.
+and performs $k = \mathit{rate}(f)$ \emph{internal} transitions  in one global synchronous step.
 Since 
 a fast machine produces $k$-tuples of outputs in one step, 
 %but a slow machine only needs  a single input value.
 %Therefore,
-\emph{input adapters} are applied 
+\emph{input adapters} are used 
 to generate single values (e.g., the last value, or 
 the average of the $k$ values) for a slow machine. 
 Likewise, a single output  from a slow machine is adapted to a $k$-tuple of inputs 
@@ -129,7 +131,7 @@ is composed of a machine in $\mathcal{E}$ and \emph{wrappers} around it, as illu
 %which  encloses either a (slow) machine or a $k$-machine wrapper, 
 %which encloses a  (fast) machine. 
 In $\mathcal{MA}(\mathcal{E}, T, \Gamma)$,
-an innermost machine performs at its own rate according to its local clock.
+each machine performs at its own rate according to its local clock.
 %that deviates by less than $\epsilon$ from the global  clock.
 At the beginning of its periods, it reads its input from the layer above, 
 performs a transition, and then generates the outputs.

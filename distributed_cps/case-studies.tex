@@ -4,23 +4,24 @@
 \section{Case Studies and Experimental Results}
 \label{sec:case-studies}
 
-This section shows %four 
-case studies %and experimental results 
-for SMT-based analysis of 
-distributed CPSs using Hybrid PALS.
+This section gives an overview of some 
+case studies using Hybrid PALS and SMT-based analysis to verify %and experimental results 
+distributed CPSs. 
 %
 These case studies involve nontrivial (nonlinear) ODEs,
-because of continuous physical interaction between distributed components.
-We have verified the safety properties of the systems
+due to the  continuous physical interaction between distributed components.
+We have verified safety properties 
 using %bounded reachability, 
 inductive and compositional SMT encodings
-for \emph{any possible local clocks} with a given maximal clock skew $\epsilon > 0$.
+for \emph{any possible} set of  local clocks  maximal clock skew $\epsilon$.
 %
-All the experiments in this section
-were conducted on Intel Xeon 2.0 GHz with 64 GB memory.
+All  experiments in this section
+were conducted on an Intel Xeon 2.0 GHz with 64 GB memory.
 %running 64-bit Ubuntu 12.04.5 LTS.
 %We set a timeout of 30 hours. % for the experiments.
-The case studies and the experimental evaluation are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
+The case studies and the experimental evaluation are available at %the
+%\textsf{dReal} tool webpage
+\url{http://dreal.github.io/benchmarks/networks}. 
 
 
 
@@ -29,17 +30,17 @@ The case studies and the experimental evaluation are available at the \textsf{dR
 \label{sec:ex-airplane}
 
 We consider a multirate distributed CPS
-to control the turning maneuver of an airplane (adapted from \cite{ftscs-journal}).
+to turn an airplane (adapted from \cite{ftscs-journal}).
 %in which a \emph{main controller} directs \emph{subcontrollers} for the ailerons and the rudder in a synchronous way.
 %
 To make a turn, an aircraft rolls towards the direction of the turn
-by moving its ailerons (surfaces attached to the end of the wings).
+by moving its \emph{ailerons} % (surfaces attached to the end of the wings).
 The rolling causes 
 a yawing moment in the opposite direction, called \emph{adverse yaw},
-countered by using its rudder (a surface attached to the vertical stabilizer).
+which is countered by using its \emph{rudder} (a surface attached to the vertical stabilizer).
 %
-The \emph{subcontrollers} for the ailerons and the rudder operate at different rates, 
-and the \emph{main controller} orchestrates them to achieve a coordinated turn.
+The subcontrollers for the ailerons and the rudder operate at different rates, 
+and the main controller orchestrates them to achieve a smooth turn.
 %
 Fig.~\ref{fig:airplane-ctrl} illustrates the multirate ensemble $\mathcal{E}$ of our system.
 
@@ -85,8 +86,10 @@ Fig.~\ref{fig:airplane-ctrl} illustrates the multirate ensemble $\mathcal{E}$ of
 \end{figure}
 
 
-Each subcontroller $M$ gradually moves its surface towards the goal angle $\mathit{goal}_M$ specified by the main controller $M_\mathit{Main}$.
-For each period, $M$ receives $\mathit{goal}_M$ from $M_\mathit{Main}$,
+Each subcontroller $M$ gradually moves its surface towards the goal
+angle $\mathit{goal}_M$ specified by the main controller
+$M_\mathit{Main}$. 
+In each round, $M$ receives $\mathit{goal}_M$ from $M_\mathit{Main}$,
 determines the moving rate $\mathit{rate}_M$ based on $\mathit{goal}_M$ 
 and the current sampled value $v_M$ of the surface angle $\alpha_M$,
 and sends back $v_M$ to $M_\mathit{Main}$
@@ -100,7 +103,7 @@ as the ODE $\frac{\mathrm{d}\alpha_M}{\mathrm{d}t} = \mathit{rate}_M$.
 %$\tau(t) = v_M + \int_0^t  \mathit{rate}_M \,\mathrm{d}t$ for $t \in [0, T]$.}
 
 The main controller $M_\mathit{Main}$ determines the goal angles for the subcontrollers to make a coordinated turn.
-For each period, $M_\mathit{Main}$ receives a  desired direction $\mathit{goal}_\psi$ %of the airplane 
+In  each round, $M_\mathit{Main}$ receives a  desired direction $\mathit{goal}_\psi$ %of the airplane 
 (from the pilot)
 and the surface angles $(v_L, v_V, v_R)$ from the subcontrollers, 
 and then sends back the new goal angles $(\mathit{goal}_L,\mathit{goal}_V,\mathit{goal}_R)$,
@@ -149,7 +152,7 @@ and $\beta$
 \cite{stevens2003aircraft}:
 %
 \begin{align*}
-\dot{\beta} &= Y_{\delta_L,\delta_V,\delta_R,\beta} / m V - r + (V / g) \cos \beta \sin \phi,
+\dot{\beta} &= Y_{\delta_L,\delta_V,\delta_R,\beta} / m V - r + (g / V) \cos \beta \sin \phi,
 \\
 \dot{\phi} &= p,
 \qquad\qquad\qquad\qquad
@@ -170,46 +173,50 @@ environments are specified by the time-invariant constraint
 %
 \[\forall t.\, (\delta_L(t) = \alpha_L(t)) \wedge (\delta_V(t) = \alpha_V(t)) \wedge (\delta_R(t) = \alpha_R(t)).
 \]
-Notice that the main controller and the subcontrollers have \emph{different periods with local clock skews},
+Notice that since the main controller and the subcontrollers have \emph{different periods with local clock skews},
 the ODEs of the subcontrollers cannot be directly ``plugged'' into $E_\mathit{Main}$.
-The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
-along with appropriate  sampling and response timing policies $\Pi$.
+%%% (Peter)  The following can be skipped:
+%The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
+%along with appropriate  sampling and response timing policies $\Pi$.
 
 The safety property of $\mathcal{E}$ 
 is that the yaw angle $\beta$ is always close to $0$ (e.g., $\forall t.\; \beta(t) < 0.1$).
 In the analysis,
 we assume that the maximal clock skew is $\epsilon = 0.1\,\mathrm{ms}$,
-the sampling time $t_I$ is $1\,\mathrm{ms}$ for every controller,
-and the response time $t_R$ is always $10\,\mathrm{ms}$ for the main controller
-and $3\,\mathrm{ms}$ for the subcontrollers.
-To verify the safety property $\forall t.\; \beta(t) < 0.1$ (without any time bound), 
-we consider the simple inductive condition $\Psi(\vec{z})$ with $\vec{z} = (\beta,\psi,p,r)$:
-\[
-|\beta| < 0.1
-\;\wedge\;
-|\psi| < 0.8
-\;\wedge\;
-|p| < 1
-\;\wedge\;
-|r| < 1.
-\]
-We have proved that $(\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'})) \rightarrow \Psi(\vec{z'})$
-and  $\Psi(\vec{z}) \rightarrow (\forall t \in [0,T].\; \beta(t) < 0.1)$ hold
-using \textsf{dReal} by checking the unsatisfiability of their negated formulas
-(i.e.,
- $\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'}) \wedge \neg \Psi(\vec{z'})$ and $\Psi(\vec{z}) \wedge \beta(t) \geq 0.1$).
-As a consequence, the safety property $\forall t.\; \beta(t) < 0.1$
-holds from any initial state satisfying $\Psi(\vec{z})$ for any local clocks.
+the sampling time $t_I$ is $0\,\mathrm{ms}$ for every controller,
+and the response time $t_R$ is $3\,\mathrm{ms}$ for the subcontrollers.
+%(the main controller has no actuators).
+%To verify the safety property $\forall t.\; \beta(t) < 0.1$ (without any time bound), 
+%we consider the simple inductive condition $\Psi(\vec{z})$ with $\vec{z} = (\beta,\psi,p,r)$:
+%\[
+%|\beta| < 0.1
+%\;\wedge\;
+%|\psi| < 0.8
+%\;\wedge\;
+%|p| < 1
+%\;\wedge\;
+%|r| < 1.
+%\]
+%We have proved that $(\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'})) \rightarrow \Psi(\vec{z'})$
+%and  $\Psi(\vec{z}) \rightarrow (\forall t \in [0,T].\; \beta(t) < 0.1)$ hold
+%using \textsf{dReal} by checking the unsatisfiability of their negated formulas
+%(i.e.,
+% $\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'}) \wedge \neg \Psi(\vec{z'})$ and $\Psi(\vec{z}) \wedge \beta(t) \geq 0.1$).
+%As a consequence, the safety property $\forall t.\; \beta(t) < 0.1$
+%holds from any initial state satisfying $\Psi(\vec{z})$ for any local clocks.
+\textbf{Working on the verification.}
 
 
+\subsection{Networked Water Tank Controllers}
 
-\subsection{Networked Water Tank Controllers.}
-
-A number of water tanks are connected by pipes as shown in Figure~\ref{fig:water}.
-The water level in each tank is separately controlled by the pump in the tank
-(adapted from \cite{kowalewski1999case,raisch1999approximating}).
-Similarly, each water level depends on the pump's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$
-and the levels of the adjacent tanks.
+In this case study, adapted from
+\cite{kowalewski1999case,raisch1999approximating}, 
+a number of water tanks are connected by pipes as shown in
+Figure~\ref{fig:water}.  \textbf{KYUNGMIN: I cannot see on Fig 8 that
+  they are connected ...}
+The water level in each tank is controlled by a pump in the tank, and 
+ depends on the pump's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$
+and the water levels of the adjacent tanks.
 The water level $x_i$ of tank $i$ changes according to the ODEs:%
 \footnote{%where 
 $A_i, q_i, a, b $ are constants determined by the size of the tank, the power of the pump, 
@@ -227,20 +234,20 @@ A_i \dot{x}_i &= a \sqrt{2g} \sqrt{x_{i-1}}  - b \sqrt{2g} \sqrt{x_i}
 \]
 We set $x_0 = 0$ for the leftmost tank $1$.
 %
-Every pipe controller performs its transitions according to its local clock:
-for each period $T$, 
-the pump is on if $x_i \leq L_m$, and off if $x_i > L_M$.
+Every pipe controller performs its transitions according to its local
+clock and sets  
+the pump to on if $x_i \leq L_m$ and to off if $x_i > L_M$.
 
 \begin{figure}
 \centering
 \includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.7\columnwidth]{water.pdf}    
-\caption{Connected water tanks}  \label{fig:water}
+\caption{Connected water tanks.}  \label{fig:water}
 \end{figure}
 
 The safety property is that the water level of each tank is in a certain range
 $I = [L_m - \eta, L_M + \eta]$.
 %
-We have verified the safety property for an \emph{any number} of connected water tanks 
+We have verified this safety property for  \emph{any number} of connected water tanks 
 using inductive and compositional analysis.%
 \footnote{For a tank $k$ and %a subinterval 
 $I' = [L_m - \eta', L_M + \eta']\subseteq I$ with $\eta' < \eta$,
@@ -248,11 +255,13 @@ provided  that $x_{k-1} \in I$ always holds, % for its input tank  $k-1$.
 we show that $x_{k} \in I'$ is an inductive condition,
 and  $x_{k} \in I$ always holds
 if $x_{k} \in I'$ at the beginning of each round
-(i.e., $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow (x_k(T) \in I') \wedge (\forall t \in [0,T].\; x_{k}(t) \in I)$).}
+(i.e., $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi}
+  E_\mathcal{E}}^{T,0}) \rightarrow (x_k(T) \in I') \wedge (\forall t
+\in [0,T].\; x_{k}(t) \in I)$).} 
 %
-For the maximal clock skew $\epsilon = 30\,\mathrm{ms}$,
-the sampling time $t_I = 20\,\mathrm{ms}$,
-and the response time $t_R = 100\,\mathrm{ms}$,
+For  maximal clock skew $\epsilon = 30\,\mathrm{ms}$,
+ sampling time $t_I = 20\,\mathrm{ms}$,
+and  response time $t_R = 100\,\mathrm{ms}$,
 we have proved the  compositional safety property
 % for any number of water tanks
 % by checking the unsatisfiability of the negated formulas,
@@ -260,7 +269,7 @@ we have proved the  compositional safety property
  \footnote{In the analysis, we use the parameters 
 $a = 0.5$, $b = 0.6$, $g = 9.8$, $A = 2$, $q = 4$, $L_m = 8$, $L_M = 10$,
 $\eta = 3$, $\eta' = 2$, and $T = 1\,\mathrm{s}$.}
-But If $\epsilon = 150\,\mathrm{ms}$,
+However, if $\epsilon = 150\,\mathrm{ms}$,
 then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:water-error}
 %generated by \textsf{dReal} with precision $\delta = 0.001$
 (the analysis took $1.46$ seconds).
@@ -277,13 +286,14 @@ where the water level increases for extra $300\,\mathrm{ms}$ to violate the indu
 
 
 
-\subsection{Networked Thermostat Controllers.}
+\subsection{Networked Thermostat Controllers}
 
-A classical thermostat controller  \cite{henzinger2000theory} is installed in each room.
+%A classical thermostat controller  \cite{henzinger2000theory} is installed in each room.
 %(where the specification of a single hybrid automaton is adapted from \cite{henzinger2000theory}). 
 A number of rooms are interconnected by open doors, 
-as depicted in Fig.~\ref{fig:adj-rooms}.
-The temperature of each room is separately controlled by its thermostat that turns the heater on and off.
+as shown in Fig.~\ref{fig:adj-rooms}.
+The temperature of each room is separately controlled by its own
+thermostat controller that turns the heater on and off.
 That is, it %The temperature of each room 
 depends on
 the heater's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$  and the temperatures of the other rooms.
@@ -299,11 +309,9 @@ and $c \in \mathbb{R}$ is determined by the size of the open door.}
 \dot{x}_i &= - K_i ((1- 2 c) x_i + c x_{i-1} + c x_{i+1}) && \mbox{if}\; m_i = m_\texttt{off}
 \end{align*}
 %
-Every thermostat controller performs its transitions
-according to its local clock.
-For each period $T$, 
-the heater is turned on if $x_i \leq T_m$,
-and turned off if $x_i > T_M$.
+In each transition, a controller turns on the heater 
+ if $x_i \leq T_m$,
+and turns it  off if $x_i > T_M$.
 
 \begin{figure}
 \centering
@@ -336,10 +344,10 @@ and turned off if $x_i > T_M$.
 } \label{fig:adj-rooms}
 \end{figure}
 
-The safe property is that the temperature of each room
-is in a certain range $I = [T_m - \eta, T_M + \eta]$.
-Similarly, we have verified the safety property $\forall t.\; x_i \in I$
-for an \emph{arbitrary number} of interconnected thermostat controllers
+The safety property is that the temperature of each room
+is in the range $I = [T_m - \eta, T_M + \eta]$.
+We have verified the safety property $\forall t.\; x_i \in I$
+for  \emph{any number} of interconnected thermostat controllers
 by inductive and compositional analysis.%
 \footnote{For %a subinterval 
 $I' = [T_m - \eta', T_M + \eta']\subseteq I$,
@@ -348,14 +356,13 @@ we show that $x_i \in I'$ is an inductive condition,
 and $x_i \in I$ always holds
 if $x_i \in I'$ at the beginning of each round.}
 %
-For the maximal clock skew $\epsilon = 2\,\mathrm{ms}$,
-the sampling time $t_I = 10\,\mathrm{ms}$,
-and the response time $t_R = 200\,\mathrm{ms}$,
-we have proved the compositional safety property 
+For $\epsilon = 2\,\mathrm{ms}$,
+$t_I = 10\,\mathrm{ms}$,
+and $t_R = 200\,\mathrm{ms}$,
+we have proved (in $2.6$ seconds) the compositional safety property 
 %for any number of thermostats 
 %by checking the unsatisfiability of the negated formulas,
- using \textsf{dReal} with precision $\delta = 0.001$ (the analysis took $2.6$ seconds).%
- \footnote{In the analysis, we use the parameters $K = 0.015$, 
+ using \textsf{dReal} with precision $\delta = 0.001$.\footnote{In the analysis, we use the parameters $K = 0.015$, 
 $h = 100$,
 $c = 0.01$,
 $T_M = 21$, 
@@ -392,10 +399,10 @@ then the compositional inductive condition is violated by the trajectory in Fig.
 \label{sec:expr}
 
 We have implemented the SMT algorithm
-for our new logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ in the dReal SMT solver \cite{dReal},
-and compared the performance of 
+for our new logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ in the \textsf{dReal} SMT solver \cite{dReal},
+and have compared the performance of 
 the new $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-encoding
-with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding  for hybrid PALS models.
+with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding  for Hybrid PALS models.
 %
 In this comparison,
 we only consider special cases %of the examples 
@@ -409,15 +416,14 @@ We have performed bounded reachability analysis up to $k = 5$
 for the safety properties for the ``concrete'' instances of the case studies
 (using \textsf{dReal} without the use of other SMT heuristics).
 The results for $k$-step bounded reachability analysis 
-are summarized  in Fig.~\ref{table:bounded}.%
-\footnote{We consider both \texttt{unsat} (verified) and \texttt{sat}  (counterexample found) cases
-by using different safety properties.}
+are summarized  in Fig.~\ref{table:bounded} and show that
 %
-The performance of the new encoding 
-is dramatically better than one of the non-modular encoding.
+the new encoding significantly outperforms 
+the non-modular encoding.\footnote{We consider both \texttt{unsat} (verified) and \texttt{sat}  (counterexample found) cases
+by using different safety properties.}
 For example, 
 the SMT analysis using the non-modular encoding
-for the three interconnected thermostats
+for  three interconnected thermostats
  did not terminate for $30$ hours
 even for $k = 2$.
 
