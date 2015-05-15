@@ -4,9 +4,10 @@
 \section{Case Studies and Experimental Results}
 \label{sec:case-studies}
 
-This section shows four case studies for SMT-based analysis of 
+This section shows %four 
+case studies %and experimental results 
+for SMT-based analysis of 
 distributed CPSs using Hybrid PALS.
-\marginpar{3--6 case studies}
 %
 These case studies involve nontrivial (nonlinear) ODEs,
 because of continuous physical interaction between distributed components.
@@ -15,12 +16,12 @@ using %bounded reachability,
 inductive and compositional SMT encodings
 for \emph{any possible local clocks} with a given maximal clock skew $\epsilon > 0$.
 %
-The case studies are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
+All the experiments in this section
+were conducted on Intel Xeon 2.0 GHz with 64 GB memory.
+%running 64-bit Ubuntu 12.04.5 LTS.
+%We set a timeout of 30 hours. % for the experiments.
+The case studies and the experimental evaluation are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
 
-
-%To demonstrate the performance benefits obtained by using Multirate PALS, this section compares the execution times and the number of system states explored for model checking the synchronous model and the corresponding distributed asynchronous model. We consider a highly simplified asynchronous model with the following simplifying assumptions:
-
-%To compare the gain of the Multirate-PALS methodology, we also analyzed an asynchronous model of the airplane turning system in Real-Time Maude [16]. In this experiment, we used the simplest possible asynchronous model with perfect clocks, no network delays, and no execution times. For both synchronous and asynchronous models, we used three pilot scenarios with different numbers of nondeterministic environment choices. We have compared the number of reachable states and the execution times up to a certain (model) time bound T. As shown in the following table, such asynchronous models cannot be feasibly model checked due to its enormous state space explosion, whereas the synchronous model can be verified in less than a minute.
 
 
 
@@ -197,7 +198,6 @@ and  $\Psi(\vec{z}) \rightarrow (\forall t \in [0,T].\; \beta(t) < 0.1)$ hold
 using \textsf{dReal} by checking the unsatisfiability of their negated formulas
 (i.e.,
  $\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'}) \wedge \neg \Psi(\vec{z'})$ and $\Psi(\vec{z}) \wedge \beta(t) \geq 0.1$).
- \marginpar{TO BE DONE}
 As a consequence, the safety property $\forall t.\; \beta(t) < 0.1$
 holds from any initial state satisfying $\Psi(\vec{z})$ for any local clocks.
 
@@ -210,7 +210,12 @@ The water level in each tank is separately controlled by the pump in the tank
 (adapted from \cite{kowalewski1999case,raisch1999approximating}).
 Similarly, each water level depends on the pump's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$
 and the levels of the adjacent tanks.
-The water level $x_i$ of tank $i$ changes according to the ODEs:
+The water level $x_i$ of tank $i$ changes according to the ODEs:%
+\footnote{%where 
+$A_i, q_i, a, b $ are constants determined by the size of the tank, the power of the pump, 
+and the widths of the I/O pipes,
+and $g$ is the %standard 
+gravity constant.}
 \[
 \begin{aligned}
 A_i \dot{x}_i &=  (q_i + a \sqrt{2g} \sqrt{x_{i-1}})  - b \sqrt{2g} \sqrt{x_i}
@@ -220,9 +225,7 @@ A_i \dot{x}_i &= a \sqrt{2g} \sqrt{x_{i-1}}  - b \sqrt{2g} \sqrt{x_i}
 && \mbox{if}\;\; m_i = m_\texttt{off},
 \end{aligned}
 \]
-where $A_i, q_i, a, b $ are constants determined by the size of the tank, the power of the pump, 
-and the widths of the input and output pipes,
-and $g$ is the standard gravity constant. We set $x_0 = 0$ for the leftmost tank $1$.
+We set $x_0 = 0$ for the leftmost tank $1$.
 %
 Every pipe controller performs its transitions according to its local clock:
 for each period $T$, 
@@ -230,46 +233,44 @@ the pump is on if $x_i \leq L_m$, and off if $x_i > L_M$.
 
 \begin{figure}
 \centering
-\includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.6\columnwidth]{water.pdf}    
+\includegraphics[clip=true,trim=0.3cm 0.35cm 0.3cm 0.35cm,width=0.7\columnwidth]{water.pdf}    
 \caption{Connected water tanks}  \label{fig:water}
 \end{figure}
 
 The safety property is that the water level of each tank is in a certain range
 $I = [L_m - \eta, L_M + \eta]$.
 %
-We verify the safety property for an \emph{arbitrary number} of connected water tanks 
-using inductive and compositional analysis.
-For a tank $k$ and %a subinterval 
+We have verified the safety property for an \emph{any number} of connected water tanks 
+using inductive and compositional analysis.%
+\footnote{For a tank $k$ and %a subinterval 
 $I' = [L_m - \eta', L_M + \eta']\subseteq I$ with $\eta' < \eta$,
 provided  that $x_{k-1} \in I$ always holds, % for its input tank  $k-1$.
 we show that $x_{k} \in I'$ is an inductive condition,
 and  $x_{k} \in I$ always holds
 if $x_{k} \in I'$ at the beginning of each round
-(i.e., $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow x_k(T) \in I'$
-and $(x_{k}(0) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow (\forall t \in [0,T].\; x_{k}(t) \in I)$).
-
-
-
-In the analysis, we use the parameters 
-$a = 0.5$, $b = 0.6$, $g = 9.8$, $A = 2$, $q = 4$, $L_m = 8$, $L_M = 10$,
-$\eta = 3$, $\eta' = 2$, and $T = 1\,\mathrm{s}$.
+(i.e., $(x_k(0) \in I' \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,0}) \rightarrow (x_k(T) \in I') \wedge (\forall t \in [0,T].\; x_{k}(t) \in I)$).}
 %
 For the maximal clock skew $\epsilon = 30\,\mathrm{ms}$,
 the sampling time $t_I = 20\,\mathrm{ms}$,
 and the response time $t_R = 100\,\mathrm{ms}$,
-we have proved the compositional safety property
- for any number of water tanks
- by checking the unsatisfiability of the negated formulas,
- using \textsf{dReal} with precision $\delta = 0.001$.
+we have proved the  compositional safety property
+% for any number of water tanks
+% by checking the unsatisfiability of the negated formulas,
+ using \textsf{dReal} with precision $\delta = 0.001$ (the analysis took $4.3$ seconds).%
+ \footnote{In the analysis, we use the parameters 
+$a = 0.5$, $b = 0.6$, $g = 9.8$, $A = 2$, $q = 4$, $L_m = 8$, $L_M = 10$,
+$\eta = 3$, $\eta' = 2$, and $T = 1\,\mathrm{s}$.}
 But If $\epsilon = 150\,\mathrm{ms}$,
-then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:water-error}.
+then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:water-error}
 %generated by \textsf{dReal} with precision $\delta = 0.001$
+(the analysis took $1.46$ seconds).
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{water-error.png}    
+\includegraphics[clip=true,trim=1ex 1ex 1ex 1ex,width=\columnwidth]{water-error.png}    
 \caption{The counterexample trajectory when $\epsilon = 150\,\mathrm{ms}$,
-where the water level increases for extra $300\,\mathrm{ms}$ and thus $x > 12$ at the end of the round.} \label{fig:water-error}
+where the water level increases for extra $300\,\mathrm{ms}$ to violate the inductive condition. % at the end of the round.
+} \label{fig:water-error}
 \end{figure}
 
 
@@ -287,15 +288,16 @@ That is, it %The temperature of each room
 depends on
 the heater's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$  and the temperatures of the other rooms.
 The temperature $x_i$ of room $i$
-changes according to the ODEs:
+changes according to the ODEs:%
+\footnote{%where 
+$K_i, h_i \in \mathbb{R}$ are constants depending on
+the size of room $i$ and the heater's power, respectively,
+and $c \in \mathbb{R}$ is determined by the size of the open door.}
 \begin{align*}
 \dot{x}_i &= K_i (h_i - ((1- 2 c) x_i + c x_{i-1} + c x_{i+1})) &&\mbox{if}\; m_i = m_\texttt{on}
 \\
 \dot{x}_i &= - K_i ((1- 2 c) x_i + c x_{i-1} + c x_{i+1}) && \mbox{if}\; m_i = m_\texttt{off}
 \end{align*}
-where $K_i, h_i \in \mathbb{R}$ are constants depending on
-the size of room $i$ and the heater's power, respectively,
-and $c \in \mathbb{R}$ is determined by the size of the open door.
 %
 Every thermostat controller performs its transitions
 according to its local clock.
@@ -336,41 +338,42 @@ and turned off if $x_i > T_M$.
 
 The safe property is that the temperature of each room
 is in a certain range $I = [T_m - \eta, T_M + \eta]$.
-Similarly, we verify the safety property $\forall t.\; x_i \in I$
+Similarly, we have verified the safety property $\forall t.\; x_i \in I$
 for an \emph{arbitrary number} of interconnected thermostat controllers
-by inductive and compositional analysis.
-For %a subinterval 
+by inductive and compositional analysis.%
+\footnote{For %a subinterval 
 $I' = [T_m - \eta', T_M + \eta']\subseteq I$,
 provided that both $x_{i-1} \in I$ and $x_{i+1} \in I$ always hold,
 we show that $x_i \in I'$ is an inductive condition,
 and $x_i \in I$ always holds
-if $x_i \in I'$ at the beginning of each round.
-
-
-We consider a network of thermostats with the parameters 
-$K = 0.015$, 
+if $x_i \in I'$ at the beginning of each round.}
+%
+For the maximal clock skew $\epsilon = 2\,\mathrm{ms}$,
+the sampling time $t_I = 10\,\mathrm{ms}$,
+and the response time $t_R = 200\,\mathrm{ms}$,
+we have proved the compositional safety property 
+%for any number of thermostats 
+%by checking the unsatisfiability of the negated formulas,
+ using \textsf{dReal} with precision $\delta = 0.001$ (the analysis took $2.6$ seconds).%
+ \footnote{In the analysis, we use the parameters $K = 0.015$, 
 $h = 100$,
 $c = 0.01$,
 $T_M = 21$, 
 $T_m = 19$,
 $\eta = 3$, $\eta' = 2$,
-and $T = 1\,\mathrm{s}$.
-For the maximal clock skew $\epsilon = 2\,\mathrm{ms}$,
-the sampling time $t_I = 10\,\mathrm{ms}$,
-and the response time $t_R = 200\,\mathrm{ms}$,
-We have proved the safety property for any number of thermostats 
-by checking the unsatisfiability of the negated formulas,
- using \textsf{dReal} with precision $\delta = 0.001$.
+and $T = 1\,\mathrm{s}$.}
 %
-If $\epsilon = 20\,\mathrm{ms}$,
-then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:thermo-error}.
+However, if $\epsilon = 20\,\mathrm{ms}$,
+then the compositional inductive condition is violated by the trajectory in Fig.~\ref{fig:thermo-error}
+(the analysis took $0.56$ seconds).
 
 
 \begin{figure}
 \centering
-\includegraphics[width=\columnwidth]{thermo-error.png}    
-\caption{The counterexample trajectory when $\epsilon = 20\,\mathrm{ms}$,
-where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at the end of the round.} \label{fig:thermo-error}
+\includegraphics[clip=true,trim=1ex 1ex 1ex 1ex,width=\columnwidth]{thermo-error.png}    
+\caption{The counterexample trajectory when $\epsilon = 20\,\mathrm{ms}$.
+%where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at the end of the round.
+} \label{fig:thermo-error}
 \end{figure}
 
 
@@ -384,6 +387,52 @@ where the temperature  rises for extra $20\,\mathrm{ms}$ and thus $x > 23$ at th
 
 %\subsection{Steam Boiler Controller}
 %...
+
+\subsection{Bounded Reachability Comparison}
+\label{sec:expr}
+
+We have implemented the SMT algorithm
+for our new logic $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$ in the dReal SMT solver \cite{dReal},
+and compared the performance of 
+the new $\mathcal{L}_{\mathcal{F}\cup\mathcal{N}}$-encoding
+with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding  for hybrid PALS models.
+%
+In this comparison,
+we only consider special cases %of the examples 
+with no clock skews ($\epsilon = 0$) 
+due to a lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$,
+and only bounded reachability analysis
+since it needs to generate bigger formulas than other types of analysis.
+
+
+We have performed bounded reachability analysis up to $k = 5$
+for the safety properties for the ``concrete'' instances of the case studies
+(using \textsf{dReal} without the use of other SMT heuristics).
+The results for $k$-step bounded reachability analysis 
+are summarized  in Fig.~\ref{table:bounded}.%
+\footnote{We consider both \texttt{unsat} (verified) and \texttt{sat}  (counterexample found) cases
+by using different safety properties.}
+%
+The performance of the new encoding 
+is dramatically better than one of the non-modular encoding.
+For example, 
+the SMT analysis using the non-modular encoding
+for the three interconnected thermostats
+ did not terminate for $30$ hours
+even for $k = 2$.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.45\columnwidth]{plot/water-double.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/water-triple.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/thermostat-double.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/thermostat-triple.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/airplane-single.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/airplane-multi.eps}    
+\caption{Running time of $k$-step bounded model checking}
+\label{table:bounded}
+\end{figure}
 
 
 
