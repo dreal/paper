@@ -1,3 +1,4 @@
+% !TEX root = /Users/kquine/Dropbox/Research/Papers/2015/CPS-SMT-RTSS/cps-rtss.tex
 
 \section{Experimental Results}
 \label{sec:expr}
@@ -15,195 +16,66 @@ due to a lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$.
 All the experiments in this section
 were conducted on Intel Xeon 2.0 GHz with 64 GB memory.
 %running 64-bit Ubuntu 12.04.5 LTS.
+We set a timeout of 30 hours. % for the experiments.
 The experimental evaluation are available at the \textsf{dReal} tool webpage (\url{http://dreal.github.io/benchmarks/networks}).
 
 
-We have performed bounded model checking up to bound $k = 5$
-(for the multirate airplane example, $k = 10$)
-for safety properties for each example. We consider both unsat (verified) and sat 
-(counter example found) cases.
-We set a timeout of 30 hours for the experiments.
 
-The results for $k$-step bounded model checking 
-are summarized  in Table~\ref{table:bounded}.
-%
-According to the results, the performance of the new encoding and the heuristics
-is mostly dramatically better than one of the standard encoding.
-For example, 
-when we consider the thermostat and water tank examples of three components, 
-the SMT analysis using the standard encoding did not terminate for $30$ hours
-even for $k = 1$.
-%
-The performance of the new encoding is similar to one of the heuristics.
-But for sat cases, the new encoding is much faster than the heuristics,
-since the heuristics explicitly generates all the mode paths to find a counterexample,
-whereas SMT is generally effective for finding counterexamples.
-%
-Besides bounded model checking, 
-we have also performed simple inductive analysis
+
+We have performed simple inductive analysis
 for the thermostat and water tank examples,
 summarized in Table~\ref{table:inductive}.
 The results shows that the new encoding is much more effective for 
 inductive analysis of nontrivial hybrid systems,
 such as triple water tank controllers.
 
+We have performed bounded model checking up to bound $k = 5$
+(for the multirate airplane example, $k = 10$)
+for safety properties for each example. We consider both unsat (verified) and sat 
+(counter example found) cases.
+The results for $k$-step bounded model checking 
+are summarized  in Table~\ref{table:bounded}.
+%
+According to the results, the performance of the new encoding %and the heuristics
+is mostly dramatically better than one of the standard encoding.
+For example, 
+when we consider the thermostat and water tank examples of three components, 
+the SMT analysis using the standard encoding did not terminate for $30$ hours
+even for $k = 1$.
+%
+%The performance of the new encoding is similar to one of the heuristics.
+%But for sat cases, the new encoding is much faster than the heuristics,
+%since the heuristics explicitly generates all the mode paths to find a counterexample,
+%whereas SMT is generally effective for finding counterexamples.
+%
+
 
 \begin{table}[b]
-\scriptsize
-\begin{tabularx}{\textwidth}{cl@{\qquad}r *{3}{>{\raggedleft\arraybackslash}X}}
-\toprule
-&&Thermo (double) & Thermo (triple) & Water (double) & Water (triple)
-\\
-\midrule
-new		&& 2.23\,s		&91.65\,s		& 7.52\,s		& 47.10\,s
-\\
-standard	&& 215.15\,s	& -			& 180.19\,s	& -
-\\
-\bottomrule
-\end{tabularx}
+\renewcommand{\arraystretch}{1.3}
 \caption{Running time of inductive analysis\label{table:inductive}}
+\begin{tabular}{crr}
+\toprule
+				& new	& standard \\
+\midrule
+Thermo (double)	& 2.23\,s	& 215.15\,s \\
+Thermo (triple)		& 91.65\,s & - \\
+Water (double)		& 7.52\,s	& 180.19\,s \\
+Water (triple)		& 47.10\,s	& - \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 
-\begin{table}
+\begin{figure}
 \centering
-\scriptsize
-\begin{tabularx}{\textwidth}{cl@{\;\;}c *{5}{>{\raggedleft\arraybackslash}X}}
-\toprule
-&&& \multicolumn{5}{c}{Time (s)} 
-\\
-\cmidrule(lr){4-8}
-\multicolumn{3}{c}{Benchmark}		
-				& \multicolumn{1}{c}{$k=1$} 
-				& \multicolumn{1}{c}{$k=2$} 
-				& \multicolumn{1}{c}{$k=3$} 
-				& \multicolumn{1}{c}{$k=4$} 
-				& \multicolumn{1}{c}{$k=5$} 
-\\
-\midrule
-\multirow{6}{0.55in}{Thermo (double)}&	\multirow{3}{*}{unsat}
-	& new		& 0.12		& 0.85		& 6.10		& 121.94		& 907.71
-\\
-&	& heuristics	& 0.55		& 3.84		& 27.44		& 169.61		& 1211.51
-\\
-&	& standard	& 0.99		& 246.73		& 13448.89	& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 0.46		& 1.73		& 9.40		& 76.60		& 586.66
-\\
-&	& heuristics	& 0.67		& 3.37		& 20.73		& 145.34		& 1114.85
-\\
-&	& standard	& 1.24		& 273.95		& 8059.73		& -			& -
-\\
-\midrule
-\multirow{6}{0.55in}{Thermo (triple)}&	\multirow{3}{*}{unsat}
-	& new		& 1.22		& 34.50		& 816.71		& 7651.68		& 74980.37
-\\
-&	& heuristics	& 2.59		& 48.27		& 812.33		& 11038.87	& -
-\\
-&	& standard	& 552.68		& -			& -			& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 1.68		& 13.51		& 63.20		& 2785.33		& 70303.00
-\\
-&	& heuristics	& 3.45		& 43.78		& 724.19		& 10757.28	& -
-\\
-&	& standard	& 236.95		& -			& -			& -			& -
-\\
-\midrule
-\multirow{6}{0.55in}{Water (double)}&	\multirow{3}{*}{unsat}
-	& new		& 0.37		& 1.48		& 8.33		& 94.66		& 1098.63
-\\
-&	& heuristics	& 0.54		& 2.15		& 14.98		& 124.28	& 1278.40
-\\
-&	& standard	& 1.24		& 317.22		& 22688.95	& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 1.12		& 2.40		& 5.36		& 16.40		& 64.99
-\\
-&	& heuristics	& 1.52		& 3.13		& 11.57		& 57.68		& 140.64
-\\
-&	& standard	& 2.62		& 38.19		& 6771.18		& -			& -
-\\
-\midrule
-\multirow{6}{0.55in}{Water (triple)}&	\multirow{3}{*}{unsat}
-	& new		& 1.18		& 29.74		& 851.47		& 11736.80	& 93326.38
-\\
-&	& heuristics	& 1.81		& 31.76		& 729.93		& 11228.41	& -
-\\
-&	& standard	& 786.58		& -			& -			& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 2.59		& 7.60		& 165.07		& 383.52		& 14373.01
-\\
-&	& heuristics	& 5.67		& 28.87		& 360.23		& 4630.00		& 68224.44
-\\
-&	& standard	& 1062.09		& -			& -			& -			& -
-\\
-\midrule
-\multirow{6}{0.55in}{Simplified Airplane}&	\multirow{3}{*}{unsat}
-	& new		& 0.20		& 3.12		& 27.34		& 188.36		& 1406.45
-\\
-&	& heuristics	& 0.45		& 6.40		& 49.94		& 574.67		& 3279.90
-\\
-&	& standard	& 1.84		& 217.17		& 21874.82	& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 0.56		& 1.48		& 6.09		& 34.93		& 457.75
-\\
-&	& heuristics	& 0.89		& 6.06		& 43.50		& 452.44		& 2539.44
-\\
-&	& standard	& 1.24		& 102.51		& 14794.61	& -			& -
-\\
-\midrule
-\multirow{6}{0.55in}{Nonlinear Airplane}&	\multirow{3}{*}{unsat}
-	& new		& 0.20		& 11.69		& 90.06		& 555.16		& 3187.93
-\\
-&	& heuristics	& 0.38		& 4.71		& 33.09		& 401.27		& 2465.69
-\\
-&	& standard	& 1.82		& 1022.98		& -			& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 1.36		& 7.09		& 113.90		& 428.86		& 1468.34
-\\
-&	& heuristics	& 2.29		& 9.29		& 41.76		& 375.38		& 1767.21
-\\
-&	& standard	& 3.12		& 218.94		& 50420.57	& -			& -
-\\
-\midrule
-&&  
-				& \multicolumn{1}{c}{$k=2$} 
-				& \multicolumn{1}{c}{$k=4$} 
-				& \multicolumn{1}{c}{$k=6$} 
-				& \multicolumn{1}{c}{$k=8$} 
-				& \multicolumn{1}{c}{$k=10$} 
-\\
-\cmidrule(lr){4-8}
-\multirow{6}{0.55in}{Multirate Airplane}&	\multirow{3}{*}{unsat}
-	& new		& 0.82		& 29.14		& 382.83		& 5359.49		& 60918.94
-\\
-&	& heuristics	& 1.28		& 35.83		& 389.34		& 7687.09		& 58087.00
-\\
-&	& standard	& 12.01		& -			& -			& -			& -
-\\
-\cmidrule(lr){3-8}
-				&	\multirow{3}{*}{sat}
-	& new		& 1.38		& 14.03		& 59.64		& 580.47		& 834.44
-\\
-&	& heuristics	& 1.88		& 30.21		& 282.89		& 5763.48		& 43635.96
-\\
-&	& standard	& 2.75		& 40016.59	& -			& -			& -
-\\
-\bottomrule
-\end{tabularx}
+\includegraphics[width=0.45\columnwidth]{plot/water-double.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/water-triple.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/thermostat-double.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/thermostat-triple.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/airplane-single.eps}    
+\includegraphics[width=0.45\columnwidth]{plot/airplane-multi.eps}    
 \caption{Running time of $k$-step bounded model checking}
 \label{table:bounded}
-\end{table}
+\end{figure}
 
 
