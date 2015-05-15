@@ -6,9 +6,13 @@
 %% Paragraph 1
 \emph{Virtually synchronous} distributed real-time systems consist of
 a number of \emph{distributed} controllers that should logically
-behave in a synchronous way. [[The devices may operate at different
-frequencies, but  communication happens at their hyper-period
-boundary.]] Designing and analyzing  such systems is very hard because
+behave in a synchronous way. 
+%
+%The devices may operate at different
+%frequencies, but  communication happens at their hyper-period
+%boundary.
+% 
+Designing and analyzing  such systems is very hard because
 of race conditions, clock skews, network delays, execution times, and
 the state space explosion caused by the interleavings. To overcome
 these problems, 
@@ -120,15 +124,16 @@ of analyzing Hybrid PALS models of CPSs, where the formal analysis of
 a distributed CPS involving ODEs and clock skews is reduced to
 checking the satisfiability of SMT formulas over real numbers and ODEs.
 This  satisfiability problem
- is decidable up to any user-given precision $\delta > 0$ \cite{delta-comp,sat-ode}.
+ is decidable up to any user-given precision $\delta > 0$ \cite{delta-comp,sat-ode}. 
 %The number $\delta$, provided by the user, 
 %is the bound on numerical errors that is tolerable in the analysis.
-[[In this way, 
+In this way, 
 we can apply state-of-the-art SMT solving techniques that are %proven to be 
 effective for analyzing \emph{discrete} controllers,
 %combined with $\delta$-complete decision procedures
 while  analyzing
-the continuous dynamics of a CPS up to precision $\delta$.]] 
+the continuous dynamics %of a CPS 
+up to precision $\delta$.
 
 
 %%% OLD Paragraph 4
@@ -247,13 +252,15 @@ can be reduced to one in the standard theory of the real numbers \emph{at no cos
 %
 We have implemented our SMT techniques within the \textsf{dReal} SMT
 solver \cite{dReal}.
+%
 We have applied our techniques on a range of advanced CPSs, including
-systems for: turning an airplane, 
+systems for turning an airplane.
 %controlling the altitude of a quad-rotor UAV,
 %controlling the water level in a power plant,  
  networked water tank
  controllers,  networked thermostat controllers, and
 an automated highway system.
+%
 The experimental results show that these techniques can dramatically increase 
 the performance of SMT-based analysis for nontrivial distributed CPS.
 %that involve multiple control modes and nonlinear ODEs.
