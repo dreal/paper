@@ -3,8 +3,34 @@
 \section{Concluding Remarks}
 \label{sec:concl}
 
-We have presented Hybrid PALS to reduce the system complexity of distributed cyber-physical systems,
-shows a bisimulation equivalence relating a distributed hybrid PALS model and its underlying synchronous model. 
-We have shown that formal analysis problems of hybrid PALS models can be effectively expressed as SMT formulas.
-We have presented an extended logical theory for distributed hybrid systems and provided an SMT decision procedure that involves no extra cost.
-We have implemented these techniques in the dReal SMT solver. Our experiments have shown that our techniques dramatically increase the performance of SMT analysis for distributed hybrid systems with multiple control modes and nonlinear ODEs up to precision $\delta$.
+%%% OK, Kyungmin, I am trying here myself ...
+
+We have presented and proved the correctness of the Hybrid PALS
+methodology that  greatly simplifies the design and verification of
+virtually synchronous cyber-physical systems whose components have
+environments with continuous behaviors.  Although Hybrid PALS does not
+allow us to abstract from (imprecise) local clocks and the times
+transitions are performed, it allows us to abstract from asynchronous
+communication (and the resulting interleavings), message buffering,
+network delays, 
+backoff timers, and so on.
+
+
+
+
+
+
+
+% We have presented Hybrid PALS to reduce the system complexity of distributed cyber-physical systems,
+% shows a bisimulation equivalence relating a distributed hybrid PALS model and its underlying synchronous model. 
+We have shown that verification problems for Hybrid PALS models can be
+expressed as SMT formulas and have developed % a number of techniques 
+% We have presented an extended logical theory for distributed hybrid systems and provided an
+efficient  SMT-solving-based verification methods for Hybrid PALS. 
+We have implemented these techniques in the \textsf{dReal} SMT solver and   have
+applied our methodology on a number of non-trivial CPSs. Our
+experiments have shown that our techniques dramatically increase the
+performance of SMT analysis for distributed hybrid systems with
+multiple control modes and nonlinear ODEs up to precision $\delta$. 
+%\textbf{(Peter) Kyungmin, maybe more is needed in this last paragraph;
+%  I did not get it entirely right.}
