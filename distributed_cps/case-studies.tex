@@ -13,9 +13,9 @@ due to the  continuous physical interaction between distributed components.
 We have verified safety properties 
 using %bounded reachability, 
 inductive and compositional SMT encodings
-for \emph{any possible} set of  local clocks  maximal clock skew $\epsilon$.
+for \emph{any possible} set of  local clocks with maximal clock skew $\epsilon$.
 %
-All  experiments in this section
+All  experiments 
 were conducted on an Intel Xeon 2.0 GHz with 64 GB memory.
 %running 64-bit Ubuntu 12.04.5 LTS.
 %We set a timeout of 30 hours. % for the experiments.
@@ -197,7 +197,7 @@ we have also used compositional analysis by
 	\item showing that each subcontroller gradually moves its surface towards its goal direction, and 
 	\item then performing a bounded reachability analysis,
 	using \textsf{dReal} with precision $\delta = 0.0001$,
-	 only for the main controller assuming this
+	 only for the main controller,  assuming (i)
 \end{inparaenum}
 (the analysis took $2$ minutes).
 
@@ -423,8 +423,8 @@ with one of the previous \emph{non-modular} $\mathcal{L}_{\mathcal{F}}$-encoding
 In this comparison,
 we only consider special cases %of the examples 
 with no clock skews ($\epsilon = 0$) 
-due to a lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$,
-and only bounded reachability analysis
+due to the lack of expressiveness of  $\mathcal{L}_{\mathcal{F}}$,
+and only bounded reachability analysis, 
 since it needs to generate bigger formulas than other types of analysis.
 
 
@@ -443,7 +443,7 @@ the non-modular encoding.
 For example, 
 the SMT analysis using the non-modular encoding
 for three interconnected thermostats
- did not terminate for $30$ hours
+ did not terminate in  $30$ hours
 even for $k = 2$.
 
 
