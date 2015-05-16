@@ -177,28 +177,29 @@ the ODEs of the subcontrollers cannot be directly ``plugged'' into $E_\mathit{Ma
 %The PALS models consist of the multirate ensemble $\mathcal{E}$, the physical environments, and the time-invariant constraint,
 %along with appropriate  sampling and response timing policies $\Pi$.
 
-The safety property of $\mathcal{E}$ 
+The safety property %of $\mathcal{E}$ 
 is that the yaw angle $\beta$ is always close to $0$ (e.g., $\forall t.\; \beta(t) < 0.2$).
 %
 In the analysis,
 we assume that the maximal clock skew is $\epsilon = 0.2\,\mathrm{ms}$,
-the sampling time $t_I$ is $1\,\mathrm{ms}$ for every controller,
+the sampling time $t_I$ is $0\,\mathrm{ms}$ for every controller,
 and the response time $t_R$ is $3\,\mathrm{ms}$ for the subcontrollers.
 %(the main controller has no actuators).
 %
-In order to verify the safety property $\forall t.\; \beta(t) < 0.2$,
+To verify the safety property $\forall t.\; \beta(t) < 0.2$,
 we have performed a bounded reachability analysis 
-up to bound $k = \textbf{?}$ from the initial condition 
-$(\beta, \phi, \psi, p, r, \alpha_L, \alpha_V, \alpha_R) = \vec{0}$.
+up to bound $k = 20$ from the initial condition 
+$(\beta, \phi, \psi, p, r) = \vec{0}$. %, \alpha_L, \alpha_V, \alpha_R
 %
-\marginpar{Still working on it}
 To avoid the formula explosion problem, 
 we have also used compositional analysis by 
 \begin{inparaenum}[(i)]
 	\item showing that each subcontroller gradually moves its surface towards its goal direction, and 
-	\item then performing a bounded reachability analysis only for the main controller assuming this fact
+	\item then performing a bounded reachability analysis,
+	using \textsf{dReal} with precision $\delta = 0.0001$,
+	 only for the main controller assuming this
 \end{inparaenum}
-(the analysis took $\textbf{?}$ minutes).
+(the analysis took $2$ minutes).
 
 
 
