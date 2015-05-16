@@ -34,7 +34,7 @@ to turn an airplane (adapted from \cite{ftscs-journal}).
 %in which a \emph{main controller} directs \emph{subcontrollers} for the ailerons and the rudder in a synchronous way.
 %
 To make a turn, an aircraft rolls towards the direction of the turn
-by moving its \emph{ailerons} % (surfaces attached to the end of the wings).
+by moving its \emph{ailerons}. % (surfaces attached to the end of the wings).
 The rolling causes 
 a yawing moment in the opposite direction, called \emph{adverse yaw},
 which is countered by using its \emph{rudder} (a surface attached to the vertical stabilizer).
@@ -128,17 +128,15 @@ by three control functions \cite{ftscs-journal}:
 	\item $f_V(v_\beta)$ returns the goal rudder angle $\mathit{goal}_V$.
 	%based on the sampled yaw angle $v_\beta$. % (the goal yaw angle is $0^\circ$).
 \end{inparaenum}
-For example, for $h = 0.32  (\mathit{g}_\psi - v_\psi)$:
-\begin{align*}
-f_\phi(v_\phi, v_\psi, g_\psi) &= 
-v_\phi + \sign(h - v_\phi) \cdot \min(\abs(h - v_\phi),1.5)
-\\
-f_{R}(v_\phi, g_\phi) &=
-\sign(\mathit{g}_\phi - v_\phi)\cdot \min(0.3 \,\abs(\mathit{g}_\phi - v_\phi), 45))
-\\
-f_V(v_\beta) &=
-\sign(-v_\beta)\cdot \min(0.3  \,\abs(v_\beta), 30).
-\end{align*}
+For example,
+for $h = 0.32  (\mathit{g}_\psi - v_\psi)$,
+$f_\phi(v_\phi, v_\psi, g_\psi) = 
+v_\phi + \sign(h - v_\phi) \cdot \min(\abs(h - v_\phi),1.5)$,
+$f_{R}(v_\phi, g_\phi) =
+\sign(\mathit{g}_\phi - v_\phi)\cdot \min(0.3 \,\abs(\mathit{g}_\phi - v_\phi), 15))$,
+and
+$f_V(v_\beta) =
+\sign(-v_\beta)\cdot \min(0.3  \,\abs(v_\beta), 10)$.
 
 In the physical environment $E_\mathit{Main}$,
 the lateral dynamics of an aircraft
@@ -180,13 +178,31 @@ the ODEs of the subcontrollers cannot be directly ``plugged'' into $E_\mathit{Ma
 %along with appropriate  sampling and response timing policies $\Pi$.
 
 The safety property of $\mathcal{E}$ 
-is that the yaw angle $\beta$ is always close to $0$ (e.g., $\forall t.\; \beta(t) < 0.1$).
+is that the yaw angle $\beta$ is always close to $0$ (e.g., $\forall t.\; \beta(t) < 0.2$).
+%
 In the analysis,
-we assume that the maximal clock skew is $\epsilon = 0.1\,\mathrm{ms}$,
-the sampling time $t_I$ is $0\,\mathrm{ms}$ for every controller,
+we assume that the maximal clock skew is $\epsilon = 0.2\,\mathrm{ms}$,
+the sampling time $t_I$ is $1\,\mathrm{ms}$ for every controller,
 and the response time $t_R$ is $3\,\mathrm{ms}$ for the subcontrollers.
 %(the main controller has no actuators).
-%To verify the safety property $\forall t.\; \beta(t) < 0.1$ (without any time bound), 
+%
+In order to verify the safety property $\forall t.\; \beta(t) < 0.2$,
+we have performed a bounded reachability analysis 
+up to bound $k = \textbf{?}$ from the initial condition 
+$(\beta, \phi, \psi, p, r, \alpha_L, \alpha_V, \alpha_R) = \vec{0}$.
+%
+\marginpar{Still working on it}
+To avoid the formula explosion problem, 
+we have also used compositional analysis by 
+\begin{inparaenum}[(i)]
+	\item showing that each subcontroller gradually moves its surface towards its goal direction, and 
+	\item then performing a bounded reachability analysis only for the main controller assuming this fact
+\end{inparaenum}
+(the analysis took $\textbf{?}$ minutes).
+
+
+
+%(without any time bound), 
 %we consider the simple inductive condition $\Psi(\vec{z})$ with $\vec{z} = (\beta,\psi,p,r)$:
 %\[
 %|\beta| < 0.1
@@ -204,7 +220,6 @@ and the response time $t_R$ is $3\,\mathrm{ms}$ for the subcontrollers.
 % $\Psi(\vec{z}) \wedge \phi_{\mathcal{E} \restriction_{\Pi} E_\mathcal{E}}^{T,i}(\vec{z}\shortmid\vec{z'}) \wedge \neg \Psi(\vec{z'})$ and $\Psi(\vec{z}) \wedge \beta(t) \geq 0.1$).
 %As a consequence, the safety property $\forall t.\; \beta(t) < 0.1$
 %holds from any initial state satisfying $\Psi(\vec{z})$ for any local clocks.
-\textbf{Working on the verification.}
 
 
 \subsection{Networked Water Tank Controllers}
@@ -212,8 +227,8 @@ and the response time $t_R$ is $3\,\mathrm{ms}$ for the subcontrollers.
 In this case study, adapted from
 \cite{kowalewski1999case,raisch1999approximating}, 
 a number of water tanks are connected by pipes as shown in
-Figure~\ref{fig:water}.  \textbf{KYUNGMIN: I cannot see on Fig 8 that
-  they are connected ...}
+Figure~\ref{fig:water}.  
+%\textbf{KYUNGMIN: I cannot see on Fig 8 that  they are connected ...}
 The water level in each tank is controlled by a pump in the tank, and 
  depends on the pump's mode $m \in \{m_\texttt{on}, m_\texttt{off}\}$
 and the water levels of the adjacent tanks.
@@ -315,7 +330,7 @@ and turns it  off if $x_i > T_M$.
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[scale=0.8] %baseline=(current bounding box.north)
+\begin{tikzpicture}[xscale=0.8,yscale=0.65] %baseline=(current bounding box.north)
 %left wall
 \filldraw  (-3,0.08) rectangle  + (-0.08,-0.6)
 	(-3,-2.0) rectangle  + (-0.08,0.6);
@@ -323,7 +338,7 @@ and turns it  off if $x_i > T_M$.
 %room1
 \filldraw (0,0) rectangle  + (-3,0.08)
 	(-3.08,-2.0) rectangle  + (3,0.08);
-\path (-2.3,-1.5) node[draw] { $H_i$};
+\path (-2.3,-1.2) node[draw] { $H_i$};
 %wall
 \filldraw (0,-0.6) rectangle  + (-0.08,0.6)
 	(0,-2.0) rectangle  + (-0.08,0.6);
@@ -334,7 +349,7 @@ and turns it  off if $x_i > T_M$.
 %room2
 \filldraw (0,0) rectangle  + (3.5,0.08)
 	(3.5,-2.0) rectangle  + (-3.5,0.08);
-\path (2.5,-1.5) node[draw] (m2){ $H_{i+1}$};
+\path (2.5,-1.2) node[draw] (m2){ $H_{i+1}$};
 %right wall
 \filldraw  (3.5,0.08) rectangle  + (-0.08,-0.6)
 	(3.5,-2.0) rectangle  + (-0.08,0.6);
@@ -414,16 +429,19 @@ since it needs to generate bigger formulas than other types of analysis.
 
 We have performed bounded reachability analysis up to $k = 5$
 for the safety properties for the ``concrete'' instances of the case studies
-(using \textsf{dReal} without the use of other SMT heuristics).
+(using \textsf{dReal} without the use of other SMT heuristics).%
+\footnote{For the airplane case study, we also use a single-rate system
+in which every controller has a $0.5\,\mathrm{s}$ period.
+We consider both \texttt{unsat} (verified) and \texttt{sat}  (counterexample found) cases
+by using different safety properties.}
+%
 The results for $k$-step bounded reachability analysis 
 are summarized  in Fig.~\ref{table:bounded} and show that
-%
 the new encoding significantly outperforms 
-the non-modular encoding.\footnote{We consider both \texttt{unsat} (verified) and \texttt{sat}  (counterexample found) cases
-by using different safety properties.}
+the non-modular encoding.
 For example, 
 the SMT analysis using the non-modular encoding
-for  three interconnected thermostats
+for three interconnected thermostats
  did not terminate for $30$ hours
 even for $k = 2$.
 
